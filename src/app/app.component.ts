@@ -6,5 +6,10 @@ import { Component } from '@angular/core';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-  title = 'MusicVideoBuilder';
+  // Step 1:
+  // Create a property to track whether the menu is open.
+  // Start with the menu collapsed so that it does not
+  // appear initially when the page loads on a small screen!
+  public isMenuCollapsed = true;
+  title = 'Music Video Builder';
 }
