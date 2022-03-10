@@ -8,6 +8,7 @@ trigger:
 variables:
   azureServiceConnection: 'Dev(285ec89b-c6b0-46a6-9758-a0bce37bd2da)'
   storageAccount: 'musicvideobuilderpublic'
+  appName: 'music-video-builder'
 
 pool:
   vmImage: ubuntu-latest
@@ -21,7 +22,7 @@ steps:
 - script: |
     npm install -g @angular/cli
     npm install
-    ng build --prod
+    ng build
   displayName: 'npm install and build'
 - task: AzureCLI@2
   displayName: 'Clear Static website'
@@ -36,4 +37,4 @@ steps:
     azureSubscription: $(azureServiceConnection)
     scriptType: 'bash'
     scriptLocation: 'inlineScript'
-    inlineScript: 'az storage blob upload-batch --account-name $(storageAccount) --destination "\$web" --source ''$(Build.Repository.LocalPath)/dist/musicvideobuilder'''
+    inlineScript: 'az storage blob upload-batch --account-name $(storageAccount) --destination "\$web" --source ''$(Build.Repository.LocalPath)/dist/$(appName)'''
