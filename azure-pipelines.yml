@@ -9,6 +9,7 @@ variables:
   azureServiceConnection: 'Dev(285ec89b-c6b0-46a6-9758-a0bce37bd2da)'
   storageAccount: 'musicvideobuilderpublic'
   appName: 'music-video-builder'
+  zoneId: '38cb0269f6c3c468bc32f17fc465e647'
 
 pool:
   vmImage: ubuntu-latest
@@ -38,3 +39,16 @@ steps:
     scriptType: 'bash'
     scriptLocation: 'inlineScript'
     inlineScript: 'az storage blob upload-batch --account-name $(storageAccount) --destination "\$web" --source ''$(Build.Repository.LocalPath)/dist/$(appName)'''
+- task: AzureKeyVault@2
+  inputs:
+    azureSubscription: $(azureServiceConnection)
+    KeyVaultName: musicvideobuilder
+    SecretsFilter: 'CloudFlareCacheToken'
+    RunAsPreJob: false
+- task: PowerShell@2
+  inputs:
+    filePath: 'cacheClear.ps1'
+    arguments: >
+      -ZoneId $(zoneId)
+      -ApiToken $(CloudFlareCacheToken) 
+      -FileLocation '$(Build.Repository.LocalPath)/dist/$(appName)'
