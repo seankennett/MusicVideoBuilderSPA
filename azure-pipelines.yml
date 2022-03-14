@@ -46,6 +46,7 @@ steps:
     SecretsFilter: 'CloudFlareCacheToken'
     RunAsPreJob: false
 - task: PowerShell@2
+  displayName: 'Clear Cloudflare Cache'
   inputs:
     filePath: 'cacheClear.ps1'
     arguments: >
