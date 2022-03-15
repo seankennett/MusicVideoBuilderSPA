@@ -8,7 +8,9 @@ $Files = Get-ChildItem -Path $FileLocation
 
 $RequestBody = '{"files":["https://musicvideobuilder.com"'
 foreach ($File in $Files) {
-    $RequestBody += -join(',"https://musicvideobuilder.com/', $File.Name, '"')
+    if ($File.Name -ne 'favicon.ico' -and $File.Name -ne 'browserconfig.xml') {
+        $RequestBody += -join(',"https://musicvideobuilder.com/', $File.Name, '"')
+    }
 }
 $RequestBody += ']}'
 
