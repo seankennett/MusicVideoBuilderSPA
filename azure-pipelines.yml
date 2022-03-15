@@ -7,7 +7,7 @@ trigger:
 - master
 variables:
   azureServiceConnection: 'Dev(285ec89b-c6b0-46a6-9758-a0bce37bd2da)'
-  storageAccount: 'musicvideobuilderpublic'
+  storageAccount: 'musicvideobuilder'
   appName: 'music-video-builder'
   zoneId: '38cb0269f6c3c468bc32f17fc465e647'
 
