@@ -14,6 +14,8 @@ foreach ($File in $Files) {
 }
 $RequestBody += ']}'
 
+Write-Host "Request Body: $($RequestBody)"
+
 $RequestHeader = @{
     Authorization = "Bearer $($ApiToken)"
 };
