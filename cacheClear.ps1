@@ -4,7 +4,7 @@ $ApiToken = 'QWZjkFEKdPFySZdP6Fy07TN6KPXOAqDrZVYVYjBR',
 $FileLocation = 'C:\VSProjects\ms-identity-javascript-angular-tutorial\3-Authorization-II\2-call-api-b2c\SPA\dist\angular11-sample-app'
 )
 
-$Files = Get-ChildItem -Path $FileLocation
+$Files = Get-ChildItem -Path $FileLocation -Attributes !Directory
 
 $RequestBody = '{"files":["https://musicvideobuilder.com"'
 foreach ($File in $Files) {
