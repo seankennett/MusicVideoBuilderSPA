@@ -25,26 +25,19 @@ steps:
     npm install
     ng build
   displayName: 'npm install and build'
-- task: AzureCLI@2
-  displayName: 'Clear Static website'
-  inputs:
-    azureSubscription: $(azureServiceConnection)
-    scriptType: 'bash'
-    scriptLocation: 'inlineScript'
-    inlineScript: 'az storage blob delete-batch --account-name $(storageAccount) --source "\$web"'
-- task: AzureCLI@2
-  displayName: 'Upload new Static Website'
-  inputs:
-    azureSubscription: $(azureServiceConnection)
-    scriptType: 'bash'
-    scriptLocation: 'inlineScript'
-    inlineScript: 'az storage blob upload-batch --account-name $(storageAccount) --destination "\$web" --source ''$(Build.Repository.LocalPath)/dist/$(appName)'''
+
 - task: AzureKeyVault@2
   inputs:
     azureSubscription: $(azureServiceConnection)
     KeyVaultName: musicvideobuilder
-    SecretsFilter: 'CloudFlareCacheToken'
+    SecretsFilter: 'CloudFlareCacheToken,StaticWebAppDeploymentToken'
     RunAsPreJob: false
+- task: AzureStaticWebApp@0
+  inputs:
+    app_location: '/dist/$(appName)'
+    api_location: 'api'
+    output_location: '$(Build.Repository.LocalPath)/dist/$(appName)'
+    azure_static_web_apps_api_token: $(StaticWebAppDeploymentToken)    
 - task: PowerShell@2
   displayName: 'Clear Cloudflare Cache'
   inputs:
@@ -53,3 +46,5 @@ steps:
       -ZoneId $(zoneId)
       -ApiToken $(CloudFlareCacheToken) 
       -FileLocation '$(Build.Repository.LocalPath)/dist/$(appName)'
+
+
