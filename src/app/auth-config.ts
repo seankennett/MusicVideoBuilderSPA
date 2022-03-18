@@ -7,6 +7,7 @@
 
 
  import { LogLevel, Configuration, BrowserCacheLocation } from '@azure/msal-browser';
+ import { environment } from 'src/environments/environment';
 
  const isIE = window.navigator.userAgent.indexOf("MSIE ") > -1 || window.navigator.userAgent.indexOf("Trident/") > -1;
  
@@ -34,7 +35,7 @@
   */
   export const msalConfig: Configuration = {
      auth: {
-         clientId: 'cf90ff06-6bca-41f6-9077-209cb09746a7', // This is the ONLY mandatory field that you need to supply.
+         clientId: environment.clientId, // This is the ONLY mandatory field that you need to supply.
          authority: b2cPolicies.authorities.signUpSignIn.authority, // Defaults to "https://login.microsoftonline.com/common"
          knownAuthorities: [b2cPolicies.authorityDomain], // Mark your B2C tenant's domain as trusted.
          redirectUri: '/', // Points to window.location.origin. You must register this URI on Azure portal/App Registration.
@@ -60,7 +61,7 @@
  */
 export const protectedResources = {
   todoListApi: {
-    endpoint: "https://mvbidentitypocapi.azurewebsites.net/api/todolist",
+    endpoint: environment.apiEndpoint + "/todolist",
     scopes: ["https://musicvideobuilder.onmicrosoft.com/77a830ed-796d-4bed-be76-a163f5a3ee79/access_as_user"],
   },
 }

@@ -3,7 +3,9 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: false
+  production: false,
+  clientId: '63abaa40-64ab-455c-bd8a-35fe76b66bdf',
+  apiEndpoint: 'https://mvbidentitypocapi.azurewebsites.net/api'
 };
 
 /*
