@@ -12,6 +12,7 @@ import { MsalGuard, MsalInterceptor, MsalBroadcastService, MsalInterceptorConfig
 
 import { msalConfig, loginRequest, protectedResources } from './auth-config';
 import { LayerFinderComponent } from './layerfinder/layerfinder.component';
+import { WeatherService } from './weather.service';
 
 /**
  * Here we pass the configuration parameters to create an MSAL instance.
@@ -30,7 +31,7 @@ import { LayerFinderComponent } from './layerfinder/layerfinder.component';
 export function MSALInterceptorConfigFactory(): MsalInterceptorConfiguration {
   const protectedResourceMap = new Map<string, Array<string>>();
 
-  protectedResourceMap.set(protectedResources.todoListApi.endpoint, protectedResources.todoListApi.scopes);
+  protectedResourceMap.set(protectedResources.weatherApi.endpoint, protectedResources.weatherApi.scopes);
 
   return {
     interactionType: InteractionType.Redirect,
@@ -82,7 +83,8 @@ export function MSALGuardConfigFactory(): MsalGuardConfiguration {
     },
     MsalService,
     MsalGuard,
-    MsalBroadcastService
+    MsalBroadcastService,
+    WeatherService
   ],
   bootstrap: [AppComponent, MsalRedirectComponent]
 })

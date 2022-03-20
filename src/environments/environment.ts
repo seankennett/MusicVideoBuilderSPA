@@ -5,7 +5,7 @@
 export const environment = {
   production: false,
   clientId: '63abaa40-64ab-455c-bd8a-35fe76b66bdf',
-  apiEndpoint: 'https://localhost:44351/api'
+  apiEndpoint: 'https://localhost:7143/api'
 };
 
 /*
