@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { Weather } from '../weather';
+import { WeatherService } from '../weather.service';
 
 @Component({
   selector: 'app-layerfinder',
@@ -7,9 +9,18 @@ import { Component, OnInit } from '@angular/core';
 })
 export class LayerFinderComponent implements OnInit {
 
-  constructor() { }
+  weather?: Weather
+
+  constructor(private service: WeatherService) { }
 
   ngOnInit(): void {
+    this.getWeather();
   }
 
+  getWeather(): void {
+    this.service.getWeather()
+      .subscribe((weather: Weather) => {
+        this.weather = weather;
+      });
+  }
 }
