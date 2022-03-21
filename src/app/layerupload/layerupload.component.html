@@ -1,0 +1,7 @@
+<form [formGroup]="layerUploadForm" (ngSubmit)="onSubmit()">
+Name: <input type="text" formControlName="layerName">
+<p *ngIf="layerName?.invalid">ERROR</p>
+
+<p>Complete the form to enable button.</p>
+<button type="submit" [disabled]="!layerUploadForm.valid">Submit</button>
+</form>

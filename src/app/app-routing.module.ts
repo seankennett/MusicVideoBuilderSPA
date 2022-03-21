@@ -4,11 +4,19 @@ import { MsalGuard } from '@azure/msal-angular';
 
 import { HomeComponent } from './home/home.component';
 import { LayerFinderComponent } from './layerfinder/layerfinder.component';
+import { LayerUploadComponent } from './layerupload/layerupload.component';
 
 const routes: Routes = [
   {
     path: 'layerFinder',
     component: LayerFinderComponent,
+    canActivate: [
+      MsalGuard
+    ]
+  },
+  {
+    path: 'layerUpload',
+    component: LayerUploadComponent,
     canActivate: [
       MsalGuard
     ]
