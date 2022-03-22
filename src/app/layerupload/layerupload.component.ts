@@ -14,7 +14,9 @@ export class LayerUploadComponent implements OnInit {
   }
 
   layerUploadForm = this.formBuilder.group({
-    layerName:['', Validators.required]
+    layerName: ['', [Validators.required, Validators.maxLength(50), Validators.pattern("[A-z0-9]+")]],
+    layerType: [1, [Validators.required]],
+    layerTags: [[{name:'item1', id:1}], [Validators.required]]
   })
 
   get layerName() {
