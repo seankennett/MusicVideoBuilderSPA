@@ -1,5 +1,5 @@
-import { Component, OnInit, NgModule } from '@angular/core';
-import { FormBuilder, Validators, FormsModule  } from '@angular/forms';
+import { Component, OnInit } from '@angular/core';
+import { FormBuilder, Validators, AbstractControl  } from '@angular/forms';
 import { Observable, OperatorFunction } from 'rxjs';
 import {
   debounceTime,
@@ -86,11 +86,16 @@ export class LayerUploadComponent implements OnInit {
 
   layerUploadForm = this.formBuilder.group({
     layerName: ['', [Validators.required, Validators.maxLength(50), Validators.pattern("[A-z0-9]+")]],
-    layerType: [1, [Validators.required]]
+    layerType: [1, [Validators.required]],
+    typeAheadModel: [null, [Validators.pattern("[A-z0-9]+"), Validators.maxLength(50)]]
   })
 
   get layerName() {
     return this.layerUploadForm.get('layerName');
+  }
+
+  get typeAheadModel() {
+    return this.layerUploadForm.get('typeAheadModel');
   }
 
   onSubmit() {
@@ -114,13 +119,12 @@ export class LayerUploadComponent implements OnInit {
       )
     );
   
-  public typeAheadModel: any = null;
   public layerTags: any = [];
 
   selectItem = (selectItem: any) => {
     this.layerTags.push(selectItem.item);
     selectItem.preventDefault();
-    this.typeAheadModel = null;
+    this.typeAheadModel?.setValue(null);
     //clear from 'states' selected item and also make state populate from rest call on init
   };
 
@@ -129,4 +133,10 @@ export class LayerUploadComponent implements OnInit {
       (x : any) => !(x.name === item.name && x.id === item.id)
     );
   };
+
+  onEnter = (typeAheadcontrol: any) =>{
+    if (typeAheadcontrol && typeAheadcontrol.valid && typeAheadcontrol.value !== null ){
+      this.layerTags.push({name: typeAheadcontrol.value, id: -1 });
+    }
+  }
 }
