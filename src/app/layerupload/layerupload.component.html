@@ -17,7 +17,31 @@
             </div>
         </div>
         <app-layertypecontrol [form]="layerUploadForm"></app-layertypecontrol>
-        <app-layertagscontrol [form]="layerUploadForm"></app-layertagscontrol>
+
+
+        
+
+
+
+
+
+
         <button type="submit" [disabled]="!layerUploadForm.valid" class="btn btn-primary">Submit</button>
     </form>
+    <div class="mb-3 row">
+        <label for="typeahead-prevent-manual-entry" class="col-xs-3 col-sm-auto col-form-label">Search for a
+            state:</label>
+        <div class="col">
+            <input id="typeahead-prevent-manual-entry" type="text" class="form-control" [(ngModel)]="typeAheadModel"
+                [ngbTypeahead]="search" [inputFormatter]="formatter" [resultFormatter]="formatter"
+                [editable]="false" (selectItem)="selectItem($event)" />
+        </div>
+        <div>
+            <span *ngFor="let item of layerTags" class="badge bg-primary">{{item.name}}<i
+                    class="bi bi-x-circle-fill" (click)="remove(item)"></i></span>
+        </div>
+    </div>
+    <hr />
+    <pre>Model: {{ typeAheadModel | json }}</pre>
+    <pre>Multi Model: {{ layerTags | json }}</pre>
 </div>

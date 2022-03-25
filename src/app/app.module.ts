@@ -6,7 +6,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { HomeComponent } from './home/home.component';
 
-import { ReactiveFormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { IPublicClientApplication, PublicClientApplication, InteractionType } from '@azure/msal-browser';
 import { MsalGuard, MsalInterceptor, MsalBroadcastService, MsalInterceptorConfiguration, MsalModule, MsalService, MSAL_GUARD_CONFIG, MSAL_INSTANCE, MSAL_INTERCEPTOR_CONFIG, MsalGuardConfiguration, MsalRedirectComponent } from '@azure/msal-angular';
@@ -16,7 +16,6 @@ import { LayerFinderComponent } from './layerfinder/layerfinder.component';
 import { WeatherService } from './weather.service';
 import { LayerUploadComponent } from './layerupload/layerupload.component';
 import { LayertypecontrolComponent } from './layertypecontrol/layertypecontrol.component';
-import { LayertagscontrolComponent } from './layertagscontrol/layertagscontrol.component';
 
 /**
  * Here we pass the configuration parameters to create an MSAL instance.
@@ -60,8 +59,7 @@ export function MSALGuardConfigFactory(): MsalGuardConfiguration {
     HomeComponent,
     LayerFinderComponent,
     LayerUploadComponent,
-    LayertypecontrolComponent,
-    LayertagscontrolComponent
+    LayertypecontrolComponent
   ],
   imports: [
     BrowserModule,
@@ -69,6 +67,7 @@ export function MSALGuardConfigFactory(): MsalGuardConfiguration {
     NgbModule,
     HttpClientModule,
     ReactiveFormsModule,
+    FormsModule,
     MsalModule
   ],
   providers: [
