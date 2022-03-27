@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, Validators, AbstractControl  } from '@angular/forms';
+import { FormBuilder, Validators, AbstractControl, FormArray  } from '@angular/forms';
 import { Observable, OperatorFunction } from 'rxjs';
 import {
   debounceTime,
@@ -87,7 +87,8 @@ export class LayerUploadComponent implements OnInit {
   layerUploadForm = this.formBuilder.group({
     layerName: ['', [Validators.required, Validators.maxLength(50), Validators.pattern("[A-z0-9]+")]],
     layerType: [1, [Validators.required]],
-    typeAheadModel: [null, [Validators.pattern("[A-z0-9]+"), Validators.maxLength(50)]]
+    typeAheadModel: [null, [Validators.pattern("[A-z0-9]+"), Validators.maxLength(50)]],
+    existingTags: this.formBuilder.array([], Validators.required)
   })
 
   get layerName() {
@@ -96,6 +97,10 @@ export class LayerUploadComponent implements OnInit {
 
   get typeAheadModel() {
     return this.layerUploadForm.get('typeAheadModel');
+  }
+
+  get existingTags() : FormArray{
+    return this.layerUploadForm.controls['existingTags'] as FormArray; 
   }
 
   onSubmit() {
@@ -118,25 +123,20 @@ export class LayerUploadComponent implements OnInit {
           .slice(0, 10)
       )
     );
-  
-  public layerTags: any = [];
 
   selectItem = (selectItem: any) => {
-    this.layerTags.push(selectItem.item);
+    const existingTagForm = this.formBuilder.group({
+      tagName: [selectItem.item.name, [Validators.pattern("[A-z0-9]+"), Validators.maxLength(50), Validators.required]],
+      tagId: [selectItem.item.id, [Validators.required]]
+    }); 
+    this.existingTags.push(existingTagForm);
+
     selectItem.preventDefault();
     this.typeAheadModel?.setValue(null);
     //clear from 'states' selected item and also make state populate from rest call on init
   };
 
-  remove = (item: any) => {
-    this.layerTags = this.layerTags.filter(
-      (x : any) => !(x.name === item.name && x.id === item.id)
-    );
-  };
-
-  onEnter = (typeAheadcontrol: any) =>{
-    if (typeAheadcontrol && typeAheadcontrol.valid && typeAheadcontrol.value !== null ){
-      this.layerTags.push({name: typeAheadcontrol.value, id: -1 });
-    }
+  removeExistingTag = (index: number) => {
+    this.existingTags.removeAt(index);
   }
 }
