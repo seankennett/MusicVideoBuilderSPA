@@ -35,22 +35,36 @@
             <div class="form-text text-danger"
                 *ngIf="newTagInput?.invalid  && (newTagInput?.dirty || newTagInput?.touched)">
                 <div [hidden]="!newTagInput?.errors?.['maxlength']">
-                    Tag max length is 50 characters.
+                    Tag max length is 20 characters.
                 </div>
                 <div [hidden]="!newTagInput?.errors?.['pattern']">
                     Tag must be alpha numeric.
                 </div>
-            </div>
+                <div [hidden]="!newTagInput?.errors?.['forbiddenTagName']">
+                    Tag exists please use enter in existing tags.
+                </div>
+            </div>           
 
             <ng-container formArrayName="existingTags">
                 <ng-container *ngFor="let existingTagForm of existingTags.controls; let i = index" [formGroupName]="i">
-                    <span class="badge bg-primary">{{existingTagForm.get('tagName')?.value}}<i
+                    <span [ngClass]="existingTagForm.get('tagId')?.value !== 0 ? 'badge bg-primary' : 'badge bg-success'">{{existingTagForm.get('tagName')?.value}}<i
                             class="bi bi-x-circle-fill" (click)="removeExistingTag(i)"></i></span>
                 </ng-container>
             </ng-container>
+            
+            <div class="form-text text-danger"
+                *ngIf="existingTagsFormArray?.invalid  && (newTagInput?.dirty || newTagInput?.touched || existingTagInput?.dirty || existingTagInput?.touched)">
+                <div [hidden]="!existingTagsFormArray?.errors?.['required']">
+                    You must have tags.  Please use existing or create new ones.
+                </div>
+                <div [hidden]="!existingTagsFormArray?.errors?.['minlength']">
+                    You must have atleast 5 tags.
+                </div>
+                <div [hidden]="!existingTagsFormArray?.errors?.['maxlength']">
+                    You have too many tags.  The maximum is 15.
+                </div>
+            </div>
         </div>
-
-
 
 
 

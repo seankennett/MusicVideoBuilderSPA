@@ -64,6 +64,10 @@ export const protectedResources = {
     endpoint: environment.apiEndpoint + "/WeatherForecast",
     scopes: ["https://musicvideobuilder.onmicrosoft.com/77a830ed-796d-4bed-be76-a163f5a3ee79/access_as_user"],
   },
+  tagsApi: {
+    endpoint: environment.apiEndpoint + "/Tags",
+    scopes: ["https://musicvideobuilder.onmicrosoft.com/77a830ed-796d-4bed-be76-a163f5a3ee79/access_as_user"],
+  },
 }
 
 /**

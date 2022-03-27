@@ -35,6 +35,7 @@ export function MSALInterceptorConfigFactory(): MsalInterceptorConfiguration {
   const protectedResourceMap = new Map<string, Array<string>>();
 
   protectedResourceMap.set(protectedResources.weatherApi.endpoint, protectedResources.weatherApi.scopes);
+  protectedResourceMap.set(protectedResources.tagsApi.endpoint, protectedResources.tagsApi.scopes);
 
   return {
     interactionType: InteractionType.Redirect,
