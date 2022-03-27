@@ -87,16 +87,21 @@ export class LayerUploadComponent implements OnInit {
   layerUploadForm = this.formBuilder.group({
     layerName: ['', [Validators.required, Validators.maxLength(50), Validators.pattern("[A-z0-9]+")]],
     layerType: [1, [Validators.required]],
-    typeAheadModel: [null, [Validators.pattern("[A-z0-9]+"), Validators.maxLength(50)]],
-    existingTags: this.formBuilder.array([], Validators.required)
+    existingTagInput: [null],
+    existingTags: this.formBuilder.array([], Validators.required),
+    newTagInput: ['', [Validators.maxLength(50), Validators.pattern("[A-z0-9]+")]]
   })
 
   get layerName() {
     return this.layerUploadForm.get('layerName');
   }
 
-  get typeAheadModel() {
-    return this.layerUploadForm.get('typeAheadModel');
+  get newTagInput() {
+    return this.layerUploadForm.get('newTagInput');
+  }
+
+  get existingTagInput() {
+    return this.layerUploadForm.get('existingTagInput');
   }
 
   get existingTags() : FormArray{
@@ -132,11 +137,25 @@ export class LayerUploadComponent implements OnInit {
     this.existingTags.push(existingTagForm);
 
     selectItem.preventDefault();
-    this.typeAheadModel?.setValue(null);
+    this.existingTagInput?.setValue(null);
     //clear from 'states' selected item and also make state populate from rest call on init
   };
 
   removeExistingTag = (index: number) => {
     this.existingTags.removeAt(index);
+  };
+
+  onNewTagKeydown = (event: any) => {
+    event.preventDefault();
+    if (this.newTagInput?.valid && this.newTagInput?.value.length > 0) {
+      
+      const newTagForm = this.formBuilder.group({
+        tagName: [this.newTagInput.value, [Validators.pattern("[A-z0-9]+"), Validators.maxLength(50), Validators.required]],
+        tagId: [0, [Validators.required]]
+      }); 
+      this.existingTags.push(newTagForm);
+
+      this.newTagInput.setValue('');
+    }    
   }
 }

@@ -17,23 +17,35 @@
             </div>
         </div>
         <app-layertypecontrol [form]="layerUploadForm"></app-layertypecontrol>
+        <div class="mb-3">
+            <label for="layerExistingTags" class="form-label">Existing Tags</label>
 
+            <input type="text" class="form-control" id="layerExistingTags" formControlName="existingTagInput"
+                [ngbTypeahead]="search" [inputFormatter]="formatter" [resultFormatter]="formatter" [editable]="false"
+                (selectItem)="selectItem($event)" />
+            <div class="form-text">Type and use the select list to add an existing tag</div>
+        </div>
 
+        <div class="mb-3">
+            <label for="layerNewTags" class="form-label">New Tags</label>
 
-        <div class="mb-3 row">
-            <label for="typeahead-prevent-manual-entry" class="col-xs-3 col-sm-auto col-form-label">Search for a
-                state:</label>
-            <div class="col">
-                <input id="typeahead-prevent-manual-entry" type="text" class="form-control"
-                    formControlName="typeAheadModel" [ngbTypeahead]="search" [inputFormatter]="formatter"
-                    [resultFormatter]="formatter" [editable]="true" (selectItem)="selectItem($event)" />
+            <input type="text" class="form-control" id="layerNewTags" formControlName="newTagInput"
+                (keydown.enter)="onNewTagKeydown($event)" />
+            <div class="form-text">Type and hit enter to create a new tag</div>
+            <div class="form-text text-danger"
+                *ngIf="newTagInput?.invalid  && (newTagInput?.dirty || newTagInput?.touched)">
+                <div [hidden]="!newTagInput?.errors?.['maxlength']">
+                    Tag max length is 50 characters.
+                </div>
+                <div [hidden]="!newTagInput?.errors?.['pattern']">
+                    Tag must be alpha numeric.
+                </div>
             </div>
+
             <ng-container formArrayName="existingTags">
-                <ng-container *ngFor="let existingTagForm of existingTags.controls; let i = index">
-                    <div [formGroupName]="i">
-                        <span class="badge bg-primary">{{existingTagForm.get('tagName')?.value}}<i
+                <ng-container *ngFor="let existingTagForm of existingTags.controls; let i = index" [formGroupName]="i">
+                    <span class="badge bg-primary">{{existingTagForm.get('tagName')?.value}}<i
                             class="bi bi-x-circle-fill" (click)="removeExistingTag(i)"></i></span>
-                    </div>
                 </ng-container>
             </ng-container>
         </div>
@@ -42,8 +54,7 @@
 
 
 
-        <button type="submit" [disabled]="layerUploadForm.invalid"
-            class="btn btn-primary">Submit</button>
+        <button type="submit" [disabled]="layerUploadForm.invalid" class="btn btn-primary">Submit</button>
     </form>
 
 </div>
