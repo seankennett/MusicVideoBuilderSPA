@@ -16,6 +16,7 @@ import { LayerFinderComponent } from './layerfinder/layerfinder.component';
 import { WeatherService } from './weather.service';
 import { LayerUploadComponent } from './layerupload/layerupload.component';
 import { LayertypecontrolComponent } from './layertypecontrol/layertypecontrol.component';
+import { ForbiddenImageValidator } from './forbidden-image-validator';
 
 /**
  * Here we pass the configuration parameters to create an MSAL instance.
@@ -92,7 +93,8 @@ export function MSALGuardConfigFactory(): MsalGuardConfiguration {
     MsalService,
     MsalGuard,
     MsalBroadcastService,
-    WeatherService
+    WeatherService,
+    ForbiddenImageValidator
   ],
   bootstrap: [AppComponent, MsalRedirectComponent]
 })

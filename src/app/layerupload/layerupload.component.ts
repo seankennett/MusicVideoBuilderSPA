@@ -1,6 +1,6 @@
 import { taggedTemplate } from '@angular/compiler/src/output/output_ast';
-import { Component, OnInit } from '@angular/core';
-import { FormBuilder, Validators, FormArray, AbstractControl, ValidationErrors, ValidatorFn, FormGroup } from '@angular/forms';
+import { Component, Injectable, OnInit } from '@angular/core';
+import { FormBuilder, Validators, FormArray, AbstractControl, ValidationErrors, ValidatorFn, AsyncValidator } from '@angular/forms';
 import { Observable, OperatorFunction } from 'rxjs';
 import {
   debounceTime,
@@ -10,6 +10,7 @@ import {
 } from 'rxjs/operators';
 import { Tag } from '../tag';
 import { TagsService } from '../tags.service';
+import { ForbiddenImageValidator } from '../forbidden-image-validator'
 
 @Component({
   selector: 'app-layerupload',
@@ -18,10 +19,20 @@ import { TagsService } from '../tags.service';
 })
 export class LayerUploadComponent implements OnInit {
 
-  constructor(private formBuilder: FormBuilder, private tagsService: TagsService) { }
+  constructor(private formBuilder: FormBuilder, private tagsService: TagsService, private forbiddenImageValidator: ForbiddenImageValidator) { }
 
   ngOnInit(): void {
     this.getTags();
+    this.layerFilesFormArray.statusChanges.subscribe(statusChange =>{
+      if (this.layerFilesFormArray.controls.some(control => !control.pending && control.invalid) || statusChange === 'INVALID'){
+        this.width = 0;
+      }else if (statusChange === 'PENDING'){
+        this.width++;
+      }
+      else if (statusChange === 'VALID'){
+        this.width = 100;
+      }
+    })
   }
 
   getTags(): void {
@@ -124,7 +135,7 @@ export class LayerUploadComponent implements OnInit {
     Array.prototype.forEach.call(files, function (file) {
       var imageForm = self.formBuilder.group({
         imageName: [file.name, [Validators.required, Validators.pattern("^.*(\.png)$"), forbiddenImageNumberNameValidator()]],
-        image: [null, [Validators.required, forbiddenImageValidator()]]
+        image: [null, [Validators.required], [self.forbiddenImageValidator.validate.bind(self.forbiddenImageValidator)]]
       });
 
       imageForm.patchValue({
@@ -134,6 +145,8 @@ export class LayerUploadComponent implements OnInit {
       self.layerFilesFormArray.push(imageForm);
     });
   }
+
+  width = 0;
 }
 
 // horrible hack as this weirdly only gets the first assigned value whereas formcontrols are fine
@@ -152,16 +165,5 @@ export function forbiddenImageNumberNameValidator(): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
     var matches = control.value.match(/\d+/g);
     return (!matches || !control.value.endsWith(matches[matches.length - 1] + ".png")) ? { forbiddenImageNumberName: { value: control.value } } : null;
-  };
-}
-
-export function forbiddenImageValidator(): ValidatorFn {
-  return (control: AbstractControl): ValidationErrors | null => {
-    const file: File = control.value;
-    if (!file) {
-      return null;
-    }
-
-    return file.name === 'Background_00001.png' ? { forbiddenImage: { value: file.name } } : null;
   };
 }

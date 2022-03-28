@@ -78,21 +78,23 @@
             <label class="form-label">Image Validation Progress</label>
             <div class="progress">
                 <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="64"
-                     id="ValidationProgress"></div>
+                [style.width]="width + '%'"></div>
             </div>
         </div>
-
+        {{layerFilesFormArray?.valid | json}}
+        {{layerFilesFormArray?.pending | json}}
         <ng-container formArrayName="layerFiles">
             <ng-container *ngFor="let layerFileForm of layerFiles.controls; let i = index">
                 <div [formGroupName]="i">
-                {{layerFileForm.get('imageName')?.errors | json }}
+                <!-- {{layerFileForm.get('imageName')?.errors | json }} -->
                 {{layerFileForm.get('image')?.errors | json }}
+                {{layerFileForm.get('image')?.pending | json }}
                 
                 </div>
             </ng-container>
         </ng-container>
 
-        {{layerFilesFormArray?.errors | json}}
+        <!-- {{layerFilesFormArray?.errors | json}} -->
 
         <button type="submit" [disabled]="layerUploadForm.invalid" class="btn btn-primary">Submit</button>
     </form>
