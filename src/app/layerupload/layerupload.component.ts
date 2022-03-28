@@ -33,13 +33,15 @@ export class LayerUploadComponent implements OnInit {
   tags: Tag[] = []
 
   existingTagsFormArray = this.formBuilder.array([], [Validators.required, Validators.minLength(5), Validators.maxLength(15)])
+  layerFilesFormArray = this.formBuilder.array([], [Validators.required, Validators.minLength(64), Validators.maxLength(64)])
 
   layerUploadForm = this.formBuilder.group({
     layerName: ['', [Validators.required, Validators.maxLength(50), Validators.pattern("[A-z0-9]+")]],
     layerType: [1, [Validators.required]],
     existingTagInput: [null],
     existingTags: this.existingTagsFormArray,
-    newTagInput: ['', [Validators.maxLength(20), Validators.pattern("[a-z0-9]+"), forbiddenTagValidator(() => this.tags, this.existingTagsFormArray)]]
+    newTagInput: ['', [Validators.maxLength(20), Validators.pattern("[a-z0-9]+"), forbiddenTagValidator(() => this.tags, this.existingTagsFormArray)]],
+    layerFiles: this.layerFilesFormArray
   })
 
   get layerName() {
@@ -56,6 +58,10 @@ export class LayerUploadComponent implements OnInit {
 
   get existingTags() : FormArray{
     return this.layerUploadForm.controls['existingTags'] as FormArray; 
+  }
+
+  get layerFiles() : FormArray{
+    return this.layerUploadForm.controls['layerFiles'] as FormArray; 
   }
 
   onSubmit() {
@@ -109,6 +115,24 @@ export class LayerUploadComponent implements OnInit {
       this.newTagInput.setValue('');
     }    
   }
+
+  onFileUpload = (event: any) => {
+    const files = (event.target as HTMLInputElement).files;
+
+    var self = this;
+    Array.prototype.forEach.call(files, function(file) {
+      var imageForm = self.formBuilder.group({
+        imageName: [file.name, [Validators.required, Validators.pattern(".png$")]],
+        image: [null, [Validators.required]]
+      }); 
+
+      imageForm.patchValue({
+        image: file
+      });
+
+      self.layerFilesFormArray.push(imageForm);
+    });
+  }
 }
 
 // horrible hack as this weirdly only gets the first assigned value whereas formcontrols are fine
@@ -117,6 +141,13 @@ export interface TagFunc{
  }
 
 export function forbiddenTagValidator(servertags: TagFunc, formTags: FormArray): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    var isTaken = servertags().some(tag => tag.tagName === control.value) || formTags.controls.some(formGroup => formGroup?.get('tagName')?.value === control.value);
+    return isTaken ? {forbiddenTagName: {value: control.value}} : null;
+  };
+}
+
+export function ImageValidator(servertags: TagFunc, formTags: FormArray): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
     var isTaken = servertags().some(tag => tag.tagName === control.value) || formTags.controls.some(formGroup => formGroup?.get('tagName')?.value === control.value);
     return isTaken ? {forbiddenTagName: {value: control.value}} : null;

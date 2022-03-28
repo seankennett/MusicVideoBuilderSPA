@@ -51,7 +51,7 @@
                             class="bi bi-x-circle-fill" (click)="removeExistingTag(i)"></i></span>
                 </ng-container>
             </ng-container>
-            
+
             <div class="form-text text-danger"
                 *ngIf="existingTagsFormArray?.invalid  && (newTagInput?.dirty || newTagInput?.touched || existingTagInput?.dirty || existingTagInput?.touched)">
                 <div [hidden]="!existingTagsFormArray?.errors?.['required']">
@@ -65,8 +65,33 @@
                 </div>
             </div>
         </div>
+        <div class="mb-3">
+            <label for="layerImages" class="form-label">Images</label>
+            <input class="form-control" type="file" id="layerImages" multiple accept="image/png" (change)="onFileUpload($event)"/>
+            <div id="LayerImagesHelp" class="form-text">
+                You must select 64 images. The filenames must be numbered 1 through
+                to 64
+            </div>
+        </div>
 
+        <div class="mb-3">
+            <label class="form-label">Image Validation Progress</label>
+            <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="64"
+                     id="ValidationProgress"></div>
+            </div>
+        </div>
 
+        <ng-container formArrayName="layerFiles">
+            <ng-container *ngFor="let layerFileForm of layerFiles.controls; let i = index">
+                <div [formGroupName]="i">
+                {{layerFileForm.get('imageName')?.errors | json }}
+                
+                </div>
+            </ng-container>
+        </ng-container>
+
+        {{layerFilesFormArray?.errors | json}}
 
         <button type="submit" [disabled]="layerUploadForm.invalid" class="btn btn-primary">Submit</button>
     </form>
