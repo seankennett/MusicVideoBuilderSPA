@@ -86,6 +86,7 @@
             <ng-container *ngFor="let layerFileForm of layerFiles.controls; let i = index">
                 <div [formGroupName]="i">
                 {{layerFileForm.get('imageName')?.errors | json }}
+                {{layerFileForm.get('image')?.errors | json }}
                 
                 </div>
             </ng-container>

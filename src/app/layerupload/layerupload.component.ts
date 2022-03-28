@@ -1,6 +1,6 @@
 import { taggedTemplate } from '@angular/compiler/src/output/output_ast';
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, Validators, FormArray, AbstractControl, ValidationErrors, ValidatorFn, FormGroup  } from '@angular/forms';
+import { FormBuilder, Validators, FormArray, AbstractControl, ValidationErrors, ValidatorFn, FormGroup } from '@angular/forms';
 import { Observable, OperatorFunction } from 'rxjs';
 import {
   debounceTime,
@@ -56,12 +56,12 @@ export class LayerUploadComponent implements OnInit {
     return this.layerUploadForm.get('existingTagInput');
   }
 
-  get existingTags() : FormArray{
-    return this.layerUploadForm.controls['existingTags'] as FormArray; 
+  get existingTags(): FormArray {
+    return this.layerUploadForm.controls['existingTags'] as FormArray;
   }
 
-  get layerFiles() : FormArray{
-    return this.layerUploadForm.controls['layerFiles'] as FormArray; 
+  get layerFiles(): FormArray {
+    return this.layerUploadForm.controls['layerFiles'] as FormArray;
   }
 
   onSubmit() {
@@ -89,8 +89,8 @@ export class LayerUploadComponent implements OnInit {
     const existingTagForm = this.formBuilder.group({
       tagName: [selectItem.item.tagName, [Validators.pattern("[a-z0-9]+"), Validators.maxLength(20), Validators.required]],
       tagId: [selectItem.item.tagId, [Validators.required]]
-    }); 
-    this.existingTags.push(existingTagForm);    
+    });
+    this.existingTags.push(existingTagForm);
 
     selectItem.preventDefault();
 
@@ -105,26 +105,27 @@ export class LayerUploadComponent implements OnInit {
   onNewTagKeydown = (event: any) => {
     event.preventDefault();
     if (this.newTagInput?.valid && this.newTagInput?.value.length > 0) {
-      
+
       const newTagForm = this.formBuilder.group({
         tagName: [this.newTagInput.value, [Validators.pattern("[a-z0-9]+"), Validators.maxLength(20), Validators.required]],
         tagId: [0, [Validators.required]]
-      }); 
+      });
       this.existingTags.push(newTagForm);
 
       this.newTagInput.setValue('');
-    }    
+    }
   }
 
   onFileUpload = (event: any) => {
     const files = (event.target as HTMLInputElement).files;
+    this.layerFilesFormArray.clear();
 
     var self = this;
-    Array.prototype.forEach.call(files, function(file) {
+    Array.prototype.forEach.call(files, function (file) {
       var imageForm = self.formBuilder.group({
-        imageName: [file.name, [Validators.required, Validators.pattern(".png$")]],
-        image: [null, [Validators.required]]
-      }); 
+        imageName: [file.name, [Validators.required, Validators.pattern("^.*(\.png)$"), forbiddenImageNumberNameValidator()]],
+        image: [null, [Validators.required, forbiddenImageValidator()]]
+      });
 
       imageForm.patchValue({
         image: file
@@ -136,20 +137,31 @@ export class LayerUploadComponent implements OnInit {
 }
 
 // horrible hack as this weirdly only gets the first assigned value whereas formcontrols are fine
-export interface TagFunc{
+export interface TagFunc {
   (): Tag[]
- }
+}
 
 export function forbiddenTagValidator(servertags: TagFunc, formTags: FormArray): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
     var isTaken = servertags().some(tag => tag.tagName === control.value) || formTags.controls.some(formGroup => formGroup?.get('tagName')?.value === control.value);
-    return isTaken ? {forbiddenTagName: {value: control.value}} : null;
+    return isTaken ? { forbiddenTagName: { value: control.value } } : null;
   };
 }
 
-export function ImageValidator(servertags: TagFunc, formTags: FormArray): ValidatorFn {
+export function forbiddenImageNumberNameValidator(): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
-    var isTaken = servertags().some(tag => tag.tagName === control.value) || formTags.controls.some(formGroup => formGroup?.get('tagName')?.value === control.value);
-    return isTaken ? {forbiddenTagName: {value: control.value}} : null;
+    var matches = control.value.match(/\d+/g);
+    return (!matches || !control.value.endsWith(matches[matches.length - 1] + ".png")) ? { forbiddenImageNumberName: { value: control.value } } : null;
+  };
+}
+
+export function forbiddenImageValidator(): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    const file: File = control.value;
+    if (!file) {
+      return null;
+    }
+
+    return file.name === 'Background_00001.png' ? { forbiddenImage: { value: file.name } } : null;
   };
 }
