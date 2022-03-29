@@ -23,7 +23,7 @@
             <input type="text" class="form-control" id="layerExistingTags" formControlName="existingTagInput"
                 [ngbTypeahead]="search" [inputFormatter]="formatter" [resultFormatter]="formatter" [editable]="false"
                 (selectItem)="selectItem($event)" />
-            <div class="form-text">Type and use the select list to add an existing tag</div>
+            <div class="form-text">Type and use the select list to add an existing tag.</div>
         </div>
 
         <div class="mb-3">
@@ -43,11 +43,12 @@
                 <div [hidden]="!newTagInput?.errors?.['forbiddenTagName']">
                     Tag exists please use enter in existing tags.
                 </div>
-            </div>           
+            </div>
 
             <ng-container formArrayName="existingTags">
                 <ng-container *ngFor="let existingTagForm of existingTags.controls; let i = index" [formGroupName]="i">
-                    <span [ngClass]="existingTagForm.get('tagId')?.value !== 0 ? 'badge bg-primary' : 'badge bg-success'">{{existingTagForm.get('tagName')?.value}}<i
+                    <span
+                        [ngClass]="existingTagForm.get('tagId')?.value !== 0 ? 'badge bg-primary' : 'badge bg-success'">{{existingTagForm.get('tagName')?.value}}<i
                             class="bi bi-x-circle-fill" (click)="removeExistingTag(i)"></i></span>
                 </ng-container>
             </ng-container>
@@ -55,22 +56,31 @@
             <div class="form-text text-danger"
                 *ngIf="existingTagsFormArray?.invalid  && (newTagInput?.dirty || newTagInput?.touched || existingTagInput?.dirty || existingTagInput?.touched)">
                 <div [hidden]="!existingTagsFormArray?.errors?.['required']">
-                    You must have tags.  Please use existing or create new ones.
+                    You must have tags. Please use existing or create new ones.
                 </div>
                 <div [hidden]="!existingTagsFormArray?.errors?.['minlength']">
                     You must have atleast 5 tags.
                 </div>
                 <div [hidden]="!existingTagsFormArray?.errors?.['maxlength']">
-                    You have too many tags.  The maximum is 15.
+                    You have too many tags. The maximum is 15.
                 </div>
             </div>
         </div>
         <div class="mb-3">
             <label for="layerImages" class="form-label">Images</label>
-            <input class="form-control" type="file" id="layerImages" multiple accept="image/png" (change)="onFileUpload($event)"/>
+            <input class="form-control" type="file" id="layerImages" multiple accept="image/png"
+                (change)="onFileUpload($event)" />
             <div id="LayerImagesHelp" class="form-text">
                 You must select 64 images. The filenames must be numbered 1 through
-                to 64
+                to 64.
+            </div>
+            <div class="form-text text-danger" *ngIf="layerFiles?.invalid">
+                <div [hidden]="!layerFiles?.errors?.['required']">
+                    You must select images.
+                </div>
+                <div [hidden]="!layerFiles?.errors?.['minlength']">
+                    You must have {{numberOfImages}} images.
+                </div>
             </div>
         </div>
 
@@ -78,25 +88,35 @@
             <label class="form-label">Image Validation Progress</label>
             <div class="progress">
                 <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="64"
-                [style.width]="width + '%'"></div>
+                    [style.width]="imageValidationProgress + '%'"></div>
             </div>
-        </div>
-        {{layerFilesFormArray?.valid | json}}
-        {{layerFilesFormArray?.pending | json}}
-        <ng-container formArrayName="layerFiles">
-            <ng-container *ngFor="let layerFileForm of layerFiles.controls; let i = index">
-                <div [formGroupName]="i">
-                <!-- {{layerFileForm.get('imageName')?.errors | json }} -->
-                {{layerFileForm.get('image')?.errors | json }}
-                {{layerFileForm.get('image')?.pending | json }}
-                
-                </div>
+            <ng-container formArrayName="layerFiles">
+                <ng-container *ngFor="let layerFileForm of layerFiles.controls; let i = index">
+                    <div class="form-text text-danger" *ngIf="layerFileForm?.invalid">
+                        <div [hidden]="!layerFileForm?.get('imageName')?.errors?.['pattern']">
+                            File {{layerFileForm?.get('imageName')?.value}} must have file extension .png.
+                        </div>
+                        <div [hidden]="!layerFileForm?.get('imageName')?.errors?.['forbiddenImageNumberName']">
+                            File {{layerFileForm?.get('imageName')?.value}} must end with a number.
+                        </div>
+                        <div [hidden]="!layerFileForm?.get('image')?.errors?.['forbiddenImageWidth']">
+                            File {{layerFileForm?.get('imageName')?.value}} is {{layerFileForm?.get('image')?.errors?.['forbiddenImageWidth']?.value}} pixels wide when it should be {{imageWidth}}.
+                        </div>
+                        <div [hidden]="!layerFileForm?.get('image')?.errors?.['forbiddenImageHeight']">
+                            File {{layerFileForm?.get('imageName')?.value}} is {{layerFileForm?.get('image')?.errors?.['forbiddenImageHeight']?.value}} pixels high when it should be {{imageWidth}}.
+                        </div>
+                        <div [hidden]="!layerFileForm?.get('image')?.errors?.['forbiddenImageTransparency']">
+                            File {{layerFileForm?.get('imageName')?.value}} {{layerFileForm?.get('image')?.errors?.['forbiddenImageTransparency']?.value ? 'should' : 'should not'}} have transparency.
+                        </div>
+                        <div [hidden]="!layerFileForm?.get('image')?.errors?.['forbiddenImageUnknown']">
+                            File {{layerFileForm?.get('imageName')?.value}} is not recognised as a file or it is not of type image/png
+                        </div>
+                    </div>
+                </ng-container>
             </ng-container>
-        </ng-container>
+        </div>
 
-        <!-- {{layerFilesFormArray?.errors | json}} -->
-
-        <button type="submit" [disabled]="layerUploadForm.invalid" class="btn btn-primary">Submit</button>
+        <button type="submit" [disabled]="!layerUploadForm.valid" class="btn btn-primary">Submit</button>
     </form>
 
 </div>

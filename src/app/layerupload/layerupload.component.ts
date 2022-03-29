@@ -1,6 +1,5 @@
-import { taggedTemplate } from '@angular/compiler/src/output/output_ast';
 import { Component, Injectable, OnInit } from '@angular/core';
-import { FormBuilder, Validators, FormArray, AbstractControl, ValidationErrors, ValidatorFn, AsyncValidator } from '@angular/forms';
+import { FormBuilder, Validators, FormArray, AbstractControl, ValidationErrors, ValidatorFn, FormGroup, AsyncValidatorFn } from '@angular/forms';
 import { Observable, OperatorFunction } from 'rxjs';
 import {
   debounceTime,
@@ -10,7 +9,6 @@ import {
 } from 'rxjs/operators';
 import { Tag } from '../tag';
 import { TagsService } from '../tags.service';
-import { ForbiddenImageValidator } from '../forbidden-image-validator'
 
 @Component({
   selector: 'app-layerupload',
@@ -19,21 +17,50 @@ import { ForbiddenImageValidator } from '../forbidden-image-validator'
 })
 export class LayerUploadComponent implements OnInit {
 
-  constructor(private formBuilder: FormBuilder, private tagsService: TagsService, private forbiddenImageValidator: ForbiddenImageValidator) { }
+  constructor(private formBuilder: FormBuilder, private tagsService: TagsService) { }
 
+  
   ngOnInit(): void {
     this.getTags();
-    this.layerFilesFormArray.statusChanges.subscribe(statusChange =>{
-      if (this.layerFilesFormArray.controls.some(control => !control.pending && control.invalid) || statusChange === 'INVALID'){
-        this.width = 0;
-      }else if (statusChange === 'PENDING'){
-        this.width++;
+    this.layerFilesFormArray.statusChanges.subscribe(statusChange => {
+      if (this.layerFilesFormArray.controls.some(control => !control.pending && control.invalid) || statusChange === 'INVALID') {
+        this.imageValidationProgress = 0;
+      } else if (statusChange === 'PENDING') {
+        this.imageValidationProgress = this.imageValidationProgress + 100/this.numberOfImages;
       }
-      else if (statusChange === 'VALID'){
-        this.width = 100;
+      else if (statusChange === 'VALID') {
+        this.imageValidationProgress = 100;
       }
-    })
+    });
+    this.layerType.valueChanges.subscribe(valueChange => {
+      if (this.layerFilesFormArray.length > 0){
+        this.triggerValidation(this.layerFilesFormArray);
+      }
+    });
   }
+
+  triggerValidation(control: AbstractControl) {
+    if (control instanceof FormGroup) {
+        const group = (control as FormGroup);
+
+        for (const field in group.controls) {
+            const c = group.controls[field];
+
+            this.triggerValidation(c);
+        }
+    }
+    else if (control instanceof FormArray) {
+        const group = (control as FormArray);
+
+        for (const field in group.controls) {
+            const c = group.controls[field];
+
+            this.triggerValidation(c);
+        }
+    }
+
+    control.updateValueAndValidity({ onlySelf: false });
+}
 
   getTags(): void {
     this.tagsService.getTags().subscribe((tags: Tag[]) => {
@@ -44,11 +71,12 @@ export class LayerUploadComponent implements OnInit {
   tags: Tag[] = []
 
   existingTagsFormArray = this.formBuilder.array([], [Validators.required, Validators.minLength(5), Validators.maxLength(15)])
-  layerFilesFormArray = this.formBuilder.array([], [Validators.required, Validators.minLength(64), Validators.maxLength(64)])
+  layerFilesFormArray = this.formBuilder.array([], [Validators.required, Validators.minLength(this.numberOfImages), Validators.maxLength(this.numberOfImages)])
+  layerType = this.formBuilder.control(1, [Validators.required])
 
   layerUploadForm = this.formBuilder.group({
     layerName: ['', [Validators.required, Validators.maxLength(50), Validators.pattern("[A-z0-9]+")]],
-    layerType: [1, [Validators.required]],
+    layerType: this.layerType,
     existingTagInput: [null],
     existingTags: this.existingTagsFormArray,
     newTagInput: ['', [Validators.maxLength(20), Validators.pattern("[a-z0-9]+"), forbiddenTagValidator(() => this.tags, this.existingTagsFormArray)]],
@@ -135,7 +163,7 @@ export class LayerUploadComponent implements OnInit {
     Array.prototype.forEach.call(files, function (file) {
       var imageForm = self.formBuilder.group({
         imageName: [file.name, [Validators.required, Validators.pattern("^.*(\.png)$"), forbiddenImageNumberNameValidator()]],
-        image: [null, [Validators.required], [self.forbiddenImageValidator.validate.bind(self.forbiddenImageValidator)]]
+        image: [null, [Validators.required], [self.forbiddenImageValidator()]]
       });
 
       imageForm.patchValue({
@@ -146,7 +174,75 @@ export class LayerUploadComponent implements OnInit {
     });
   }
 
-  width = 0;
+  imageValidationProgress = 0;
+
+  get imageWidth() {
+    return 3840;
+  }
+
+  get imageHeight() {
+    return 2160;
+  }
+
+  get numberOfImages(){
+    return 64;
+  }
+
+  forbiddenImageValidator(): AsyncValidatorFn {
+    return (control: AbstractControl): Promise<ValidationErrors | null> => {
+      var self = this;
+      return new Promise((resolve, reject) => {
+        const file: File = control.value;
+      if (!file || file.type !== "image/png") {
+        resolve({ forbiddenImageUnknown: { value: control.value } });
+      }
+      var reader = new FileReader();
+      reader.onload = function (readerEvent) {
+        var src = readerEvent?.target?.result?.toString() ?? "";
+        var image = new Image();
+        image.onload = function () {
+          if (image.width !== self.imageWidth) {
+            resolve({ forbiddenImageWidth: { value: image.width } });
+          }
+          if (image.height !== self.imageHeight) {
+            resolve({ forbiddenImageHeight: { value: image.height } });;
+          }
+  
+          var shouldHaveTransparency = self.layerType?.value === 2;
+          var canvas = document.createElement("canvas");
+          var canvasContext = canvas.getContext("2d");
+  
+          canvas.width = image.width;
+          canvas.height = image.height;
+  
+          canvasContext?.drawImage(image, 0, 0);
+  
+          var imgData = canvasContext?.getImageData(0, 0, canvas.width, canvas.height);
+          var data = imgData?.data;
+          var hasTransparency = false;
+          if (data) {
+            for (var i = 0; i < data.length; i += 4) {
+              if (data[i + 3] < 255) {
+                hasTransparency = true;
+                break;
+              }
+            }
+          }
+  
+          if (shouldHaveTransparency !== hasTransparency) {
+            resolve({ forbiddenImageTransparency: { value: shouldHaveTransparency } });
+          }
+  
+          resolve(null);
+        }
+        image.onerror = reject;
+        image.src = src;
+      }
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+      });
+    };
+  }
 }
 
 // horrible hack as this weirdly only gets the first assigned value whereas formcontrols are fine
