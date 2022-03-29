@@ -1,14 +1,18 @@
-import { Component, Injectable, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { MsalService } from '@azure/msal-angular';
 import { FormBuilder, Validators, FormArray, AbstractControl, ValidationErrors, ValidatorFn, FormGroup, AsyncValidatorFn } from '@angular/forms';
-import { Observable, OperatorFunction } from 'rxjs';
+import { Observable, OperatorFunction, Subscription } from 'rxjs';
 import {
   debounceTime,
   distinctUntilChanged,
   map,
   filter,
+  finalize
 } from 'rxjs/operators';
 import { Tag } from '../tag';
 import { TagsService } from '../tags.service';
+import { LayerService } from '../layer.service';
+import { HttpEventType } from '@angular/common/http';
 
 @Component({
   selector: 'app-layerupload',
@@ -17,23 +21,23 @@ import { TagsService } from '../tags.service';
 })
 export class LayerUploadComponent implements OnInit {
 
-  constructor(private formBuilder: FormBuilder, private tagsService: TagsService) { }
+  constructor(private formBuilder: FormBuilder, private tagsService: TagsService, private layerService: LayerService, private authService: MsalService) { }
 
-  
+
   ngOnInit(): void {
     this.getTags();
     this.layerFilesFormArray.statusChanges.subscribe(statusChange => {
       if (this.layerFilesFormArray.controls.some(control => !control.pending && control.invalid) || statusChange === 'INVALID') {
         this.imageValidationProgress = 0;
       } else if (statusChange === 'PENDING') {
-        this.imageValidationProgress = this.imageValidationProgress + 100/this.numberOfImages;
+        this.imageValidationProgress = this.imageValidationProgress + 100 / this.numberOfImages;
       }
       else if (statusChange === 'VALID') {
         this.imageValidationProgress = 100;
       }
     });
     this.layerType.valueChanges.subscribe(valueChange => {
-      if (this.layerFilesFormArray.length > 0){
+      if (this.layerFilesFormArray.length > 0) {
         this.triggerValidation(this.layerFilesFormArray);
       }
     });
@@ -41,26 +45,26 @@ export class LayerUploadComponent implements OnInit {
 
   triggerValidation(control: AbstractControl) {
     if (control instanceof FormGroup) {
-        const group = (control as FormGroup);
+      const group = (control as FormGroup);
 
-        for (const field in group.controls) {
-            const c = group.controls[field];
+      for (const field in group.controls) {
+        const c = group.controls[field];
 
-            this.triggerValidation(c);
-        }
+        this.triggerValidation(c);
+      }
     }
     else if (control instanceof FormArray) {
-        const group = (control as FormArray);
+      const group = (control as FormArray);
 
-        for (const field in group.controls) {
-            const c = group.controls[field];
+      for (const field in group.controls) {
+        const c = group.controls[field];
 
-            this.triggerValidation(c);
-        }
+        this.triggerValidation(c);
+      }
     }
 
     control.updateValueAndValidity({ onlySelf: false });
-}
+  }
 
   getTags(): void {
     this.tagsService.getTags().subscribe((tags: Tag[]) => {
@@ -105,7 +109,35 @@ export class LayerUploadComponent implements OnInit {
 
   onSubmit() {
     // TODO: Use EventEmitter with form value
-    console.warn(this.layerUploadForm.value);
+    console.log(this.layerUploadForm.value);
+    const formData = new FormData();
+    formData.append("layerName", this.layerUploadForm.get('layerName')?.value);
+    formData.append("layerType", this.layerType?.value);
+    this.layerFiles.controls.forEach((formGroup) => {
+      formData.append("files", formGroup.get('image')?.value);
+    });
+    this.existingTags.controls.forEach((formGroup) => {
+      formData.append("layerTags", formGroup.get('tagId')?.value);
+    });
+    formData.append("userObjectId", this.authService.instance.getAllAccounts()[0].localAccountId);
+
+    const upload$ = this.layerService.upload(formData).pipe(
+      finalize(() => this.reset())
+    );
+    this.uploadSub = upload$.subscribe(event => {
+      if (event.type == HttpEventType.UploadProgress) {
+        var total = event.total ?? 1;
+        this.uploadProgress = Math.round(100 * (event.loaded / total));
+      }
+    })
+
+  }
+
+  uploadSub!: Subscription;
+  uploadProgress = 0;
+
+  reset = () => {
+    console.log('clear form here');
   }
 
   formatter = (tag: Tag) => tag.tagName;
@@ -184,7 +216,7 @@ export class LayerUploadComponent implements OnInit {
     return 2160;
   }
 
-  get numberOfImages(){
+  get numberOfImages() {
     return 64;
   }
 
@@ -193,53 +225,53 @@ export class LayerUploadComponent implements OnInit {
       var self = this;
       return new Promise((resolve, reject) => {
         const file: File = control.value;
-      if (!file || file.type !== "image/png") {
-        resolve({ forbiddenImageUnknown: { value: control.value } });
-      }
-      var reader = new FileReader();
-      reader.onload = function (readerEvent) {
-        var src = readerEvent?.target?.result?.toString() ?? "";
-        var image = new Image();
-        image.onload = function () {
-          if (image.width !== self.imageWidth) {
-            resolve({ forbiddenImageWidth: { value: image.width } });
-          }
-          if (image.height !== self.imageHeight) {
-            resolve({ forbiddenImageHeight: { value: image.height } });;
-          }
-  
-          var shouldHaveTransparency = self.layerType?.value === 2;
-          var canvas = document.createElement("canvas");
-          var canvasContext = canvas.getContext("2d");
-  
-          canvas.width = image.width;
-          canvas.height = image.height;
-  
-          canvasContext?.drawImage(image, 0, 0);
-  
-          var imgData = canvasContext?.getImageData(0, 0, canvas.width, canvas.height);
-          var data = imgData?.data;
-          var hasTransparency = false;
-          if (data) {
-            for (var i = 0; i < data.length; i += 4) {
-              if (data[i + 3] < 255) {
-                hasTransparency = true;
-                break;
+        if (!file || file.type !== "image/png") {
+          resolve({ forbiddenImageUnknown: { value: control.value } });
+        }
+        var reader = new FileReader();
+        reader.onload = function (readerEvent) {
+          var src = readerEvent?.target?.result?.toString() ?? "";
+          var image = new Image();
+          image.onload = function () {
+            if (image.width !== self.imageWidth) {
+              resolve({ forbiddenImageWidth: { value: image.width } });
+            }
+            if (image.height !== self.imageHeight) {
+              resolve({ forbiddenImageHeight: { value: image.height } });;
+            }
+
+            var shouldHaveTransparency = self.layerType?.value === 2;
+            var canvas = document.createElement("canvas");
+            var canvasContext = canvas.getContext("2d");
+
+            canvas.width = image.width;
+            canvas.height = image.height;
+
+            canvasContext?.drawImage(image, 0, 0);
+
+            var imgData = canvasContext?.getImageData(0, 0, canvas.width, canvas.height);
+            var data = imgData?.data;
+            var hasTransparency = false;
+            if (data) {
+              for (var i = 0; i < data.length; i += 4) {
+                if (data[i + 3] < 255) {
+                  hasTransparency = true;
+                  break;
+                }
               }
             }
+
+            if (shouldHaveTransparency !== hasTransparency) {
+              resolve({ forbiddenImageTransparency: { value: shouldHaveTransparency } });
+            }
+
+            resolve(null);
           }
-  
-          if (shouldHaveTransparency !== hasTransparency) {
-            resolve({ forbiddenImageTransparency: { value: shouldHaveTransparency } });
-          }
-  
-          resolve(null);
+          image.onerror = reject;
+          image.src = src;
         }
-        image.onerror = reject;
-        image.src = src;
-      }
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
       });
     };
   }
