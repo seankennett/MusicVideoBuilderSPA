@@ -146,8 +146,6 @@ export class LayerUploadComponent implements OnInit {
           window.location.reload();
         }
       }
-
-      console.log(event);
     })
 
   }
