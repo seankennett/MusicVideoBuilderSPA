@@ -47,9 +47,10 @@
 
             <ng-container formArrayName="existingTags">
                 <ng-container *ngFor="let existingTagForm of existingTags.controls; let i = index" [formGroupName]="i">
-                    <span
-                        [ngClass]="existingTagForm.get('tagId')?.value !== 0 ? 'badge bg-primary' : 'badge bg-success'">{{existingTagForm.get('tagName')?.value}}<i
-                            class="bi bi-x-circle-fill" (click)="removeExistingTag(i)"></i></span>
+                    <button type="button" [ngClass]="existingTagForm.get('tagId')?.value !== 0 ? 'btn btn-outline-primary btn-sm' : 'btn btn-outline-success btn-sm'" 
+                    (click)="removeExistingTag(i)" [disabled]="disableOtherControls" >
+                        {{existingTagForm.get('tagName')?.value}}<i class="bi bi-x-circle-fill"></i>
+                    </button>
                 </ng-container>
             </ng-container>
 
@@ -69,7 +70,7 @@
         <div class="mb-3">
             <label for="layerImages" class="form-label">Images</label>
             <input class="form-control" type="file" id="layerImages" multiple accept="image/png"
-                (change)="onFileUpload($event)" />
+                (change)="onFileUpload($event)" [disabled]="disableOtherControls" />
             <div id="LayerImagesHelp" class="form-text">
                 You must select 64 images. The filenames must be numbered 1 through
                 to 64.
@@ -117,7 +118,21 @@
         </div>
 
         <button type="submit" [disabled]="!layerUploadForm.valid" class="btn btn-primary">Submit</button>
-        {{uploadProgress}}
+
+        <div class="mb-3">
+            <label class="form-label">Upload to server progress</label>
+            <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
+                    [style.width]="uploadProgress + '%'"></div>
+            </div>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Waiting on server response</label>
+            <div class="progress">
+                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
+                    [style.width]="serverProgress + '%'"></div>
+            </div>
+        </div>
     </form>
 
 </div>

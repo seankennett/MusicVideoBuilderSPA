@@ -1,18 +1,18 @@
 import { Component, OnInit } from '@angular/core';
 import { MsalService } from '@azure/msal-angular';
 import { FormBuilder, Validators, FormArray, AbstractControl, ValidationErrors, ValidatorFn, FormGroup, AsyncValidatorFn } from '@angular/forms';
-import { Observable, OperatorFunction, Subscription } from 'rxjs';
+import { Observable, OperatorFunction, Subscription, throwError } from 'rxjs';
 import {
   debounceTime,
   distinctUntilChanged,
   map,
   filter,
-  finalize
+  catchError
 } from 'rxjs/operators';
 import { Tag } from '../tag';
 import { TagsService } from '../tags.service';
 import { LayerService } from '../layer.service';
-import { HttpEventType } from '@angular/common/http';
+import { HttpErrorResponse, HttpEventType } from '@angular/common/http';
 
 @Component({
   selector: 'app-layerupload',
@@ -108,8 +108,6 @@ export class LayerUploadComponent implements OnInit {
   }
 
   onSubmit() {
-    // TODO: Use EventEmitter with form value
-    console.log(this.layerUploadForm.value);
     const formData = new FormData();
     formData.append("layerName", this.layerUploadForm.get('layerName')?.value);
     formData.append("layerType", this.layerType?.value);
@@ -117,27 +115,51 @@ export class LayerUploadComponent implements OnInit {
       formData.append("files", formGroup.get('image')?.value);
     });
     this.existingTags.controls.forEach((formGroup) => {
-      formData.append("layerTags", formGroup.get('tagId')?.value);
+      formData.append("layerTags", formGroup.get('tagName')?.value);
     });
     formData.append("userObjectId", this.authService.instance.getAllAccounts()[0].localAccountId);
 
-    const upload$ = this.layerService.upload(formData).pipe(
-      finalize(() => this.reset())
-    );
-    this.uploadSub = upload$.subscribe(event => {
+    this.serverProgress = 100;
+    this.layerUploadForm.disable({
+      emitEvent: false
+    });
+    this.disableOtherControls = true;
+
+    this.layerService.upload(formData).pipe(
+      catchError((error: HttpErrorResponse) => {
+        alert('Something went wrong on the server, try again!');
+        this.serverProgress = 0;
+        this.uploadProgress = 0;
+        this.imageValidationProgress = 0;
+        this.disableOtherControls = false;
+        this.layerUploadForm.enable({
+          emitEvent: false
+        });
+        return throwError(() => new Error('Something went wrong on the server, try again!'));
+      })
+    ).subscribe(event => {
       if (event.type == HttpEventType.UploadProgress) {
         var total = event.total ?? 1;
         this.uploadProgress = Math.round(100 * (event.loaded / total));
+      } else if (event.type == HttpEventType.Response) {
+        if (event.ok) {
+          window.location.reload();
+        }
       }
+
+      console.log(event);
     })
 
   }
 
   uploadSub!: Subscription;
   uploadProgress = 0;
+  serverProgress = 0;
+  imageValidationProgress = 0;
+  disableOtherControls = false;
 
   reset = () => {
-    console.log('clear form here');
+    window.location.reload();
   }
 
   formatter = (tag: Tag) => tag.tagName;
@@ -148,7 +170,7 @@ export class LayerUploadComponent implements OnInit {
     text$.pipe(
       debounceTime(200),
       distinctUntilChanged(),
-      filter((term) => term.length >= 2),
+      filter((term) => term.length >= 1),
       map((term) =>
         this.tags
           .filter((tag) => new RegExp(term, 'mi').test(tag.tagName))
@@ -206,7 +228,7 @@ export class LayerUploadComponent implements OnInit {
     });
   }
 
-  imageValidationProgress = 0;
+
 
   get imageWidth() {
     return 3840;

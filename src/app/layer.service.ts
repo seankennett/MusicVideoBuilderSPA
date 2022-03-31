@@ -14,7 +14,8 @@ export class LayerService {
   upload(formData: FormData) {
     return this.http.post(this.url, formData, {
       reportProgress: true,
-      observe: 'events'
+      observe: 'events',
+      responseType: 'text'
     });
   }
 }
