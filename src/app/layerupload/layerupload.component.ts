@@ -25,6 +25,7 @@ export class LayerUploadComponent implements OnInit {
 
 
   ngOnInit(): void {
+    this.disableEnableForm(true);
     this.getTags();
     this.layerFilesFormArray.statusChanges.subscribe(statusChange => {
       if (this.layerFilesFormArray.controls.some(control => !control.pending && control.invalid) || statusChange === 'INVALID') {
@@ -67,8 +68,14 @@ export class LayerUploadComponent implements OnInit {
   }
 
   getTags(): void {
-    this.tagsService.getTags().subscribe((tags: Tag[]) => {
+    this.tagsService.getTags().pipe(
+      catchError((error: HttpErrorResponse) => {
+        alert('Something went wrong on the server, try again!');
+        return throwError(() => new Error('Something went wrong on the server, try again!'));
+      })
+    ).subscribe((tags: Tag[]) => {
       this.tags = tags;
+      this.disableEnableForm(false);
     });
   }
 
@@ -120,10 +127,7 @@ export class LayerUploadComponent implements OnInit {
     formData.append("userObjectId", this.authService.instance.getAllAccounts()[0].localAccountId);
 
     this.serverProgress = 100;
-    this.layerUploadForm.disable({
-      emitEvent: false
-    });
-    this.disableOtherControls = true;
+    this.disableEnableForm(true);
 
     this.layerService.upload(formData).pipe(
       catchError((error: HttpErrorResponse) => {
@@ -131,10 +135,7 @@ export class LayerUploadComponent implements OnInit {
         this.serverProgress = 0;
         this.uploadProgress = 0;
         this.imageValidationProgress = 0;
-        this.disableOtherControls = false;
-        this.layerUploadForm.enable({
-          emitEvent: false
-        });
+        this.disableEnableForm(false);
         return throwError(() => new Error('Something went wrong on the server, try again!'));
       })
     ).subscribe(event => {
@@ -146,8 +147,20 @@ export class LayerUploadComponent implements OnInit {
           window.location.reload();
         }
       }
-    })
+    });
+  }
 
+  disableEnableForm(isDisabled: boolean) {
+    if (isDisabled) {
+      this.layerUploadForm.disable({
+        emitEvent: false
+      });
+    } else {
+      this.layerUploadForm.enable({
+        emitEvent: false
+      });
+    }
+    this.disableOtherControls = isDisabled;
   }
 
   uploadSub!: Subscription;

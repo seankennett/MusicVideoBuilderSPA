@@ -13,7 +13,6 @@ import { MsalGuard, MsalInterceptor, MsalBroadcastService, MsalInterceptorConfig
 
 import { msalConfig, loginRequest, protectedResources } from './auth-config';
 import { LayerFinderComponent } from './layerfinder/layerfinder.component';
-import { WeatherService } from './weather.service';
 import { LayerUploadComponent } from './layerupload/layerupload.component';
 import { LayertypecontrolComponent } from './layertypecontrol/layertypecontrol.component';
 
@@ -92,8 +91,7 @@ export function MSALGuardConfigFactory(): MsalGuardConfiguration {
     },
     MsalService,
     MsalGuard,
-    MsalBroadcastService,
-    WeatherService,
+    MsalBroadcastService
   ],
   bootstrap: [AppComponent, MsalRedirectComponent]
 })

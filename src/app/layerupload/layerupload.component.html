@@ -31,7 +31,7 @@
 
             <input type="text" class="form-control" id="layerNewTags" formControlName="newTagInput"
                 (keydown.enter)="onNewTagKeydown($event)" />
-            <div class="form-text">Type and hit enter to create a new tag</div>
+            <div class="form-text">Type and hit enter to create a new tag.</div>
             <div class="form-text text-danger"
                 *ngIf="newTagInput?.invalid  && (newTagInput?.dirty || newTagInput?.touched)">
                 <div [hidden]="!newTagInput?.errors?.['maxlength']">
