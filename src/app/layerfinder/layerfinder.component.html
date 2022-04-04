@@ -1,1 +1,21 @@
 <p>layerfinder works!</p>
+
+<form [formGroup]="layerFinderForm" (ngSubmit)="onSubmit()">
+    <div class="mb-3">
+        <label for="layerName" class="form-label">Layer Name</label>
+        <input type="text" class="form-control" id="layerName" formControlName="layerName" />
+        <div class="form-text">Try to pick something short. Has to be Alpha Numeric.</div>
+        <div class="form-text text-danger" *ngIf="layerName?.invalid  && (layerName?.dirty || layerName?.touched)">
+            <div [hidden]="!layerName?.errors?.['required']">
+                Layer Name is required.
+            </div>
+            <div [hidden]="!layerName?.errors?.['maxlength']">
+                Layer Name max length is 50 characters.
+            </div>
+            <div [hidden]="!layerName?.errors?.['pattern']">
+                Layer Name must be alpha numeric.
+            </div>
+        </div>
+    </div>
+    <button type="submit" [disabled]="!layerFinderForm.valid" class="btn btn-primary">Submit</button>
+</form>

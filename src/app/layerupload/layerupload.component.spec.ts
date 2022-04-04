@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { LayeruploadComponent } from './layerupload.component';
+import { LayerUploadComponent } from './layerupload.component';
 
 describe('LayeruploadComponent', () => {
-  let component: LayeruploadComponent;
-  let fixture: ComponentFixture<LayeruploadComponent>;
+  let component: LayerUploadComponent;
+  let fixture: ComponentFixture<LayerUploadComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ LayeruploadComponent ]
+      declarations: [ LayerUploadComponent ]
     })
     .compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(LayeruploadComponent);
+    fixture = TestBed.createComponent(LayerUploadComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

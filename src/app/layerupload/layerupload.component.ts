@@ -11,7 +11,7 @@ import {
 } from 'rxjs/operators';
 import { Tag } from '../tag';
 import { TagsService } from '../tags.service';
-import { LayerService } from '../layer.service';
+import { LayerUploadService } from '../layerupload.service';
 import { HttpErrorResponse, HttpEventType } from '@angular/common/http';
 
 @Component({
@@ -21,7 +21,7 @@ import { HttpErrorResponse, HttpEventType } from '@angular/common/http';
 })
 export class LayerUploadComponent implements OnInit {
 
-  constructor(private formBuilder: FormBuilder, private tagsService: TagsService, private layerService: LayerService, private authService: MsalService) { }
+  constructor(private formBuilder: FormBuilder, private tagsService: TagsService, private layerUploadService: LayerUploadService, private authService: MsalService) { }
 
 
   ngOnInit(): void {
@@ -129,7 +129,7 @@ export class LayerUploadComponent implements OnInit {
     this.serverProgress = 100;
     this.disableEnableForm(true);
 
-    this.layerService.upload(formData).pipe(
+    this.layerUploadService.upload(formData).pipe(
       catchError((error: HttpErrorResponse) => {
         alert('Something went wrong on the server, try again!');
         this.serverProgress = 0;

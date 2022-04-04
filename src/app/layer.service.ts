@@ -1,21 +1,18 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { protectedResources } from './auth-config';
+import { LayerTag } from './layertag';
 
 @Injectable({
   providedIn: 'root'
 })
 export class LayerService {
 
-  url = protectedResources.layerUploadApi.endpoint
+  url = protectedResources.layerApi.endpoint
 
   constructor(private http: HttpClient) { }
 
-  upload(formData: FormData) {
-    return this.http.post(this.url, formData, {
-      reportProgress: true,
-      observe: 'events',
-      responseType: 'text'
-    });
+  getAll() {
+    return this.http.get<LayerTag[]>(this.url);
   }
 }
