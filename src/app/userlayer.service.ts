@@ -1,18 +1,18 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { protectedResources } from './auth-config';
-import { LayerFinder } from './layerfinder';
+import { UserLayer } from './userlayer';
 
 @Injectable({
   providedIn: 'root'
 })
-export class LayerService {
+export class UserlayerService {
 
-  url = protectedResources.layerApi.endpoint
+  url = protectedResources.userLayerApi.endpoint
 
   constructor(private http: HttpClient) { }
 
   getAll() {
-    return this.http.get<LayerFinder[]>(this.url);
+    return this.http.get<UserLayer[]>(this.url);
   }
 }

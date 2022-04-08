@@ -1,21 +1,73 @@
-<p>layerfinder works!</p>
-
-<form [formGroup]="layerFinderForm" (ngSubmit)="onSubmit()">
+<div class="container">
     <div class="mb-3">
-        <label for="layerName" class="form-label">Layer Name</label>
-        <input type="text" class="form-control" id="layerName" formControlName="layerName" />
-        <div class="form-text">Try to pick something short. Has to be Alpha Numeric.</div>
-        <div class="form-text text-danger" *ngIf="layerName?.invalid  && (layerName?.dirty || layerName?.touched)">
-            <div [hidden]="!layerName?.errors?.['required']">
-                Layer Name is required.
-            </div>
-            <div [hidden]="!layerName?.errors?.['maxlength']">
-                Layer Name max length is 50 characters.
-            </div>
-            <div [hidden]="!layerName?.errors?.['pattern']">
-                Layer Name must be alpha numeric.
+        <label class="form-label">Popular Tags</label>
+        <div>
+        <ng-container *ngFor="let popularTag of popularTags">
+            <button type="button" class="btn btn-outline-success" (click)="addTag(popularTag.tagName)">
+                <i class="bi bi-plus-circle-fill"></i> {{popularTag.tagName}} <span class="badge bg-secondary">{{popularTag.count}}</span>
+            </button>
+        </ng-container>
+    </div>
+        
+    </div>
+    <div class="mb-3">
+        <label for="tagSearch" class="form-label">Search Tags</label>
+
+        <input type="text" class="form-control" id="tagSearch" [ngbTypeahead]="search" [inputFormatter]="formatter"
+            [resultFormatter]="formatter" [editable]="false" (selectItem)="selectItem($event)"
+            [disabled]="disableSearch" [(ngModel)]="typeAheadValue" />
+        <div class="form-text">Type and use the select list to search for layers.</div>
+        <ng-container *ngFor="let selectedTag of selectedTags">
+            <button type="button" class="btn btn-outline-danger" (click)="removeSelectedTag(selectedTag)">
+                <i class="bi bi-x-circle-fill"></i> {{selectedTag}}
+            </button>
+        </ng-container>
+    </div>
+    <div class="container">
+        <div class="row">
+            <div *ngFor="let layer of selectedLayers" class="col-sm">
+                <div class="card">
+                    <img [src]="'https://cdn.musicvideobuilder.com/' + layer.layerId + '/' + layer.layerId + '.png'"
+                        class="card-img-top" [alt]="layer.layerName">
+                    <div class="card-body">
+                        <h5 class="card-title">{{layer.layerName}}</h5>
+                        <div class="btn-group" role="group" aria-label="video controls">
+                            <button type="button" class="btn btn-outline-primary">Left</button>
+                            <button type="button" class="btn btn-outline-primary">Middle</button>
+                            <button type="button" class="btn btn-outline-primary">Right</button>
+                        </div>
+                        <div class="form-check">
+                            <button type="button"
+                                [disabled]="layer?.userLayerStatusId === 2 || layer?.userLayerStatusId === 3"
+                                (click)="addUserLayer(layer)" class="btn btn-success">Add</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-    <button type="submit" [disabled]="!layerFinderForm.valid" class="btn btn-primary">Submit</button>
-</form>
+    <!-- <div class="container">
+        <div class="row">
+            <div *ngFor="let layer of userLayers" class="col-sm">
+                <div class="card">
+                    <img [src]="'https://cdn.musicvideobuilder.com/' + layer.layerId + '/' + layer.layerId + '.png'"
+                        class="card-img-top" [alt]="layer.layerName">
+                    <div class="card-body">
+                        <h5 class="card-title">{{layer.layerName}}</h5>
+                        <div class="btn-group" role="group" aria-label="video controls">
+                            <button type="button" class="btn btn-outline-primary">Left</button>
+                            <button type="button" class="btn btn-outline-primary">Middle</button>
+                            <button type="button" class="btn btn-outline-primary">Right</button>
+                        </div>
+                        <div class="form-check">
+                            <button type="button"
+                                [disabled]="layer?.userLayerStatusId === 2"
+                                (click)="removeUserLayer(layer)" class="btn btn-danger">Remove</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div> 
+    <button type="button" class="btn btn-primary">Submit</button> -->
+</div>

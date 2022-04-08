@@ -1,9 +1,12 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, Validators } from '@angular/forms';
-import { catchError, throwError } from 'rxjs';
+import { catchError, debounceTime, distinctUntilChanged, filter, map, Observable, OperatorFunction, throwError } from 'rxjs';
+import { Layer } from '../layer';
 import { LayerService } from '../layer.service';
-import { LayerTag } from '../layertag';
+import { LayerFinder } from '../layerfinder';
+import { PopularTag } from '../populartag';
+import { UserLayer } from '../userlayer';
+import { UserlayerService } from '../userlayer.service';
 
 @Component({
   selector: 'app-layerfinder',
@@ -12,44 +15,100 @@ import { LayerTag } from '../layertag';
 })
 export class LayerFinderComponent implements OnInit {
 
-  constructor(private formBuilder: FormBuilder, private layerService: LayerService) { }
+  constructor(private layerService: LayerService, private userLayerService: UserlayerService) { }
 
   ngOnInit(): void {
-    this.disableEnableForm(true);
     this.layerService.getAll().pipe(
       catchError((error: HttpErrorResponse) => {
         alert('Something went wrong on the server, try again!');
         return throwError(() => new Error('Something went wrong on the server, try again!'));
       })
-    ).subscribe((layerTags: LayerTag[]) => {
-      this.layerTags = layerTags;
-      this.disableEnableForm(false);
-    });
-  }
-
-  disableEnableForm(isDisabled: boolean) {
-    if (isDisabled) {
-      this.layerFinderForm.disable({
-        emitEvent: false
+    ).subscribe((layerFinders: LayerFinder[]) => {
+      this.layerFinders = layerFinders;
+      this.disableSearch = false;
+      this.userLayerService.getAll().pipe(
+        catchError((error: HttpErrorResponse) => {
+          alert('Something went wrong on the server, try again!');
+          return throwError(() => new Error('Something went wrong on the server, try again!'));
+        })
+      ).subscribe((userLayers: UserLayer[]) => {
+        for (var userLayer of userLayers) {
+          let layerFinder = this.layerFinders.find(l => l.layerId === userLayer.layerId);
+          if (layerFinder) {
+            layerFinder.userLayerStatusId = userLayer.userLayerStatusId
+          }
+        }
       });
-    } else {
-      this.layerFinderForm.enable({
-        emitEvent: false
-      });
-    }    
+      
+      var tagCounter = layerFinders.flatMap(lf => lf.tags).reduce((prev, cur) => {
+        var typedPrev = prev as any;
+        typedPrev[cur] = (typedPrev[cur] || 0) + 1;
+        return prev;
+      }, {});
+
+      this.popularTags = Object.keys(tagCounter).map(key => {
+        return new PopularTag(key, (tagCounter as any)[key]);
+      }).sort((x, y) => y.count - x.count).slice(0, 10);
+    });  
   }
 
-  layerFinderForm  = this.formBuilder.group({
-    layerName: ['', [Validators.required]]
-  });
-  layerTags: LayerTag[] = [];
+  disableSearch = true;
+  typeAheadValue = "";
 
+  layerFinders: LayerFinder[] = [];
 
-  get layerName() {
-    return this.layerFinderForm.get('layerName');
+  
+  popularTags: PopularTag[] = [];
+
+  selectedLayers: LayerFinder[] = [];
+  selectedTags: string[] = [];
+
+  formatter = (tag: string) => tag;
+
+  search: OperatorFunction<string, readonly string[]> = (
+    text$: Observable<string>
+  ) =>
+    text$.pipe(
+      debounceTime(200),
+      distinctUntilChanged(),
+      filter((term) => term.length >= 1),
+      map((term) =>
+        this.layerFinders.flatMap((layerFinder) => layerFinder.tags)
+          .filter((value, index, array) => array.indexOf(value) === index && new RegExp(term, 'mi').test(value))
+          .slice(0, 10)
+      )
+    );
+
+  selectItem = (selectItem: any) => {
+    selectItem.preventDefault();
+    this.typeAheadValue = "";
+    this.addTag(selectItem.item);
+  };
+
+  addTag = (tag: string) =>{
+    if (this.selectedTags.indexOf(tag) === -1){
+      this.selectedTags.push(tag);
+    }
+
+    let layersContainingTags = this.layerFinders.filter(lf => lf.tags.indexOf(tag) > -1);
+    for (var layerContainingTags of layersContainingTags){
+      if (this.selectedLayers.some(sl => sl.layerId === layerContainingTags.layerId) === false){
+        this.selectedLayers.push(layerContainingTags);
+      }
+    }
   }
 
-  onSubmit() {
-    console.log(this.layerFinderForm.value)
+  removeSelectedTag = (tag: string) =>{
+    this.selectedTags = this.selectedTags.filter(t => t !== tag);
+    this.selectedLayers = this.selectedLayers.filter(sl => sl.tags.some(t => this.selectedTags.indexOf(t) !== -1));
+  }
+
+  addUserLayer = (selectedLayer: Layer) => {
+    // selectedLayer.userLayerStatusId = 3;
+    // this.userLayers.push(selectedLayer);
+  }
+
+  removeUserLayer = (selectedLayer: Layer) => {
+
   }
 }
