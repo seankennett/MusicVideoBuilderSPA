@@ -15,4 +15,8 @@ export class UserlayerService {
   getAll() {
     return this.http.get<UserLayer[]>(this.url);
   }
+
+  postUserLayer(userLayer: UserLayer){
+    return this.http.post<UserLayer>(this.url, userLayer);
+  }
 }

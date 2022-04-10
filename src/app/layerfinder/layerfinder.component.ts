@@ -63,6 +63,8 @@ export class LayerFinderComponent implements OnInit {
   selectedLayers: LayerFinder[] = [];
   selectedTags: string[] = [];
 
+  pendingUserLayers: Layer[] = [];
+
   formatter = (tag: string) => tag;
 
   search: OperatorFunction<string, readonly string[]> = (
@@ -104,11 +106,15 @@ export class LayerFinderComponent implements OnInit {
   }
 
   addUserLayer = (selectedLayer: Layer) => {
-    // selectedLayer.userLayerStatusId = 3;
-    // this.userLayers.push(selectedLayer);
-  }
+    var previousUserLayerStatus = selectedLayer.userLayerStatusId;
+    selectedLayer.userLayerStatusId = 3;
 
-  removeUserLayer = (selectedLayer: Layer) => {
-
+    this.userLayerService.postUserLayer({layerId: selectedLayer.layerId, userLayerId: 0, dateUpdated:new Date(), userLayerStatusId: selectedLayer.userLayerStatusId }).pipe(
+      catchError((error: HttpErrorResponse) => {
+        selectedLayer.userLayerStatusId = previousUserLayerStatus;
+        return throwError(() => new Error('Something went wrong on the server, try again!'));
+      })
+    ).subscribe();
   }
+  
 }

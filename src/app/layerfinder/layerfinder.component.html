@@ -2,13 +2,13 @@
     <div class="mb-3">
         <label class="form-label">Popular Tags</label>
         <div>
-        <ng-container *ngFor="let popularTag of popularTags">
-            <button type="button" class="btn btn-outline-success" (click)="addTag(popularTag.tagName)">
-                <i class="bi bi-plus-circle-fill"></i> {{popularTag.tagName}} <span class="badge bg-secondary">{{popularTag.count}}</span>
-            </button>
-        </ng-container>
-    </div>
-        
+            <ng-container *ngFor="let popularTag of popularTags">
+                <button type="button" class="btn btn-outline-success" (click)="addTag(popularTag.tagName)">
+                    <i class="bi bi-plus-circle-fill"></i> {{popularTag.tagName}} <span
+                        class="badge bg-secondary">{{popularTag.count}}</span>
+                </button>
+            </ng-container>
+        </div>
     </div>
     <div class="mb-3">
         <label for="tagSearch" class="form-label">Search Tags</label>
@@ -23,51 +23,14 @@
             </button>
         </ng-container>
     </div>
-    <div class="container">
-        <div class="row">
-            <div *ngFor="let layer of selectedLayers" class="col-sm">
-                <div class="card">
-                    <img [src]="'https://cdn.musicvideobuilder.com/' + layer.layerId + '/' + layer.layerId + '.png'"
-                        class="card-img-top" [alt]="layer.layerName">
-                    <div class="card-body">
-                        <h5 class="card-title">{{layer.layerName}}</h5>
-                        <div class="btn-group" role="group" aria-label="video controls">
-                            <button type="button" class="btn btn-outline-primary">Left</button>
-                            <button type="button" class="btn btn-outline-primary">Middle</button>
-                            <button type="button" class="btn btn-outline-primary">Right</button>
-                        </div>
-                        <div class="form-check">
-                            <button type="button"
-                                [disabled]="layer?.userLayerStatusId === 2 || layer?.userLayerStatusId === 3"
-                                (click)="addUserLayer(layer)" class="btn btn-success">Add</button>
-                        </div>
-                    </div>
-                </div>
+</div>
+<div class="container">
+    <div class="row">
+        <div *ngFor="let layer of selectedLayers" class="col-sm">
+            <div class="card text-center">
+                <app-galleryplayer [layer]="layer" (addButtonClickEvent)="addUserLayer($event)">
+                </app-galleryplayer>
             </div>
         </div>
     </div>
-    <!-- <div class="container">
-        <div class="row">
-            <div *ngFor="let layer of userLayers" class="col-sm">
-                <div class="card">
-                    <img [src]="'https://cdn.musicvideobuilder.com/' + layer.layerId + '/' + layer.layerId + '.png'"
-                        class="card-img-top" [alt]="layer.layerName">
-                    <div class="card-body">
-                        <h5 class="card-title">{{layer.layerName}}</h5>
-                        <div class="btn-group" role="group" aria-label="video controls">
-                            <button type="button" class="btn btn-outline-primary">Left</button>
-                            <button type="button" class="btn btn-outline-primary">Middle</button>
-                            <button type="button" class="btn btn-outline-primary">Right</button>
-                        </div>
-                        <div class="form-check">
-                            <button type="button"
-                                [disabled]="layer?.userLayerStatusId === 2"
-                                (click)="removeUserLayer(layer)" class="btn btn-danger">Remove</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div> 
-    <button type="button" class="btn btn-primary">Submit</button> -->
 </div>

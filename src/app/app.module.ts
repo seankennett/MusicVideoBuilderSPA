@@ -15,6 +15,7 @@ import { msalConfig, loginRequest, protectedResources } from './auth-config';
 import { LayerFinderComponent } from './layerfinder/layerfinder.component';
 import { LayerUploadComponent } from './layerupload/layerupload.component';
 import { LayertypecontrolComponent } from './layertypecontrol/layertypecontrol.component';
+import { GalleryplayerComponent } from './galleryplayer/galleryplayer.component';
 
 /**
  * Here we pass the configuration parameters to create an MSAL instance.
@@ -61,7 +62,8 @@ export function MSALGuardConfigFactory(): MsalGuardConfiguration {
     HomeComponent,
     LayerFinderComponent,
     LayerUploadComponent,
-    LayertypecontrolComponent
+    LayertypecontrolComponent,
+    GalleryplayerComponent
   ],
   imports: [
     BrowserModule,
