@@ -1,5 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { NgModel } from '@angular/forms';
 import { catchError, debounceTime, distinctUntilChanged, filter, map, Observable, OperatorFunction, throwError } from 'rxjs';
 import { Layer } from '../layer';
 import { LayerService } from '../layer.service';
@@ -17,6 +18,8 @@ import { UserlayerService } from '../userlayer.service';
 export class LayerFinderComponent implements OnInit {
 
   constructor(private layerService: LayerService, private userLayerService: UserlayerService) { }
+
+  @ViewChild('bpmControl') bpmControl! : NgModel;
 
   ngOnInit(): void {
     this.layerService.getAll().pipe(
@@ -62,9 +65,18 @@ export class LayerFinderComponent implements OnInit {
     new layerType(2, 'Foreground')
   ];
 
+  private _bpm: number = 135;
+  get bpm(){return this._bpm}
+  set bpm(value: number){
+    if (this.bpmControl.valid === true){
+      this._bpm = value
+    }
+  }
+
+  isPlaying: boolean = false;
+
   layerFinders: LayerFinder[] = [];
 
-  
   popularTags: PopularTag[] = [];
 
   selectedLayers: LayerFinder[] = [];
@@ -129,6 +141,10 @@ export class LayerFinderComponent implements OnInit {
         return throwError(() => new Error('Something went wrong on the server, try again!'));
       })
     ).subscribe();
+  }
+
+  togglePlay = () =>{
+    this.isPlaying = !this.isPlaying;
   }
   
 }
