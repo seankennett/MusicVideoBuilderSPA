@@ -4,6 +4,7 @@ import { catchError, debounceTime, distinctUntilChanged, filter, map, Observable
 import { Layer } from '../layer';
 import { LayerService } from '../layer.service';
 import { LayerFinder } from '../layerfinder';
+import { layerType } from '../layertypecontrol/layertypecontrol.component';
 import { PopularTag } from '../populartag';
 import { UserLayer } from '../userlayer';
 import { UserlayerService } from '../userlayer.service';
@@ -54,6 +55,12 @@ export class LayerFinderComponent implements OnInit {
 
   disableSearch = true;
   typeAheadValue = "";
+  layerType = 0;
+  layerTypeList: layerType[] = [
+    new layerType(0, 'All'),
+    new layerType(1, 'Background'),
+    new layerType(2, 'Foreground')
+  ];
 
   layerFinders: LayerFinder[] = [];
 
@@ -87,12 +94,19 @@ export class LayerFinderComponent implements OnInit {
     this.addTag(selectItem.item);
   };
 
+  layerTypeChange = () =>{
+    this.selectedLayers = [];
+    for (var tag of this.selectedTags){
+      this.addTag(tag);
+    }
+  }
+
   addTag = (tag: string) =>{
     if (this.selectedTags.indexOf(tag) === -1){
       this.selectedTags.push(tag);
     }
 
-    let layersContainingTags = this.layerFinders.filter(lf => lf.tags.indexOf(tag) > -1);
+    let layersContainingTags = this.layerFinders.filter(lf => lf.tags.indexOf(tag) > -1 && (this.layerType === 0 || this.layerType === lf.layerTypeId));
     for (var layerContainingTags of layersContainingTags){
       if (this.selectedLayers.some(sl => sl.layerId === layerContainingTags.layerId) === false){
         this.selectedLayers.push(layerContainingTags);
