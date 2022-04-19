@@ -56,7 +56,7 @@
         </div>
     </div>
     <div class="row" >
-        <div *ngFor="let layer of selectedLayers; let i = index" class="col-sm">
+        <div *ngFor="let layer of selectedLayers; let i = index" class="col-sm mb-3">
             <div class="card text-center">
                 <app-galleryplayer [layer]="layer" (addButtonClickEvent)="addUserLayer($event)" [bpm]="bpm" [isPlaying]="isPlaying">
                 </app-galleryplayer>

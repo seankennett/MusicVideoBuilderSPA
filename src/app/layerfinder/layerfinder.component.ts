@@ -5,7 +5,7 @@ import { catchError, debounceTime, distinctUntilChanged, filter, map, Observable
 import { Layer } from '../layer';
 import { LayerService } from '../layer.service';
 import { LayerFinder } from '../layerfinder';
-import { layerType } from '../layertypecontrol/layertypecontrol.component';
+import { Layertype } from '../layertype';
 import { PopularTag } from '../populartag';
 import { UserLayer } from '../userlayer';
 import { UserlayerService } from '../userlayer.service';
@@ -59,10 +59,10 @@ export class LayerFinderComponent implements OnInit {
   disableSearch = true;
   typeAheadValue = "";
   layerType = 0;
-  layerTypeList: layerType[] = [
-    new layerType(0, 'All'),
-    new layerType(1, 'Background'),
-    new layerType(2, 'Foreground')
+  layerTypeList: Layertype[] = [
+    new Layertype(0, 'All'),
+    new Layertype(1, 'Background'),
+    new Layertype(2, 'Foreground')
   ];
 
   private _bpm: number = 135;

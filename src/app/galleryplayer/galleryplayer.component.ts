@@ -1,8 +1,12 @@
-import { Component, Input, OnInit,  Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, OnInit, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { Layer } from '../layer';
 import { BehaviorSubject, Observable, switchMap, take, takeUntil, takeWhile, timer } from 'rxjs';
 
 const imageWidth = 384;
+const secondsInMinute = 60;
+const millisecondsInSecond = 1000;
+const beatsPerLayer = 4;
+const frameTotal = 64;
 
 @Component({
   selector: 'app-galleryplayer',
@@ -11,7 +15,6 @@ const imageWidth = 384;
 })
 export class GalleryplayerComponent implements OnInit, OnChanges {
   @Input() layer!: Layer;
-  @Input() isRemove: boolean = false;
   @Output() addButtonClickEvent = new EventEmitter<Layer>();
   @Output() removeButtonClickEvent = new EventEmitter<Layer>();
 
@@ -24,18 +27,18 @@ export class GalleryplayerComponent implements OnInit, OnChanges {
   localIsPlaying = false;
 
   constructor() { }
-  
+
 
   ngOnInit(): void {
-    if (this.isPlaying === true){
+    if (this.isPlaying === true) {
       this.togglePlay();
     }
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['bpm']){
+    if (changes['bpm']) {
       this.localBpm.next(this.bpm);
-    } else if (changes['isPlaying'] && changes['isPlaying'].currentValue !== this.localIsPlaying){
+    } else if (changes['isPlaying'] && changes['isPlaying'].currentValue !== this.localIsPlaying) {
       this.togglePlay();
     }
   }
@@ -43,12 +46,12 @@ export class GalleryplayerComponent implements OnInit, OnChanges {
   togglePlay = () => {
     this.localIsPlaying = !this.localIsPlaying;
     this.leftPosition = 0;
-    if (this.localIsPlaying){
+    if (this.localIsPlaying) {
       this.localBpm.pipe(
-        switchMap(val => timer(0, 60/val*1000*4/64)),
+        switchMap(val => timer(0, secondsInMinute / val * millisecondsInSecond * beatsPerLayer / frameTotal)),
         takeWhile(() => this.localIsPlaying)
       ).subscribe(frameNumber => {
-        this.leftPosition = -(frameNumber % 64) * imageWidth;
+        this.leftPosition = -(frameNumber % frameTotal) * imageWidth;
       });
     }
   }
@@ -59,5 +62,19 @@ export class GalleryplayerComponent implements OnInit, OnChanges {
 
   removeButtonClick = () => {
     this.removeButtonClickEvent.emit(this.layer);
+  }
+
+  setToolTip = (userLayerStatusId: number | null) => {
+    switch (userLayerStatusId) {
+      case 2: {
+        return 'You have already bought this layer';
+      }
+      case 3: {
+        return 'You have already saved this layer';
+      }
+      default: {
+        return '';
+      }
+    }
   }
 }

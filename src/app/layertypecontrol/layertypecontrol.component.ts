@@ -1,5 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { FormGroup } from '@angular/forms';
+import { Layertype } from '../layertype';
 
 @Component({
   selector: 'app-layertypecontrol',
@@ -13,19 +14,9 @@ export class LayertypecontrolComponent implements OnInit {
   ngOnInit(): void {
   }
 
-  layerTypeList: layerType[] = [
-    new layerType(1, 'Background'),
-    new layerType(2, 'Foreground')
+  layerTypeList: Layertype[] = [
+    new Layertype(1, 'Background'),
+    new Layertype(2, 'Foreground')
   ];
 
-}
-
-export class layerType {
-  id: number;
-  name: string;
- 
-  constructor(id: number, name: string) {
-    this.id = id;
-    this.name = name;
-  }
 }
