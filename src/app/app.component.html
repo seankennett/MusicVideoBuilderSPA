@@ -22,19 +22,22 @@
           <div class="collapse navbar-collapse" [ngbCollapse]="isMenuCollapsed">
               <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                   <li class="nav-item">
-                      <a class="nav-link text-dark" [routerLink]="['layerFinder']">Layer Finder</a>
+                      <a class="nav-link" [routerLink]="['layerFinder']" routerLinkActive="active">Layer Finder</a>
                   </li>
                   <li class="nav-item">
-                      <a class="nav-link text-dark">Clip Composer</a>
+                      <a class="nav-link" [routerLink]="['clipComposer']" routerLinkActive="active">Clip Composer</a>
                   </li>
                   <li class="nav-item">
-                      <a class="nav-link text-dark">Video Composer</a>
+                      <a class="nav-link" [routerLink]="['videoComposer']" routerLinkActive="active">Video Composer</a>
                   </li>
                   <li class="nav-item">
-                      <a class="nav-link text-dark">Video Builder</a>
+                      <a class="nav-link" [routerLink]="['videoBuilder']" routerLinkActive="active">Video Builder</a>
                   </li>
               </ul>
               <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" [routerLink]="['myLayers']" routerLinkActive="active">My Layers</a>
+                </li>
                 <li class="nav-item" *ngIf="loginDisplay" (click)="logout()">
                     <a class="nav-link text-dark" href="#">Sign out</a>
                 </li>

@@ -1,0 +1,9 @@
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a [routerLink]="''"><i class="bi bi-house-door-fill"></i></a></li>
+        <ng-container *ngFor="let link of links; let i = index">
+            <li *ngIf="i === links.length - 1" class="breadcrumb-item active">{{link.display}}</li>
+            <li *ngIf="i !== links.length - 1" class="breadcrumb-item"><a [routerLink]="['/' + link.path]" routerLinkActive="active">{{link.display}}</a></li>
+        </ng-container>
+    </ol>
+</nav>

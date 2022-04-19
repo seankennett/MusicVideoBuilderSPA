@@ -16,6 +16,11 @@ import { LayerFinderComponent } from './layerfinder/layerfinder.component';
 import { LayerUploadComponent } from './layerupload/layerupload.component';
 import { LayertypecontrolComponent } from './layertypecontrol/layertypecontrol.component';
 import { GalleryplayerComponent } from './galleryplayer/galleryplayer.component';
+import { ClipComposerComponent } from './clipcomposer/clipcomposer.component';
+import { VideoComposerComponent } from './videocomposer/videocomposer.component';
+import { VideoBuilderComponent } from './videobuilder/videobuilder.component';
+import { MyLayersComponent } from './mylayers/mylayers.component';
+import { BreadcrumbComponent } from './breadcrumb/breadcrumb.component';
 
 /**
  * Here we pass the configuration parameters to create an MSAL instance.
@@ -63,7 +68,12 @@ export function MSALGuardConfigFactory(): MsalGuardConfiguration {
     LayerFinderComponent,
     LayerUploadComponent,
     LayertypecontrolComponent,
-    GalleryplayerComponent
+    GalleryplayerComponent,
+    ClipComposerComponent,
+    VideoComposerComponent,
+    VideoBuilderComponent,
+    MyLayersComponent,
+    BreadcrumbComponent
   ],
   imports: [
     BrowserModule,

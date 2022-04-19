@@ -2,6 +2,7 @@
 
 // overriding bootstrap base
 $font-family-base: 'Saira Condensed', sans-serif;
+$breadcrumb-divider: quote(">");
 
 /* Importing Bootstrap SCSS file. */
 @import '~bootstrap/scss/bootstrap';

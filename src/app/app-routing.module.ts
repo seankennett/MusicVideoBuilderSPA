@@ -1,10 +1,14 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { MsalGuard } from '@azure/msal-angular';
+import { ClipComposerComponent } from './clipcomposer/clipcomposer.component';
 
 import { HomeComponent } from './home/home.component';
 import { LayerFinderComponent } from './layerfinder/layerfinder.component';
 import { LayerUploadComponent } from './layerupload/layerupload.component';
+import { MyLayersComponent } from './mylayers/mylayers.component';
+import { VideoBuilderComponent } from './videobuilder/videobuilder.component';
+import { VideoComposerComponent } from './videocomposer/videocomposer.component';
 
 const routes: Routes = [
   {
@@ -17,6 +21,34 @@ const routes: Routes = [
   {
     path: 'layerUpload',
     component: LayerUploadComponent,
+    canActivate: [
+      MsalGuard
+    ]
+  },
+  {
+    path: 'clipComposer',
+    component: ClipComposerComponent,
+    canActivate: [
+      MsalGuard
+    ]
+  },
+  {
+    path: 'videoComposer',
+    component: VideoComposerComponent,
+    canActivate: [
+      MsalGuard
+    ]
+  },
+  {
+    path: 'videoBuilder',
+    component: VideoBuilderComponent,
+    canActivate: [
+      MsalGuard
+    ]
+  },
+  {
+    path: 'myLayers',
+    component: MyLayersComponent,
     canActivate: [
       MsalGuard
     ]
