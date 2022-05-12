@@ -3,7 +3,7 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { NgModel } from '@angular/forms';
 import { catchError, debounceTime, distinctUntilChanged, filter, map, Observable, OperatorFunction, throwError } from 'rxjs';
 import { Layer } from '../layer';
-import { LayerService } from '../layer.service';
+import { LayerFinderService } from '../layerfinder.service';
 import { LayerFinder } from '../layerfinder';
 import { Layertype } from '../layertype';
 import { PopularTag } from '../populartag';
@@ -17,7 +17,7 @@ import { UserlayerService } from '../userlayer.service';
 })
 export class LayerFinderComponent implements OnInit {
 
-  constructor(private layerService: LayerService, private userLayerService: UserlayerService) { }
+  constructor(private layerService: LayerFinderService, private userLayerService: UserlayerService) { }
 
   @ViewChild('bpmControl') bpmControl! : NgModel;
 
@@ -135,7 +135,7 @@ export class LayerFinderComponent implements OnInit {
     var previousUserLayerStatus = selectedLayer.userLayerStatusId;
     selectedLayer.userLayerStatusId = 3;
 
-    this.userLayerService.postUserLayer({layerId: selectedLayer.layerId, userLayerId: 0, dateUpdated:new Date(), userLayerStatusId: selectedLayer.userLayerStatusId }).pipe(
+    this.userLayerService.postUserLayer({layerId: selectedLayer.layerId, userLayerId: 0, dateUpdated:new Date(), userLayerStatusId: selectedLayer.userLayerStatusId, layerTypeId: selectedLayer.layerTypeId, layerName: selectedLayer.layerName }).pipe(
       catchError((error: HttpErrorResponse) => {
         selectedLayer.userLayerStatusId = previousUserLayerStatus;
         return throwError(() => new Error('Something went wrong on the server, try again!'));

@@ -60,16 +60,16 @@
  * https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-browser/docs/resources-and-scopes.md
  */
 export const protectedResources = {
-  weatherApi: {
-    endpoint: environment.apiEndpoint + "/WeatherForecast",
-    scopes: ["https://musicvideobuilder.onmicrosoft.com/77a830ed-796d-4bed-be76-a163f5a3ee79/access_as_user"],
-  },
   tagsApi: {
     endpoint: environment.apiEndpoint + "/Tags",
     scopes: ["https://musicvideobuilder.onmicrosoft.com/77a830ed-796d-4bed-be76-a163f5a3ee79/access_as_user"],
   },
   layerUploadApi: {
     endpoint: environment.apiEndpoint + "/LayerUpload",
+    scopes: ["https://musicvideobuilder.onmicrosoft.com/77a830ed-796d-4bed-be76-a163f5a3ee79/access_as_user"],
+  },
+  layerFinderApi: {
+    endpoint: environment.apiEndpoint + "/LayerFinders",
     scopes: ["https://musicvideobuilder.onmicrosoft.com/77a830ed-796d-4bed-be76-a163f5a3ee79/access_as_user"],
   },
   layerApi: {

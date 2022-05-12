@@ -1,1 +1,43 @@
-<app-breadcrumb [links]="[{display:'Layer Finder', path:'layerFinder' }, {display:'Clip Composer', path:'clipComposer' }]"></app-breadcrumb>
+<app-breadcrumb
+    [links]="[{display:'Layer Finder', path:'layerFinder' }, {display:'Clip Composer', path:'clipComposer' }]">
+</app-breadcrumb>
+<div class="container">
+    <h1>Clip Composer</h1>
+    <p class="lead">Clip composer allows you to combine layers to either make a new clip or edit an existing one.</p>
+    <p>Once you create a clip you can then use this to <a [routerLink]="['/videoComposer']">compose a video</a>. Use the
+        controls below to create or edit your clips</p>
+
+    <!-- Need existing clips here -->
+    <h2>Clip Editor</h2>
+    <form [formGroup]="clipForm" (ngSubmit)="onSubmit()">
+        <div class="mb-3">
+            <label for="clipName" class="form-label">Clip Name</label>
+            <input type="text" class="form-control" id="clipName" formControlName="clipNameControl" />
+            <div class="form-text">Try to pick something short. Has to be Alpha Numeric and unique across your clips.
+            </div>
+            <div class="form-text text-danger" *ngIf="clipNameControl?.invalid  && (clipNameControl?.dirty || clipNameControl?.touched)">
+                <div [hidden]="!clipNameControl?.errors?.['required']">
+                    Clip name is required.
+                </div>
+                <div [hidden]="!clipNameControl?.errors?.['maxlength']">
+                    Clip name max length is 50 characters.
+                </div>
+                <div [hidden]="!clipNameControl?.errors?.['pattern']">
+                    Clip name must be alpha numeric.
+                </div>
+            </div>
+        </div>
+        <div class="mb-3" *ngIf="layersFormArray.length === 0">
+            <h3>Pick a background</h3>
+            <div class="row">
+                <div *ngFor="let layer of userLayers; let i = index" class="col-sm mb-3">
+                    <app-galleryplayer [layer]="layer" >
+                    <!-- (addButtonClickEvent)="addUserLayer($event)" [bpm]="bpm"
+                        [isPlaying]="isPlaying"> -->
+                    </app-galleryplayer>
+                </div>
+            </div>
+        </div>
+        <button type="submit" [disabled]="!clipForm.valid" class="btn btn-primary">Save</button>
+    </form>
+</div>

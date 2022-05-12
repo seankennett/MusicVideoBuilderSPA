@@ -1,1 +1,27 @@
 <app-breadcrumb></app-breadcrumb>
+<div class="container">
+    <h1>Music Video Builder is dedicated to creating videos for music</h1>
+    <h4>Why?</h4>
+    <p>We are fed up with seeing static images on youtube and dull backgrounds on dj sets. We want to see better
+        videos for music creators.</p>
+        <h4>Who?</h4>
+    <p>If you have a music file with constant Beats Per Minute then you can use this to create your own video.</p>
+    <h4>How?</h4>
+    <p>Music Video Builder works by providing content and command line arguments to use with the incredible <a
+            href="https://ffmpeg.org/">FFmpeg</a>. This way you can purchase a layer and use them in many videos without any
+        extra charges.</p>
+    <p class="lead">There are 5 easy steps to create your video:</p>
+    <ol>
+        <li>Sign in, we only need a username and email to save your work against.</li>
+        <li>Use <a [routerLink]="['/layerFinder']">Layer Finder</a> to select layers you're interested in.</li>
+        <li>Use <a [routerLink]="['/clipComposer']">Clip Composer</a> to combine these layers into short clips.</li>
+        <li>Use <a [routerLink]="['/videoComposer']">Video Composer</a> to combine your clips with your music file to
+            create
+            your video.</li>
+        <li>Use <a [routerLink]="['/videoBuilder']">Video Builder</a> to generate your FFmpeg code and download all
+            necessary
+            assets to build your video on your device. There is a free low resolution version for testing and a 4K
+            version to
+            purchase.</li>
+    </ol>
+</div>
