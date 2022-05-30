@@ -21,6 +21,9 @@ export class GalleryplayerComponent implements OnInit, OnChanges {
   @Input() bpm!: number;
   @Input() isPlaying: boolean = false;
 
+  @Input() disableFunction: (layer: Layer) => boolean = (layer) => { return false}
+  @Input() disableTooltipFunction: (userLayerStatusId: number | null) => string = (userLayerStatusId) => {return ''}
+
   leftPosition: number = 0;
 
   localBpm = new BehaviorSubject(135);
@@ -62,19 +65,5 @@ export class GalleryplayerComponent implements OnInit, OnChanges {
 
   removeButtonClick = () => {
     this.removeButtonClickEvent.emit(this.layer);
-  }
-
-  setToolTip = (userLayerStatusId: number | null) => {
-    switch (userLayerStatusId) {
-      case 2: {
-        return 'You have already bought this layer';
-      }
-      case 3: {
-        return 'You have already saved this layer';
-      }
-      default: {
-        return '';
-      }
-    }
   }
 }

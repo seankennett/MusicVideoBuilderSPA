@@ -146,5 +146,20 @@ export class LayerFinderComponent implements OnInit {
   togglePlay = () =>{
     this.isPlaying = !this.isPlaying;
   }
+
+  disableLayer = (layer : Layer) => layer?.userLayerStatusId === 2 || layer?.userLayerStatusId === 3;
   
+  disableLayerTooltip = (userLayerStatusId: number | null) => {
+    switch (userLayerStatusId) {
+      case 2: {
+        return 'You have already bought this layer';
+      }
+      case 3: {
+        return 'You have already saved this layer';
+      }
+      default: {
+        return '';
+      }
+    }
+  }
 }
