@@ -64,6 +64,10 @@ export class ClipComposerComponent implements OnInit {
   showEditor = false;
   isAddingLayer = false;
 
+  toggleEditor = () => {
+    this.showEditor = !this.showEditor;
+  }
+
   toggleAddNewLayer = () => {
     this.isAddingLayer = !this.isAddingLayer;
   }
