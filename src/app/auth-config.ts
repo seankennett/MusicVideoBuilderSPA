@@ -76,6 +76,10 @@ export const protectedResources = {
     endpoint: environment.apiEndpoint + "/Layers",
     scopes: ["https://musicvideobuilder.onmicrosoft.com/77a830ed-796d-4bed-be76-a163f5a3ee79/access_as_user"],
   },
+  clipApi: {
+    endpoint: environment.apiEndpoint + "/Clips",
+    scopes: ["https://musicvideobuilder.onmicrosoft.com/77a830ed-796d-4bed-be76-a163f5a3ee79/access_as_user"],
+  },
   userLayerApi: {
     endpoint: environment.apiEndpoint + "/UserLayers",
     scopes: ["https://musicvideobuilder.onmicrosoft.com/77a830ed-796d-4bed-be76-a163f5a3ee79/access_as_user"],

@@ -7,7 +7,21 @@
     <p>Once you create a clip you can then use this to <a [routerLink]="['/videoComposer']">compose a video</a>. Use the
         controls below to create or edit your clips</p>
 
-    <!-- Need existing clips here -->
+        <ng-container *ngIf="!showEditor">
+            <h2>Clips</h2>
+            <div class="mb-3" *ngIf="layersFormArray.length === 0">
+            <div class="row">
+                <div *ngFor="let clip of clips; let i = index" class="col-sm mb-3">
+                    <h3>{{clip.clipName}}</h3>
+                    <!-- <app-galleryplayer [layer]="layer" (addButtonClickEvent)="addLayer($event)">
+                        (addButtonClickEvent)="addUserLayer($event)" [bpm]="bpm"
+                        [isPlaying]="isPlaying"> 
+                    </app-galleryplayer> -->
+                </div>
+            </div>
+        </div>
+        </ng-container>
+    <ng-container *ngIf="showEditor">
     <h2>Clip Editor</h2>
     <form [formGroup]="clipForm" (ngSubmit)="onSubmit()">
         <div class="mb-3">
@@ -66,11 +80,14 @@
             <h3>Pick a foreground</h3>
             <div class="row">
                 <div *ngFor="let layer of userForegrounds; let i = index" class="col-sm mb-3">
-                    <app-galleryplayer [layer]="layer" (addButtonClickEvent)="addLayer($event)">
+                    <app-galleryplayer [layer]="layer" (addButtonClickEvent)="addLayer($event)" [disableFunction]="disableLayer" [disableTooltipFunction]="disableLayerTooltip">
                     </app-galleryplayer>
                 </div>
             </div>
+            <button type="button" class="btn btn-danger" (click)="toggleAddNewLayer()">
+                <i class="bi bi-dash-circle-fill"></i> Cancel Adding Layer</button>
         </div>
-        <button type="submit" [disabled]="!clipForm.valid" class="btn btn-primary">Save</button>
+        <button type="submit" [disabled]="!clipForm.valid || saving" class="btn btn-primary">Save</button>
     </form>
+</ng-container>
 </div>

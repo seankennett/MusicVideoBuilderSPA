@@ -22,7 +22,7 @@ export class GalleryplayerComponent implements OnInit, OnChanges {
   @Input() isPlaying: boolean = false;
 
   @Input() disableFunction: (layer: Layer) => boolean = (layer) => { return false}
-  @Input() disableTooltipFunction: (userLayerStatusId: number | null) => string = (userLayerStatusId) => {return ''}
+  @Input() disableTooltipFunction: (layer: Layer) => string = (layer) => {return ''}
 
   leftPosition: number = 0;
 

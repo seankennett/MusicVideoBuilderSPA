@@ -2,6 +2,8 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { AbstractControl, FormBuilder, Validators } from '@angular/forms';
 import { catchError, throwError } from 'rxjs';
+import { Clip } from '../clip';
+import { ClipService } from '../clip.service';
 import { Layer } from '../layer';
 import { LayerFinder } from '../layerfinder';
 import { UserLayer } from '../userlayer';
@@ -14,7 +16,7 @@ import { UserlayerService } from '../userlayer.service';
 })
 export class ClipComposerComponent implements OnInit {
 
-  constructor(private formBuilder: FormBuilder, private userLayerService: UserlayerService) { }
+  constructor(private formBuilder: FormBuilder, private userLayerService: UserlayerService, private clipService: ClipService) { }
 
   ngOnInit(): void {    
       this.userLayerService.getAll().pipe(
@@ -24,10 +26,24 @@ export class ClipComposerComponent implements OnInit {
         })
       ).subscribe((userLayers: UserLayer[]) => {
         this.userLayers = userLayers
-      }); 
+      });
+      
+      this.clipService.getAll().pipe(
+        catchError((error: HttpErrorResponse) => {
+          alert('Something went wrong on the server, try again!');
+          return throwError(() => new Error('Something went wrong on the server, try again!'));
+        })
+      ).subscribe((clips: Clip[]) => {
+        this.clips = clips
+        if (clips.length === 0){
+          this.showEditor = true;
+        }
+      });
   }
 
+  clips: Clip[] = [];
   userLayers: UserLayer[] = [];
+  clipId: number  = 0;
 
   get userBackgrounds() {
     return this.userLayers.filter(l => l.layerTypeId === 1);
@@ -45,10 +61,11 @@ export class ClipComposerComponent implements OnInit {
     layersFormArray: this.layersFormArray
   })
 
+  showEditor = false;
   isAddingLayer = false;
 
   toggleAddNewLayer = () => {
-    this.isAddingLayer = true;
+    this.isAddingLayer = !this.isAddingLayer;
   }
 
   addLayer = (selectedLayer: Layer) => {
@@ -72,8 +89,41 @@ export class ClipComposerComponent implements OnInit {
     this.layersFormArray.controls[index + 1] = currentControl;
   }
 
-  onSubmit = () =>{
+saving = false;
 
+  onSubmit = () =>{
+    this.saving = true;
+
+    var clip = <Clip>{
+      clipId: this.clipId,
+      clipName: this.clipNameControl.value,
+      userLayers: Array.from(this.layersFormArray.controls.map((control) => {
+        return control.value.userLayerId
+      }))
+    };
+
+    console.log(clip);
+
+    this.clipService.post(clip).pipe(
+      catchError((error: HttpErrorResponse) => {
+        this.saving = false;
+        return throwError(() => new Error('Something went wrong on the server, try again!'));
+      })
+    ).subscribe((clip: Clip) => {
+      this.saving = false;
+      console.log(clip);
+    });; 
   }
 
+  disableLayer = (layer : Layer) => {
+    return this.layersFormArray.controls.some(control => control.value === layer);
+  }
+
+  disableLayerTooltip = (layer : Layer) => {
+    if (this.disableLayer(layer)){
+      return 'Layer already in use';
+    }
+      return'';
+    
+  }
 }

@@ -149,8 +149,8 @@ export class LayerFinderComponent implements OnInit {
 
   disableLayer = (layer : Layer) => layer?.userLayerStatusId === 2 || layer?.userLayerStatusId === 3;
   
-  disableLayerTooltip = (userLayerStatusId: number | null) => {
-    switch (userLayerStatusId) {
+  disableLayerTooltip = (layer : Layer) => {
+    switch (layer?.userLayerStatusId) {
       case 2: {
         return 'You have already bought this layer';
       }
