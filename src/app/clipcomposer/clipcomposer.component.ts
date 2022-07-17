@@ -18,32 +18,32 @@ export class ClipComposerComponent implements OnInit {
 
   constructor(private formBuilder: FormBuilder, private userLayerService: UserlayerService, private clipService: ClipService) { }
 
-  ngOnInit(): void {    
-      this.userLayerService.getAll().pipe(
-        catchError((error: HttpErrorResponse) => {
-          alert('Something went wrong on the server, try again!');
-          return throwError(() => new Error('Something went wrong on the server, try again!'));
-        })
-      ).subscribe((userLayers: UserLayer[]) => {
-        this.userLayers = userLayers
-      });
-      
-      this.clipService.getAll().pipe(
-        catchError((error: HttpErrorResponse) => {
-          alert('Something went wrong on the server, try again!');
-          return throwError(() => new Error('Something went wrong on the server, try again!'));
-        })
-      ).subscribe((clips: Clip[]) => {
-        this.clips = clips
-        if (clips.length === 0){
-          this.showEditor = true;
-        }
-      });
+  ngOnInit(): void {
+    this.userLayerService.getAll().pipe(
+      catchError((error: HttpErrorResponse) => {
+        alert('Something went wrong on the server, try again!');
+        return throwError(() => new Error('Something went wrong on the server, try again!'));
+      })
+    ).subscribe((userLayers: UserLayer[]) => {
+      this.userLayers = userLayers
+    });
+
+    this.clipService.getAll().pipe(
+      catchError((error: HttpErrorResponse) => {
+        alert('Something went wrong on the server, try again!');
+        return throwError(() => new Error('Something went wrong on the server, try again!'));
+      })
+    ).subscribe((clips: Clip[]) => {
+      this.clips = clips
+      if (clips.length === 0) {
+        this.toggleEditor();
+      }
+    });
   }
 
   clips: Clip[] = [];
   userLayers: UserLayer[] = [];
-  clipId: number  = 0;
+  clipId: number = 0;
 
   get userBackgrounds() {
     return this.userLayers.filter(l => l.layerTypeId === 1);
@@ -65,6 +65,9 @@ export class ClipComposerComponent implements OnInit {
   isAddingLayer = false;
 
   toggleEditor = () => {
+    this.clipId = 0;
+    this.clipNameControl.reset();
+    this.layersFormArray.clear();
     this.showEditor = !this.showEditor;
   }
 
@@ -72,7 +75,7 @@ export class ClipComposerComponent implements OnInit {
     this.isAddingLayer = !this.isAddingLayer;
   }
 
-  addLayer = (selectedLayer: Layer) => {
+  addLayer = (selectedLayer: Layer | UserLayer) => {
     this.isAddingLayer = false;
     this.layersFormArray.push(this.formBuilder.control(selectedLayer));
   }
@@ -93,9 +96,9 @@ export class ClipComposerComponent implements OnInit {
     this.layersFormArray.controls[index + 1] = currentControl;
   }
 
-saving = false;
+  saving = false;
 
-  onSubmit = () =>{
+  onSubmit = () => {
     this.saving = true;
 
     var clip = <Clip>{
@@ -115,19 +118,38 @@ saving = false;
       })
     ).subscribe((clip: Clip) => {
       this.saving = false;
-      console.log(clip);
-    });; 
+      if (this.clipId === 0) {
+        this.clips.push(clip);
+      } else {
+        let index = this.clips.findIndex(clip => clip.clipId === this.clipId);
+        this.clips[index] = clip;
+      }
+      this.toggleEditor();
+
+    });;
   }
 
-  disableLayer = (layer : Layer) => {
+  editClip = (clip: Clip) => {
+    this.toggleEditor();
+    this.clipId = clip.clipId;
+    this.clipNameControl.setValue(clip.clipName);
+    clip.userLayers.forEach(ul => {
+      var userLayer = this.userLayers.find(userLayer => userLayer.userLayerId === ul);
+      if (userLayer) {
+        this.addLayer(userLayer);
+      }
+    });
+  }
+
+  disableLayer = (layer: Layer) => {
     return this.layersFormArray.controls.some(control => control.value === layer);
   }
 
-  disableLayerTooltip = (layer : Layer) => {
-    if (this.disableLayer(layer)){
+  disableLayerTooltip = (layer: Layer) => {
+    if (this.disableLayer(layer)) {
       return 'Layer already in use';
     }
-      return'';
-    
+    return '';
+
   }
 }

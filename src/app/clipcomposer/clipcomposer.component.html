@@ -9,7 +9,7 @@
 
         <ng-container *ngIf="!showEditor">
             <h2>Clips</h2>
-            <div class="mb-3" *ngIf="layersFormArray.length === 0">
+            <div class="mb-3">
             <div class="row">
                 <div *ngFor="let clip of clips; let i = index" class="col-sm mb-3">
                     <h3>{{clip.clipName}}</h3>
@@ -17,7 +17,8 @@
                         (addButtonClickEvent)="addUserLayer($event)" [bpm]="bpm"
                         [isPlaying]="isPlaying"> 
                     </app-galleryplayer> -->
-                    
+                    <button type="button" class="btn btn-primary" (click)="editClip(clip)"><i class="bi bi-dash-circle-fill"></i>
+                        Edit</button>
                 </div>
             </div>
             <button type="button" class="btn btn-success" (click)="toggleEditor()"><i class="bi bi-dash-circle-fill"></i>
