@@ -68,6 +68,7 @@ export class ClipComposerComponent implements OnInit {
     this.clipId = 0;
     this.clipNameControl.reset();
     this.layersFormArray.clear();
+    this.isAddingLayer = false;
     this.showEditor = !this.showEditor;
   }
 
@@ -80,8 +81,8 @@ export class ClipComposerComponent implements OnInit {
     this.layersFormArray.push(this.formBuilder.control(selectedLayer));
   }
 
-  removeLayer = (control: AbstractControl) => {
-    this.layersFormArray.controls = this.layersFormArray.controls.filter(c => c !== control);
+  removeLayer = (index: number) => {
+    this.layersFormArray.removeAt(index);
   }
 
   moveUp = (index: number) => {
