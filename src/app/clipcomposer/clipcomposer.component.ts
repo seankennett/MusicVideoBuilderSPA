@@ -104,12 +104,12 @@ export class ClipComposerComponent implements OnInit {
     var clip = <Clip>{
       clipId: this.clipId,
       clipName: this.clipNameControl.value,
-      userLayers: Array.from(this.layersFormArray.controls.map((control) => {
-        return control.value.userLayerId
-      }))
+      userLayers: this.layersFormArray.controls.map((control) => {
+        return control.value
+      })
     };
 
-    console.log(clip);
+    clip.userLayers.push(this.layersFormArray.controls[0].value);
 
     this.clipService.post(clip).pipe(
       catchError((error: HttpErrorResponse) => {
@@ -134,7 +134,7 @@ export class ClipComposerComponent implements OnInit {
     this.clipId = clip.clipId;
     this.clipNameControl.setValue(clip.clipName);
     clip.userLayers.forEach(ul => {
-      var userLayer = this.userLayers.find(userLayer => userLayer.userLayerId === ul);
+      var userLayer = this.userLayers.find(userLayer => userLayer.userLayerId === ul.userLayerId);
       if (userLayer) {
         this.addLayer(userLayer);
       }
