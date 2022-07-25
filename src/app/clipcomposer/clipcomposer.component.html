@@ -6,19 +6,14 @@
     <p class="lead">Clip composer allows you to combine layers to either make a new clip or edit an existing one.</p>
     <p>Once you create a clip you can then use this to <a [routerLink]="['/videoComposer']">compose a video</a>. Use the
         controls below to create or edit your clips</p>
-
+        <app-bpmcontrol (bpmEvent)="setBpm($event)" (isPlayingEvent)="setIsPlaying($event)"></app-bpmcontrol>
         <ng-container *ngIf="!showEditor">
             <h2>Clips</h2>
             <div class="mb-3">
             <div class="row">
                 <div *ngFor="let clip of clips; let i = index" class="col-sm mb-3">
-                    <h3>{{clip.clipName}}</h3>
-                    <!-- <app-galleryplayer [layer]="layer" (addButtonClickEvent)="addLayer($event)">
-                        (addButtonClickEvent)="addUserLayer($event)" [bpm]="bpm"
-                        [isPlaying]="isPlaying"> 
-                    </app-galleryplayer> -->
-                    <button type="button" class="btn btn-primary" (click)="editClip(clip)"><i class="bi bi-dash-circle-fill"></i>
-                        Edit</button>
+                    <app-galleryplayer [clip]="clip" [bpm]="bpm" [isPlaying]="isPlaying" [showEdit]="true" [showAdd]="false" (editButtonClickEvent)="editClip($event)"></app-galleryplayer>
+                    <!-- <button type="button" class="btn btn-primary" (click)="editClip(clip)"><i class="bi bi-pencil-square"></i> Edit</button> -->
                 </div>
             </div>
             <button type="button" class="btn btn-success" (click)="toggleEditor()"><i class="bi bi-dash-circle-fill"></i>
@@ -50,9 +45,7 @@
             <h3>Pick a background</h3>
             <div class="row">
                 <div *ngFor="let layer of userBackgrounds; let i = index" class="col-sm mb-3">
-                    <app-galleryplayer [layer]="layer" (addButtonClickEvent)="addLayer($event)">
-                        <!-- (addButtonClickEvent)="addUserLayer($event)" [bpm]="bpm"
-                        [isPlaying]="isPlaying"> -->
+                    <app-galleryplayer [layer]="layer" (addButtonClickEvent)="addLayer($event)" [bpm]="bpm" [isPlaying]="isPlaying">
                     </app-galleryplayer>
                 </div>
             </div>
@@ -84,7 +77,7 @@
             <h3>Pick a foreground</h3>
             <div class="row">
                 <div *ngFor="let layer of userForegrounds; let i = index" class="col-sm mb-3">
-                    <app-galleryplayer [layer]="layer" (addButtonClickEvent)="addLayer($event)" [disableFunction]="disableLayer" [disableTooltipFunction]="disableLayerTooltip">
+                    <app-galleryplayer [layer]="layer" (addButtonClickEvent)="addLayer($event)" [disableFunction]="disableLayer" [disableTooltipFunction]="disableLayerTooltip" [bpm]="bpm" [isPlaying]="isPlaying">
                     </app-galleryplayer>
                 </div>
             </div>

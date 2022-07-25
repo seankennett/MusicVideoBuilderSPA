@@ -1,6 +1,7 @@
 import { Component, Input, OnInit, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { Layer } from '../layer';
 import { BehaviorSubject, Observable, switchMap, take, takeUntil, takeWhile, timer } from 'rxjs';
+import { Clip } from '../clip';
 
 const imageWidth = 384;
 const secondsInMinute = 60;
@@ -15,14 +16,19 @@ const frameTotal = 64;
 })
 export class GalleryplayerComponent implements OnInit, OnChanges {
   @Input() layer!: Layer;
+  @Input() clip!: Clip;
   @Output() addButtonClickEvent = new EventEmitter<Layer>();
-  @Output() removeButtonClickEvent = new EventEmitter<Layer>();
+  @Output() editButtonClickEvent = new EventEmitter<Clip>();
 
   @Input() bpm!: number;
   @Input() isPlaying: boolean = false;
 
   @Input() disableFunction: (layer: Layer) => boolean = (layer) => { return false}
   @Input() disableTooltipFunction: (layer: Layer) => string = (layer) => {return ''}
+
+  @Input() showAdd: boolean = true;
+  @Input() showEdit: boolean = false;
+  @Input() showRemove: boolean = false;
 
   leftPosition: number = 0;
 
@@ -64,6 +70,10 @@ export class GalleryplayerComponent implements OnInit, OnChanges {
   }
 
   removeButtonClick = () => {
-    this.removeButtonClickEvent.emit(this.layer);
+    
+  }
+
+  editButtonClick = () => {
+    this.editButtonClickEvent.emit(this.clip);
   }
 }

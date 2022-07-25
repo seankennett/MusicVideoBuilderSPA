@@ -65,14 +65,7 @@ export class LayerFinderComponent implements OnInit {
     new Layertype(2, 'Foreground')
   ];
 
-  private _bpm: number = 135;
-  get bpm(){return this._bpm}
-  set bpm(value: number){
-    if (this.bpmControl.valid === true){
-      this._bpm = value
-    }
-  }
-
+  bpm: number = 0;
   isPlaying: boolean = false;
 
   layerFinders: LayerFinder[] = [];
@@ -143,10 +136,6 @@ export class LayerFinderComponent implements OnInit {
     ).subscribe();
   }
 
-  togglePlay = () =>{
-    this.isPlaying = !this.isPlaying;
-  }
-
   disableLayer = (layer : Layer) => layer?.userLayerStatusId === 2 || layer?.userLayerStatusId === 3;
   
   disableLayerTooltip = (layer : Layer) => {
@@ -161,5 +150,13 @@ export class LayerFinderComponent implements OnInit {
         return '';
       }
     }
+  }
+
+  setBpm = (bpm: number) =>{
+    this.bpm = bpm;
+  }
+
+  setIsPlaying = (isPlaying: boolean) =>{
+    this.isPlaying = isPlaying;
   }
 }

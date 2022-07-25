@@ -1,18 +1,28 @@
 <div class="card text-center">
     <div class="imageContainer">
         <img [src]="'https://cdn.musicvideobuilder.com/' + layer.layerId + '/' + layer.layerId + '.png'"
-            [alt]="layer.layerName" [style.left.px]="leftPosition" />
+            [alt]="layer.layerName" [style.left.px]="leftPosition" *ngIf="layer"/>
+            <ng-container *ngIf="clip && clip.userLayers?.length ?? 0 > 0">
+                <img *ngFor="let layerloop of clip.userLayers; let i = index" [src]="'https://cdn.musicvideobuilder.com/' + layerloop.layerId + '/' + layerloop.layerId + '.png'"
+                [alt]="layerloop.layerName" [style.left.px]="leftPosition" [style.z-index]="i"/>
+            </ng-container>
     </div>
     <div class="card-header">
-        <h5 class="card-title">{{layer.layerName}}</h5>
+        <h5 class="card-title">{{layer?.layerName ?? clip.clipName}}</h5>
     </div>
     <ul class="list-group list-group-flush">
         <li class="list-group-item"><button type="button" class="btn btn-outline-secondary" (click)="togglePlay()"><i
                     [ngClass]="localIsPlaying ? 'bi bi-stop-fill' : 'bi bi-play-fill'"></i></button></li>
         <li class="list-group-item" [ngbTooltip]="disableTooltipFunction(layer)" placement="top">
             <button type="button" [disabled]="disableFunction(layer)"
-                (click)="addButtonClick()" class="btn btn-success">
+                (click)="addButtonClick()" class="btn btn-success" *ngIf="showAdd">
                 <i class="bi bi-plus-circle-fill"></i> Add</button>
+            <button type="button" [disabled]="disableFunction(layer)"
+                (click)="editButtonClick()" class="btn btn-primary" *ngIf="showEdit">
+                <i class="bi bi-pencil-square"></i> Edit</button>
+            <button type="button" [disabled]="disableFunction(layer)"
+                (click)="removeButtonClick()" class="btn btn-danger" *ngIf="showRemove">
+                <i class="bi bi-dash-circle-fill"></i> Remove</button>
         </li>
     </ul>
 </div>

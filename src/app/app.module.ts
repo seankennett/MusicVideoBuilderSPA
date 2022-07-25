@@ -21,6 +21,7 @@ import { VideoComposerComponent } from './videocomposer/videocomposer.component'
 import { VideoBuilderComponent } from './videobuilder/videobuilder.component';
 import { MyLayersComponent } from './mylayers/mylayers.component';
 import { BreadcrumbComponent } from './breadcrumb/breadcrumb.component';
+import { BpmcontrolComponent } from './bpmcontrol/bpmcontrol.component';
 
 /**
  * Here we pass the configuration parameters to create an MSAL instance.
@@ -73,7 +74,8 @@ export function MSALGuardConfigFactory(): MsalGuardConfiguration {
     VideoComposerComponent,
     VideoBuilderComponent,
     MyLayersComponent,
-    BreadcrumbComponent
+    BreadcrumbComponent,
+    BpmcontrolComponent
   ],
   imports: [
     BrowserModule,

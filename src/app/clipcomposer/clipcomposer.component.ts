@@ -110,8 +110,6 @@ export class ClipComposerComponent implements OnInit {
       })
     };
 
-    clip.userLayers.push(this.layersFormArray.controls[0].value);
-
     this.clipService.post(clip).pipe(
       catchError((error: HttpErrorResponse) => {
         this.saving = false;
@@ -151,6 +149,15 @@ export class ClipComposerComponent implements OnInit {
       return 'Layer already in use';
     }
     return '';
+  }
 
+  bpm: number = 0;
+  isPlaying: boolean = false;
+  setBpm = (bpm: number) =>{
+    this.bpm = bpm;
+  }
+
+  setIsPlaying = (isPlaying: boolean) =>{
+    this.isPlaying = isPlaying;
   }
 }

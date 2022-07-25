@@ -1,0 +1,21 @@
+<div class="mb-3">
+    <label for="globalBpm" class="form-label">Video BPM (playback speed)</label>
+    <div class="input-group">
+        <button type="button" class="btn btn-outline-secondary" (click)="togglePlay()">
+            <i [ngClass]="isPlaying ? 'bi bi-stop-fill' : 'bi bi-play-fill'"></i> all layers</button>
+        <input type="number" class="form-control" min="90" max="250" step="1" id="globalBpm" [(ngModel)]="bpm"
+            required #bpmControl="ngModel" />
+        <span class="input-group-text">{{bpm}} beats per minute</span>
+    </div>
+    <div class="form-text text-danger" *ngIf="bpmControl.invalid">
+        <div [hidden]="!bpmControl?.errors?.['required']">
+            BPM is required.
+        </div>
+        <div [hidden]="!bpmControl?.errors?.['min']">
+            BPM must be over 90.
+        </div>
+        <div [hidden]="!bpmControl?.errors?.['max']">
+            BPM must be under 250
+        </div>
+    </div>
+</div>
