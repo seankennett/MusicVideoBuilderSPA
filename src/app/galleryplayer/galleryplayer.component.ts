@@ -37,6 +37,9 @@ export class GalleryplayerComponent implements OnInit, OnChanges {
 
   constructor() { }
 
+  get playerTitle(){
+    return this.layer?.layerName ?? this.clip?.clipName ?? '';
+  }
 
   ngOnInit(): void {
     if (this.isPlaying === true) {

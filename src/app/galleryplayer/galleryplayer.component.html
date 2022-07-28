@@ -7,13 +7,13 @@
                 [alt]="layerloop.layerName" [style.left.px]="leftPosition" [style.z-index]="i"/>
             </ng-container>
     </div>
-    <div class="card-header">
-        <h5 class="card-title">{{layer?.layerName ?? clip.clipName}}</h5>
+    <div class="card-header" *ngIf="playerTitle !== ''">
+        <h5 class="card-title">{{ playerTitle }}</h5>
     </div>
     <ul class="list-group list-group-flush">
         <li class="list-group-item"><button type="button" class="btn btn-outline-secondary" (click)="togglePlay()"><i
                     [ngClass]="localIsPlaying ? 'bi bi-stop-fill' : 'bi bi-play-fill'"></i></button></li>
-        <li class="list-group-item" [ngbTooltip]="disableTooltipFunction(layer)" placement="top">
+        <li class="list-group-item" [ngbTooltip]="disableTooltipFunction(layer)" placement="top" *ngIf="showAdd || showEdit || showRemove">
             <button type="button" [disabled]="disableFunction(layer)"
                 (click)="addButtonClick()" class="btn btn-success" *ngIf="showAdd">
                 <i class="bi bi-plus-circle-fill"></i> Add</button>

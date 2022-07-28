@@ -35,9 +35,6 @@ export class ClipComposerComponent implements OnInit {
       })
     ).subscribe((clips: Clip[]) => {
       this.clips = clips
-      if (clips.length === 0) {
-        this.toggleEditor();
-      }
     });
   }
 
@@ -62,6 +59,7 @@ export class ClipComposerComponent implements OnInit {
   })
 
   showEditor = false;
+  showExistingClipWarning = true;
   isAddingLayer = false;
 
   toggleEditor = () => {
@@ -69,11 +67,16 @@ export class ClipComposerComponent implements OnInit {
     this.clipNameControl.reset();
     this.layersFormArray.clear();
     this.isAddingLayer = false;
+    this.showExistingClipWarning = true;
     this.showEditor = !this.showEditor;
   }
 
   toggleAddNewLayer = () => {
     this.isAddingLayer = !this.isAddingLayer;
+  }
+
+  closeWarning = () =>{
+    this.showExistingClipWarning = false;
   }
 
   addLayer = (selectedLayer: Layer | UserLayer) => {
@@ -99,18 +102,20 @@ export class ClipComposerComponent implements OnInit {
 
   saving = false;
 
-  onSubmit = () => {
-    this.saving = true;
-
-    var clip = <Clip>{
+  get editorClip() : Clip {
+    return <Clip>{
       clipId: this.clipId,
       clipName: this.clipNameControl.value,
       userLayers: this.layersFormArray.controls.map((control) => {
         return control.value
       })
     };
+  }
 
-    this.clipService.post(clip).pipe(
+  onSubmit = () => {
+    this.saving = true;
+
+    this.clipService.post(this.editorClip).pipe(
       catchError((error: HttpErrorResponse) => {
         this.saving = false;
         return throwError(() => new Error('Something went wrong on the server, try again!'));
@@ -148,6 +153,26 @@ export class ClipComposerComponent implements OnInit {
     if (this.disableLayer(layer)) {
       return 'Layer already in use';
     }
+    return '';
+  }
+
+  canAddLayer = () => {
+    //return this.userLayers && this.userLayers.length !== 0 && this.userBackgrounds.length !== 0 && (this.userForegrounds.length !== 0 || this.layersFormArray.length === 0);
+    if (this.userLayers && this.userLayers.length !== 0 && this.userBackgrounds.length !== 0 && (this.userForegrounds.length !== 0 || this.layersFormArray.length === 0)){
+      return true;
+    } 
+
+    return false;
+  }
+
+  canAddLayerTooltip = () =>{
+    if (!this.userLayers || this.userLayers.length === 0 || this.userBackgrounds.length === 0) { 
+      return 'You must select a minimum of one background layer';
+    } else if (this.userForegrounds.length === 0 && this.layersFormArray.length > 0)
+    {
+      return 'You must select a foreground to be able to add more';
+    }
+
     return '';
   }
 
