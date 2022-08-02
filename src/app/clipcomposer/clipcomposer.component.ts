@@ -6,6 +6,7 @@ import { Clip } from '../clip';
 import { ClipService } from '../clip.service';
 import { Layer } from '../layer';
 import { LayerFinder } from '../layerfinder';
+import { Layertypes } from '../layertypes';
 import { UserLayer } from '../userlayer';
 import { UserlayerService } from '../userlayer.service';
 
@@ -43,11 +44,11 @@ export class ClipComposerComponent implements OnInit {
   clipId: number = 0;
 
   get userBackgrounds() {
-    return this.userLayers.filter(l => l.layerTypeId === 1);
+    return this.userLayers.filter(l => l.layerType === Layertypes.Background);
   }
 
   get userForegrounds() {
-    return this.userLayers.filter(l => l.layerTypeId === 2);
+    return this.userLayers.filter(l => l.layerType === Layertypes.Foreground);
   }
 
   clipNameControl = this.formBuilder.control('', [Validators.required, Validators.maxLength(50), Validators.pattern("[A-z0-9]+")]);

@@ -1,8 +1,8 @@
 <div [formGroup]="form" class="mb-3">
     <label for="layerType" class="form-label">Layer Type</label>
     <select id="layerType" formControlName="layerType" class="form-control">
-      <option [ngValue]="lt.id" *ngFor="let lt of layerTypeList">
-        {{lt.name}}
+      <option [ngValue]="lt" *ngFor="let lt of layerTypeList">
+        {{Layertypes[lt]}}
       </option>
     </select>
 </div>

@@ -5,10 +5,10 @@ import { catchError, debounceTime, distinctUntilChanged, filter, map, Observable
 import { Layer } from '../layer';
 import { LayerFinderService } from '../layerfinder.service';
 import { LayerFinder } from '../layerfinder';
-import { Layertype } from '../layertype';
 import { PopularTag } from '../populartag';
 import { UserLayer } from '../userlayer';
 import { UserlayerService } from '../userlayer.service';
+import { Layertypes } from '../layertypes';
 
 @Component({
   selector: 'app-layerfinder',
@@ -59,11 +59,13 @@ export class LayerFinderComponent implements OnInit {
   disableSearch = true;
   typeAheadValue = "";
   layerType = 0;
-  layerTypeList: Layertype[] = [
-    new Layertype(0, 'All'),
-    new Layertype(1, 'Background'),
-    new Layertype(2, 'Foreground')
+  layerTypeList: Array<Layertypes> = [
+    Layertypes.All,
+    Layertypes.Background,
+    Layertypes.Foreground
   ];
+
+  Layertypes = Layertypes;
 
   bpm: number = 0;
   isPlaying: boolean = false;
@@ -111,7 +113,7 @@ export class LayerFinderComponent implements OnInit {
       this.selectedTags.push(tag);
     }
 
-    let layersContainingTags = this.layerFinders.filter(lf => lf.tags.indexOf(tag) > -1 && (this.layerType === 0 || this.layerType === lf.layerTypeId));
+    let layersContainingTags = this.layerFinders.filter(lf => lf.tags.indexOf(tag) > -1 && (this.layerType === 0 || this.layerType === lf.layerType));
     for (var layerContainingTags of layersContainingTags){
       if (this.selectedLayers.some(sl => sl.layerId === layerContainingTags.layerId) === false){
         this.selectedLayers.push(layerContainingTags);
@@ -128,7 +130,7 @@ export class LayerFinderComponent implements OnInit {
     var previousUserLayerStatus = selectedLayer.userLayerStatusId;
     selectedLayer.userLayerStatusId = 3;
 
-    this.userLayerService.postUserLayer({layerId: selectedLayer.layerId, userLayerId: 0, dateUpdated:new Date(), userLayerStatusId: selectedLayer.userLayerStatusId, layerTypeId: selectedLayer.layerTypeId, layerName: selectedLayer.layerName }).pipe(
+    this.userLayerService.postUserLayer({layerId: selectedLayer.layerId, userLayerId: 0, dateUpdated:new Date(), userLayerStatusId: selectedLayer.userLayerStatusId, layerType: selectedLayer.layerType, layerName: selectedLayer.layerName }).pipe(
       catchError((error: HttpErrorResponse) => {
         selectedLayer.userLayerStatusId = previousUserLayerStatus;
         return throwError(() => new Error('Something went wrong on the server, try again!'));

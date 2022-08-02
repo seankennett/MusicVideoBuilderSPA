@@ -20,8 +20,8 @@
     <div class="mb-3">
         <label for="layerType" class="form-label">Layer Types</label>
         <select id="layerType" [(ngModel)]="layerType" class="form-control" (change)="layerTypeChange()">
-            <option [ngValue]="lt.id" *ngFor="let lt of layerTypeList">
-                {{lt.name}}
+            <option [ngValue]="lt" *ngFor="let lt of layerTypeList">
+                {{Layertypes[lt]}}
             </option>
         </select>
     </div>
