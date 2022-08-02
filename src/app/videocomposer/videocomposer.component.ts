@@ -1,4 +1,11 @@
 import { Component, OnInit } from '@angular/core';
+import { FormBuilder } from '@angular/forms';
+import { ClipService } from '../clip.service';
+import { Formats } from '../formats';
+import { Video } from '../video';
+import { Clip } from '../clip';
+import { VideoService } from '../video.service';
+import { UserLayer } from '../userlayer';
 
 @Component({
   selector: 'app-videocomposer',
@@ -7,9 +14,35 @@ import { Component, OnInit } from '@angular/core';
 })
 export class VideoComposerComponent implements OnInit {
 
-  constructor() { }
+  constructor(private formBuilder: FormBuilder, private videoService: VideoService, private clipService: ClipService) { }
 
   ngOnInit(): void {
   }
 
+
+  videos : Array<Video> | null = null;
+
+  getVid = () =>{
+    this.videoService.getAll().subscribe(video => this.videos = video);
+  }
+
+  saveVid = () =>{
+    let clip = <Video>{
+      bpm: 90, 
+      format: Formats.mp4, 
+      videoId: 0, 
+      videoName: 'first', 
+      clips: [<Clip>{
+        clipId: 10,
+        clipName:'abc',
+        userLayers:[<UserLayer>{layerName:'something'}]
+      },
+      <Clip>{
+        clipId: 11,
+        clipName:'def',
+        userLayers:[<UserLayer>{layerName:'something'}]
+      }
+    ]};
+    this.videoService.post(clip).subscribe(video => this.videos = [video]);
+  }
 }

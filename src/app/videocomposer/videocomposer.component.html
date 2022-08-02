@@ -1,1 +1,6 @@
 <app-breadcrumb [links]="[{display:'Layer Finder', path:'layerFinder' }, {display:'Clip Composer', path:'clipComposer' }, {display:'Video Composer', path:'videoComposer' }]"></app-breadcrumb>
+
+<button (click)="getVid()">Get</button>
+<button (click)="saveVid()">Save</button>
+
+{{videos | json}}

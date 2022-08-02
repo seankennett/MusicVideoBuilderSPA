@@ -44,6 +44,7 @@ export function MSALInterceptorConfigFactory(): MsalInterceptorConfiguration {
   protectedResourceMap.set(protectedResources.layerUploadApi.endpoint, protectedResources.layerUploadApi.scopes);
   protectedResourceMap.set(protectedResources.userLayerApi.endpoint, protectedResources.userLayerApi.scopes);
   protectedResourceMap.set(protectedResources.clipApi.endpoint, protectedResources.clipApi.scopes);
+  protectedResourceMap.set(protectedResources.videoApi.endpoint, protectedResources.videoApi.scopes);
 
   return {
     interactionType: InteractionType.Redirect,
