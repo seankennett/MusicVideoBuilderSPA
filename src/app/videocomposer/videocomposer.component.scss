@@ -1,0 +1,15 @@
+$freeImageWidth: 384px;
+$freeImageHeight: 216px;
+
+.imageContainer{
+    position:relative;
+    overflow:hidden;
+    width:$freeImageWidth;
+    height:$freeImageHeight;
+    margin: auto;
+}
+
+.imageContainer img {
+    position:absolute;
+    top:0;
+}

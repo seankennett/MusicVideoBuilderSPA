@@ -6,5 +6,7 @@ export interface Video {
     videoName: string,
     clips: Array<Clip>,
     bpm: number,
-    format: Formats
+    format: Formats,
+    audioFileName: string,
+    videoDelay: string
 }

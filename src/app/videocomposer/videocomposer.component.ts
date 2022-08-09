@@ -20,7 +20,14 @@ export class VideoComposerComponent implements OnInit {
   }
 
 
-  videos : Array<Video> | null = null;
+  videos : Array<Video> = [];
+  Formats = Formats;
+
+  showEditor = false;
+
+  editVideo = (video: Video) =>{
+    console.log(video);
+  }
 
   getVid = () =>{
     this.videoService.getAll().subscribe(video => this.videos = video);
@@ -31,7 +38,9 @@ export class VideoComposerComponent implements OnInit {
       bpm: 90, 
       format: Formats.mp4, 
       videoId: 0, 
-      videoName: 'first', 
+      videoName: 'first',
+      audioFileName: 'heavensAbove.mp3',
+      videoDelay: '00:00:21.0000000', 
       clips: [<Clip>{
         clipId: 10,
         clipName:'abc',

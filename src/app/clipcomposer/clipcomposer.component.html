@@ -14,7 +14,6 @@
                 <div *ngFor="let clip of clips; let i = index" class="col-sm mb-3">
                     <app-galleryplayer [clip]="clip" [bpm]="bpm" [isPlaying]="isPlaying" [showEdit]="true"
                         [showAdd]="false" (editButtonClickEvent)="editClip($event)"></app-galleryplayer>
-                    <!-- <button type="button" class="btn btn-primary" (click)="editClip(clip)"><i class="bi bi-pencil-square"></i> Edit</button> -->
                 </div>
             </div>
         </div>
