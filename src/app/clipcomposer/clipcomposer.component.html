@@ -18,8 +18,8 @@
             </div>
         </div>
     </ng-container>
-    <span [ngbTooltip]="canAddLayerTooltip()" placement="right">
-        <button type="button" class="btn btn-success" (click)="toggleEditor()" *ngIf="!showEditor"
+    <span [ngbTooltip]="canAddLayerTooltip()" placement="right" *ngIf="!showEditor">
+        <button type="button" class="btn btn-success" (click)="toggleEditor()" 
             [disabled]="!canAddLayer()"><i class="bi bi-dash-circle-fill"></i>
             Add new clip</button>
     </span>
