@@ -106,6 +106,25 @@
                     </div>
                 </div>
             </div>
+
+            <div class="mb-3">
+                <label for="audioFile" class="form-label">Audio File</label>
+                <input class="form-control" type="file" id="audioFile" accept=".mp3"
+                    (change)="onFileUpload($event)" />
+                <div id="LayerImagesHelp" class="form-text">
+                    This can only work with mp3 format due to browser limitations.  Also video delay will round to the nearest second for the same reason.
+                </div>
+                <!-- <div class="form-text text-danger" *ngIf="layerFiles?.invalid">
+                    <div [hidden]="!layerFiles?.errors?.['required']">
+                        You must select images.
+                    </div>
+                    <div [hidden]="!layerFiles?.errors?.['minlength']">
+                        You must have {{numberOfImages}} images.
+                    </div>
+                </div> -->
+            </div>
+
+
             <!-- <div class="mb-3" *ngIf="layersFormArray.length === 0">
                     <h3>Pick a background</h3>
                     <div class="row">

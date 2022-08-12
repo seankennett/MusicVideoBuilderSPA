@@ -36,20 +36,26 @@ export class VideoComposerComponent implements OnInit {
     ).subscribe((clips: Clip[]) => {
       this.clips = clips
     });
+
+    var self = this;
+    this.audioPlayer.oncanplaythrough = function () {
+      console.log(self.audioPlayer.duration);
+    }
   }
 
 
-  videos : Video[] = [];
+  videos: Video[] = [];
   clips: Clip[] = [];
   Formats = Formats;
   formatList: Formats[] = [
     Formats.mp4,
     Formats.api,
     Formats.mov
-  ] 
+  ]
+
+  audioPlayer: HTMLAudioElement = new Audio();
 
   videoId: number = 0;
-  bpm: number = 135;
 
   videoNameControl = this.formBuilder.control('', [Validators.required, Validators.maxLength(50), Validators.pattern("[A-z0-9]+")]);
   bpmControl = this.formBuilder.control(null, [Validators.required, Validators.max(250), Validators.min(90)]);
@@ -68,31 +74,32 @@ export class VideoComposerComponent implements OnInit {
   showEditor = false;
   saving = false;
 
-  editVideo = (video: Video) =>{
+  editVideo = (video: Video) => {
     console.log(video);
   }
 
-  onSubmit = () =>{
+  onSubmit = () => {
     this.saving = true;
 
     let video = <Video>{
-      bpm: 90, 
-      format: Formats.mp4, 
-      videoId: 0, 
+      bpm: 90,
+      format: Formats.mp4,
+      videoId: 0,
       videoName: 'first',
       audioFileName: 'heavensAbove.mp3',
-      videoDelayMilliseconds: 500, 
+      videoDelayMilliseconds: 500,
       clips: [<Clip>{
         clipId: 10,
-        clipName:'abc',
-        userLayers:[<UserLayer>{layerName:'something'}]
+        clipName: 'abc',
+        userLayers: [<UserLayer>{ layerName: 'something' }]
       },
       <Clip>{
         clipId: 11,
-        clipName:'def',
-        userLayers:[<UserLayer>{layerName:'something'}]
+        clipName: 'def',
+        userLayers: [<UserLayer>{ layerName: 'something' }]
       }
-    ]};
+      ]
+    };
     this.videoService.post(video).pipe(
       catchError((error: HttpErrorResponse) => {
         this.saving = false;
@@ -122,15 +129,19 @@ export class VideoComposerComponent implements OnInit {
     return this.clips && this.clips.length > 0;
   }
 
-  canAddVideoTooltip = () =>{
-    if (this.canAddVideo()) { 
+  canAddVideoTooltip = () => {
+    if (this.canAddVideo()) {
       return 'You must have a minimum of one clip';
     }
 
     return '';
   }
 
-  setBpm = (bpm: number) =>{
-    this.bpm = bpm;
+  onFileUpload = (event: any) => {
+    const files = (event.target as HTMLInputElement).files;
+    if (files) {
+      this.audioPlayer.src = URL.createObjectURL(files[0]);
+
+    }
   }
 }
