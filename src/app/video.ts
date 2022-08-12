@@ -8,5 +8,5 @@ export interface Video {
     bpm: number,
     format: Formats,
     audioFileName: string,
-    videoDelay: string
+    videoDelayMilliseconds: number
 }

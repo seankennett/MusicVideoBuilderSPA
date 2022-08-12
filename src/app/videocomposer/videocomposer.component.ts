@@ -40,7 +40,7 @@ export class VideoComposerComponent implements OnInit {
       videoId: 0, 
       videoName: 'first',
       audioFileName: 'heavensAbove.mp3',
-      videoDelay: '00:00:21.0000000', 
+      videoDelayMilliseconds: 500, 
       clips: [<Clip>{
         clipId: 10,
         clipName:'abc',
