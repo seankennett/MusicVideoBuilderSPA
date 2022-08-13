@@ -1,6 +1,6 @@
 import { Component, Input, OnInit, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { Layer } from '../layer';
-import { BehaviorSubject, Observable, switchMap, take, takeUntil, takeWhile, timer } from 'rxjs';
+import { BehaviorSubject, interval, Observable, switchMap, take, takeUntil, takeWhile, timer } from 'rxjs';
 import { Clip } from '../clip';
 
 const imageWidth = 384;
@@ -8,6 +8,7 @@ const secondsInMinute = 60;
 const millisecondsInSecond = 1000;
 const beatsPerLayer = 4;
 const frameTotal = 64;
+const framesPerSecond = 1/24;
 
 @Component({
   selector: 'app-galleryplayer',
@@ -59,11 +60,24 @@ export class GalleryplayerComponent implements OnInit, OnChanges {
     this.localIsPlaying = !this.localIsPlaying;
     this.leftPosition = 0;
     if (this.localIsPlaying) {
+      var startTime = Date.now();
       this.localBpm.pipe(
-        switchMap(val => timer(0, secondsInMinute / val * millisecondsInSecond * beatsPerLayer / frameTotal)),
+        switchMap(() => timer(0, framesPerSecond * millisecondsInSecond)),
         takeWhile(() => this.localIsPlaying)
-      ).subscribe(frameNumber => {
-        this.leftPosition = -(frameNumber % frameTotal) * imageWidth;
+      ).subscribe(() => {
+        var newTime = Date.now();
+        var currentTime = (newTime - startTime) / millisecondsInSecond;
+        var layerDuration = secondsInMinute / this.localBpm.value * beatsPerLayer;
+        var currentTimeInLayer = currentTime % layerDuration;
+
+        var percentageOfLayerDuration = currentTimeInLayer / layerDuration;
+
+        var frameInLayerNumber = Math.round(frameTotal * percentageOfLayerDuration);
+        if (frameInLayerNumber >= frameTotal){
+          frameInLayerNumber = frameTotal - 1;
+        }
+
+        this.leftPosition = -(frameInLayerNumber) * imageWidth;
       });
     }
   }
