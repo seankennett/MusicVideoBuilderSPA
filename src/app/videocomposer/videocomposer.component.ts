@@ -61,18 +61,21 @@ export class VideoComposerComponent implements OnInit {
   bpmControl = this.formBuilder.control(null, [Validators.required, Validators.max(250), Validators.min(90)]);
   videoDelayMillisecondsControl = this.formBuilder.control(null, [Validators.max(2147483647), Validators.pattern("[0-9]+")]);
   formatControl = this.formBuilder.control(1, [Validators.required]);
+  audioFileNameControl = this.formBuilder.control('', [Validators.pattern("([A-z0-9- \(\)]+(\.mp3))"), Validators.maxLength(50)]);
   //layersFormArray = this.formBuilder.array([], [Validators.required])
 
   videoForm = this.formBuilder.group({
     videoNameControl: this.videoNameControl,
     bpmControl: this.bpmControl,
     formatControl: this.formatControl,
-    videoDelayMillisecondsControl: this.videoDelayMillisecondsControl
+    videoDelayMillisecondsControl: this.videoDelayMillisecondsControl,
+    audioFileNameControl: this.audioFileNameControl
     //layersFormArray: this.layersFormArray
   })
 
   showEditor = false;
   saving = false;
+  activeTabId = 1;
 
   editVideo = (video: Video) => {
     console.log(video);
@@ -141,7 +144,7 @@ export class VideoComposerComponent implements OnInit {
     const files = (event.target as HTMLInputElement).files;
     if (files) {
       this.audioPlayer.src = URL.createObjectURL(files[0]);
-
+      this.audioFileNameControl.setValue(files[0].name);
     }
   }
 }

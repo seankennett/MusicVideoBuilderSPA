@@ -43,89 +43,111 @@
     <ng-container *ngIf="showEditor">
         <h2>Video Editor</h2>
         <form [formGroup]="videoForm" (ngSubmit)="onSubmit()">
-            <div class="mb-3">
-                <label for="videoName" class="form-label">Video Name</label>
-                <input type="text" class="form-control" id="videoName" formControlName="videoNameControl" />
-                <div class="form-text">Try to pick something short. Has to be Alpha Numeric and unique across your
-                    videos.
-                </div>
-                <div class="form-text text-danger"
-                    *ngIf="videoNameControl?.invalid  && (videoNameControl?.dirty || videoNameControl?.touched)">
-                    <div [hidden]="!videoNameControl?.errors?.['required']">
-                        Video name is required.
-                    </div>
-                    <div [hidden]="!videoNameControl?.errors?.['maxlength']">
-                        Video name max length is 50 characters.
-                    </div>
-                    <div [hidden]="!videoNameControl?.errors?.['pattern']">
-                        Video name must be alpha numeric.
-                    </div>
-                </div>
-            </div>
-            <div class="mb-3">
-                <label for="videoBpm" class="form-label">Video BPM (playback speed)</label>
-                <input type="number" class="form-control" min="90" max="250" step="1" id="videoBpm"
-                    formControlName="bpmControl" />
-                <div class="form-text">Must be between 90 and 250 beats per minute.
-                </div>
-                <div class="form-text text-danger"
-                    *ngIf="bpmControl?.invalid  && (bpmControl?.dirty || bpmControl?.touched)">
-                    <div [hidden]="!bpmControl?.errors?.['required']">
-                        BPM is required.
-                    </div>
-                    <div [hidden]="!bpmControl?.errors?.['min']">
-                        BPM must be over 90.
-                    </div>
-                    <div [hidden]="!bpmControl?.errors?.['max']">
-                        BPM must be under 250
-                    </div>
-                </div>
-            </div>
-            <div class="mb-3">
-                <label for="format" class="form-label">Format</label>
-                <select id="format" formControlName="formatControl" class="form-control">
-                    <option [ngValue]="lt" *ngFor="let lt of formatList">
-                        {{Formats[lt]}}
-                    </option>
-                </select>
-            </div>
-            <div class="mb-3">
-                <label for="videoDelayMilliseconds" class="form-label">Video Delay in milliseconds</label>
-                <input type="number" class="form-control" min="0" max="2147483647" step="1" id="videoDelayMilliseconds"
-                    formControlName="videoDelayMillisecondsControl" />
-                <div class="form-text">This is the delay in milliseconds from the start of your audio to where the first
-                    beat kicks in. This will be when the video starts.
-                </div>
-                <div class="form-text text-danger"
-                    *ngIf="videoDelayMillisecondsControl?.invalid  && (videoDelayMillisecondsControl?.dirty || videoDelayMillisecondsControl?.touched)">
-                    <div [hidden]="!videoDelayMillisecondsControl?.errors?.['max']">
-                        Delay must be less than 2147483647.
-                    </div>
-                    <div [hidden]="!videoDelayMillisecondsControl?.errors?.['pattern']">
-                        Delay must be a positive whole numnber.
-                    </div>
-                </div>
-            </div>
+            <ul ngbNav #nav="ngbNav" class="nav-tabs" [(activeId)]="activeTabId">
+                <li [ngbNavItem]="1">
+                    <a ngbNavLink>Details</a>
+                    <ng-template ngbNavContent>
+                        <div class="mb-3">
+                            <label for="videoName" class="form-label">Video Name</label>
+                            <input type="text" class="form-control" id="videoName" formControlName="videoNameControl" />
+                            <div class="form-text">Try to pick something short. Has to be Alpha Numeric and unique
+                                across your
+                                videos.
+                            </div>
+                            <div class="form-text text-danger"
+                                *ngIf="videoNameControl?.invalid  && (videoNameControl?.dirty || videoNameControl?.touched)">
+                                <div [hidden]="!videoNameControl?.errors?.['required']">
+                                    Video name is required.
+                                </div>
+                                <div [hidden]="!videoNameControl?.errors?.['maxlength']">
+                                    Video name max length is 50 characters.
+                                </div>
+                                <div [hidden]="!videoNameControl?.errors?.['pattern']">
+                                    Video name must be alpha numeric.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="videoBpm" class="form-label">Video BPM (playback speed)</label>
+                            <input type="number" class="form-control" min="90" max="250" step="1" id="videoBpm"
+                                formControlName="bpmControl" />
+                            <div class="form-text">Must be between 90 and 250 beats per minute.
+                            </div>
+                            <div class="form-text text-danger"
+                                *ngIf="bpmControl?.invalid  && (bpmControl?.dirty || bpmControl?.touched)">
+                                <div [hidden]="!bpmControl?.errors?.['required']">
+                                    BPM is required.
+                                </div>
+                                <div [hidden]="!bpmControl?.errors?.['min']">
+                                    BPM must be over 90.
+                                </div>
+                                <div [hidden]="!bpmControl?.errors?.['max']">
+                                    BPM must be under 250
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="format" class="form-label">Format</label>
+                            <select id="format" formControlName="formatControl" class="form-control">
+                                <option [ngValue]="lt" *ngFor="let lt of formatList">
+                                    {{Formats[lt]}}
+                                </option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="videoDelayMilliseconds" class="form-label">Video Delay in milliseconds</label>
+                            <input type="number" class="form-control" min="0" max="2147483647" step="1"
+                                id="videoDelayMilliseconds" formControlName="videoDelayMillisecondsControl" />
+                            <div class="form-text">This is the delay in milliseconds from the start of your audio to
+                                where the first
+                                beat kicks in. This will be when the video starts. Leave blank or 0 for no delay.
+                            </div>
+                            <div class="form-text text-danger"
+                                *ngIf="videoDelayMillisecondsControl?.invalid  && (videoDelayMillisecondsControl?.dirty || videoDelayMillisecondsControl?.touched)">
+                                <div [hidden]="!videoDelayMillisecondsControl?.errors?.['max']">
+                                    Delay must be less than 2147483647.
+                                </div>
+                                <div [hidden]="!videoDelayMillisecondsControl?.errors?.['pattern']">
+                                    Delay must be a positive whole numnber.
+                                </div>
+                            </div>
+                        </div>
 
-            <div class="mb-3">
-                <label for="audioFile" class="form-label">Audio File</label>
-                <input class="form-control" type="file" id="audioFile" accept=".mp3"
-                    (change)="onFileUpload($event)" />
-                <div id="LayerImagesHelp" class="form-text">
-                    This can only work with mp3 format due to browser limitations.  Also video delay will round to the nearest second for the same reason.
-                </div>
-                <!-- <div class="form-text text-danger" *ngIf="layerFiles?.invalid">
-                    <div [hidden]="!layerFiles?.errors?.['required']">
-                        You must select images.
+                        <div class="mb-3">
+                            <label for="audioFile" class="form-label">Audio File Selector</label>
+                            <input class="form-control" type="file" id="audioFile" accept=".mp3"
+                                (change)="onFileUpload($event)" />
+                            <div id="LayerImagesHelp" class="form-text">
+                                This is to add audio when you play your video and is optional. If this is an existing
+                                video you will need to select your track again as we don't upload these files.
+                            </div>
+                            <label for="audioFileName" class="form-label">Audio File Name</label>
+                            <input type="text" class="form-control" id="audioFileName"
+                                formControlName="audioFileNameControl" />
+                            <div class="form-text text-danger" *ngIf="audioFileNameControl?.invalid">
+                                <div [hidden]="!audioFileNameControl?.errors?.['pattern']">
+                                    Audio file name must be alphanumeric or contain ()- or spaces and end with .mp3.
+                                </div>
+                                <div [hidden]="!audioFileNameControl?.errors?.['maxlength']">
+                                    Audio file name max length is 50 characters.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                        <button type="button" [disabled]="!bpmControl.valid" class="btn btn-secondary" (click)="activeTabId = 2">Go to timeline</button>
                     </div>
-                    <div [hidden]="!layerFiles?.errors?.['minlength']">
-                        You must have {{numberOfImages}} images.
-                    </div>
-                </div> -->
-            </div>
+                    </ng-template>
+                </li>
+                <li [ngbNavItem]="2" [disabled]="!bpmControl.valid">
+                    <a ngbNavLink>Timeline</a>
+                    <ng-template ngbNavContent>
+                        <div class="mb-3">
+                            <button type="button" class="btn btn-secondary" (click)="activeTabId = 1">Go to details</button>
+                        </div>
+                    </ng-template>
+                </li>
 
-
-            <!-- <div class="mb-3" *ngIf="layersFormArray.length === 0">
+                <!-- <div class="mb-3" *ngIf="layersFormArray.length === 0">
                     <h3>Pick a background</h3>
                     <div class="row">
                         <div *ngFor="let layer of userBackgrounds; let i = index" class="col-sm mb-3">
@@ -182,6 +204,8 @@
                     <button type="button" class="btn btn-danger" (click)="toggleAddNewLayer()">
                         <i class="bi bi-dash-circle-fill"></i> Cancel Adding Layer</button>
                 </div> -->
+            </ul>
+            <div [ngbNavOutlet]="nav"></div>
             <button type="submit" [disabled]="!videoForm.valid || saving" class="btn btn-primary">Save</button>
             <button type="button" class="btn btn-danger" (click)="toggleEditor()"><i class="bi bi-dash-circle-fill"></i>
                 Cancel</button>
