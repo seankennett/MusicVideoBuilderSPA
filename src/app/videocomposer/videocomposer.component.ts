@@ -62,18 +62,19 @@ export class VideoComposerComponent implements OnInit {
   videoDelayMillisecondsControl = this.formBuilder.control(null, [Validators.max(2147483647), Validators.pattern("[0-9]+")]);
   formatControl = this.formBuilder.control(1, [Validators.required]);
   audioFileNameControl = this.formBuilder.control('', [Validators.pattern("([A-z0-9- \(\)]+(\.mp3))"), Validators.maxLength(50)]);
-  //layersFormArray = this.formBuilder.array([], [Validators.required])
+  clipsFormArray = this.formBuilder.array([], [Validators.required])
 
   videoForm = this.formBuilder.group({
     videoNameControl: this.videoNameControl,
     bpmControl: this.bpmControl,
     formatControl: this.formatControl,
     videoDelayMillisecondsControl: this.videoDelayMillisecondsControl,
-    audioFileNameControl: this.audioFileNameControl
-    //layersFormArray: this.layersFormArray
+    audioFileNameControl: this.audioFileNameControl,
+    clipsFormArray: this.clipsFormArray
   })
 
   showEditor = false;
+  showClipPicker = false;
   saving = false;
   activeTabId = 1;
 
@@ -128,16 +129,24 @@ export class VideoComposerComponent implements OnInit {
     this.showEditor = !this.showEditor;
   }
 
+  toggleClipPicker = () =>{
+    this.showClipPicker = !this.showClipPicker;
+  }
+
   canAddVideo = () => {
     return this.clips && this.clips.length > 0;
   }
 
   canAddVideoTooltip = () => {
     if (this.canAddVideo()) {
-      return 'You must have a minimum of one clip';
+      return '';
     }
 
-    return '';
+    return 'You must have a minimum of one clip';
+  }
+
+  bpmInvalidTooltip = () => {
+    return !this.bpmControl.valid ? 'You must set bpm as a minimum to see timeline' : '';
   }
 
   onFileUpload = (event: any) => {
@@ -146,5 +155,18 @@ export class VideoComposerComponent implements OnInit {
       this.audioPlayer.src = URL.createObjectURL(files[0]);
       this.audioFileNameControl.setValue(files[0].name);
     }
+  }
+
+  addClipPickerClip = (clip : Clip) =>{
+    this.toggleClipPicker();
+    this.addClip(clip);
+  }
+
+  addClip = (clip : Clip) =>{
+    this.clipsFormArray.push(this.formBuilder.control(clip));
+  }
+
+  removeClip = (index: number) => {
+    this.clipsFormArray.removeAt(index);
   }
 }

@@ -10,7 +10,7 @@
         <label class="form-label">Popular Tags</label>
         <div>
             <ng-container *ngFor="let popularTag of popularTags">
-                <button type="button" class="btn btn-outline-success" (click)="addTag(popularTag.tagName)">
+                <button type="button" class="btn btn-outline-success  me-1" (click)="addTag(popularTag.tagName)">
                     <i class="bi bi-plus-circle-fill"></i> {{popularTag.tagName}} <span
                         class="badge bg-secondary">{{popularTag.count}}</span>
                 </button>
@@ -33,7 +33,7 @@
             [disabled]="disableSearch" [(ngModel)]="typeAheadValue" />
         <div class="form-text">Type and use the select list to search for layers.</div>
         <ng-container *ngFor="let selectedTag of selectedTags">
-            <button type="button" class="btn btn-outline-danger" (click)="removeSelectedTag(selectedTag)">
+            <button type="button" class="btn btn-outline-danger me-1" (click)="removeSelectedTag(selectedTag)">
                 <i class="bi bi-x-circle-fill"></i> {{selectedTag}}
             </button>
         </ng-container>
@@ -44,7 +44,7 @@
     <app-bpmcontrol (bpmEvent)="setBpm($event)" (isPlayingEvent)="setIsPlaying($event)"></app-bpmcontrol>
     <div class="row">
         <div *ngFor="let layer of selectedLayers; let i = index" class="col-sm mb-3">
-            <app-galleryplayer [layer]="layer" (addButtonClickEvent)="addUserLayer($event)" [bpm]="bpm"
+            <app-galleryplayer [layer]="layer" (addButtonClickLayerEvent)="addUserLayer($event)" [bpm]="bpm"
                 [isPlaying]="isPlaying" [disableFunction]="disableLayer" [disableTooltipFunction]="disableLayerTooltip">
             </app-galleryplayer>
         </div>

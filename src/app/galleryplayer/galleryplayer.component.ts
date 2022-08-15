@@ -18,8 +18,9 @@ const framesPerSecond = 1/24;
 export class GalleryplayerComponent implements OnInit, OnChanges {
   @Input() layer!: Layer;
   @Input() clip!: Clip;
-  @Output() addButtonClickEvent = new EventEmitter<Layer>();
-  @Output() editButtonClickEvent = new EventEmitter<Clip>();
+  @Output() addButtonClickLayerEvent = new EventEmitter<Layer>();
+  @Output() addButtonClickClipEvent = new EventEmitter<Clip>();
+  @Output() editButtonClickClipEvent = new EventEmitter<Clip>();
 
   @Input() bpm!: number;
   @Input() isPlaying: boolean = false;
@@ -83,7 +84,8 @@ export class GalleryplayerComponent implements OnInit, OnChanges {
   }
 
   addButtonClick = () => {
-    this.addButtonClickEvent.emit(this.layer);
+    this.addButtonClickLayerEvent.emit(this.layer);
+    this.addButtonClickClipEvent.emit(this.clip);
   }
 
   removeButtonClick = () => {
@@ -91,6 +93,6 @@ export class GalleryplayerComponent implements OnInit, OnChanges {
   }
 
   editButtonClick = () => {
-    this.editButtonClickEvent.emit(this.clip);
+    this.editButtonClickClipEvent.emit(this.clip);
   }
 }

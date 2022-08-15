@@ -25,9 +25,6 @@
                             <li class="list-group-item">
                                 <button type="button" (click)="editVideo(video)" class="btn btn-primary">
                                     <i class="bi bi-pencil-square"></i> Edit</button>
-                                <!-- <button type="button" [disabled]="disableFunction(layer)"
-                                        (click)="removeButtonClick()" class="btn btn-danger" *ngIf="showRemove">
-                                        <i class="bi bi-dash-circle-fill"></i> Remove</button> -->
                             </li>
                         </ul>
                     </div>
@@ -134,15 +131,65 @@
                             </div>
                         </div>
                         <div class="mb-3">
-                        <button type="button" [disabled]="!bpmControl.valid" class="btn btn-secondary" (click)="activeTabId = 2">Go to timeline</button>
-                    </div>
+                            <span [ngbTooltip]="bpmInvalidTooltip()" placement="right">
+                                <button type="button" [disabled]="!bpmControl.valid" class="btn btn-secondary"
+                                    (click)="activeTabId = 2">Go to timeline</button>
+                            </span>
+                        </div>
                     </ng-template>
                 </li>
-                <li [ngbNavItem]="2" [disabled]="!bpmControl.valid">
+                <li [ngbNavItem]="2" [disabled]="!bpmControl.valid" [ngbTooltip]="bpmInvalidTooltip()"
+                    placement="right">
                     <a ngbNavLink>Timeline</a>
                     <ng-template ngbNavContent>
+
                         <div class="mb-3">
-                            <button type="button" class="btn btn-secondary" (click)="activeTabId = 1">Go to details</button>
+                            <div class="row" *ngIf="showEditor && this.clipsFormArray.length > 0">
+                                <div *ngFor="let clipControl of this.clipsFormArray.controls; let i = index"
+                                    class="col-sm mb-3">
+                                    <div class="card text-center">
+                                        <div class="imageContainer">
+                                            <img *ngFor="let layerloop of clipControl.value.userLayers; let i = index"
+                                                [src]="'https://cdn.musicvideobuilder.com/' + layerloop.layerId + '/' + layerloop.layerId + '.png'"
+                                                [alt]="layerloop.layerName" [style.left.px]="0" [style.z-index]="i" />
+                                        </div>
+                                        <h5 class="card-header">{{clipControl.value.clipName}}</h5>
+                                        <ul class="list-group list-group-flush">
+                                            <li class="list-group-item">
+                                                <button type="button" class="btn btn-secondary me-1">
+                                                    <i class="bi bi-arrow-left-circle-fill"></i> Move back</button>
+                                                <button type="button" class="btn btn-danger me-1" (click)="removeClip(i)">
+                                                    <i class="bi bi-dash-circle-fill"></i> Remove</button>
+                                                <button type="button" class="btn btn-success me-1">
+                                                    <i class="bi bi-plus-circle-fill"></i> Add different clip next</button>
+                                                <button type="button" class="btn btn-primary me-1" (click)="addClip(clipControl.value)">
+                                                    <i class="bi bi-files"></i> Add same clip next</button>
+                                                <button type="button" class="btn btn-secondary">
+                                                    <i class="bi bi-arrow-right-circle-fill"></i> Move forward</button>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <span *ngIf="showEditor && this.clipsFormArray.length === 0 && !showClipPicker">
+                                <button type="button" (click)="toggleClipPicker()" class="btn btn-success">
+                                    <i class="bi bi-plus-circle-fill"></i> Add clip</button>
+                            </span>
+                            <ng-container *ngIf="showClipPicker">
+                                <h2>Clips</h2>
+                                <div class="mb-3">
+                                    <div class="row">
+                                        <div *ngFor="let clip of clips; let i = index" class="col-sm mb-3">
+                                            <app-galleryplayer [clip]="clip" [bpm]="bpmControl.value"
+                                                (addButtonClickClipEvent)="addClipPickerClip($event)"></app-galleryplayer>
+                                        </div>
+                                    </div>
+                                </div>
+                            </ng-container>
+                        </div>
+                        <div class="mb-3">
+                            <button type="button" class="btn btn-secondary" (click)="activeTabId = 1">Go to
+                                details</button>
                         </div>
                     </ng-template>
                 </li>
