@@ -142,38 +142,72 @@
                     placement="right">
                     <a ngbNavLink>Timeline</a>
                     <ng-template ngbNavContent>
-
+                        <div class="mb-3">
+                            <label for="clipsPerBlock" class="form-label">Number of clips per timeline block</label>
+                            <select id="clipsPerBlock" class="form-control" formControlName="clipsPerBlockControl">
+                                <option [ngValue]="1">
+                                    1
+                                </option>
+                                <option [ngValue]="4">
+                                    4
+                                </option>
+                                <option [ngValue]="16">
+                                    16
+                                </option>
+                            </select>
+                        </div>
                         <div class="mb-3">
                             <div class="row" *ngIf="showEditor && this.clipsFormArray.length > 0">
-                                <div *ngFor="let clipControl of this.clipsFormArray.controls; let i = index"
-                                    class="col-sm mb-3">
+                                <ng-container *ngFor="let clipControl of this.clipsFormArray.controls; let i = index">
+                                <div class="col-3 mb-3" *ngIf="i % clipsPerBlock === 0">
                                     <div class="card text-center">
-                                        <div class="imageContainer">
+                                        <div class="timeLineImageContainer">
                                             <img *ngFor="let layerloop of clipControl.value.userLayers; let i = index"
                                                 [src]="'https://cdn.musicvideobuilder.com/' + layerloop.layerId + '/' + layerloop.layerId + '.png'"
                                                 [alt]="layerloop.layerName" [style.left.px]="0" [style.z-index]="i" />
                                         </div>
-                                        <h5 class="card-header">{{clipControl.value.clipName}}</h5>
+                                        <h5 class="card-header">{{calculateClipNameFromClipIndex(i)}}</h5>
                                         <ul class="list-group list-group-flush">
                                             <li class="list-group-item">
-                                                <button type="button" class="btn btn-secondary me-1">
-                                                    <i class="bi bi-arrow-left-circle-fill"></i> Move back</button>
-                                                <button type="button" class="btn btn-danger me-1" (click)="removeClip(i)">
-                                                    <i class="bi bi-dash-circle-fill"></i> Remove</button>
-                                                <button type="button" class="btn btn-success me-1">
-                                                    <i class="bi bi-plus-circle-fill"></i> Add different clip next</button>
-                                                <button type="button" class="btn btn-primary me-1" (click)="addClip(clipControl.value)">
-                                                    <i class="bi bi-files"></i> Add same clip next</button>
-                                                <button type="button" class="btn btn-secondary">
-                                                    <i class="bi bi-arrow-right-circle-fill"></i> Move forward</button>
+                                                <span [ngbTooltip]="'Start player from here.'">
+                                                    <button type="button" class="btn btn-info me-1"
+                                                        (click)="setSelectedClipIndex(i)"
+                                                        [disabled]="i === this.selectedClipIndex">
+                                                        <i class="bi bi-bookmark-star-fill"></i></button>
+                                                </span>
+                                                <span [ngbTooltip]="'Move back'">
+                                                    <button type="button" class="btn btn-secondary me-1">
+                                                        <i class="bi bi-arrow-left-circle-fill"></i></button>
+                                                </span>
+                                                <span [ngbTooltip]="'Remove'">
+                                                    <button type="button" class="btn btn-danger me-1"
+                                                        (click)="removeClip(i)">
+                                                        <i class="bi bi-dash-circle-fill"></i></button>
+                                                </span>
+                                                <span [ngbTooltip]="'Add copy after current'">
+                                                    <button type="button" class="btn btn-primary me-1"
+                                                        (click)="addClip(clipControl.value)">
+                                                        <i class="bi bi-files"></i></button>
+                                                </span>
+                                                <span [ngbTooltip]="'Move forward'">
+                                                    <button type="button" class="btn btn-secondary">
+                                                        <i class="bi bi-arrow-right-circle-fill"></i></button>
+                                                </span>
+                                            </li>
+                                            <li class="list-group-item">
+                                                Beat #: {{calculateBeatRangeFromClipIndex(i)}}
+                                            </li>
+                                            <li class="list-group-item">
+                                                Time: {{calculateTimeRangeFromClipIndex(i) }}
                                             </li>
                                         </ul>
                                     </div>
                                 </div>
+                            </ng-container>
                             </div>
-                            <span *ngIf="showEditor && this.clipsFormArray.length === 0 && !showClipPicker">
+                            <span *ngIf="showEditor && !showClipPicker">
                                 <button type="button" (click)="toggleClipPicker()" class="btn btn-success">
-                                    <i class="bi bi-plus-circle-fill"></i> Add clip</button>
+                                    <i class="bi bi-plus-circle-fill"></i> Add clip to end</button>
                             </span>
                             <ng-container *ngIf="showClipPicker">
                                 <h2>Clips</h2>
@@ -181,7 +215,8 @@
                                     <div class="row">
                                         <div *ngFor="let clip of clips; let i = index" class="col-sm mb-3">
                                             <app-galleryplayer [clip]="clip" [bpm]="bpmControl.value"
-                                                (addButtonClickClipEvent)="addClipPickerClip($event)"></app-galleryplayer>
+                                                (addButtonClickClipEvent)="addClipPickerClip($event)">
+                                            </app-galleryplayer>
                                         </div>
                                     </div>
                                 </div>

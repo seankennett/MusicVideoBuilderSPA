@@ -1,6 +1,9 @@
 $freeImageWidth: 384px;
 $freeImageHeight: 216px;
 
+$timelineImageWidth: 128px;
+$timelineImageHeight: 72px;
+
 .imageContainer{
     position:relative;
     overflow:hidden;
@@ -9,7 +12,19 @@ $freeImageHeight: 216px;
     margin: auto;
 }
 
-.imageContainer img {
+.timeLineImageContainer img, .imageContainer img {
     position:absolute;
     top:0;
+}
+
+.timeLineImageContainer{
+    position:relative;
+    overflow:hidden;
+    width:$timelineImageWidth;
+    height:$timelineImageHeight;
+    margin: auto;
+}
+
+.timeLineImageContainer img {
+    height:$timelineImageHeight;
 }

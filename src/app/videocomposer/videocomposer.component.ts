@@ -8,6 +8,10 @@ import { VideoService } from '../video.service';
 import { UserLayer } from '../userlayer';
 import { catchError, throwError } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
+import { DatePipe } from '@angular/common';
+
+const beatsPerLayer = 4;
+const millisecondsInMinute = 60000;
 
 @Component({
   selector: 'app-videocomposer',
@@ -16,7 +20,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 })
 export class VideoComposerComponent implements OnInit {
 
-  constructor(private formBuilder: FormBuilder, private videoService: VideoService, private clipService: ClipService) { }
+  constructor(private formBuilder: FormBuilder, private videoService: VideoService, private clipService: ClipService, private datePipe: DatePipe) { }
 
   ngOnInit(): void {
     this.videoService.getAll().pipe(
@@ -62,7 +66,9 @@ export class VideoComposerComponent implements OnInit {
   videoDelayMillisecondsControl = this.formBuilder.control(null, [Validators.max(2147483647), Validators.pattern("[0-9]+")]);
   formatControl = this.formBuilder.control(1, [Validators.required]);
   audioFileNameControl = this.formBuilder.control('', [Validators.pattern("([A-z0-9- \(\)]+(\.mp3))"), Validators.maxLength(50)]);
-  clipsFormArray = this.formBuilder.array([], [Validators.required])
+  clipsPerBlockControl = this.formBuilder.control(1);
+  clipsFormArray = this.formBuilder.array([], [Validators.required]);
+
 
   videoForm = this.formBuilder.group({
     videoNameControl: this.videoNameControl,
@@ -70,13 +76,19 @@ export class VideoComposerComponent implements OnInit {
     formatControl: this.formatControl,
     videoDelayMillisecondsControl: this.videoDelayMillisecondsControl,
     audioFileNameControl: this.audioFileNameControl,
-    clipsFormArray: this.clipsFormArray
+    clipsFormArray: this.clipsFormArray,
+    clipsPerBlockControl: this.clipsPerBlockControl
   })
+
+  get clipsPerBlock() {
+    return this.clipsPerBlockControl.value as number;
+  }
 
   showEditor = false;
   showClipPicker = false;
   saving = false;
   activeTabId = 1;
+  selectedClipIndex = 0;
 
   editVideo = (video: Video) => {
     console.log(video);
@@ -129,8 +141,12 @@ export class VideoComposerComponent implements OnInit {
     this.showEditor = !this.showEditor;
   }
 
-  toggleClipPicker = () =>{
+  toggleClipPicker = () => {
     this.showClipPicker = !this.showClipPicker;
+  }
+
+  setSelectedClipIndex = (index: number) => {
+    this.selectedClipIndex = index;
   }
 
   canAddVideo = () => {
@@ -157,16 +173,55 @@ export class VideoComposerComponent implements OnInit {
     }
   }
 
-  addClipPickerClip = (clip : Clip) =>{
+  addClipPickerClip = (clip: Clip) => {
     this.toggleClipPicker();
     this.addClip(clip);
   }
 
-  addClip = (clip : Clip) =>{
+  addClip = (clip: Clip) => {
     this.clipsFormArray.push(this.formBuilder.control(clip));
   }
 
   removeClip = (index: number) => {
     this.clipsFormArray.removeAt(index);
+  }
+
+  calculateBeatRangeFromClipIndex = (index: number) => {
+    var beatStart = index * beatsPerLayer + 1;
+    var beatEnd = index * beatsPerLayer + this.clipsPerBlock * beatsPerLayer;
+    if (index + this.clipsPerBlock > this.clipsFormArray.length) {
+      beatEnd = this.clipsFormArray.length * beatsPerLayer;
+    }
+
+    return beatStart + ' to ' + beatEnd;
+
+  }
+
+  calculateTimeRangeFromClipIndex = (index: number) => {
+    var layerDuration = millisecondsInMinute / this.bpmControl.value * beatsPerLayer;
+    var startTimeMilliseconds = (this.videoDelayMillisecondsControl.value ?? 0) + index * layerDuration;    
+    var startDate = new Date(0, 0, 0);
+    startDate.setMilliseconds(startTimeMilliseconds);
+
+    var endTimeMilliseconds = startTimeMilliseconds + this.clipsPerBlock * layerDuration;
+    if (index + this.clipsPerBlock > this.clipsFormArray.length){
+      endTimeMilliseconds = this.clipsFormArray.length * layerDuration;
+    }
+    var endDate = new Date(0, 0, 0);
+    endDate.setMilliseconds(endTimeMilliseconds);
+
+    return this.datePipe.transform(startDate, 'HH:mm:ss.SSS') + ' to ' + this.datePipe.transform(endDate, 'HH:mm:ss.SSS');
+  }
+
+  calculateClipNameFromClipIndex = (index: number) => {
+    var clipNameArray = [];
+    for (var i = index; i < index + this.clipsPerBlock; i++) {
+      var clipControl = this.clipsFormArray.controls[i];
+      if (clipControl !== undefined) {
+        clipNameArray.push(clipControl.value.clipName);
+      }
+    }
+
+    return clipNameArray.join(", ");
   }
 }
