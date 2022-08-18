@@ -173,17 +173,52 @@ export class VideoComposerComponent implements OnInit {
     }
   }
 
-  addClipPickerClip = (clip: Clip) => {
-    this.toggleClipPicker();
-    this.addClip(clip);
+  moveBack = (index: number) => {
+    for (var i = index; i < index + this.clipsPerBlock; i++) {
+      var clipControl = this.clipsFormArray.controls[i];
+      if (clipControl !== undefined) {
+        this.clipsFormArray.controls[i] = this.clipsFormArray.controls[i - this.clipsPerBlock];
+        this.clipsFormArray.controls[i - this.clipsPerBlock] = clipControl;
+      }
+    }
   }
 
-  addClip = (clip: Clip) => {
+  moveForward = (index: number) => {
+    for (var i = index; i < index + this.clipsPerBlock; i++) {
+      var clipControl = this.clipsFormArray.controls[i];
+      if (clipControl !== undefined) {
+        this.clipsFormArray.controls[i] = this.clipsFormArray.controls[i + this.clipsPerBlock];
+        this.clipsFormArray.controls[i + this.clipsPerBlock] = clipControl;
+      }
+    }
+  }
+
+  addClipPickerClip = (clip: Clip) => {
+    this.toggleClipPicker();
     this.clipsFormArray.push(this.formBuilder.control(clip));
   }
 
+  copyClip = (index: number) => {
+    var endOfBlockIndex = index + this.clipsPerBlock;
+    if (endOfBlockIndex > this.clipsFormArray.length) {
+      endOfBlockIndex = this.clipsFormArray.length;
+    }
+
+    for (var i = endOfBlockIndex - 1; i >= index; i--) {
+      var clipControl = this.clipsFormArray.controls[i];
+      this.clipsFormArray.insert(endOfBlockIndex, this.formBuilder.control(clipControl.value));
+    }
+  }
+
   removeClip = (index: number) => {
-    this.clipsFormArray.removeAt(index);
+    var endOfBlockIndex = index + this.clipsPerBlock;
+    if (endOfBlockIndex > this.clipsFormArray.length) {
+      endOfBlockIndex = this.clipsFormArray.length;
+    }
+
+    for (var i = endOfBlockIndex - 1; i >= index; i--) {
+      this.clipsFormArray.removeAt(i);
+    }
   }
 
   calculateBeatRangeFromClipIndex = (index: number) => {
@@ -199,12 +234,12 @@ export class VideoComposerComponent implements OnInit {
 
   calculateTimeRangeFromClipIndex = (index: number) => {
     var layerDuration = millisecondsInMinute / this.bpmControl.value * beatsPerLayer;
-    var startTimeMilliseconds = (this.videoDelayMillisecondsControl.value ?? 0) + index * layerDuration;    
+    var startTimeMilliseconds = (this.videoDelayMillisecondsControl.value ?? 0) + index * layerDuration;
     var startDate = new Date(0, 0, 0);
     startDate.setMilliseconds(startTimeMilliseconds);
 
     var endTimeMilliseconds = startTimeMilliseconds + this.clipsPerBlock * layerDuration;
-    if (index + this.clipsPerBlock > this.clipsFormArray.length){
+    if (index + this.clipsPerBlock > this.clipsFormArray.length) {
       endTimeMilliseconds = this.clipsFormArray.length * layerDuration;
     }
     var endDate = new Date(0, 0, 0);
@@ -223,5 +258,20 @@ export class VideoComposerComponent implements OnInit {
     }
 
     return clipNameArray.join(", ");
+  }
+
+  getProgress = (index: number) => {
+    if (index + this.clipsPerBlock <= this.selectedClipIndex){
+      return 100;
+    } else if (this.selectedClipIndex >= index && this.selectedClipIndex < index + this.clipsPerBlock){
+        var remainderSelected = this.selectedClipIndex % this.clipsPerBlock;
+        var clipNumberLeftInblock = this.clipsPerBlock
+        if (index + this.clipsPerBlock > this.clipsFormArray.length){
+          clipNumberLeftInblock = this.clipsFormArray.length - index;
+        }
+        return remainderSelected / clipNumberLeftInblock * 100;
+    }
+
+    return 0;
   }
 }

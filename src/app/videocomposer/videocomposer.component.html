@@ -175,8 +175,8 @@
                                                         [disabled]="i === this.selectedClipIndex">
                                                         <i class="bi bi-bookmark-star-fill"></i></button>
                                                 </span>
-                                                <span [ngbTooltip]="'Move back'">
-                                                    <button type="button" class="btn btn-secondary me-1">
+                                                <span [ngbTooltip]="'Move back'" *ngIf="i > 0 && i + clipsPerBlock <= clipsFormArray.length">
+                                                    <button type="button" class="btn btn-secondary me-1" (click)="moveBack(i)">
                                                         <i class="bi bi-arrow-left-circle-fill"></i></button>
                                                 </span>
                                                 <span [ngbTooltip]="'Remove'">
@@ -186,11 +186,11 @@
                                                 </span>
                                                 <span [ngbTooltip]="'Add copy after current'">
                                                     <button type="button" class="btn btn-primary me-1"
-                                                        (click)="addClip(clipControl.value)">
+                                                        (click)="copyClip(i)">
                                                         <i class="bi bi-files"></i></button>
                                                 </span>
-                                                <span [ngbTooltip]="'Move forward'">
-                                                    <button type="button" class="btn btn-secondary">
+                                                <span [ngbTooltip]="'Move forward'" *ngIf="i + 2 * clipsPerBlock <= clipsFormArray.length" >
+                                                    <button type="button" class="btn btn-secondary" (click)="moveForward(i)">
                                                         <i class="bi bi-arrow-right-circle-fill"></i></button>
                                                 </span>
                                             </li>
@@ -199,6 +199,11 @@
                                             </li>
                                             <li class="list-group-item">
                                                 Time: {{calculateTimeRangeFromClipIndex(i) }}
+                                            </li>
+                                            <li class="list-group-item">
+                                                <div class="progress">
+                                                    <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" [style.width.%]="getProgress(i)"></div>
+                                                </div>
                                             </li>
                                         </ul>
                                     </div>

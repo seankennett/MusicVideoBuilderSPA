@@ -37,6 +37,8 @@ export class GalleryplayerComponent implements OnInit, OnChanges {
   localBpm = new BehaviorSubject(135);
   localIsPlaying = false;
 
+  progress = 0;
+
   constructor() { }
 
   get playerTitle(){
@@ -60,6 +62,7 @@ export class GalleryplayerComponent implements OnInit, OnChanges {
   togglePlay = () => {
     this.localIsPlaying = !this.localIsPlaying;
     this.leftPosition = 0;
+    this.progress = 0;
     if (this.localIsPlaying) {
       var startTime = Date.now();
       this.localBpm.pipe(
@@ -71,7 +74,7 @@ export class GalleryplayerComponent implements OnInit, OnChanges {
         var layerDuration = secondsInMinute / this.localBpm.value * beatsPerLayer;
         var currentTimeInLayer = currentTime % layerDuration;
 
-        var percentageOfLayerDuration = currentTimeInLayer / layerDuration;
+        var percentageOfLayerDuration = currentTimeInLayer / layerDuration;        
 
         var frameInLayerNumber = Math.round(frameTotal * percentageOfLayerDuration);
         if (frameInLayerNumber >= frameTotal){
@@ -79,6 +82,7 @@ export class GalleryplayerComponent implements OnInit, OnChanges {
         }
 
         this.leftPosition = -(frameInLayerNumber) * imageWidth;
+        this.progress = percentageOfLayerDuration * 100;
       });
     }
   }

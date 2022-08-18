@@ -28,3 +28,11 @@ $timelineImageHeight: 72px;
 .timeLineImageContainer img {
     height:$timelineImageHeight;
 }
+
+.progress .progress-bar {
+    -webkit-transition: none;
+    -moz-transition: none;
+    -ms-transition: none;
+    -o-transition: none;
+    transition: none;
+}
