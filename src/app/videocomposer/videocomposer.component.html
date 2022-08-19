@@ -142,91 +142,102 @@
                     placement="right">
                     <a ngbNavLink>Timeline</a>
                     <ng-template ngbNavContent>
-                        <div class="mb-3">
-                            <label for="clipsPerBlock" class="form-label">Number of clips per timeline block</label>
-                            <select id="clipsPerBlock" class="form-control" formControlName="clipsPerBlockControl">
-                                <option [ngValue]="1">
-                                    1
-                                </option>
-                                <option [ngValue]="4">
-                                    4
-                                </option>
-                                <option [ngValue]="16">
-                                    16
-                                </option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <div class="row" *ngIf="showEditor && this.clipsFormArray.length > 0">
-                                <ng-container *ngFor="let clipControl of this.clipsFormArray.controls; let i = index">
-                                <div class="col-3 mb-3" *ngIf="i % clipsPerBlock === 0">
-                                    <div class="card text-center">
-                                        <div class="timeLineImageContainer">
-                                            <img *ngFor="let layerloop of clipControl.value.userLayers; let i = index"
-                                                [src]="'https://cdn.musicvideobuilder.com/' + layerloop.layerId + '/' + layerloop.layerId + '.png'"
-                                                [alt]="layerloop.layerName" [style.left.px]="0" [style.z-index]="i" />
-                                        </div>
-                                        <h5 class="card-header">{{calculateClipNameFromClipIndex(i)}}</h5>
-                                        <ul class="list-group list-group-flush">
-                                            <li class="list-group-item">
-                                                <span [ngbTooltip]="'Start player from here.'">
-                                                    <button type="button" class="btn btn-info me-1"
-                                                        (click)="setSelectedClipIndex(i)"
-                                                        [disabled]="i === this.selectedClipIndex">
-                                                        <i class="bi bi-bookmark-star-fill"></i></button>
-                                                </span>
-                                                <span [ngbTooltip]="'Move back'" *ngIf="i > 0 && i + clipsPerBlock <= clipsFormArray.length">
-                                                    <button type="button" class="btn btn-secondary me-1" (click)="moveBack(i)">
-                                                        <i class="bi bi-arrow-left-circle-fill"></i></button>
-                                                </span>
-                                                <span [ngbTooltip]="'Remove'">
-                                                    <button type="button" class="btn btn-danger me-1"
-                                                        (click)="removeClip(i)">
-                                                        <i class="bi bi-dash-circle-fill"></i></button>
-                                                </span>
-                                                <span [ngbTooltip]="'Add copy after current'">
-                                                    <button type="button" class="btn btn-primary me-1"
-                                                        (click)="copyClip(i)">
-                                                        <i class="bi bi-files"></i></button>
-                                                </span>
-                                                <span [ngbTooltip]="'Move forward'" *ngIf="i + 2 * clipsPerBlock <= clipsFormArray.length" >
-                                                    <button type="button" class="btn btn-secondary" (click)="moveForward(i)">
-                                                        <i class="bi bi-arrow-right-circle-fill"></i></button>
-                                                </span>
-                                            </li>
-                                            <li class="list-group-item">
-                                                Beat #: {{calculateBeatRangeFromClipIndex(i)}}
-                                            </li>
-                                            <li class="list-group-item">
-                                                Time: {{calculateTimeRangeFromClipIndex(i) }}
-                                            </li>
-                                            <li class="list-group-item">
-                                                <div class="progress">
-                                                    <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" [style.width.%]="getProgress(i)"></div>
-                                                </div>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </ng-container>
+                        <ng-container *ngIf="showEditor && !showClipPicker">
+                            <div class="mb-3">
+                                <label for="clipsPerBlock" class="form-label">Number of clips per timeline block</label>
+                                <select id="clipsPerBlock" class="form-control" formControlName="clipsPerBlockControl">
+                                    <option [ngValue]="1">
+                                        1
+                                    </option>
+                                    <option [ngValue]="4">
+                                        4
+                                    </option>
+                                    <option [ngValue]="16">
+                                        16
+                                    </option>
+                                </select>
                             </div>
-                            <span *ngIf="showEditor && !showClipPicker">
-                                <button type="button" (click)="toggleClipPicker()" class="btn btn-success">
-                                    <i class="bi bi-plus-circle-fill"></i> Add clip to end</button>
-                            </span>
-                            <ng-container *ngIf="showClipPicker">
-                                <h2>Clips</h2>
-                                <div class="mb-3">
-                                    <div class="row">
-                                        <div *ngFor="let clip of clips; let i = index" class="col-sm mb-3">
-                                            <app-galleryplayer [clip]="clip" [bpm]="bpmControl.value"
-                                                (addButtonClickClipEvent)="addClipPickerClip($event)">
-                                            </app-galleryplayer>
+                            <div class="mb-3">
+                                <div class="row" *ngIf="this.clipsFormArray.length > 0">
+                                    <ng-container
+                                        *ngFor="let clipControl of this.clipsFormArray.controls; let i = index">
+                                        <div class="col-3 mb-3" *ngIf="i % clipsPerBlock === 0">
+                                            <div class="card text-center">
+                                                <div class="timeLineImageContainer">
+                                                    <img *ngFor="let layerloop of clipControl.value.userLayers; let i = index"
+                                                        [src]="'https://cdn.musicvideobuilder.com/' + layerloop.layerId + '/' + layerloop.layerId + '.png'"
+                                                        [alt]="layerloop.layerName" [style.left.px]="0"
+                                                        [style.z-index]="i" />
+                                                </div>
+                                                <h5 class="card-header">{{calculateClipNameFromClipIndex(i)}}</h5>
+                                                <ul class="list-group list-group-flush">
+                                                    <li class="list-group-item">
+                                                        <span [ngbTooltip]="'Start player from here.'">
+                                                            <button type="button" class="btn btn-info me-1"
+                                                                (click)="setSelectedClipIndex(i)"
+                                                                [disabled]="i === this.selectedClipIndex">
+                                                                <i class="bi bi-bookmark-star-fill"></i></button>
+                                                        </span>
+                                                        <span [ngbTooltip]="'Move back'"
+                                                            *ngIf="i > 0 && i + clipsPerBlock <= clipsFormArray.length">
+                                                            <button type="button" class="btn btn-secondary me-1"
+                                                                (click)="moveBack(i)">
+                                                                <i class="bi bi-arrow-left-circle-fill"></i></button>
+                                                        </span>
+                                                        <span [ngbTooltip]="'Remove'">
+                                                            <button type="button" class="btn btn-danger me-1"
+                                                                (click)="removeClip(i)">
+                                                                <i class="bi bi-dash-circle-fill"></i></button>
+                                                        </span>
+                                                        <span [ngbTooltip]="'Add copy after current'">
+                                                            <button type="button" class="btn btn-primary me-1"
+                                                                (click)="copyClip(i)">
+                                                                <i class="bi bi-files"></i></button>
+                                                        </span>
+                                                        <span [ngbTooltip]="'Move forward'"
+                                                            *ngIf="i + 2 * clipsPerBlock <= clipsFormArray.length">
+                                                            <button type="button" class="btn btn-secondary"
+                                                                (click)="moveForward(i)">
+                                                                <i class="bi bi-arrow-right-circle-fill"></i></button>
+                                                        </span>
+                                                    </li>
+                                                    <li class="list-group-item">
+                                                        Beat #: {{calculateBeatRangeFromClipIndex(i)}}
+                                                    </li>
+                                                    <li class="list-group-item">
+                                                        Time: {{calculateTimeRangeFromClipIndex(i) }}
+                                                    </li>
+                                                    <li class="list-group-item">
+                                                        <div class="progress">
+                                                            <div class="progress-bar" role="progressbar"
+                                                                aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
+                                                                [style.width.%]="getProgress(i)"></div>
+                                                        </div>
+                                                    </li>
+                                                </ul>
+                                            </div>
                                         </div>
+                                    </ng-container>
+                                </div>
+                                <span>
+                                    <button type="button" (click)="toggleClipPicker()" class="btn btn-success">
+                                        <i class="bi bi-plus-circle-fill"></i> Add clip to end</button>
+                                </span>
+                            </div>
+                        </ng-container>
+                        <div class="mb-3" *ngIf="showClipPicker">
+                            <h3>Pick a clip</h3>
+                            <div class="mb-3">
+                                <div class="row">
+                                    <div *ngFor="let clip of clips; let i = index" class="col-sm mb-3">
+                                        <app-galleryplayer [clip]="clip" [bpm]="bpmControl.value"
+                                            (addButtonClickClipEvent)="addClipPickerClip($event)">
+                                        </app-galleryplayer>
                                     </div>
                                 </div>
-                            </ng-container>
+                            </div>
                         </div>
+
                         <div class="mb-3">
                             <button type="button" class="btn btn-secondary" (click)="activeTabId = 1">Go to
                                 details</button>
@@ -293,7 +304,7 @@
                 </div> -->
             </ul>
             <div [ngbNavOutlet]="nav"></div>
-            <button type="submit" [disabled]="!videoForm.valid || saving" class="btn btn-primary">Save</button>
+            <button type="submit" [disabled]="!videoForm.valid || saving" class="btn btn-primary me-1">Save</button>
             <button type="button" class="btn btn-danger" (click)="toggleEditor()"><i class="bi bi-dash-circle-fill"></i>
                 Cancel</button>
         </form>
