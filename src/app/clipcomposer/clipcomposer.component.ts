@@ -52,7 +52,7 @@ export class ClipComposerComponent implements OnInit {
   }
 
   clipNameControl = this.formBuilder.control('', [Validators.required, Validators.maxLength(50), Validators.pattern("[A-z0-9]+")]);
-  layersFormArray = this.formBuilder.array([], [Validators.required])
+  layersFormArray = this.formBuilder.array([], [Validators.required, Validators.minLength(1), Validators.maxLength(255)])
 
   clipForm = this.formBuilder.group({
     clipNameControl: this.clipNameControl,

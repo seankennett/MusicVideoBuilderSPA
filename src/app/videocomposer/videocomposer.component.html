@@ -116,14 +116,14 @@
                                 (change)="onFileUpload($event)" />
                             <div id="LayerImagesHelp" class="form-text">
                                 This is to add audio when you play your video and is optional. If this is an existing
-                                video you will need to select your track again as we don't upload these files.
+                                video you will need to select your track again as we don't upload these files.  Also limited to mp3 format due to browser restrictions.
                             </div>
                             <label for="audioFileName" class="form-label">Audio File Name</label>
                             <input type="text" class="form-control" id="audioFileName"
                                 formControlName="audioFileNameControl" />
                             <div class="form-text text-danger" *ngIf="audioFileNameControl?.invalid">
                                 <div [hidden]="!audioFileNameControl?.errors?.['pattern']">
-                                    Audio file name must be alphanumeric or contain ()- or spaces and end with .mp3.
+                                    Audio file name must be alphanumeric or contain brackets, hypthens or spaces.
                                 </div>
                                 <div [hidden]="!audioFileNameControl?.errors?.['maxlength']">
                                     Audio file name max length is 50 characters.

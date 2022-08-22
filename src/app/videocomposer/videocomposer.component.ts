@@ -65,9 +65,9 @@ export class VideoComposerComponent implements OnInit {
   bpmControl = this.formBuilder.control(null, [Validators.required, Validators.max(250), Validators.min(90)]);
   videoDelayMillisecondsControl = this.formBuilder.control(null, [Validators.max(2147483647), Validators.pattern("[0-9]+")]);
   formatControl = this.formBuilder.control(1, [Validators.required]);
-  audioFileNameControl = this.formBuilder.control('', [Validators.pattern("([A-z0-9- \(\)]+(\.mp3))"), Validators.maxLength(50)]);
+  audioFileNameControl = this.formBuilder.control('', [Validators.pattern("[A-z0-9-. \(\)]+"), Validators.maxLength(50)]);
   clipsPerBlockControl = this.formBuilder.control(1);
-  clipsFormArray = this.formBuilder.array([], [Validators.required]);
+  clipsFormArray = this.formBuilder.array([], [Validators.required, Validators.minLength(1), Validators.maxLength(32767)]);
 
 
   videoForm = this.formBuilder.group({
@@ -91,32 +91,40 @@ export class VideoComposerComponent implements OnInit {
   selectedClipIndex = 0;
 
   editVideo = (video: Video) => {
-    console.log(video);
+    this.toggleEditor();
+    this.videoId = video.videoId;
+    this.videoNameControl.setValue(video.videoName);
+    this.bpmControl.setValue(video.bpm);
+    this.formatControl.setValue(video.format);
+    this.audioFileNameControl.setValue(video.audioFileName);
+    this.videoDelayMillisecondsControl.setValue(video.videoDelayMilliseconds);
+
+    video.clips.forEach(cl => {
+      var clip = this.clips.find(clip => clip.clipId === cl.clipId);
+      if (clip) {
+        this.clipsFormArray.push(this.formBuilder.control(clip));
+      }
+    });
+  }
+
+  get editorVideo(): Video {
+    return <Video>{
+      audioFileName: this.audioFileNameControl.value,
+      bpm: this.bpmControl.value,
+      format: this.formatControl.value,
+      videoDelayMilliseconds: this.videoDelayMillisecondsControl.value,
+      videoId: this.videoId,
+      videoName: this.videoNameControl.value,
+      clips: this.clipsFormArray.controls.map((control) => {
+        return control.value;
+      })
+    };
   }
 
   onSubmit = () => {
     this.saving = true;
 
-    let video = <Video>{
-      bpm: 90,
-      format: Formats.mp4,
-      videoId: 0,
-      videoName: 'first',
-      audioFileName: 'heavensAbove.mp3',
-      videoDelayMilliseconds: 500,
-      clips: [<Clip>{
-        clipId: 10,
-        clipName: 'abc',
-        userLayers: [<UserLayer>{ layerName: 'something' }]
-      },
-      <Clip>{
-        clipId: 11,
-        clipName: 'def',
-        userLayers: [<UserLayer>{ layerName: 'something' }]
-      }
-      ]
-    };
-    this.videoService.post(video).pipe(
+    this.videoService.post(this.editorVideo).pipe(
       catchError((error: HttpErrorResponse) => {
         this.saving = false;
         return throwError(() => new Error('Something went wrong on the server, try again!'));
@@ -136,8 +144,15 @@ export class VideoComposerComponent implements OnInit {
   toggleEditor = () => {
     this.videoId = 0;
     this.videoNameControl.reset();
-    // this.layersFormArray.clear();
-    // this.isAddingLayer = false;
+    this.bpmControl.reset();
+    this.formatControl.setValue(1);
+    this.audioFileNameControl.reset();
+    this.clipsPerBlockControl.setValue(1);
+    this.videoDelayMillisecondsControl.reset();
+    this.clipsFormArray.clear();
+
+    this.activeTabId = 1;
+    this.showClipPicker = false;
     this.showEditor = !this.showEditor;
   }
 
@@ -261,15 +276,15 @@ export class VideoComposerComponent implements OnInit {
   }
 
   getProgress = (index: number) => {
-    if (index + this.clipsPerBlock <= this.selectedClipIndex){
+    if (index + this.clipsPerBlock <= this.selectedClipIndex) {
       return 100;
-    } else if (this.selectedClipIndex >= index && this.selectedClipIndex < index + this.clipsPerBlock){
-        var remainderSelected = this.selectedClipIndex % this.clipsPerBlock;
-        var clipNumberLeftInblock = this.clipsPerBlock
-        if (index + this.clipsPerBlock > this.clipsFormArray.length){
-          clipNumberLeftInblock = this.clipsFormArray.length - index;
-        }
-        return remainderSelected / clipNumberLeftInblock * 100;
+    } else if (this.selectedClipIndex >= index && this.selectedClipIndex < index + this.clipsPerBlock) {
+      var remainderSelected = this.selectedClipIndex % this.clipsPerBlock;
+      var clipNumberLeftInblock = this.clipsPerBlock
+      if (index + this.clipsPerBlock > this.clipsFormArray.length) {
+        clipNumberLeftInblock = this.clipsFormArray.length - index;
+      }
+      return remainderSelected / clipNumberLeftInblock * 100;
     }
 
     return 0;
