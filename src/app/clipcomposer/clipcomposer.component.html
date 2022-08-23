@@ -19,13 +19,14 @@
         </div>
     </ng-container>
     <span [ngbTooltip]="canAddLayerTooltip()" placement="right" *ngIf="!showEditor">
-        <button type="button" class="btn btn-success" (click)="toggleEditor()" 
-            [disabled]="!canAddLayer()"><i class="bi bi-dash-circle-fill"></i>
+        <button type="button" class="btn btn-success" (click)="toggleEditor()" [disabled]="!canAddLayer()"><i
+                class="bi bi-dash-circle-fill"></i>
             Add new clip</button>
     </span>
     <ng-container *ngIf="showEditor">
         <h2>Clip Editor</h2>
-        <ngb-alert [type]="'warning'" (closed)="closeWarning()" *ngIf="showExistingClipWarning && clipId > 0">Editing existing clip.  Changes here will reflect in existing videos.</ngb-alert>
+        <ngb-alert [type]="'warning'" (closed)="closeWarning()" *ngIf="showExistingClipWarning && clipId > 0">Editing
+            existing clip. Changes here will reflect in existing videos.</ngb-alert>
         <form [formGroup]="clipForm" (ngSubmit)="onSubmit()">
             <div class="mb-3">
                 <label for="clipName" class="form-label">Clip Name</label>
@@ -64,8 +65,8 @@
                             class="list-group-item">
                             {{layerControl.value.layerName}}
                             <div class="btn-group float-end" role="group">
-                                <button *ngIf="i > 1" type="button" class="btn btn-secondary ms-1" (click)="moveUp(i)"><i
-                                        class="bi bi-arrow-up-circle-fill"></i> Move Up</button>
+                                <button *ngIf="i > 1" type="button" class="btn btn-secondary ms-1"
+                                    (click)="moveUp(i)"><i class="bi bi-arrow-up-circle-fill"></i> Move Up</button>
                                 <button *ngIf="i !== layersFormArray.controls.length - 1 && i !== 0" type="button"
                                     class="btn btn-secondary ms-1" (click)="moveDown(i)"><i
                                         class="bi bi-arrow-down-circle-fill"></i> Move
@@ -77,6 +78,12 @@
                             </div>
                         </li>
                     </ol>
+                    <div class="form-text text-danger"
+                        *ngIf="layersFormArray?.invalid">
+                        <div [hidden]="!layersFormArray?.errors?.['maxlength']">
+                            You can't have more than 255 layers in a clip.
+                        </div>
+                    </div>
                 </div>
                 <div class="mb-3">
                     <span [ngbTooltip]="canAddLayerTooltip()" placement="right">
@@ -87,7 +94,7 @@
                 </div>
                 <div class="mb-3">
                     <app-galleryplayer [clip]="editorClip" [bpm]="bpm" [isPlaying]="isPlaying" [showAdd]="false">
-                        </app-galleryplayer>
+                    </app-galleryplayer>
                 </div>
             </ng-container>
             <div class="mb-3" *ngIf="isAddingLayer === true">

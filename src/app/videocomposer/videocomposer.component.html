@@ -116,7 +116,8 @@
                                 (change)="onFileUpload($event)" />
                             <div id="LayerImagesHelp" class="form-text">
                                 This is to add audio when you play your video and is optional. If this is an existing
-                                video you will need to select your track again as we don't upload these files.  Also limited to mp3 format due to browser restrictions.
+                                video you will need to select your track again as we don't upload these files. Also
+                                limited to mp3 format due to browser restrictions.
                             </div>
                             <label for="audioFileName" class="form-label">Audio File Name</label>
                             <input type="text" class="form-control" id="audioFileName"
@@ -218,6 +219,16 @@
                                             </div>
                                         </div>
                                     </ng-container>
+                                </div>
+                                <div class="form-text text-danger"
+                                    *ngIf="clipsFormArray?.invalid">
+                                    <div
+                                        [hidden]="!clipsFormArray?.errors?.['required']">
+                                        You must have 1 clip as a minimum.
+                                    </div>
+                                    <div [hidden]="!clipsFormArray?.errors?.['maxlength']">
+                                        You can't have more than 32767 clips in a video.
+                                    </div>
                                 </div>
                                 <span>
                                     <button type="button" (click)="toggleClipPicker()" class="btn btn-success">

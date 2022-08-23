@@ -67,7 +67,7 @@ export class VideoComposerComponent implements OnInit {
   formatControl = this.formBuilder.control(1, [Validators.required]);
   audioFileNameControl = this.formBuilder.control('', [Validators.pattern("[A-z0-9-. \(\)]+"), Validators.maxLength(50)]);
   clipsPerBlockControl = this.formBuilder.control(1);
-  clipsFormArray = this.formBuilder.array([], [Validators.required, Validators.minLength(1), Validators.maxLength(32767)]);
+  clipsFormArray = this.formBuilder.array([], [Validators.required, Validators.maxLength(32767)]);
 
 
   videoForm = this.formBuilder.group({
