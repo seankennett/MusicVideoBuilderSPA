@@ -23,8 +23,11 @@
                         <ul class="list-group list-group-flush">
                             <li class="list-group-item">BPM: {{video.bpm}}</li>
                             <li class="list-group-item">
-                                <button type="button" (click)="editVideo(video)" class="btn btn-primary">
-                                    <i class="bi bi-pencil-square"></i> Edit</button>
+                                <button type="button" (click)="editVideo(video)" class="btn btn-primary"
+                                    [disabled]="editorLoading">
+                                    <i class="bi bi-pencil-square"></i> Edit <span
+                                        class="spinner-border spinner-border-sm ms-1" role="status" aria-hidden="true"
+                                        *ngIf="editorLoading"></span></button>
                             </li>
                         </ul>
                     </div>
@@ -40,7 +43,7 @@
     <ng-container *ngIf="showEditor">
         <h2>Video Editor</h2>
         <form [formGroup]="videoForm" (ngSubmit)="onSubmit()">
-            <ul ngbNav #nav="ngbNav" class="nav-tabs" [(activeId)]="activeTabId">
+            <ul ngbNav #nav="ngbNav" class="nav-tabs" [(activeId)]="activeTabId" [destroyOnHide]="false">
                 <li [ngbNavItem]="1">
                     <a ngbNavLink>Details</a>
                     <ng-template ngbNavContent>
@@ -134,7 +137,7 @@
                         <div class="mb-3">
                             <span [ngbTooltip]="bpmInvalidTooltip()" placement="right">
                                 <button type="button" [disabled]="!bpmControl.valid" class="btn btn-secondary"
-                                    (click)="activeTabId = 2">Go to timeline</button>
+                                    (click)="setTabId(2)">Go to timeline</button>
                             </span>
                         </div>
                     </ng-template>
@@ -143,7 +146,7 @@
                     placement="right">
                     <a ngbNavLink>Timeline</a>
                     <ng-template ngbNavContent>
-                        <ng-container *ngIf="showEditor && !showClipPicker">
+                        <ng-container *ngIf="showEditor && (!showClipPicker && clipsFormArray.length > 0)">
                             <div class="mb-3">
                                 <label for="clipsPerBlock" class="form-label">Number of clips per timeline block</label>
                                 <select id="clipsPerBlock" class="form-control" formControlName="clipsPerBlockControl">
@@ -161,7 +164,7 @@
                             <div class="mb-3">
                                 <div class="row" *ngIf="this.clipsFormArray.length > 0">
                                     <ng-container
-                                        *ngFor="let clipControl of this.clipsFormArray.controls; let i = index">
+                                        *ngFor="let clipControl of this.clipsFormArray.controls; let i = index; let last = last">
                                         <div class="col-3 mb-3" *ngIf="i % clipsPerBlock === 0">
                                             <div class="card text-center">
                                                 <div class="timeLineImageContainer">
@@ -220,12 +223,7 @@
                                         </div>
                                     </ng-container>
                                 </div>
-                                <div class="form-text text-danger"
-                                    *ngIf="clipsFormArray?.invalid">
-                                    <div
-                                        [hidden]="!clipsFormArray?.errors?.['required']">
-                                        You must have 1 clip as a minimum.
-                                    </div>
+                                <div class="form-text text-danger" *ngIf="clipsFormArray?.invalid">
                                     <div [hidden]="!clipsFormArray?.errors?.['maxlength']">
                                         You can't have more than 32767 clips in a video.
                                     </div>
@@ -236,7 +234,7 @@
                                 </span>
                             </div>
                         </ng-container>
-                        <div class="mb-3" *ngIf="showClipPicker">
+                        <div class="mb-3" *ngIf="showClipPicker || clipsFormArray.length === 0">
                             <h3>Pick a clip</h3>
                             <div class="mb-3">
                                 <div class="row">
@@ -246,73 +244,17 @@
                                         </app-galleryplayer>
                                     </div>
                                 </div>
+                                <button type="button" class="btn btn-danger" (click)="toggleClipPicker()" *ngIf="clipsFormArray.length > 0"><i class="bi bi-dash-circle-fill"></i>
+                                    Cancel</button>
                             </div>
                         </div>
 
                         <div class="mb-3">
-                            <button type="button" class="btn btn-secondary" (click)="activeTabId = 1">Go to
+                            <button type="button" class="btn btn-secondary" (click)="setTabId(1)">Go to
                                 details</button>
                         </div>
                     </ng-template>
                 </li>
-
-                <!-- <div class="mb-3" *ngIf="layersFormArray.length === 0">
-                    <h3>Pick a background</h3>
-                    <div class="row">
-                        <div *ngFor="let layer of userBackgrounds; let i = index" class="col-sm mb-3">
-                            <app-galleryplayer [layer]="layer" (addButtonClickEvent)="addLayer($event)" [bpm]="bpm"
-                                [isPlaying]="isPlaying">
-                            </app-galleryplayer>
-                        </div>
-                    </div>
-                </div>
-                <ng-container *ngIf="layersFormArray.length > 0 && isAddingLayer === false">
-                    <div class="mb-3">
-                        <h3>Clip layers</h3>
-                        <ol class="list-group list-group-numbered">
-                            <li *ngFor="let layerControl of layersFormArray.controls; let i = index"
-                                class="list-group-item">
-                                {{layerControl.value.layerName}}
-                                <div class="btn-group float-end" role="group">
-                                    <button *ngIf="i > 1" type="button" class="btn btn-secondary" (click)="moveUp(i)"><i
-                                            class="bi bi-arrow-up-circle-fill"></i> Move Up</button>
-                                    <button *ngIf="i !== layersFormArray.controls.length - 1 && i !== 0" type="button"
-                                        class="btn btn-secondary" (click)="moveDown(i)"><i
-                                            class="bi bi-arrow-down-circle-fill"></i> Move
-                                        Down</button>
-                                    <button *ngIf="i === layersFormArray.controls.length - 1" type="button"
-                                        class="btn btn-danger" (click)="removeLayer(i)"><i
-                                            class="bi bi-dash-circle-fill"></i>
-                                        Remove</button>
-                                </div>
-                            </li>
-                        </ol>
-                    </div>
-                    <div class="mb-3">
-                        <span [ngbTooltip]="canAddLayerTooltip()" placement="right">
-                            <button type="button" class="btn btn-success" (click)="toggleAddNewLayer()"
-                                [disabled]="!canAddLayer()">
-                                <i class="bi bi-plus-circle-fill"></i> Add Another Layer</button>
-                        </span>
-                    </div>
-                    <div class="mb-3">
-                        <app-galleryplayer [clip]="editorClip" [bpm]="bpm" [isPlaying]="isPlaying" [showAdd]="false">
-                            </app-galleryplayer>
-                    </div>
-                </ng-container>
-                <div class="mb-3" *ngIf="isAddingLayer === true">
-                    <h3>Pick a foreground</h3>
-                    <div class="row">
-                        <div *ngFor="let layer of userForegrounds; let i = index" class="col-sm mb-3">
-                            <app-galleryplayer [layer]="layer" (addButtonClickEvent)="addLayer($event)"
-                                [disableFunction]="disableLayer" [disableTooltipFunction]="disableLayerTooltip" [bpm]="bpm"
-                                [isPlaying]="isPlaying">
-                            </app-galleryplayer>
-                        </div>
-                    </div>
-                    <button type="button" class="btn btn-danger" (click)="toggleAddNewLayer()">
-                        <i class="bi bi-dash-circle-fill"></i> Cancel Adding Layer</button>
-                </div> -->
             </ul>
             <div [ngbNavOutlet]="nav"></div>
             <button type="submit" [disabled]="!videoForm.valid || saving" class="btn btn-primary me-1">Save</button>
@@ -321,5 +263,3 @@
         </form>
     </ng-container>
 </div>
-
-{{videos | json}}

@@ -5,8 +5,7 @@ import { Formats } from '../formats';
 import { Video } from '../video';
 import { Clip } from '../clip';
 import { VideoService } from '../video.service';
-import { UserLayer } from '../userlayer';
-import { catchError, throwError } from 'rxjs';
+import { catchError, throwError, timer } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 import { DatePipe } from '@angular/common';
 
@@ -46,7 +45,6 @@ export class VideoComposerComponent implements OnInit {
       console.log(self.audioPlayer.duration);
     }
   }
-
 
   videos: Video[] = [];
   clips: Clip[] = [];
@@ -90,20 +88,32 @@ export class VideoComposerComponent implements OnInit {
   activeTabId = 1;
   selectedClipIndex = 0;
 
-  editVideo = (video: Video) => {
-    this.toggleEditor();
-    this.videoId = video.videoId;
-    this.videoNameControl.setValue(video.videoName);
-    this.bpmControl.setValue(video.bpm);
-    this.formatControl.setValue(video.format);
-    this.audioFileNameControl.setValue(video.audioFileName);
-    this.videoDelayMillisecondsControl.setValue(video.videoDelayMilliseconds);
+  setTabId = (activeTabId: number) => {
+    this.activeTabId = activeTabId;
+  }
 
-    video.clips.forEach(cl => {
-      var clip = this.clips.find(clip => clip.clipId === cl.clipId);
-      if (clip) {
-        this.clipsFormArray.push(this.formBuilder.control(clip));
-      }
+  editorLoading = false;
+
+  editVideo = (video: Video) => {
+    this.editorLoading = true;
+    // PLEASE WORK OUT HOW TO DO THIS PROPERLY!
+    timer(100).subscribe(() => {
+      this.toggleEditor();
+      this.videoId = video.videoId;
+      this.videoNameControl.setValue(video.videoName);
+      this.bpmControl.setValue(video.bpm);
+      this.formatControl.setValue(video.format);
+      this.audioFileNameControl.setValue(video.audioFileName);
+      this.videoDelayMillisecondsControl.setValue(video.videoDelayMilliseconds);
+
+      video.clips.forEach(cl => {
+        var clip = this.clips.find(clip => clip.clipId === cl.clipId);
+        if (clip) {
+          this.clipsFormArray.push(this.formBuilder.control(clip));
+        }
+      });
+
+      this.editorLoading = false;
     });
   }
 
@@ -209,7 +219,7 @@ export class VideoComposerComponent implements OnInit {
   }
 
   addClipPickerClip = (clip: Clip) => {
-    this.toggleClipPicker();
+    this.showClipPicker = false;
     this.clipsFormArray.push(this.formBuilder.control(clip));
   }
 
