@@ -59,12 +59,80 @@ export class VideoComposerComponent implements OnInit {
 
   videoId: number = 0;
 
+  timelineEditorStart = 1;
+  timelineEditorEnd = 2;
+
+  timelineEditorStartFinal = 1;
+  get timelineEditorStartFinalIndex(){
+    return this.timelineEditorStartFinal - 1;
+  }
+  timelineEditorEndFinal = 2;
+  get timelineEditorEndFinalIndex(){
+    return this.timelineEditorEndFinal - 1;
+  }
+
+  timelineEndChange = (event: any) => {
+    if (this.timelineEditorEnd <= this.timelineEditorStart) {
+      event.preventDefault();
+      this.timelineEditorEnd = this.timelineEditorStart + 1;
+    }
+
+    this.timelineEditorEndFinal = this.timelineEditorEnd;
+    if (this.isInvalidSelection(this.clipsPerBlock)){
+      this.clipsPerBlock = 1;
+    }
+  }
+
+  timelineStartChange = (event: any) => {
+    if (this.timelineEditorStart >= this.timelineEditorEnd) {
+      event.preventDefault();
+      this.timelineEditorStart = this.timelineEditorEnd - 1;
+    }
+
+    this.timelineEditorStartFinal = this.timelineEditorStart;
+    if (this.isInvalidSelection(this.clipsPerBlock)){
+      this.clipsPerBlock = 1;
+    }
+  }
+
+  setTimelineStart = (start: number) =>{
+    this.timelineEditorStart = start;
+    this.timelineEditorStartFinal = start;
+  }
+
+  setTimelineEnd = (end: number) =>{
+    this.timelineEditorEnd = end;
+    this.timelineEditorEndFinal = end;
+  }
+
+  setQuickTimelineSelection = (index: number) =>{
+    this.setTimelineStart(index + 1);
+    this.setTimelineEnd(index + 1 + this.clipsPerBlock);
+    this.clipsPerBlock = 1;
+  }
+
+  isInvalidSelection = (clipsPerBlock: number) => {
+    return this.timelineEditorEndFinalIndex !== this.clipsFormArray.length && (this.timelineEditorEndFinal - this.timelineEditorStartFinal) % clipsPerBlock !== 0;
+  }
+
+  getAlertText = (clipsPerBlock: number) => {
+    return ' This timeline selection does not have a multiple of '+ clipsPerBlock +' clips in it or timeline selection end is not at the end.  You will not be able to use setting ' + clipsPerBlock + ' clips per block.';
+  }
+
+  showBlock = (index: number) =>{
+    if (index < this.timelineEditorStartFinalIndex || index >= this.timelineEditorEndFinalIndex){
+      return false;
+    }
+
+    return index % this.clipsPerBlock === this.timelineEditorStartFinalIndex % this.clipsPerBlock;
+  }
+
   videoNameControl = this.formBuilder.control('', [Validators.required, Validators.maxLength(50), Validators.pattern("[A-z0-9]+")]);
   bpmControl = this.formBuilder.control(null, [Validators.required, Validators.max(250), Validators.min(90)]);
   videoDelayMillisecondsControl = this.formBuilder.control(null, [Validators.max(2147483647), Validators.pattern("[0-9]+")]);
   formatControl = this.formBuilder.control(1, [Validators.required]);
   audioFileNameControl = this.formBuilder.control('', [Validators.pattern("[A-z0-9-. \(\)]+"), Validators.maxLength(50)]);
-  clipsPerBlockControl = this.formBuilder.control(1);
+
   clipsFormArray = this.formBuilder.array([], [Validators.required, Validators.maxLength(32767)]);
 
 
@@ -74,13 +142,10 @@ export class VideoComposerComponent implements OnInit {
     formatControl: this.formatControl,
     videoDelayMillisecondsControl: this.videoDelayMillisecondsControl,
     audioFileNameControl: this.audioFileNameControl,
-    clipsFormArray: this.clipsFormArray,
-    clipsPerBlockControl: this.clipsPerBlockControl
+    clipsFormArray: this.clipsFormArray
   })
 
-  get clipsPerBlock() {
-    return this.clipsPerBlockControl.value as number;
-  }
+  clipsPerBlock = 1;
 
   showEditor = false;
   showClipPicker = false;
@@ -105,6 +170,15 @@ export class VideoComposerComponent implements OnInit {
       this.formatControl.setValue(video.format);
       this.audioFileNameControl.setValue(video.audioFileName);
       this.videoDelayMillisecondsControl.setValue(video.videoDelayMilliseconds);
+
+      if (video.clips.length > 32) {
+        this.clipsPerBlock = 16;
+      }
+      else if (video.clips.length > 8) {
+        this.clipsPerBlock = 4;
+      }
+
+      this.setTimelineEnd(video.clips.length + 1);
 
       video.clips.forEach(cl => {
         var clip = this.clips.find(clip => clip.clipId === cl.clipId);
@@ -157,9 +231,11 @@ export class VideoComposerComponent implements OnInit {
     this.bpmControl.reset();
     this.formatControl.setValue(1);
     this.audioFileNameControl.reset();
-    this.clipsPerBlockControl.setValue(1);
+    this.clipsPerBlock = 1;
     this.videoDelayMillisecondsControl.reset();
     this.clipsFormArray.clear();
+    this.setTimelineStart(1);
+    this.setTimelineEnd(2);
 
     this.activeTabId = 1;
     this.showClipPicker = false;
@@ -219,11 +295,17 @@ export class VideoComposerComponent implements OnInit {
   }
 
   addClipPickerClip = (clip: Clip) => {
+    var isTimelineAtEnd = this.timelineEditorEndFinalIndex === this.clipsFormArray.length;
     this.showClipPicker = false;
     this.clipsFormArray.push(this.formBuilder.control(clip));
+    if (isTimelineAtEnd === true){
+      this.setTimelineEnd(this.clipsFormArray.length + 1)
+    }    
   }
 
   copyClip = (index: number) => {
+    var isTimelineAtEnd = this.timelineEditorEndFinalIndex === this.clipsFormArray.length;
+
     var endOfBlockIndex = index + this.clipsPerBlock;
     if (endOfBlockIndex > this.clipsFormArray.length) {
       endOfBlockIndex = this.clipsFormArray.length;
@@ -233,6 +315,10 @@ export class VideoComposerComponent implements OnInit {
       var clipControl = this.clipsFormArray.controls[i];
       this.clipsFormArray.insert(endOfBlockIndex, this.formBuilder.control(clipControl.value));
     }
+
+    if (isTimelineAtEnd === true){
+      this.setTimelineEnd(this.clipsFormArray.length + 1)
+    } 
   }
 
   removeClip = (index: number) => {
@@ -243,6 +329,14 @@ export class VideoComposerComponent implements OnInit {
 
     for (var i = endOfBlockIndex - 1; i >= index; i--) {
       this.clipsFormArray.removeAt(i);
+    }
+
+    if (this.timelineEditorEndFinalIndex > this.clipsFormArray.length){
+      this.setTimelineEnd(this.clipsFormArray.length + 1);
+    }
+
+    if (this.timelineEditorStartFinalIndex >= this.clipsFormArray.length){
+      this.setTimelineStart(this.clipsFormArray.length);
     }
   }
 

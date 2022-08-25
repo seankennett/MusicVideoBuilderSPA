@@ -149,23 +149,48 @@
                         <ng-container *ngIf="showEditor && (!showClipPicker && clipsFormArray.length > 0)">
                             <div class="mb-3">
                                 <label for="clipsPerBlock" class="form-label">Number of clips per timeline block</label>
-                                <select id="clipsPerBlock" class="form-control" formControlName="clipsPerBlockControl">
+                                <select id="clipsPerBlock" class="form-control" [(ngModel)]="clipsPerBlock"
+                                    [ngModelOptions]="{standalone: true}">
                                     <option [ngValue]="1">
                                         1
                                     </option>
-                                    <option [ngValue]="4">
+                                    <option [ngValue]="4" [disabled]="isInvalidSelection(4)">
                                         4
                                     </option>
-                                    <option [ngValue]="16">
+                                    <option [ngValue]="16" [disabled]="isInvalidSelection(16)">
                                         16
                                     </option>
                                 </select>
                             </div>
                             <div class="mb-3">
+                                <label for="timelineEditorStart" class="form-label">Timeline selection start, start of
+                                    clip #
+                                    {{timelineEditorStart}}</label>
+                                <input type="range" class="form-range" id="timelineEditorStart" min="1"
+                                    [max]="clipsFormArray.length" [(ngModel)]="timelineEditorStart"
+                                    [ngModelOptions]="{standalone: true}" (change)="timelineStartChange($event)">
+                            </div>
+                            <div class="mb-3">
+                                <label for="timelineEditorEnd" class="form-label">Timeline selection end, start of clip
+                                    #
+                                    {{timelineEditorEnd}}</label>
+                                <input type="range" class="form-range" id="timelineEditorEnd" min="2"
+                                    [max]="clipsFormArray.length + 1" [(ngModel)]="timelineEditorEnd"
+                                    [ngModelOptions]="{standalone: true}" (change)="timelineEndChange($event)">
+                            </div>
+                            <div class="alert alert-warning d-flex align-items-center mb-3" role="alert"
+                                *ngIf="isInvalidSelection(4)">
+                                <i class="bi bi-exclamation-triangle-fill"></i>{{getAlertText(4)}}
+                            </div>
+                            <div class="alert alert-warning d-flex align-items-center mb-3" role="alert"
+                                *ngIf="isInvalidSelection(16)">
+                                <i class="bi bi-exclamation-triangle-fill"></i>{{getAlertText(16)}}
+                            </div>
+                            <div class="mb-3">
                                 <div class="row" *ngIf="this.clipsFormArray.length > 0">
                                     <ng-container
                                         *ngFor="let clipControl of this.clipsFormArray.controls; let i = index; let last = last">
-                                        <div class="col-3 mb-3" *ngIf="i % clipsPerBlock === 0">
+                                        <div class="col-3 mb-3" *ngIf="showBlock(i)">
                                             <div class="card text-center">
                                                 <div class="timeLineImageContainer">
                                                     <img *ngFor="let layerloop of clipControl.value.userLayers; let i = index"
@@ -176,12 +201,6 @@
                                                 <h5 class="card-header">{{calculateClipNameFromClipIndex(i)}}</h5>
                                                 <ul class="list-group list-group-flush">
                                                     <li class="list-group-item">
-                                                        <span [ngbTooltip]="'Start player from here.'">
-                                                            <button type="button" class="btn btn-info me-1"
-                                                                (click)="setSelectedClipIndex(i)"
-                                                                [disabled]="i === this.selectedClipIndex">
-                                                                <i class="bi bi-bookmark-star-fill"></i></button>
-                                                        </span>
                                                         <span [ngbTooltip]="'Move back'"
                                                             *ngIf="i > 0 && i + clipsPerBlock <= clipsFormArray.length">
                                                             <button type="button" class="btn btn-secondary me-1"
@@ -206,6 +225,20 @@
                                                         </span>
                                                     </li>
                                                     <li class="list-group-item">
+                                                        <span [ngbTooltip]="'Start player from here.'">
+                                                            <button type="button" class="btn btn-info me-1"
+                                                                (click)="setSelectedClipIndex(i)"
+                                                                [disabled]="i === this.selectedClipIndex">
+                                                                <i class="bi bi-bookmark-star-fill"></i></button>
+                                                        </span>
+                                                        <span [ngbTooltip]="'Set quick timeline selection.'"
+                                                            *ngIf="clipsPerBlock !== 1">
+                                                            <button type="button" class="btn btn-secondary me-1"
+                                                                (click)="setQuickTimelineSelection(i)">
+                                                                <i class="bi bi-zoom-in"></i></button>
+                                                        </span>
+                                                    </li>
+                                                    <li class="list-group-item">
                                                         Beat #: {{calculateBeatRangeFromClipIndex(i)}}
                                                     </li>
                                                     <li class="list-group-item">
@@ -222,16 +255,18 @@
                                             </div>
                                         </div>
                                     </ng-container>
-                                </div>
-                                <div class="form-text text-danger" *ngIf="clipsFormArray?.invalid">
-                                    <div [hidden]="!clipsFormArray?.errors?.['maxlength']">
-                                        You can't have more than 32767 clips in a video.
+                                    <div class="form-text text-danger" *ngIf="clipsFormArray?.invalid">
+                                        <div [hidden]="!clipsFormArray?.errors?.['maxlength']">
+                                            You can't have more than 32767 clips in a video.
+                                        </div>
                                     </div>
                                 </div>
-                                <span>
+
+                                <div class="mb-3">
                                     <button type="button" (click)="toggleClipPicker()" class="btn btn-success">
-                                        <i class="bi bi-plus-circle-fill"></i> Add clip to end</button>
-                                </span>
+                                        <i class="bi bi-plus-circle-fill"></i> Pick clip to add to end of
+                                        timeline</button>
+                                </div>
                             </div>
                         </ng-container>
                         <div class="mb-3" *ngIf="showClipPicker || clipsFormArray.length === 0">
@@ -244,7 +279,8 @@
                                         </app-galleryplayer>
                                     </div>
                                 </div>
-                                <button type="button" class="btn btn-danger" (click)="toggleClipPicker()" *ngIf="clipsFormArray.length > 0"><i class="bi bi-dash-circle-fill"></i>
+                                <button type="button" class="btn btn-danger" (click)="toggleClipPicker()"
+                                    *ngIf="clipsFormArray.length > 0"><i class="bi bi-dash-circle-fill"></i>
                                     Cancel</button>
                             </div>
                         </div>
@@ -257,9 +293,12 @@
                 </li>
             </ul>
             <div [ngbNavOutlet]="nav"></div>
-            <button type="submit" [disabled]="!videoForm.valid || saving" class="btn btn-primary me-1">Save</button>
-            <button type="button" class="btn btn-danger" (click)="toggleEditor()"><i class="bi bi-dash-circle-fill"></i>
-                Cancel</button>
+            <div class="mb-3">
+                <button type="submit" [disabled]="!videoForm.valid || saving" class="btn btn-primary me-1">Save</button>
+                <button type="button" class="btn btn-danger" (click)="toggleEditor()"><i
+                        class="bi bi-dash-circle-fill"></i>
+                    Cancel</button>
+            </div>
         </form>
     </ng-container>
 </div>
