@@ -186,8 +186,8 @@
                                 *ngIf="isInvalidSelection(16)">
                                 <i class="bi bi-exclamation-triangle-fill"></i>{{getAlertText(16)}}
                             </div>
-                            <div class="mb-3">
-                                <div class="row" *ngIf="this.clipsFormArray.length > 0">
+                            <div class="mb-3" *ngIf="this.clipsFormArray.length > 0">
+                                <div class="row" >
                                     <ng-container
                                         *ngFor="let clipControl of this.clipsFormArray.controls; let i = index; let last = last">
                                         <div class="col-3 mb-3" *ngIf="showBlock(i)">
@@ -248,7 +248,7 @@
                                                         <div class="progress">
                                                             <div class="progress-bar" role="progressbar"
                                                                 aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
-                                                                [style.width.%]="getProgress(i)"></div>
+                                                                [style.width.%]="getProgress(i, playingClipIndex, percentageOfPlayingClipDuration)"></div>
                                                         </div>
                                                     </li>
                                                 </ul>
@@ -261,13 +261,50 @@
                                         </div>
                                     </div>
                                 </div>
+                            </div>
+                            <div class="mb-3">
+                                <button type="button" (click)="toggleClipPicker()" class="btn btn-success">
+                                    <i class="bi bi-plus-circle-fill"></i> Pick clip to add to end of
+                                    timeline</button>
+                            </div>
 
-                                <div class="mb-3">
-                                    <button type="button" (click)="toggleClipPicker()" class="btn btn-success">
-                                        <i class="bi bi-plus-circle-fill"></i> Pick clip to add to end of
-                                        timeline</button>
+
+
+
+                            <div class="mb-3" *ngIf="this.clipsFormArray.length > 0">
+                                <div class="card text-center">
+                                    <div class="imageContainer">
+                                            <img *ngFor="let layerloop of clipsFormArray.controls[playingClipIndex].value.userLayers; let i = index"
+                                                [src]="'https://cdn.musicvideobuilder.com/' + layerloop.layerId + '/' + layerloop.layerId + '.png'"
+                                                [alt]="layerloop.layerName" [style.left.px]="leftPosition" [style.z-index]="i" />
+
+                                    </div>
+                                    <ul class="list-group list-group-flush">
+                                        <li class="list-group-item">
+                                            <span [ngbTooltip]="'Set player to start.'">
+                                                <button type="button" class="btn btn-info me-1"
+                                                    (click)="setSelectedClipIndex(0)"
+                                                    [disabled]="0 === this.selectedClipIndex">
+                                                    <i class="bi bi-skip-start-fill"></i>
+                                                    <i class="bi bi-bookmark-star-fill"></i></button>
+                                            </span>
+                                            <button type="button" class="btn btn-outline-secondary me-1" (click)="togglePlay()"><i
+                                                    [ngClass]="isPlaying ? 'bi bi-pause-fill' : 'bi bi-play-fill'"></i></button>
+                                                    <button type="button" class="btn btn-outline-secondary" (click)="stop()" [disabled]="!isPlaying"><i
+                                                        class="bi bi-stop-fill"></i></button>
+                                                </li>
+                                        <li class="list-group-item">
+                                            <div class="progress">
+                                                <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
+                                                    [style.width.%]="progress"></div>
+                                            </div>
+                                        </li>
+                                    </ul>
                                 </div>
                             </div>
+
+
+
                         </ng-container>
                         <div class="mb-3" *ngIf="showClipPicker || clipsFormArray.length === 0">
                             <h3>Pick a clip</h3>

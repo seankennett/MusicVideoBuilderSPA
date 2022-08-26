@@ -1,6 +1,6 @@
 import { Component, Input, OnInit, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { Layer } from '../layer';
-import { BehaviorSubject, interval, Observable, switchMap, take, takeUntil, takeWhile, timer } from 'rxjs';
+import { BehaviorSubject, switchMap, takeWhile, timer } from 'rxjs';
 import { Clip } from '../clip';
 
 const imageWidth = 384;

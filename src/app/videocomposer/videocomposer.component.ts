@@ -5,12 +5,17 @@ import { Formats } from '../formats';
 import { Video } from '../video';
 import { Clip } from '../clip';
 import { VideoService } from '../video.service';
-import { catchError, throwError, timer } from 'rxjs';
+import { catchError, throwError, timer, takeWhile } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 import { DatePipe } from '@angular/common';
 
 const beatsPerLayer = 4;
 const millisecondsInMinute = 60000;
+const framesPerSecond = 1 / 24;
+const millisecondsInSecond = 1000;
+const secondsInMinute = 60;
+const frameTotal = 64;
+const imageWidth = 384;
 
 @Component({
   selector: 'app-videocomposer',
@@ -63,11 +68,11 @@ export class VideoComposerComponent implements OnInit {
   timelineEditorEnd = 2;
 
   timelineEditorStartFinal = 1;
-  get timelineEditorStartFinalIndex(){
+  get timelineEditorStartFinalIndex() {
     return this.timelineEditorStartFinal - 1;
   }
   timelineEditorEndFinal = 2;
-  get timelineEditorEndFinalIndex(){
+  get timelineEditorEndFinalIndex() {
     return this.timelineEditorEndFinal - 1;
   }
 
@@ -78,7 +83,7 @@ export class VideoComposerComponent implements OnInit {
     }
 
     this.timelineEditorEndFinal = this.timelineEditorEnd;
-    if (this.isInvalidSelection(this.clipsPerBlock)){
+    if (this.isInvalidSelection(this.clipsPerBlock)) {
       this.clipsPerBlock = 1;
     }
   }
@@ -90,22 +95,22 @@ export class VideoComposerComponent implements OnInit {
     }
 
     this.timelineEditorStartFinal = this.timelineEditorStart;
-    if (this.isInvalidSelection(this.clipsPerBlock)){
+    if (this.isInvalidSelection(this.clipsPerBlock)) {
       this.clipsPerBlock = 1;
     }
   }
 
-  setTimelineStart = (start: number) =>{
+  setTimelineStart = (start: number) => {
     this.timelineEditorStart = start;
     this.timelineEditorStartFinal = start;
   }
 
-  setTimelineEnd = (end: number) =>{
+  setTimelineEnd = (end: number) => {
     this.timelineEditorEnd = end;
     this.timelineEditorEndFinal = end;
   }
 
-  setQuickTimelineSelection = (index: number) =>{
+  setQuickTimelineSelection = (index: number) => {
     this.setTimelineStart(index + 1);
     this.setTimelineEnd(index + 1 + this.clipsPerBlock);
     this.clipsPerBlock = 1;
@@ -116,11 +121,11 @@ export class VideoComposerComponent implements OnInit {
   }
 
   getAlertText = (clipsPerBlock: number) => {
-    return ' This timeline selection does not have a multiple of '+ clipsPerBlock +' clips in it or timeline selection end is not at the end.  You will not be able to use setting ' + clipsPerBlock + ' clips per block.';
+    return ' This timeline selection does not have a multiple of ' + clipsPerBlock + ' clips in it or timeline selection end is not at the end.  You will not be able to use setting ' + clipsPerBlock + ' clips per block.';
   }
 
-  showBlock = (index: number) =>{
-    if (index < this.timelineEditorStartFinalIndex || index >= this.timelineEditorEndFinalIndex){
+  showBlock = (index: number) => {
+    if (index < this.timelineEditorStartFinalIndex || index >= this.timelineEditorEndFinalIndex) {
       return false;
     }
 
@@ -152,6 +157,12 @@ export class VideoComposerComponent implements OnInit {
   saving = false;
   activeTabId = 1;
   selectedClipIndex = 0;
+
+  leftPosition = 0;
+  isPlaying = false;
+  progress = 0;
+  playingClipIndex = 0;
+  percentageOfPlayingClipDuration = 0;
 
   setTabId = (activeTabId: number) => {
     this.activeTabId = activeTabId;
@@ -248,6 +259,8 @@ export class VideoComposerComponent implements OnInit {
 
   setSelectedClipIndex = (index: number) => {
     this.selectedClipIndex = index;
+    this.playingClipIndex = index;
+    this.setProgressByClipIndex(index);
   }
 
   canAddVideo = () => {
@@ -298,9 +311,9 @@ export class VideoComposerComponent implements OnInit {
     var isTimelineAtEnd = this.timelineEditorEndFinalIndex === this.clipsFormArray.length;
     this.showClipPicker = false;
     this.clipsFormArray.push(this.formBuilder.control(clip));
-    if (isTimelineAtEnd === true){
+    if (isTimelineAtEnd === true) {
       this.setTimelineEnd(this.clipsFormArray.length + 1)
-    }    
+    }
   }
 
   copyClip = (index: number) => {
@@ -316,9 +329,9 @@ export class VideoComposerComponent implements OnInit {
       this.clipsFormArray.insert(endOfBlockIndex, this.formBuilder.control(clipControl.value));
     }
 
-    if (isTimelineAtEnd === true){
+    if (isTimelineAtEnd === true) {
       this.setTimelineEnd(this.clipsFormArray.length + 1)
-    } 
+    }
   }
 
   removeClip = (index: number) => {
@@ -331,11 +344,11 @@ export class VideoComposerComponent implements OnInit {
       this.clipsFormArray.removeAt(i);
     }
 
-    if (this.timelineEditorEndFinalIndex > this.clipsFormArray.length){
+    if (this.timelineEditorEndFinalIndex > this.clipsFormArray.length) {
       this.setTimelineEnd(this.clipsFormArray.length + 1);
     }
 
-    if (this.timelineEditorStartFinalIndex >= this.clipsFormArray.length){
+    if (this.timelineEditorStartFinalIndex >= this.clipsFormArray.length) {
       this.setTimelineStart(this.clipsFormArray.length);
     }
   }
@@ -379,18 +392,67 @@ export class VideoComposerComponent implements OnInit {
     return clipNameArray.join(", ");
   }
 
-  getProgress = (index: number) => {
-    if (index + this.clipsPerBlock <= this.selectedClipIndex) {
+  getProgress = (index: number, playingClipIndex: number, percentageOfPlayingClipDuration: number) => {
+    if (index + this.clipsPerBlock <= playingClipIndex) {
       return 100;
-    } else if (this.selectedClipIndex >= index && this.selectedClipIndex < index + this.clipsPerBlock) {
-      var remainderSelected = this.selectedClipIndex % this.clipsPerBlock;
-      var clipNumberLeftInblock = this.clipsPerBlock
+    } else if (playingClipIndex >= index && playingClipIndex < index + this.clipsPerBlock) {
+      var clipsPastIndex = playingClipIndex - index;
+      var clipsInBlock = this.clipsPerBlock
       if (index + this.clipsPerBlock > this.clipsFormArray.length) {
-        clipNumberLeftInblock = this.clipsFormArray.length - index;
+        clipsInBlock = this.clipsFormArray.length - index;
       }
-      return remainderSelected / clipNumberLeftInblock * 100;
+      var weigthedPercentage = percentageOfPlayingClipDuration / clipsInBlock;
+
+      return (clipsPastIndex / clipsInBlock + weigthedPercentage) * 100;
     }
 
     return 0;
+  }
+
+  togglePlay = () => {
+    this.isPlaying = !this.isPlaying;
+    if (this.isPlaying) {
+
+      var clipDuration = secondsInMinute / this.bpmControl.value * beatsPerLayer;
+      var startTime = Date.now() - this.selectedClipIndex * clipDuration * millisecondsInSecond;
+      timer(0, framesPerSecond * millisecondsInSecond).pipe(
+        takeWhile(() => this.isPlaying)
+      ).subscribe(() => {
+        var newTime = Date.now();
+        var currentTime = (newTime - startTime) / millisecondsInSecond;
+
+        var videoDuration = this.clipsFormArray.length * clipDuration;
+        var percentageOfVideoDuration = currentTime / videoDuration;
+
+        var playingClipIndex = Math.floor(this.clipsFormArray.length * currentTime / videoDuration);
+        if (playingClipIndex >= this.clipsFormArray.length) {
+          this.stop();
+        } else {
+          this.playingClipIndex = playingClipIndex;
+          var currentTimeInClip = currentTime % clipDuration;
+          this.percentageOfPlayingClipDuration = currentTimeInClip / clipDuration;
+
+          var frameInClipNumber = Math.round(frameTotal * this.percentageOfPlayingClipDuration);
+          if (frameInClipNumber >= frameTotal) {
+            frameInClipNumber = frameTotal - 1;
+          }
+
+          this.leftPosition = -(frameInClipNumber) * imageWidth;
+          this.progress = percentageOfVideoDuration * 100;
+        }
+      });
+    }
+  }
+
+  stop = () => {
+    this.isPlaying = false;
+    this.leftPosition = 0;    
+    this.playingClipIndex = this.selectedClipIndex;
+    this.percentageOfPlayingClipDuration = 0;
+    this.setProgressByClipIndex(this.selectedClipIndex);
+  }
+
+  setProgressByClipIndex = (index: number) =>{
+    this.progress = index / this.clipsFormArray.length * 100;
   }
 }
