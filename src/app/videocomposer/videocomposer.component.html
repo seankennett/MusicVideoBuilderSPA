@@ -136,14 +136,14 @@
                         </div>
                         <div class="mb-3">
                             <span [ngbTooltip]="bpmInvalidTooltip()" placement="right">
-                                <button type="button" [disabled]="!bpmControl.valid" class="btn btn-secondary"
+                                <button type="button" [disabled]="disableTimelineTab()" class="btn btn-secondary"
                                     (click)="setTabId(2)">Go to timeline</button>
                             </span>
                         </div>
                     </ng-template>
                 </li>
-                <li [ngbNavItem]="2" [disabled]="!bpmControl.valid" [ngbTooltip]="bpmInvalidTooltip()"
-                    placement="right">
+                <li [ngbNavItem]="2" [disabled]="disableTimelineTab()" [ngbTooltip]="bpmInvalidTooltip()" placement="right"
+                    (hidden)="stop()">
                     <a ngbNavLink>Timeline</a>
                     <ng-template ngbNavContent>
                         <ng-container *ngIf="showEditor && (!showClipPicker && clipsFormArray.length > 0)">
@@ -187,7 +187,7 @@
                                 <i class="bi bi-exclamation-triangle-fill"></i>{{getAlertText(16)}}
                             </div>
                             <div class="mb-3" *ngIf="this.clipsFormArray.length > 0">
-                                <div class="row" >
+                                <div class="row">
                                     <ng-container
                                         *ngFor="let clipControl of this.clipsFormArray.controls; let i = index; let last = last">
                                         <div class="col-3 mb-3" *ngIf="showBlock(i)">
@@ -242,13 +242,14 @@
                                                         Beat #: {{calculateBeatRangeFromClipIndex(i)}}
                                                     </li>
                                                     <li class="list-group-item">
-                                                        Time: {{calculateTimeRangeFromClipIndex(i) }}
+                                                        Time: {{displayTimeLineTimeRangeFromClipIndex(i) }}
                                                     </li>
                                                     <li class="list-group-item">
                                                         <div class="progress">
                                                             <div class="progress-bar" role="progressbar"
                                                                 aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
-                                                                [style.width.%]="getProgress(i, playingClipIndex, percentageOfPlayingClipDuration)"></div>
+                                                                [style.width.%]="getProgress(i, playingClipIndex, percentageOfPlayingClipDuration)">
+                                                            </div>
                                                         </div>
                                                     </li>
                                                 </ul>
@@ -274,9 +275,10 @@
                             <div class="mb-3" *ngIf="this.clipsFormArray.length > 0">
                                 <div class="card text-center">
                                     <div class="imageContainer">
-                                            <img *ngFor="let layerloop of clipsFormArray.controls[playingClipIndex].value.userLayers; let i = index"
-                                                [src]="'https://cdn.musicvideobuilder.com/' + layerloop.layerId + '/' + layerloop.layerId + '.png'"
-                                                [alt]="layerloop.layerName" [style.left.px]="leftPosition" [style.z-index]="i" />
+                                        <img *ngFor="let layerloop of clipsFormArray.controls[playingClipIndex].value.userLayers; let i = index"
+                                            [src]="'https://cdn.musicvideobuilder.com/' + layerloop.layerId + '/' + layerloop.layerId + '.png'"
+                                            [alt]="layerloop.layerName" [style.left.px]="leftPosition"
+                                            [style.z-index]="i" />
 
                                     </div>
                                     <ul class="list-group list-group-flush">
@@ -288,15 +290,18 @@
                                                     <i class="bi bi-skip-start-fill"></i>
                                                     <i class="bi bi-bookmark-star-fill"></i></button>
                                             </span>
-                                            <button type="button" class="btn btn-outline-secondary me-1" (click)="togglePlay()"><i
-                                                    [ngClass]="isPlaying ? 'bi bi-pause-fill' : 'bi bi-play-fill'"></i></button>
-                                                    <button type="button" class="btn btn-outline-secondary" (click)="stop()" [disabled]="!isPlaying"><i
-                                                        class="bi bi-stop-fill"></i></button>
-                                                </li>
+                                            <button type="button" class="btn btn-outline-secondary me-1"
+                                                (click)="togglePlay()"><i
+                                                    [ngClass]="isPlaying ? 'bi bi-stop-fill' : 'bi bi-play-fill'"></i></button>
+                                        </li>
+                                        <li class="list-group-item">
+                                            {{displayCurrentTime}} / {{displayEndOfVideoTime}}
+                                        </li>
                                         <li class="list-group-item">
                                             <div class="progress">
-                                                <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
-                                                    [style.width.%]="progress"></div>
+                                                <div class="progress-bar" role="progressbar" aria-valuenow="0"
+                                                    aria-valuemin="0" aria-valuemax="100" [style.width.%]="progress">
+                                                </div>
                                             </div>
                                         </li>
                                     </ul>

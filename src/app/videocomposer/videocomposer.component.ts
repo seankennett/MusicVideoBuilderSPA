@@ -168,6 +168,10 @@ export class VideoComposerComponent implements OnInit {
     this.activeTabId = activeTabId;
   }
 
+  disableTimelineTab = () => {
+    return !this.bpmControl.valid || !this.videoDelayMillisecondsControl.valid
+  }
+
   editorLoading = false;
 
   editVideo = (video: Video) => {
@@ -218,6 +222,7 @@ export class VideoComposerComponent implements OnInit {
 
   onSubmit = () => {
     this.saving = true;
+    this.stop();
 
     this.videoService.post(this.editorVideo).pipe(
       catchError((error: HttpErrorResponse) => {
@@ -247,6 +252,8 @@ export class VideoComposerComponent implements OnInit {
     this.clipsFormArray.clear();
     this.setTimelineStart(1);
     this.setTimelineEnd(2);
+    this.stop();
+    this.setSelectedClipIndex(0);
 
     this.activeTabId = 1;
     this.showClipPicker = false;
@@ -254,10 +261,12 @@ export class VideoComposerComponent implements OnInit {
   }
 
   toggleClipPicker = () => {
+    this.stop();
     this.showClipPicker = !this.showClipPicker;
   }
 
   setSelectedClipIndex = (index: number) => {
+    this.stop();
     this.selectedClipIndex = index;
     this.playingClipIndex = index;
     this.setProgressByClipIndex(index);
@@ -288,21 +297,25 @@ export class VideoComposerComponent implements OnInit {
   }
 
   moveBack = (index: number) => {
+    this.stop();
     for (var i = index; i < index + this.clipsPerBlock; i++) {
       var clipControl = this.clipsFormArray.controls[i];
-      if (clipControl !== undefined) {
-        this.clipsFormArray.controls[i] = this.clipsFormArray.controls[i - this.clipsPerBlock];
-        this.clipsFormArray.controls[i - this.clipsPerBlock] = clipControl;
+      this.clipsFormArray.controls[i] = this.clipsFormArray.controls[i - this.clipsPerBlock];
+      this.clipsFormArray.controls[i - this.clipsPerBlock] = clipControl;
+      if (i === this.selectedClipIndex) {
+        this.setSelectedClipIndex(i - this.clipsPerBlock);
       }
     }
   }
 
   moveForward = (index: number) => {
+    this.stop();
     for (var i = index; i < index + this.clipsPerBlock; i++) {
       var clipControl = this.clipsFormArray.controls[i];
-      if (clipControl !== undefined) {
-        this.clipsFormArray.controls[i] = this.clipsFormArray.controls[i + this.clipsPerBlock];
-        this.clipsFormArray.controls[i + this.clipsPerBlock] = clipControl;
+      this.clipsFormArray.controls[i] = this.clipsFormArray.controls[i + this.clipsPerBlock];
+      this.clipsFormArray.controls[i + this.clipsPerBlock] = clipControl;
+      if (i === this.selectedClipIndex) {
+        this.setSelectedClipIndex(i + this.clipsPerBlock);
       }
     }
   }
@@ -314,11 +327,12 @@ export class VideoComposerComponent implements OnInit {
     if (isTimelineAtEnd === true) {
       this.setTimelineEnd(this.clipsFormArray.length + 1)
     }
+
+    this.setProgressByClipIndex(this.selectedClipIndex);
   }
 
   copyClip = (index: number) => {
     var isTimelineAtEnd = this.timelineEditorEndFinalIndex === this.clipsFormArray.length;
-
     var endOfBlockIndex = index + this.clipsPerBlock;
     if (endOfBlockIndex > this.clipsFormArray.length) {
       endOfBlockIndex = this.clipsFormArray.length;
@@ -328,6 +342,8 @@ export class VideoComposerComponent implements OnInit {
       var clipControl = this.clipsFormArray.controls[i];
       this.clipsFormArray.insert(endOfBlockIndex, this.formBuilder.control(clipControl.value));
     }
+
+    this.stop();
 
     if (isTimelineAtEnd === true) {
       this.setTimelineEnd(this.clipsFormArray.length + 1)
@@ -341,8 +357,15 @@ export class VideoComposerComponent implements OnInit {
     }
 
     for (var i = endOfBlockIndex - 1; i >= index; i--) {
+      if (i === this.selectedClipIndex) {
+        this.setSelectedClipIndex(0);
+      } else if (i < this.selectedClipIndex) {
+        this.setSelectedClipIndex(this.selectedClipIndex - 1);
+      }
       this.clipsFormArray.removeAt(i);
     }
+
+    this.stop();
 
     if (this.timelineEditorEndFinalIndex > this.clipsFormArray.length) {
       this.setTimelineEnd(this.clipsFormArray.length + 1);
@@ -365,19 +388,39 @@ export class VideoComposerComponent implements OnInit {
   }
 
   calculateTimeRangeFromClipIndex = (index: number) => {
-    var layerDuration = millisecondsInMinute / this.bpmControl.value * beatsPerLayer;
-    var startTimeMilliseconds = (this.videoDelayMillisecondsControl.value ?? 0) + index * layerDuration;
+    var clipDuration = millisecondsInMinute / this.bpmControl.value * beatsPerLayer;
+    var videoDelay = (this.videoDelayMillisecondsControl.value ?? 0);
+    var startTimeMilliseconds = videoDelay + index * clipDuration;
     var startDate = new Date(0, 0, 0);
     startDate.setMilliseconds(startTimeMilliseconds);
 
-    var endTimeMilliseconds = startTimeMilliseconds + this.clipsPerBlock * layerDuration;
+    var endTimeMilliseconds = startTimeMilliseconds + this.clipsPerBlock * clipDuration;
     if (index + this.clipsPerBlock > this.clipsFormArray.length) {
-      endTimeMilliseconds = this.clipsFormArray.length * layerDuration;
+      endTimeMilliseconds = videoDelay + this.clipsFormArray.length * clipDuration;
     }
     var endDate = new Date(0, 0, 0);
     endDate.setMilliseconds(endTimeMilliseconds);
 
-    return this.datePipe.transform(startDate, 'HH:mm:ss.SSS') + ' to ' + this.datePipe.transform(endDate, 'HH:mm:ss.SSS');
+    return [startDate, endDate];
+  }
+
+  get displayEndOfVideoTime() {
+    return this.datePipe.transform(this.calculateTimeRangeFromClipIndex(this.clipsFormArray.length - 1)[1], 'HH:mm:ss.SSS');
+  }
+
+  get displayCurrentTime() {
+    var clipDuration = millisecondsInMinute / this.bpmControl.value * beatsPerLayer;
+    var videoDuration = this.clipsFormArray.length * clipDuration
+    var currentTime = videoDuration * this.progress / 100 + (this.videoDelayMillisecondsControl.value ?? 0);
+    var currentDate = new Date(0, 0, 0);
+    currentDate.setMilliseconds(currentTime);
+
+    return this.datePipe.transform(currentDate, 'HH:mm:ss.SSS');
+  }
+
+  displayTimeLineTimeRangeFromClipIndex = (index: number) => {
+    var dates = this.calculateTimeRangeFromClipIndex(index);
+    return this.datePipe.transform(dates[0], 'HH:mm:ss.SSS') + ' to ' + this.datePipe.transform(dates[1], 'HH:mm:ss.SSS');
   }
 
   calculateClipNameFromClipIndex = (index: number) => {
@@ -410,17 +453,17 @@ export class VideoComposerComponent implements OnInit {
   }
 
   togglePlay = () => {
-    this.isPlaying = !this.isPlaying;
-    if (this.isPlaying) {
-
+    if (!this.isPlaying) {
       var clipDuration = secondsInMinute / this.bpmControl.value * beatsPerLayer;
       var startTime = Date.now() - this.selectedClipIndex * clipDuration * millisecondsInSecond;
+      this.isPlaying = true;
       timer(0, framesPerSecond * millisecondsInSecond).pipe(
         takeWhile(() => this.isPlaying)
       ).subscribe(() => {
         var newTime = Date.now();
         var currentTime = (newTime - startTime) / millisecondsInSecond;
-
+        // calculating again just in case changes outside
+        clipDuration = secondsInMinute / this.bpmControl.value * beatsPerLayer;
         var videoDuration = this.clipsFormArray.length * clipDuration;
         var percentageOfVideoDuration = currentTime / videoDuration;
 
@@ -441,18 +484,22 @@ export class VideoComposerComponent implements OnInit {
           this.progress = percentageOfVideoDuration * 100;
         }
       });
+    } else {
+      this.stop();
     }
   }
 
   stop = () => {
     this.isPlaying = false;
-    this.leftPosition = 0;    
+    this.leftPosition = 0;
     this.playingClipIndex = this.selectedClipIndex;
     this.percentageOfPlayingClipDuration = 0;
     this.setProgressByClipIndex(this.selectedClipIndex);
   }
 
-  setProgressByClipIndex = (index: number) =>{
-    this.progress = index / this.clipsFormArray.length * 100;
+  setProgressByClipIndex = (index: number) => {
+    if (this.clipsFormArray.length > 0) {
+      this.progress = index / this.clipsFormArray.length * 100;
+    }
   }
 }
