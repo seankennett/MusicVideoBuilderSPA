@@ -1,7 +1,8 @@
 import { Layertypes } from "./layertypes";
+import { Userlayerstatus } from "./userlayerstatus";
 
 export interface Layer {
-    userLayerStatusId: number | null,
+    userLayerStatus: Userlayerstatus | null,
     layerName: string,
     layerId: string,
     layerType: Layertypes, // change to enum

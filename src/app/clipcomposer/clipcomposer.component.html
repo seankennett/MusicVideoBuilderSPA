@@ -18,11 +18,11 @@
             </div>
         </div>
     </ng-container>
-    <span [ngbTooltip]="canAddLayerTooltip()" placement="right" *ngIf="!showEditor">
+    <div [ngbTooltip]="canAddLayerTooltip()" placement="right" *ngIf="!showEditor" class="mb-3">
         <button type="button" class="btn btn-success" (click)="toggleEditor()" [disabled]="!canAddLayer()"><i
                 class="bi bi-dash-circle-fill"></i>
             Add new clip</button>
-    </span>
+        </div>
     <ng-container *ngIf="showEditor">
         <h2>Clip Editor</h2>
         <ngb-alert [type]="'warning'" (closed)="closeWarning()" *ngIf="showExistingClipWarning && clipId > 0">Editing
@@ -78,8 +78,7 @@
                             </div>
                         </li>
                     </ol>
-                    <div class="form-text text-danger"
-                        *ngIf="layersFormArray?.invalid">
+                    <div class="form-text text-danger" *ngIf="layersFormArray?.invalid">
                         <div [hidden]="!layersFormArray?.errors?.['maxlength']">
                             You can't have more than 255 layers in a clip.
                         </div>
@@ -110,9 +109,16 @@
                 <button type="button" class="btn btn-danger" (click)="toggleAddNewLayer()">
                     <i class="bi bi-dash-circle-fill"></i> Cancel Adding Layer</button>
             </div>
-            <button type="submit" [disabled]="!clipForm.valid || saving" class="btn btn-primary me-1">Save</button>
-            <button type="button" class="btn btn-danger" (click)="toggleEditor()"><i class="bi bi-dash-circle-fill"></i>
-                Cancel</button>
+            <div class="mb-3">
+                <button type="submit" [disabled]="!clipForm.valid || saving" class="btn btn-primary me-1">Save</button>
+                <button type="button" class="btn btn-danger" (click)="toggleEditor()"><i
+                        class="bi bi-dash-circle-fill"></i>
+                    Cancel</button>
+            </div>
         </form>
     </ng-container>
+    <div class="mb-3">
+        <button type="button" class="btn btn-secondary" [routerLink]="'/videoComposer'" [disabled]="!hasClip"><i
+                class="bi bi-arrow-right-circle-fill"></i> Video Composer</button>
+    </div>
 </div>

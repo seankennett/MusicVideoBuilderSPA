@@ -52,6 +52,10 @@ export class VideoComposerComponent implements OnInit {
   }
 
   videos: Video[] = [];
+  get hasVideo(){
+    return this.videos.length > 0;
+  }
+  
   clips: Clip[] = [];
   Formats = Formats;
   formatList: Formats[] = [

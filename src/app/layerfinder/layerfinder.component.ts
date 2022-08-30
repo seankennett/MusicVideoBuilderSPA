@@ -9,6 +9,7 @@ import { PopularTag } from '../populartag';
 import { UserLayer } from '../userlayer';
 import { UserlayerService } from '../userlayer.service';
 import { Layertypes } from '../layertypes';
+import { Userlayerstatus } from '../userlayerstatus';
 
 @Component({
   selector: 'app-layerfinder',
@@ -19,7 +20,7 @@ export class LayerFinderComponent implements OnInit {
 
   constructor(private layerService: LayerFinderService, private userLayerService: UserlayerService) { }
 
-  @ViewChild('bpmControl') bpmControl! : NgModel;
+  @ViewChild('bpmControl') bpmControl!: NgModel;
 
   ngOnInit(): void {
     this.layerService.getAll().pipe(
@@ -39,11 +40,11 @@ export class LayerFinderComponent implements OnInit {
         for (var userLayer of userLayers) {
           let layerFinder = this.layerFinders.find(l => l.layerId === userLayer.layerId);
           if (layerFinder) {
-            layerFinder.userLayerStatusId = userLayer.userLayerStatusId
+            layerFinder.userLayerStatus = userLayer.userLayerStatus;
           }
         }
       });
-      
+
       var tagCounter = layerFinders.flatMap(lf => lf.tags).reduce((prev, cur) => {
         var typedPrev = prev as any;
         typedPrev[cur] = (typedPrev[cur] || 0) + 1;
@@ -53,7 +54,7 @@ export class LayerFinderComponent implements OnInit {
       this.popularTags = Object.keys(tagCounter).map(key => {
         return new PopularTag(key, (tagCounter as any)[key]);
       }).sort((x, y) => y.count - x.count).slice(0, 10);
-    });  
+    });
   }
 
   disableSearch = true;
@@ -77,7 +78,9 @@ export class LayerFinderComponent implements OnInit {
   selectedLayers: LayerFinder[] = [];
   selectedTags: string[] = [];
 
-  pendingUserLayers: Layer[] = [];
+  get hasBackground() {
+    return this.layerFinders.some(x => (x.userLayerStatus === Userlayerstatus.Saved || x.userLayerStatus === Userlayerstatus.Bought) && x.layerType === Layertypes.Background);
+  }
 
   formatter = (tag: string) => tag;
 
@@ -101,51 +104,51 @@ export class LayerFinderComponent implements OnInit {
     this.addTag(selectItem.item);
   };
 
-  layerTypeChange = () =>{
+  layerTypeChange = () => {
     this.selectedLayers = [];
-    for (var tag of this.selectedTags){
+    for (var tag of this.selectedTags) {
       this.addTag(tag);
     }
   }
 
-  addTag = (tag: string) =>{
-    if (this.selectedTags.indexOf(tag) === -1){
+  addTag = (tag: string) => {
+    if (this.selectedTags.indexOf(tag) === -1) {
       this.selectedTags.push(tag);
     }
 
     let layersContainingTags = this.layerFinders.filter(lf => lf.tags.indexOf(tag) > -1 && (this.layerType === 0 || this.layerType === lf.layerType));
-    for (var layerContainingTags of layersContainingTags){
-      if (this.selectedLayers.some(sl => sl.layerId === layerContainingTags.layerId) === false){
+    for (var layerContainingTags of layersContainingTags) {
+      if (this.selectedLayers.some(sl => sl.layerId === layerContainingTags.layerId) === false) {
         this.selectedLayers.push(layerContainingTags);
       }
     }
   }
 
-  removeSelectedTag = (tag: string) =>{
+  removeSelectedTag = (tag: string) => {
     this.selectedTags = this.selectedTags.filter(t => t !== tag);
     this.selectedLayers = this.selectedLayers.filter(sl => sl.tags.some(t => this.selectedTags.indexOf(t) !== -1));
   }
 
   addUserLayer = (selectedLayer: Layer) => {
-    var previousUserLayerStatus = selectedLayer.userLayerStatusId;
-    selectedLayer.userLayerStatusId = 3;
+    var previousUserLayerStatus = selectedLayer.userLayerStatus;
+    selectedLayer.userLayerStatus = Userlayerstatus.Saved;
 
-    this.userLayerService.postUserLayer({layerId: selectedLayer.layerId, userLayerId: 0, dateUpdated:new Date(), userLayerStatusId: selectedLayer.userLayerStatusId, layerType: selectedLayer.layerType, layerName: selectedLayer.layerName }).pipe(
+    this.userLayerService.postUserLayer({ layerId: selectedLayer.layerId, userLayerId: 0, dateUpdated: new Date(), userLayerStatus: selectedLayer.userLayerStatus, layerType: selectedLayer.layerType, layerName: selectedLayer.layerName }).pipe(
       catchError((error: HttpErrorResponse) => {
-        selectedLayer.userLayerStatusId = previousUserLayerStatus;
+        selectedLayer.userLayerStatus = previousUserLayerStatus;
         return throwError(() => new Error('Something went wrong on the server, try again!'));
       })
     ).subscribe();
   }
 
-  disableLayer = (layer : Layer) => layer?.userLayerStatusId === 2 || layer?.userLayerStatusId === 3;
-  
-  disableLayerTooltip = (layer : Layer) => {
-    switch (layer?.userLayerStatusId) {
-      case 2: {
+  disableLayer = (layer: Layer) => layer?.userLayerStatus === Userlayerstatus.Bought || layer?.userLayerStatus === Userlayerstatus.Saved;
+
+  disableLayerTooltip = (layer: Layer) => {
+    switch (layer?.userLayerStatus) {
+      case Userlayerstatus.Bought: {
         return 'You have already bought this layer';
       }
-      case 3: {
+      case Userlayerstatus.Saved: {
         return 'You have already saved this layer';
       }
       default: {
@@ -154,11 +157,11 @@ export class LayerFinderComponent implements OnInit {
     }
   }
 
-  setBpm = (bpm: number) =>{
+  setBpm = (bpm: number) => {
     this.bpm = bpm;
   }
 
-  setIsPlaying = (isPlaying: boolean) =>{
+  setIsPlaying = (isPlaying: boolean) => {
     this.isPlaying = isPlaying;
   }
 }

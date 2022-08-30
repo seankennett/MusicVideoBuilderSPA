@@ -35,11 +35,11 @@
             </div>
         </div>
     </ng-container>
-    <span [ngbTooltip]="canAddVideoTooltip()" placement="right" *ngIf="!showEditor">
+    <div [ngbTooltip]="canAddVideoTooltip()" placement="right" *ngIf="!showEditor" class="mb-3">
         <button type="button" class="btn btn-success" (click)="toggleEditor()" [disabled]="!canAddVideo()"><i
                 class="bi bi-dash-circle-fill"></i>
             Add new video</button>
-    </span>
+        </div>
     <ng-container *ngIf="showEditor">
         <h2>Video Editor</h2>
         <form [formGroup]="videoForm" (ngSubmit)="onSubmit()">
@@ -142,8 +142,8 @@
                         </div>
                     </ng-template>
                 </li>
-                <li [ngbNavItem]="2" [disabled]="disableTimelineTab()" [ngbTooltip]="bpmInvalidTooltip()" placement="right"
-                    (hidden)="stop()">
+                <li [ngbNavItem]="2" [disabled]="disableTimelineTab()" [ngbTooltip]="bpmInvalidTooltip()"
+                    placement="right" (hidden)="stop()">
                     <a ngbNavLink>Timeline</a>
                     <ng-template ngbNavContent>
                         <ng-container *ngIf="showEditor && (!showClipPicker && clipsFormArray.length > 0)">
@@ -165,7 +165,7 @@
                             <div class="mb-3">
                                 <label for="timelineEditorStart" class="form-label">Timeline selection start, start of
                                     clip #
-                                    {{timelineEditorStart}}</label>
+                                    {{timelineEditorStart}} {{timelineEditorStartFinal}}</label>
                                 <input type="range" class="form-range" id="timelineEditorStart" min="1"
                                     [max]="clipsFormArray.length" [(ngModel)]="timelineEditorStart"
                                     [ngModelOptions]="{standalone: true}" (change)="timelineStartChange($event)">
@@ -173,7 +173,7 @@
                             <div class="mb-3">
                                 <label for="timelineEditorEnd" class="form-label">Timeline selection end, start of clip
                                     #
-                                    {{timelineEditorEnd}}</label>
+                                    {{timelineEditorEnd}} {{timelineEditorEndFinal}}</label>
                                 <input type="range" class="form-range" id="timelineEditorEnd" min="2"
                                     [max]="clipsFormArray.length + 1" [(ngModel)]="timelineEditorEnd"
                                     [ngModelOptions]="{standalone: true}" (change)="timelineEndChange($event)">
@@ -343,4 +343,8 @@
             </div>
         </form>
     </ng-container>
+    <div class="mb-3">
+        <button type="button" class="btn btn-secondary" [routerLink]="'/videoBuilder'" [disabled]="!hasVideo"><i
+                class="bi bi-arrow-right-circle-fill"></i> Video Builder</button>
+    </div>
 </div>

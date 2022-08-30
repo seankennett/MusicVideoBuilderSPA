@@ -38,15 +38,20 @@
             </button>
         </ng-container>
     </div>
-</div>
-<div class="container" *ngIf="selectedLayers.length > 0">
-    <h2>Layers</h2>
-    <app-bpmcontrol (bpmEvent)="setBpm($event)" (isPlayingEvent)="setIsPlaying($event)"></app-bpmcontrol>
-    <div class="row">
-        <div *ngFor="let layer of selectedLayers; let i = index" class="col-sm mb-3">
-            <app-galleryplayer [layer]="layer" (addButtonClickLayerEvent)="addUserLayer($event)" [bpm]="bpm"
-                [isPlaying]="isPlaying" [disableFunction]="disableLayer" [disableTooltipFunction]="disableLayerTooltip">
-            </app-galleryplayer>
+    <ng-container *ngIf="selectedLayers.length > 0">
+        <h2>Layers</h2>
+        <app-bpmcontrol (bpmEvent)="setBpm($event)" (isPlayingEvent)="setIsPlaying($event)"></app-bpmcontrol>
+        <div class="row">
+            <div *ngFor="let layer of selectedLayers; let i = index" class="col-sm mb-3">
+                <app-galleryplayer [layer]="layer" (addButtonClickLayerEvent)="addUserLayer($event)" [bpm]="bpm"
+                    [isPlaying]="isPlaying" [disableFunction]="disableLayer"
+                    [disableTooltipFunction]="disableLayerTooltip">
+                </app-galleryplayer>
+            </div>
         </div>
+    </ng-container>
+    <div class="mb-3">
+        <button type="button" class="btn btn-secondary" [routerLink]="'/clipComposer'" [disabled]="!hasBackground"><i
+                class="bi bi-arrow-right-circle-fill"></i> Clip Composer</button>
     </div>
 </div>

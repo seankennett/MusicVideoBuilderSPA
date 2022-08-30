@@ -23,7 +23,7 @@ export class AppComponent {
     @Inject(MSAL_GUARD_CONFIG) private msalGuardConfig: MsalGuardConfiguration,
     private authService: MsalService,
     private msalBroadcastService: MsalBroadcastService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.isIframe = window !== window.parent && !window.opener;
@@ -33,13 +33,13 @@ export class AppComponent {
      * visit: https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-angular/docs/v2-docs/events.md
      */
     this.msalBroadcastService.inProgress$
-    .pipe(
-      filter((status: InteractionStatus) => status === InteractionStatus.None),
-      takeUntil(this._destroying$)
-    )
-    .subscribe(() => {
-      this.setLoginDisplay();
-    });
+      .pipe(
+        filter((status: InteractionStatus) => status === InteractionStatus.None),
+        takeUntil(this._destroying$)
+      )
+      .subscribe(() => {
+        this.setLoginDisplay();
+      });
   }
 
   setLoginDisplay() {
@@ -47,25 +47,25 @@ export class AppComponent {
   }
 
   login(userFlowRequest?: RedirectRequest | PopupRequest) {
-    if (this.msalGuardConfig.interactionType === InteractionType.Popup) {
-      if (this.msalGuardConfig.authRequest) {
-        this.authService.loginPopup({...this.msalGuardConfig.authRequest, ...userFlowRequest} as PopupRequest)
-          .subscribe((response: AuthenticationResult) => {
-            this.authService.instance.setActiveAccount(response.account);
-          });
-      } else {
-        this.authService.loginPopup(userFlowRequest)
-          .subscribe((response: AuthenticationResult) => {
-            this.authService.instance.setActiveAccount(response.account);
-          });
-      }
-    } else {
-      if (this.msalGuardConfig.authRequest){
-        this.authService.loginRedirect({...this.msalGuardConfig.authRequest, ...userFlowRequest} as RedirectRequest);
-      } else {
-        this.authService.loginRedirect(userFlowRequest);
-      }
-    }
+    // if (this.msalGuardConfig.interactionType === InteractionType.Popup) {
+    //   if (this.msalGuardConfig.authRequest) {
+    //     this.authService.loginPopup({...this.msalGuardConfig.authRequest, ...userFlowRequest} as PopupRequest)
+    //       .subscribe((response: AuthenticationResult) => {
+    //         this.authService.instance.setActiveAccount(response.account);
+    //       });
+    //   } else {
+    //     this.authService.loginPopup(userFlowRequest)
+    //       .subscribe((response: AuthenticationResult) => {
+    //         this.authService.instance.setActiveAccount(response.account);
+    //       });
+    //   }
+    // } else {
+    //   if (this.msalGuardConfig.authRequest){
+    this.authService.loginRedirect({ ...this.msalGuardConfig.authRequest, ...userFlowRequest } as RedirectRequest);
+    //   } else {
+    //     this.authService.loginRedirect(userFlowRequest);
+    //   }
+    // }
   }
 
   logout() {

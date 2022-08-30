@@ -51,6 +51,10 @@ export class ClipComposerComponent implements OnInit {
     return this.userLayers.filter(l => l.layerType === Layertypes.Foreground);
   }
 
+  get hasClip(){
+    return this.clips.length > 0;
+  }
+
   clipNameControl = this.formBuilder.control('', [Validators.required, Validators.maxLength(50), Validators.pattern("[A-z0-9]+")]);
   layersFormArray = this.formBuilder.array([], [Validators.required, Validators.maxLength(255)])
 
