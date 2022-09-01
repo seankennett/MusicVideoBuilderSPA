@@ -10,7 +10,6 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { DatePipe } from '@angular/common';
 
 const beatsPerLayer = 4;
-const millisecondsInMinute = 60000;
 const framesPerSecond = 1 / 24;
 const millisecondsInSecond = 1000;
 const secondsInMinute = 60;
@@ -52,10 +51,10 @@ export class VideoComposerComponent implements OnInit {
   }
 
   videos: Video[] = [];
-  get hasVideo(){
+  get hasVideo() {
     return this.videos.length > 0;
   }
-  
+
   clips: Clip[] = [];
   Formats = Formats;
   formatList: Formats[] = [
@@ -162,11 +161,7 @@ export class VideoComposerComponent implements OnInit {
   activeTabId = 1;
   selectedClipIndex = 0;
 
-  leftPosition = 0;
   isPlaying = false;
-  progress = 0;
-  playingClipIndex = 0;
-  percentageOfPlayingClipDuration = 0;
 
   setTabId = (activeTabId: number) => {
     this.activeTabId = activeTabId;
@@ -272,8 +267,6 @@ export class VideoComposerComponent implements OnInit {
   setSelectedClipIndex = (index: number) => {
     this.stop();
     this.selectedClipIndex = index;
-    this.playingClipIndex = index;
-    this.setProgressByClipIndex(index);
   }
 
   canAddVideo = () => {
@@ -331,8 +324,6 @@ export class VideoComposerComponent implements OnInit {
     if (isTimelineAtEnd === true) {
       this.setTimelineEnd(this.clipsFormArray.length + 1)
     }
-
-    this.setProgressByClipIndex(this.selectedClipIndex);
   }
 
   copyClip = (index: number) => {
@@ -392,30 +383,36 @@ export class VideoComposerComponent implements OnInit {
   }
 
   calculateTimeRangeFromClipIndex = (index: number) => {
-    var clipDuration = millisecondsInMinute / this.bpmControl.value * beatsPerLayer;
+    var clipDurationMilliseconds = this._clipDurationSeconds * millisecondsInSecond;
     var videoDelay = (this.videoDelayMillisecondsControl.value ?? 0);
-    var startTimeMilliseconds = videoDelay + index * clipDuration;
+    var startTimeMilliseconds = videoDelay + index * clipDurationMilliseconds;
     var startDate = new Date(0, 0, 0);
     startDate.setMilliseconds(startTimeMilliseconds);
 
-    var endTimeMilliseconds = startTimeMilliseconds + this.clipsPerBlock * clipDuration;
-    if (index + this.clipsPerBlock > this.clipsFormArray.length) {
-      endTimeMilliseconds = videoDelay + this.clipsFormArray.length * clipDuration;
-    }
+    var endTimeMilliseconds = startTimeMilliseconds + this.clipsPerBlock * clipDurationMilliseconds;
     var endDate = new Date(0, 0, 0);
     endDate.setMilliseconds(endTimeMilliseconds);
+
+    if (index + this.clipsPerBlock > this.clipsFormArray.length) {
+      endDate = this.endOfVideoDate;
+    }    
 
     return [startDate, endDate];
   }
 
-  get displayEndOfVideoTime() {
-    return this.datePipe.transform(this.calculateTimeRangeFromClipIndex(this.clipsFormArray.length - 1)[1], 'HH:mm:ss.SSS');
+  get endOfVideoDate(){
+    var videoDurationMilliseconds = this._videoDurationSeconds * millisecondsInSecond + (this.videoDelayMillisecondsControl.value ?? 0);
+    var endVideoDate = new Date(0, 0, 0);
+    endVideoDate.setMilliseconds(videoDurationMilliseconds);
+    return endVideoDate;
+  }
+
+  get displayEndOfVideoTime() {    
+    return this.datePipe.transform(this.endOfVideoDate, 'HH:mm:ss.SSS');
   }
 
   get displayCurrentTime() {
-    var clipDuration = millisecondsInMinute / this.bpmControl.value * beatsPerLayer;
-    var videoDuration = this.clipsFormArray.length * clipDuration
-    var currentTime = videoDuration * this.progress / 100 + (this.videoDelayMillisecondsControl.value ?? 0);
+    var currentTime = this._videoDurationSeconds * millisecondsInSecond * this.progress / 100 + (this.videoDelayMillisecondsControl.value ?? 0);
     var currentDate = new Date(0, 0, 0);
     currentDate.setMilliseconds(currentTime);
 
@@ -456,36 +453,59 @@ export class VideoComposerComponent implements OnInit {
     return 0;
   }
 
+  private _currentTimeSeconds = 0;
+
+  private get _clipDurationSeconds() {
+    return secondsInMinute / this.bpmControl.value * beatsPerLayer;
+  }
+
+  private get _videoDurationSeconds() {
+    return this.clipsFormArray.length * this._clipDurationSeconds;
+  }
+
+  get progress() {
+    if (this._currentTimeSeconds > 0) {
+      return this._currentTimeSeconds / this._videoDurationSeconds * 100;
+    }
+
+    return this.selectedClipIndex / this.clipsFormArray.length * 100
+  }
+
+  get playingClipIndex(){
+    if (this._currentTimeSeconds > 0) {
+      return Math.floor(this.clipsFormArray.length * this._currentTimeSeconds / this._videoDurationSeconds);
+    }
+
+    return this.selectedClipIndex
+  }
+
+  get percentageOfPlayingClipDuration(){
+    var currentTimeInClip = this._currentTimeSeconds % this._clipDurationSeconds;
+    return currentTimeInClip / this._clipDurationSeconds;
+  }
+
+  get leftPosition(){
+    var frameInClipNumber = Math.round(frameTotal * this.percentageOfPlayingClipDuration);
+    if (frameInClipNumber >= frameTotal) {
+      frameInClipNumber = frameTotal - 1;
+    }
+
+    return -(frameInClipNumber) * imageWidth;
+  }
+
   togglePlay = () => {
     if (!this.isPlaying) {
-      var clipDuration = secondsInMinute / this.bpmControl.value * beatsPerLayer;
-      var startTime = Date.now() - this.selectedClipIndex * clipDuration * millisecondsInSecond;
+      var startTime = Date.now() - this.selectedClipIndex * this._clipDurationSeconds * millisecondsInSecond;
       this.isPlaying = true;
       timer(0, framesPerSecond * millisecondsInSecond).pipe(
         takeWhile(() => this.isPlaying)
       ).subscribe(() => {
         var newTime = Date.now();
-        var currentTime = (newTime - startTime) / millisecondsInSecond;
-        // calculating again just in case changes outside
-        clipDuration = secondsInMinute / this.bpmControl.value * beatsPerLayer;
-        var videoDuration = this.clipsFormArray.length * clipDuration;
-        var percentageOfVideoDuration = currentTime / videoDuration;
-
-        var playingClipIndex = Math.floor(this.clipsFormArray.length * currentTime / videoDuration);
-        if (playingClipIndex >= this.clipsFormArray.length) {
+        var currentTimeSeconds = (newTime - startTime) / millisecondsInSecond;
+        if (currentTimeSeconds >= this._videoDurationSeconds) {
           this.stop();
         } else {
-          this.playingClipIndex = playingClipIndex;
-          var currentTimeInClip = currentTime % clipDuration;
-          this.percentageOfPlayingClipDuration = currentTimeInClip / clipDuration;
-
-          var frameInClipNumber = Math.round(frameTotal * this.percentageOfPlayingClipDuration);
-          if (frameInClipNumber >= frameTotal) {
-            frameInClipNumber = frameTotal - 1;
-          }
-
-          this.leftPosition = -(frameInClipNumber) * imageWidth;
-          this.progress = percentageOfVideoDuration * 100;
+          this._currentTimeSeconds = currentTimeSeconds;         
         }
       });
     } else {
@@ -494,16 +514,7 @@ export class VideoComposerComponent implements OnInit {
   }
 
   stop = () => {
+    this._currentTimeSeconds = 0;
     this.isPlaying = false;
-    this.leftPosition = 0;
-    this.playingClipIndex = this.selectedClipIndex;
-    this.percentageOfPlayingClipDuration = 0;
-    this.setProgressByClipIndex(this.selectedClipIndex);
-  }
-
-  setProgressByClipIndex = (index: number) => {
-    if (this.clipsFormArray.length > 0) {
-      this.progress = index / this.clipsFormArray.length * 100;
-    }
   }
 }
