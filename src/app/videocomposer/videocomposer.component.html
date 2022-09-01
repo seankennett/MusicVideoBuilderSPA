@@ -7,7 +7,7 @@
     <p>Once you create a video you can then use this to <a [routerLink]="['/videoBuilder']">build a video</a>. Use the
         controls below to create or edit your videos</p>
     <ng-container *ngIf="!showEditor && this.videos.length > 0">
-        <h2>Videos</h2>
+        <h2>Saved Videos</h2>
         <div class="mb-3">
             <div class="row">
                 <div *ngFor="let video of videos; let i = index" class="col-sm mb-3">
@@ -39,7 +39,7 @@
         <button type="button" class="btn btn-success" (click)="toggleEditor()" [disabled]="!canAddVideo()"><i
                 class="bi bi-dash-circle-fill"></i>
             Add new video</button>
-        </div>
+    </div>
     <ng-container *ngIf="showEditor">
         <h2>Video Editor</h2>
         <form [formGroup]="videoForm" (ngSubmit)="onSubmit()">
@@ -48,7 +48,8 @@
                     <a ngbNavLink>Details</a>
                     <ng-template ngbNavContent>
                         <div class="mb-3">
-                            <label for="videoName" class="form-label">Video Name</label>
+                            <label for="videoName" class="form-label">Video Name<span
+                                    class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="videoName" formControlName="videoNameControl" />
                             <div class="form-text">Try to pick something short. Has to be Alpha Numeric and unique
                                 across your
@@ -68,7 +69,8 @@
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label for="videoBpm" class="form-label">Video BPM (playback speed)</label>
+                            <label for="videoBpm" class="form-label">Video BPM (playback speed)<span
+                                    class="text-danger">*</span></label>
                             <input type="number" class="form-control" min="90" max="250" step="1" id="videoBpm"
                                 formControlName="bpmControl" />
                             <div class="form-text">Must be between 90 and 250 beats per minute.
@@ -112,19 +114,27 @@
                                 </div>
                             </div>
                         </div>
-
+                        <ngb-alert [type]="'info'" [dismissible]="false"><i class="bi bi-info-circle-fill"></i> Your
+                            audio file must be of a constant bpm for this to work properly. Also note that each clip is
+                            four beats in length so your audio can't miss one, two or three beats.</ngb-alert>
                         <div class="mb-3">
                             <label for="audioFile" class="form-label">Audio File Selector</label>
                             <input class="form-control" type="file" id="audioFile" accept=".mp3"
                                 (change)="onFileUpload($event)" />
-                            <div id="LayerImagesHelp" class="form-text">
-                                This is to add audio when you play your video and is optional. If this is an existing
+                            <div class="form-text">
+                                This is to add audio when you play your video in the final video player in the timeline
+                                section and is optional. If this is an existing
                                 video you will need to select your track again as we don't upload these files. Also
                                 limited to mp3 format due to browser restrictions.
                             </div>
+                        </div>
+                        <div class="mb-3">
                             <label for="audioFileName" class="form-label">Audio File Name</label>
                             <input type="text" class="form-control" id="audioFileName"
                                 formControlName="audioFileNameControl" />
+                            <div class="form-text">
+                                You can override the audio filename here for when you build this video.
+                            </div>
                             <div class="form-text text-danger" *ngIf="audioFileNameControl?.invalid">
                                 <div [hidden]="!audioFileNameControl?.errors?.['pattern']">
                                     Audio file name must be alphanumeric or contain brackets, hypthens or spaces.
@@ -146,7 +156,8 @@
                     placement="right" (hidden)="stop()">
                     <a ngbNavLink>Timeline</a>
                     <ng-template ngbNavContent>
-                        <ng-container *ngIf="showEditor && (!showClipPicker && clipsFormArray.length > 0)">
+                        <ng-container *ngIf="showEditor && !showClipPicker && clipsFormArray.length > 0">
+                            <h3>Timeline View Options</h3>
                             <div class="mb-3">
                                 <label for="clipsPerBlock" class="form-label">Number of clips per timeline block</label>
                                 <select id="clipsPerBlock" class="form-control" [(ngModel)]="clipsPerBlock"
@@ -165,7 +176,7 @@
                             <div class="mb-3">
                                 <label for="timelineEditorStart" class="form-label">Timeline selection start, start of
                                     clip #
-                                    {{timelineEditorStart}} {{timelineEditorStartFinal}}</label>
+                                    {{timelineEditorStart}}</label>
                                 <input type="range" class="form-range" id="timelineEditorStart" min="1"
                                     [max]="clipsFormArray.length" [(ngModel)]="timelineEditorStart"
                                     [ngModelOptions]="{standalone: true}" (change)="timelineStartChange($event)">
@@ -173,20 +184,19 @@
                             <div class="mb-3">
                                 <label for="timelineEditorEnd" class="form-label">Timeline selection end, start of clip
                                     #
-                                    {{timelineEditorEnd}} {{timelineEditorEndFinal}}</label>
+                                    {{timelineEditorEnd}}</label>
                                 <input type="range" class="form-range" id="timelineEditorEnd" min="2"
                                     [max]="clipsFormArray.length + 1" [(ngModel)]="timelineEditorEnd"
                                     [ngModelOptions]="{standalone: true}" (change)="timelineEndChange($event)">
                             </div>
-                            <div class="alert alert-warning d-flex align-items-center mb-3" role="alert"
-                                *ngIf="isInvalidSelection(4)">
-                                <i class="bi bi-exclamation-triangle-fill"></i>{{getAlertText(4)}}
+                            <div class="mb-3" *ngIf="isInvalidSelection(4)">
+                                <ngb-alert [type]="'warning'" [dismissible]="false"><i class="bi bi-exclamation-triangle-fill"></i>{{getAlertText(4)}}</ngb-alert>
                             </div>
-                            <div class="alert alert-warning d-flex align-items-center mb-3" role="alert"
-                                *ngIf="isInvalidSelection(16)">
-                                <i class="bi bi-exclamation-triangle-fill"></i>{{getAlertText(16)}}
+                            <div class="mb-3" role="alert" *ngIf="isInvalidSelection(16)">
+                                <ngb-alert [type]="'warning'" [dismissible]="false"><i class="bi bi-exclamation-triangle-fill"></i>{{getAlertText(16)}}</ngb-alert>
                             </div>
                             <div class="mb-3" *ngIf="this.clipsFormArray.length > 0">
+                                <h3>Timeline Blocks</h3>
                                 <div class="row">
                                     <ng-container
                                         *ngFor="let clipControl of this.clipsFormArray.controls; let i = index; let last = last">
@@ -268,11 +278,8 @@
                                     <i class="bi bi-plus-circle-fill"></i> Pick clip to add to end of
                                     timeline</button>
                             </div>
-
-
-
-
-                            <div class="mb-3" *ngIf="this.clipsFormArray.length > 0">
+                            <div class="mb-3">
+                                <h3>Final Video Player</h3>
                                 <div class="card text-center">
                                     <div class="imageContainer">
                                         <img *ngFor="let layerloop of clipsFormArray.controls[playingClipIndex].value.userLayers; let i = index"
@@ -307,24 +314,24 @@
                                     </ul>
                                 </div>
                             </div>
-
-
-
                         </ng-container>
                         <div class="mb-3" *ngIf="showClipPicker || clipsFormArray.length === 0">
-                            <h3>Pick a clip</h3>
-                            <div class="mb-3">
-                                <div class="row">
-                                    <div *ngFor="let clip of clips; let i = index" class="col-sm mb-3">
-                                        <app-galleryplayer [clip]="clip" [bpm]="bpmControl.value"
-                                            (addButtonClickClipEvent)="addClipPickerClip($event)">
-                                        </app-galleryplayer>
-                                    </div>
+                            <h3>Pick A Clip</h3>
+                            <ngb-alert [type]="'warning'" [dismissible]="false" *ngIf="clipsFormArray.length === 0"><i
+                                    class="bi bi-exclamation-triangle-fill"></i> To be able to save your video you must
+                                have at least one clip in your timeline.</ngb-alert>
+                            <p>This clip will be placed after all the other clips you have at the end of the timeline.
+                            </p>
+                            <div class="row">
+                                <div *ngFor="let clip of clips; let i = index" class="col-sm mb-3">
+                                    <app-galleryplayer [clip]="clip" [bpm]="bpmControl.value"
+                                        (addButtonClickClipEvent)="addClipPickerClip($event)">
+                                    </app-galleryplayer>
                                 </div>
-                                <button type="button" class="btn btn-danger" (click)="toggleClipPicker()"
-                                    *ngIf="clipsFormArray.length > 0"><i class="bi bi-dash-circle-fill"></i>
-                                    Cancel</button>
                             </div>
+                            <button type="button" class="btn btn-danger" (click)="toggleClipPicker()"
+                                *ngIf="clipsFormArray.length > 0"><i class="bi bi-dash-circle-fill"></i>
+                                Cancel</button>
                         </div>
 
                         <div class="mb-3">
