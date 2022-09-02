@@ -246,6 +246,7 @@ export class VideoComposerComponent implements OnInit {
     this.bpmControl.reset();
     this.formatControl.setValue(1);
     this.audioFileNameControl.reset();
+    this.audioPlayer = new Audio();
     this.clipsPerBlock = 1;
     this.videoDelayMillisecondsControl.reset();
     this.clipsFormArray.clear();
@@ -362,12 +363,17 @@ export class VideoComposerComponent implements OnInit {
 
     this.stop();
 
-    if (this.timelineEditorEndFinalIndex > this.clipsFormArray.length) {
-      this.setTimelineEnd(this.clipsFormArray.length + 1);
-    }
+    if (this.clipsFormArray.length === 0) {
+      this.setTimelineEnd(2);
+      this.setTimelineStart(1);
+    } else {
+      if (this.timelineEditorEndFinalIndex > this.clipsFormArray.length) {
+        this.setTimelineEnd(this.clipsFormArray.length + 1);
+      }
 
-    if (this.timelineEditorStartFinalIndex >= this.clipsFormArray.length) {
-      this.setTimelineStart(this.clipsFormArray.length);
+      if (this.timelineEditorStartFinalIndex >= this.clipsFormArray.length) {
+        this.setTimelineStart(this.clipsFormArray.length);
+      }
     }
   }
 
@@ -395,19 +401,19 @@ export class VideoComposerComponent implements OnInit {
 
     if (index + this.clipsPerBlock > this.clipsFormArray.length) {
       endDate = this.endOfVideoDate;
-    }    
+    }
 
     return [startDate, endDate];
   }
 
-  get endOfVideoDate(){
+  get endOfVideoDate() {
     var videoDurationMilliseconds = this._videoDurationSeconds * millisecondsInSecond + (this.videoDelayMillisecondsControl.value ?? 0);
     var endVideoDate = new Date(0, 0, 0);
     endVideoDate.setMilliseconds(videoDurationMilliseconds);
     return endVideoDate;
   }
 
-  get displayEndOfVideoTime() {    
+  get displayEndOfVideoTime() {
     return this.datePipe.transform(this.endOfVideoDate, 'HH:mm:ss.SSS');
   }
 
@@ -471,7 +477,7 @@ export class VideoComposerComponent implements OnInit {
     return this.selectedClipIndex / this.clipsFormArray.length * 100
   }
 
-  get playingClipIndex(){
+  get playingClipIndex() {
     if (this._currentTimeSeconds > 0) {
       return Math.floor(this.clipsFormArray.length * this._currentTimeSeconds / this._videoDurationSeconds);
     }
@@ -479,12 +485,12 @@ export class VideoComposerComponent implements OnInit {
     return this.selectedClipIndex
   }
 
-  get percentageOfPlayingClipDuration(){
+  get percentageOfPlayingClipDuration() {
     var currentTimeInClip = this._currentTimeSeconds % this._clipDurationSeconds;
     return currentTimeInClip / this._clipDurationSeconds;
   }
 
-  get leftPosition(){
+  get leftPosition() {
     var frameInClipNumber = Math.round(frameTotal * this.percentageOfPlayingClipDuration);
     if (frameInClipNumber >= frameTotal) {
       frameInClipNumber = frameTotal - 1;
@@ -496,16 +502,27 @@ export class VideoComposerComponent implements OnInit {
   togglePlay = () => {
     if (!this.isPlaying) {
       var startTime = Date.now() - this.selectedClipIndex * this._clipDurationSeconds * millisecondsInSecond;
+      if (this.hasAudioFile) {
+        this.audioPlayer.currentTime = this.selectedClipIndex * this._clipDurationSeconds + (this.videoDelayMillisecondsControl.value ?? 0) / millisecondsInSecond;
+        this.audioPlayer.play();
+      }
+
       this.isPlaying = true;
       timer(0, framesPerSecond * millisecondsInSecond).pipe(
         takeWhile(() => this.isPlaying)
       ).subscribe(() => {
-        var newTime = Date.now();
-        var currentTimeSeconds = (newTime - startTime) / millisecondsInSecond;
+        var currentTimeSeconds = 0;
+        if (this.hasAudioFile) {
+          currentTimeSeconds = this.audioPlayer.currentTime;
+        } else {
+          var newTime = Date.now();
+          currentTimeSeconds = (newTime - startTime) / millisecondsInSecond;
+        }
+
         if (currentTimeSeconds >= this._videoDurationSeconds) {
           this.stop();
         } else {
-          this._currentTimeSeconds = currentTimeSeconds;         
+          this._currentTimeSeconds = currentTimeSeconds;
         }
       });
     } else {
@@ -513,8 +530,15 @@ export class VideoComposerComponent implements OnInit {
     }
   }
 
+  private get hasAudioFile() {
+    return this.audioPlayer.src?.length > 0;
+  }
+
   stop = () => {
     this._currentTimeSeconds = 0;
     this.isPlaying = false;
+    if (this.hasAudioFile) {
+      this.audioPlayer.pause();
+    }
   }
 }
