@@ -190,10 +190,12 @@
                                     [ngModelOptions]="{standalone: true}" (change)="timelineEndChange($event)">
                             </div>
                             <div class="mb-3" *ngIf="isInvalidSelection(4)">
-                                <ngb-alert [type]="'warning'" [dismissible]="false"><i class="bi bi-exclamation-triangle-fill"></i>{{getAlertText(4)}}</ngb-alert>
+                                <ngb-alert [type]="'warning'" [dismissible]="false"><i
+                                        class="bi bi-exclamation-triangle-fill"></i>{{getAlertText(4)}}</ngb-alert>
                             </div>
                             <div class="mb-3" role="alert" *ngIf="isInvalidSelection(16)">
-                                <ngb-alert [type]="'warning'" [dismissible]="false"><i class="bi bi-exclamation-triangle-fill"></i>{{getAlertText(16)}}</ngb-alert>
+                                <ngb-alert [type]="'warning'" [dismissible]="false"><i
+                                        class="bi bi-exclamation-triangle-fill"></i>{{getAlertText(16)}}</ngb-alert>
                             </div>
                             <div class="mb-3" *ngIf="this.clipsFormArray.length > 0">
                                 <h3>Timeline Blocks</h3>
@@ -313,6 +315,13 @@
                                         </li>
                                     </ul>
                                 </div>
+                            </div>
+                            <div class="mb-3" *ngIf="!hasAudioFile">
+                                <ngb-alert [type]="'warning'" [dismissible]="false"><i
+                                        class="bi bi-exclamation-triangle-fill"></i> If you are expecting audio then
+                                    please
+                                    select your file in the details section. We do not upload your files to the server.
+                                </ngb-alert>
                             </div>
                         </ng-container>
                         <div class="mb-3" *ngIf="showClipPicker || clipsFormArray.length === 0">

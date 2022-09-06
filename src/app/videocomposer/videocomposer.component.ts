@@ -290,7 +290,9 @@ export class VideoComposerComponent implements OnInit {
     const files = (event.target as HTMLInputElement).files;
     if (files) {
       this.audioPlayer.src = URL.createObjectURL(files[0]);
-      this.audioFileNameControl.setValue(files[0].name);
+      if (!this.audioFileNameControl.value || this.audioFileNameControl.value === '') {
+        this.audioFileNameControl.setValue(files[0].name);
+      }
     }
   }
 
@@ -513,7 +515,7 @@ export class VideoComposerComponent implements OnInit {
       ).subscribe(() => {
         var currentTimeSeconds = 0;
         if (this.hasAudioFile) {
-          currentTimeSeconds = this.audioPlayer.currentTime;
+          currentTimeSeconds = this.audioPlayer.currentTime - (this.videoDelayMillisecondsControl.value ?? 0) / millisecondsInSecond;
         } else {
           var newTime = Date.now();
           currentTimeSeconds = (newTime - startTime) / millisecondsInSecond;
@@ -530,7 +532,7 @@ export class VideoComposerComponent implements OnInit {
     }
   }
 
-  private get hasAudioFile() {
+  get hasAudioFile() {
     return this.audioPlayer.src?.length > 0;
   }
 
