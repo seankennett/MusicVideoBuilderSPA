@@ -6,6 +6,7 @@
             clip</a>. You can then use the clip to <a [routerLink]="['/videoComposer']">compose a video</a>. Use the
         controls below to search through all tags to show layers where you can click add to put inside your layer
         collection. You can't make a clip without a minimum of one background layer.</p>
+    <h2>Layer Search Controls</h2>
     <div class="mb-3">
         <label for="layerType" class="form-label">Layer Types</label>
         <select id="layerType" [(ngModel)]="layerType" class="form-control">
@@ -39,10 +40,23 @@
         </ng-container>
     </div>
     <ng-container *ngIf="selectedLayers.length > 0">
-        <h2>Layers</h2>
+        <h2>Layers Search</h2>
         <app-bpmcontrol (bpmEvent)="setBpm($event)" (isPlayingEvent)="setIsPlaying($event)"></app-bpmcontrol>
         <div class="row">
             <div *ngFor="let layer of selectedLayers; let i = index" class="col-sm mb-3">
+                <app-galleryplayer [layer]="layer" (addButtonClickLayerEvent)="addUserLayer($event)" [bpm]="bpm"
+                    [isPlaying]="isPlaying" [disableFunction]="disableLayer"
+                    [disableTooltipFunction]="disableLayerTooltip">
+                </app-galleryplayer>
+            </div>
+        </div>
+    </ng-container>
+    <ng-container *ngIf="selectedLayers.length === 0">
+        <h2>Popular Layers</h2>
+        <p>Seeing as you have not selected any tags using the Layer Search Controls, here are the most popular layers with our users</p>
+        <app-bpmcontrol (bpmEvent)="setBpm($event)" (isPlayingEvent)="setIsPlaying($event)"></app-bpmcontrol>
+        <div class="row">
+            <div *ngFor="let layer of popularLayers; let i = index" class="col-sm mb-3">
                 <app-galleryplayer [layer]="layer" (addButtonClickLayerEvent)="addUserLayer($event)" [bpm]="bpm"
                     [isPlaying]="isPlaying" [disableFunction]="disableLayer"
                     [disableTooltipFunction]="disableLayerTooltip">

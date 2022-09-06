@@ -10,6 +10,7 @@ import { UserLayer } from '../userlayer';
 import { UserlayerService } from '../userlayer.service';
 import { Layertypes } from '../layertypes';
 import { Userlayerstatus } from '../userlayerstatus';
+import { MsalService } from '@azure/msal-angular';
 
 @Component({
   selector: 'app-layerfinder',
@@ -18,11 +19,12 @@ import { Userlayerstatus } from '../userlayerstatus';
 })
 export class LayerFinderComponent implements OnInit {
 
-  constructor(private layerService: LayerFinderService, private userLayerService: UserlayerService) { }
+  constructor(private layerService: LayerFinderService, private userLayerService: UserlayerService, private authService: MsalService) { }
 
   @ViewChild('bpmControl') bpmControl!: NgModel;
 
   ngOnInit(): void {
+    this.isLoggedIn = this.authService.instance.getAllAccounts().length > 0;
     this.layerService.getAll().pipe(
       catchError((error: HttpErrorResponse) => {
         alert('Something went wrong on the server, try again!');
@@ -31,22 +33,25 @@ export class LayerFinderComponent implements OnInit {
     ).subscribe((layerFinders: LayerFinder[]) => {
       this.layerFinders = layerFinders;
       this.disableSearch = false;
-      this.userLayerService.getAll().pipe(
-        catchError((error: HttpErrorResponse) => {
-          alert('Something went wrong on the server, try again!');
-          return throwError(() => new Error('Something went wrong on the server, try again!'));
-        })
-      ).subscribe((userLayers: UserLayer[]) => {
-        for (var userLayer of userLayers) {
-          let layerFinder = this.layerFinders.find(l => l.layerId === userLayer.layerId);
-          if (layerFinder) {
-            layerFinder.userLayerStatus = userLayer.userLayerStatus;
+      if (this.isLoggedIn) {
+        this.userLayerService.getAll().pipe(
+          catchError((error: HttpErrorResponse) => {
+            alert('Something went wrong on the server, try again!');
+            return throwError(() => new Error('Something went wrong on the server, try again!'));
+          })
+        ).subscribe((userLayers: UserLayer[]) => {
+          for (var userLayer of userLayers) {
+            let layerFinder = this.layerFinders.find(l => l.layerId === userLayer.layerId);
+            if (layerFinder) {
+              layerFinder.userLayerStatus = userLayer.userLayerStatus;
+            }
           }
-        }
-      });
+        });
+      }
     });
   }
 
+  private isLoggedIn = false;
   disableSearch = true;
   typeAheadValue = "";
   layerType = Layertypes.All;
@@ -75,6 +80,10 @@ export class LayerFinderComponent implements OnInit {
     }).sort((x, y) => y.count - x.count).slice(0, 10);
 
     return popularTags;
+  }
+
+  get popularLayers() {
+    return this.layerFinders.filter(x => this.layerType === Layertypes.All || this.layerType === x.layerType).sort((current, next) => current.userCount - next.userCount).slice(0, 6);
   }
 
   trackByPopularTag = (index: number, popularTag: PopularTag) => {
@@ -150,9 +159,13 @@ export class LayerFinderComponent implements OnInit {
     ).subscribe();
   }
 
-  disableLayer = (layer: Layer) => layer?.userLayerStatus === Userlayerstatus.Bought || layer?.userLayerStatus === Userlayerstatus.Saved;
+  disableLayer = (layer: Layer) => !this.isLoggedIn || layer?.userLayerStatus === Userlayerstatus.Bought || layer?.userLayerStatus === Userlayerstatus.Saved;
 
   disableLayerTooltip = (layer: Layer) => {
+    if (!this.isLoggedIn){
+      return 'You must be signed in to add layer';
+    }
+    
     switch (layer?.userLayerStatus) {
       case Userlayerstatus.Bought: {
         return 'You have already bought this layer';

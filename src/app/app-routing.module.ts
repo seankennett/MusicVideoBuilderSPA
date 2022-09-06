@@ -13,10 +13,7 @@ import { VideoComposerComponent } from './videocomposer/videocomposer.component'
 const routes: Routes = [
   {
     path: 'layerFinder',
-    component: LayerFinderComponent,
-    canActivate: [
-      MsalGuard
-    ]
+    component: LayerFinderComponent
   },
   {
     path: 'layerUpload',
