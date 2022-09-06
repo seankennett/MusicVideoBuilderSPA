@@ -44,22 +44,12 @@ export class LayerFinderComponent implements OnInit {
           }
         }
       });
-
-      var tagCounter = layerFinders.flatMap(lf => lf.tags).reduce((prev, cur) => {
-        var typedPrev = prev as any;
-        typedPrev[cur] = (typedPrev[cur] || 0) + 1;
-        return prev;
-      }, {});
-
-      this.popularTags = Object.keys(tagCounter).map(key => {
-        return new PopularTag(key, (tagCounter as any)[key]);
-      }).sort((x, y) => y.count - x.count).slice(0, 10);
     });
   }
 
   disableSearch = true;
   typeAheadValue = "";
-  layerType = 0;
+  layerType = Layertypes.All;
   layerTypeList: Array<Layertypes> = [
     Layertypes.All,
     Layertypes.Background,
@@ -73,9 +63,37 @@ export class LayerFinderComponent implements OnInit {
 
   layerFinders: LayerFinder[] = [];
 
-  popularTags: PopularTag[] = [];
+  get popularTags() {
+    var tagCounter = this.layerFinders.filter(x => this.layerType === Layertypes.All || this.layerType === x.layerType).flatMap(lf => lf.tags).reduce((prev, cur) => {
+      var typedPrev = prev as any;
+      typedPrev[cur] = (typedPrev[cur] || 0) + 1;
+      return prev;
+    }, {});
 
-  selectedLayers: LayerFinder[] = [];
+    var popularTags = Object.keys(tagCounter).map(key => {
+      return new PopularTag(key, (tagCounter as any)[key]);
+    }).sort((x, y) => y.count - x.count).slice(0, 10);
+
+    return popularTags;
+  }
+
+  trackByPopularTag = (index: number, popularTag: PopularTag) => {
+    return popularTag.tagName
+  }
+
+  get selectedLayers() {
+    var selectedLayers = [] as LayerFinder[];
+    this.selectedTags.forEach(tag => {
+      let layersContainingTags = this.layerFinders.filter(lf => lf.tags.indexOf(tag) > -1 && (this.layerType === Layertypes.All || this.layerType === lf.layerType));
+      for (var layerContainingTags of layersContainingTags) {
+        if (selectedLayers.some(sl => sl.layerId === layerContainingTags.layerId) === false) {
+          selectedLayers.push(layerContainingTags);
+        }
+      }
+    });
+
+    return selectedLayers;
+  };
   selectedTags: string[] = [];
 
   get hasBackground() {
@@ -104,38 +122,29 @@ export class LayerFinderComponent implements OnInit {
     this.addTag(selectItem.item);
   };
 
-  layerTypeChange = () => {
-    this.selectedLayers = [];
-    for (var tag of this.selectedTags) {
-      this.addTag(tag);
-    }
-  }
-
   addTag = (tag: string) => {
     if (this.selectedTags.indexOf(tag) === -1) {
       this.selectedTags.push(tag);
-    }
-
-    let layersContainingTags = this.layerFinders.filter(lf => lf.tags.indexOf(tag) > -1 && (this.layerType === 0 || this.layerType === lf.layerType));
-    for (var layerContainingTags of layersContainingTags) {
-      if (this.selectedLayers.some(sl => sl.layerId === layerContainingTags.layerId) === false) {
-        this.selectedLayers.push(layerContainingTags);
-      }
     }
   }
 
   removeSelectedTag = (tag: string) => {
     this.selectedTags = this.selectedTags.filter(t => t !== tag);
-    this.selectedLayers = this.selectedLayers.filter(sl => sl.tags.some(t => this.selectedTags.indexOf(t) !== -1));
   }
 
   addUserLayer = (selectedLayer: Layer) => {
     var previousUserLayerStatus = selectedLayer.userLayerStatus;
-    selectedLayer.userLayerStatus = Userlayerstatus.Saved;
+
+    let layerFinder = this.layerFinders.find(l => l.layerId === selectedLayer.layerId);
+    if (layerFinder) {
+      layerFinder.userLayerStatus = Userlayerstatus.Saved;
+    }
 
     this.userLayerService.postUserLayer({ layerId: selectedLayer.layerId, userLayerId: 0, dateUpdated: new Date(), userLayerStatus: selectedLayer.userLayerStatus, layerType: selectedLayer.layerType, layerName: selectedLayer.layerName }).pipe(
       catchError((error: HttpErrorResponse) => {
-        selectedLayer.userLayerStatus = previousUserLayerStatus;
+        if (layerFinder) {
+          layerFinder.userLayerStatus = previousUserLayerStatus;
+        }
         return throwError(() => new Error('Something went wrong on the server, try again!'));
       })
     ).subscribe();
