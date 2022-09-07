@@ -43,11 +43,6 @@ export class VideoComposerComponent implements OnInit {
     ).subscribe((clips: Clip[]) => {
       this.clips = clips
     });
-
-    var self = this;
-    this.audioPlayer.oncanplaythrough = function () {
-      console.log(self.audioPlayer.duration);
-    }
   }
 
   videos: Video[] = [];

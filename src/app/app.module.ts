@@ -23,6 +23,7 @@ import { MyLayersComponent } from './mylayers/mylayers.component';
 import { BreadcrumbComponent } from './breadcrumb/breadcrumb.component';
 import { BpmcontrolComponent } from './bpmcontrol/bpmcontrol.component';
 import { DatePipe } from '@angular/common';
+import { GalleryvideoComponent } from './galleryvideo/galleryvideo.component';
 
 /**
  * Here we pass the configuration parameters to create an MSAL instance.
@@ -77,7 +78,8 @@ export function MSALGuardConfigFactory(): MsalGuardConfiguration {
     VideoBuilderComponent,
     MyLayersComponent,
     BreadcrumbComponent,
-    BpmcontrolComponent
+    BpmcontrolComponent,
+    GalleryvideoComponent
   ],
   imports: [
     BrowserModule,

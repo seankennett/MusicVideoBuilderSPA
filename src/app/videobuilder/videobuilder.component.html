@@ -4,4 +4,14 @@
     <p class="lead">Video builder allows you to get the resources and <a
         href="https://ffmpeg.org/">FFmpeg</a> input needed to create your videos.</p>
     <p>Please use the free resources to test that your video is exactly as intended and then you can purchase the 4k without watermark version.</p>
+    <ng-container *ngIf="!showSelectedVideo && this.videos.length > 0">
+        <h2>Saved Videos</h2>
+        <div class="mb-3">
+            <div class="row">
+                <div *ngFor="let video of videos; let i = index" class="col-sm mb-3">
+                    <app-galleryvideo [video]="video" (buttonClickEvent)="selectVideo($event)" [loading]="videoLoading" [displayEdit]="false"></app-galleryvideo>                    
+                </div>
+            </div>
+        </div>
+    </ng-container>
 </div>

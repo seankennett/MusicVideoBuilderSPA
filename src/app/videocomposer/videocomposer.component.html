@@ -11,26 +11,7 @@
         <div class="mb-3">
             <div class="row">
                 <div *ngFor="let video of videos; let i = index" class="col-sm mb-3">
-                    <div class="card text-center">
-                        <div class="imageContainer">
-                            <ng-container *ngIf="video.clips?.length ?? 0 > 0">
-                                <img *ngFor="let layerloop of video.clips[0].userLayers; let i = index"
-                                    [src]="'https://cdn.musicvideobuilder.com/' + layerloop.layerId + '/' + layerloop.layerId + '.png'"
-                                    [alt]="layerloop.layerName" [style.left.px]="0" [style.z-index]="i" />
-                            </ng-container>
-                        </div>
-                        <h5 class="card-header">{{video.videoName}}.{{Formats[video.format]}}</h5>
-                        <ul class="list-group list-group-flush">
-                            <li class="list-group-item">BPM: {{video.bpm}}</li>
-                            <li class="list-group-item">
-                                <button type="button" (click)="editVideo(video)" class="btn btn-primary"
-                                    [disabled]="editorLoading">
-                                    <i class="bi bi-pencil-square"></i> Edit <span
-                                        class="spinner-border spinner-border-sm ms-1" role="status" aria-hidden="true"
-                                        *ngIf="editorLoading"></span></button>
-                            </li>
-                        </ul>
-                    </div>
+                    <app-galleryvideo [video]="video" (buttonClickEvent)="editVideo($event)" [loading]="editorLoading"></app-galleryvideo>                    
                 </div>
             </div>
         </div>

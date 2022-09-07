@@ -1,0 +1,28 @@
+<div class="card text-center">
+    <div class="imageContainer" *ngFor="let isTop of [true, false]">
+        <ng-container *ngFor="let isLeft of [true, false]">
+            <img *ngFor="let layerloop of video.clips[getClipIndex(isTop, isLeft)].userLayers; let i = index"
+                [src]="'https://cdn.musicvideobuilder.com/' + layerloop.layerId + '/' + layerloop.layerId + '.png'"
+                [alt]="layerloop.layerName" [style.left.px]="getClipLeft(isLeft)" [style.z-index]="getClipZIndex(i, isLeft)" />
+        </ng-container>            
+    </div>
+    <h5 class="card-header">{{video.videoName}}.{{Formats[video.format]}}</h5>
+    <ul class="list-group list-group-flush">
+        <li class="list-group-item">BPM: {{video.bpm}}</li>
+        <li class="list-group-item">
+            <button type="button" (click)="buttonClick()" class="btn btn-primary"
+                [disabled]="loading">
+                <ng-container *ngIf="displayEdit">
+                <i class="bi bi-pencil-square"></i> Edit <span
+                    class="spinner-border spinner-border-sm ms-1" role="status" aria-hidden="true"
+                    *ngIf="loading"></span>
+                </ng-container>
+                <ng-container *ngIf="!displayEdit">
+                    <i class="bi bi-hammer"></i> Build <span
+                        class="spinner-border spinner-border-sm ms-1" role="status" aria-hidden="true"
+                        *ngIf="loading"></span>
+                    </ng-container>
+                </button>
+        </li>
+    </ul>
+</div>
