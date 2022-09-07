@@ -94,37 +94,7 @@
                                     Delay must be a positive whole numnber.
                                 </div>
                             </div>
-                        </div>
-                        <ngb-alert [type]="'info'" [dismissible]="false"><i class="bi bi-info-circle-fill"></i> Your
-                            audio file must be of a constant bpm for this to work properly. Also note that each clip is
-                            four beats in length so your audio can't miss one, two or three beats.</ngb-alert>
-                        <div class="mb-3">
-                            <label for="audioFile" class="form-label">Audio File Selector</label>
-                            <input class="form-control" type="file" id="audioFile" accept=".mp3"
-                                (change)="onFileUpload($event)" />
-                            <div class="form-text">
-                                This is to add audio when you play your video in the final video player in the timeline
-                                section and is optional. If this is an existing
-                                video you will need to select your track again as we don't upload these files. Also
-                                limited to mp3 format due to browser restrictions.
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="audioFileName" class="form-label">Audio File Name</label>
-                            <input type="text" class="form-control" id="audioFileName"
-                                formControlName="audioFileNameControl" />
-                            <div class="form-text">
-                                You can override the audio filename here for when you build this video.
-                            </div>
-                            <div class="form-text text-danger" *ngIf="audioFileNameControl?.invalid">
-                                <div [hidden]="!audioFileNameControl?.errors?.['pattern']">
-                                    Audio file name must be alphanumeric or contain brackets, hypthens or spaces.
-                                </div>
-                                <div [hidden]="!audioFileNameControl?.errors?.['maxlength']">
-                                    Audio file name max length is 50 characters.
-                                </div>
-                            </div>
-                        </div>
+                        </div> 
                         <div class="mb-3">
                             <span [ngbTooltip]="bpmInvalidTooltip()" placement="right">
                                 <button type="button" [disabled]="disableTimelineTab()" class="btn btn-secondary"
@@ -185,7 +155,7 @@
                                         *ngFor="let clipControl of this.clipsFormArray.controls; let i = index; let last = last">
                                         <div class="col-3 mb-3" *ngIf="showBlock(i)">
                                             <div class="card text-center">
-                                                <div class="timeLineImageContainer">
+                                                <div class="imageContainer">
                                                     <img *ngFor="let layerloop of clipControl.value.userLayers; let i = index"
                                                         [src]="'https://cdn.musicvideobuilder.com/' + layerloop.layerId + '/' + layerloop.layerId + '.png'"
                                                         [alt]="layerloop.layerName" [style.left.px]="0"
@@ -263,47 +233,8 @@
                             </div>
                             <div class="mb-3">
                                 <h3>Final Video Player</h3>
-                                <div class="card text-center">
-                                    <div class="imageContainer">
-                                        <img *ngFor="let layerloop of clipsFormArray.controls[playingClipIndex].value.userLayers; let i = index"
-                                            [src]="'https://cdn.musicvideobuilder.com/' + layerloop.layerId + '/' + layerloop.layerId + '.png'"
-                                            [alt]="layerloop.layerName" [style.left.px]="leftPosition"
-                                            [style.z-index]="i" />
-
-                                    </div>
-                                    <ul class="list-group list-group-flush">
-                                        <li class="list-group-item">
-                                            <span [ngbTooltip]="'Set player to start.'">
-                                                <button type="button" class="btn btn-info me-1"
-                                                    (click)="setSelectedClipIndex(0)"
-                                                    [disabled]="0 === this.selectedClipIndex">
-                                                    <i class="bi bi-skip-start-fill"></i>
-                                                    <i class="bi bi-bookmark-star-fill"></i></button>
-                                            </span>
-                                            <button type="button" class="btn btn-outline-secondary me-1"
-                                                (click)="togglePlay()"><i
-                                                    [ngClass]="isPlaying ? 'bi bi-stop-fill' : 'bi bi-play-fill'"></i></button>
-                                        </li>
-                                        <li class="list-group-item">
-                                            {{displayCurrentTime}} / {{displayEndOfVideoTime}}
-                                        </li>
-                                        <li class="list-group-item">
-                                            <div class="progress">
-                                                <div class="progress-bar" role="progressbar" aria-valuenow="0"
-                                                    aria-valuemin="0" aria-valuemax="100" [style.width.%]="progress">
-                                                </div>
-                                            </div>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-                            <div class="mb-3" *ngIf="!hasAudioFile">
-                                <ngb-alert [type]="'warning'" [dismissible]="false"><i
-                                        class="bi bi-exclamation-triangle-fill"></i> If you are expecting audio then
-                                    please
-                                    select your file in the details section. We do not upload your files to the server.
-                                </ngb-alert>
-                            </div>
+                                <app-videoplayer [selectedClipIndex]="selectedClipIndex" [video]="editorVideo" (setSelectedIndexEvent)="setSelectedClipIndex($event)"></app-videoplayer> 
+                            </div>                            
                         </ng-container>
                         <div class="mb-3" *ngIf="showClipPicker || clipsFormArray.length === 0">
                             <h3>Pick A Clip</h3>

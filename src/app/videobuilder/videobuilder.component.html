@@ -14,4 +14,11 @@
             </div>
         </div>
     </ng-container>
+    <ng-container *ngIf="showSelectedVideo">
+        <h2>Video Builder</h2>
+        <p>You can view your video here or download your assets with your <a
+            href="https://ffmpeg.org/">FFmpeg</a> code</p>
+        <h3>Video Player</h3>
+        <app-videoplayer [selectedClipIndex]="0" [video]="selectedVideo"></app-videoplayer> 
+    </ng-container>
 </div>

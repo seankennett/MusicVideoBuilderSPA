@@ -1,0 +1,47 @@
+<div class="mb-3">
+    <div class="card text-center">
+        <div class="imageContainer">
+            <img *ngFor="let layerloop of video.clips[playingClipIndex].userLayers; let i = index"
+                [src]="'https://cdn.musicvideobuilder.com/' + layerloop.layerId + '/' + layerloop.layerId + '.png'"
+                [alt]="layerloop.layerName" [style.left.px]="leftPosition" [style.z-index]="i" />
+
+        </div>
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+                <span [ngbTooltip]="'Set player to start.'">
+                    <button type="button" class="btn btn-info me-1" (click)="setSelectedClipIndex(0)"
+                        [disabled]="0 === this.selectedClipIndex">
+                        <i class="bi bi-skip-start-fill"></i>
+                        <i class="bi bi-bookmark-star-fill"></i></button>
+                </span>
+                <button type="button" class="btn btn-outline-secondary me-1" (click)="togglePlay()"><i
+                        [ngClass]="isPlaying ? 'bi bi-stop-fill' : 'bi bi-play-fill'"></i></button>
+            </li>
+            <li class="list-group-item">
+                {{displayCurrentTime}} / {{displayEndOfVideoTime}}
+            </li>
+            <li class="list-group-item">
+                <div class="progress">
+                    <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
+                        [style.width.%]="progress">
+                    </div>
+                </div>
+            </li>
+        </ul>
+    </div>
+</div>
+<div class="mb-3">
+    <ngb-alert [type]="'info'" [dismissible]="false"><i class="bi bi-info-circle-fill"></i> Your
+        audio file must be of a constant bpm for this to work properly. Also note that each clip is
+        four beats in length so your audio can't miss one, two or three beats.</ngb-alert>
+</div>
+<div class="mb-3">
+    <label for="audioFile" class="form-label">Audio File Selector</label>
+    <input class="form-control" type="file" id="audioFile" accept=".mp3" (change)="onFileUpload($event)" />
+    <div class="form-text">
+        This is to add audio when you play your video in the final video player in the timeline
+        section and is optional. If this is an existing
+        video you will need to select your track again as we don't upload these files. Also
+        limited to mp3 format due to browser restrictions.
+    </div>
+</div>

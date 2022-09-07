@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { ClipService } from '../clip.service';
 import { Formats } from '../formats';
@@ -8,13 +8,11 @@ import { VideoService } from '../video.service';
 import { catchError, throwError, timer, takeWhile } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 import { DatePipe } from '@angular/common';
+import { VideoplayerComponent } from '../videoplayer/videoplayer.component';
 
 const beatsPerLayer = 4;
-const framesPerSecond = 1 / 24;
 const millisecondsInSecond = 1000;
 const secondsInMinute = 60;
-const frameTotal = 64;
-const imageWidth = 384;
 
 @Component({
   selector: 'app-videocomposer',
@@ -45,6 +43,8 @@ export class VideoComposerComponent implements OnInit {
     });
   }
 
+  @ViewChild(VideoplayerComponent) videoplayer!: VideoplayerComponent;
+
   videos: Video[] = [];
   get hasVideo() {
     return this.videos.length > 0;
@@ -57,8 +57,6 @@ export class VideoComposerComponent implements OnInit {
     Formats.api,
     Formats.mov
   ]
-
-  audioPlayer: HTMLAudioElement = new Audio();
 
   videoId: number = 0;
 
@@ -134,7 +132,6 @@ export class VideoComposerComponent implements OnInit {
   bpmControl = this.formBuilder.control(null, [Validators.required, Validators.max(250), Validators.min(90)]);
   videoDelayMillisecondsControl = this.formBuilder.control(null, [Validators.max(2147483647), Validators.pattern("[0-9]+")]);
   formatControl = this.formBuilder.control(1, [Validators.required]);
-  audioFileNameControl = this.formBuilder.control('', [Validators.pattern("[A-z0-9-. \(\)]+"), Validators.maxLength(50)]);
 
   clipsFormArray = this.formBuilder.array([], [Validators.required, Validators.maxLength(32767)]);
 
@@ -144,7 +141,6 @@ export class VideoComposerComponent implements OnInit {
     bpmControl: this.bpmControl,
     formatControl: this.formatControl,
     videoDelayMillisecondsControl: this.videoDelayMillisecondsControl,
-    audioFileNameControl: this.audioFileNameControl,
     clipsFormArray: this.clipsFormArray
   })
 
@@ -177,7 +173,6 @@ export class VideoComposerComponent implements OnInit {
       this.videoNameControl.setValue(video.videoName);
       this.bpmControl.setValue(video.bpm);
       this.formatControl.setValue(video.format);
-      this.audioFileNameControl.setValue(video.audioFileName);
       this.videoDelayMillisecondsControl.setValue(video.videoDelayMilliseconds);
 
       if (video.clips.length > 32) {
@@ -202,7 +197,6 @@ export class VideoComposerComponent implements OnInit {
 
   get editorVideo(): Video {
     return <Video>{
-      audioFileName: this.audioFileNameControl.value,
       bpm: this.bpmControl.value,
       format: this.formatControl.value,
       videoDelayMilliseconds: this.videoDelayMillisecondsControl.value,
@@ -240,8 +234,6 @@ export class VideoComposerComponent implements OnInit {
     this.videoNameControl.reset();
     this.bpmControl.reset();
     this.formatControl.setValue(1);
-    this.audioFileNameControl.reset();
-    this.audioPlayer = new Audio();
     this.clipsPerBlock = 1;
     this.videoDelayMillisecondsControl.reset();
     this.clipsFormArray.clear();
@@ -281,15 +273,7 @@ export class VideoComposerComponent implements OnInit {
     return !this.bpmControl.valid ? 'You must set bpm as a minimum to see timeline' : '';
   }
 
-  onFileUpload = (event: any) => {
-    const files = (event.target as HTMLInputElement).files;
-    if (files) {
-      this.audioPlayer.src = URL.createObjectURL(files[0]);
-      if (!this.audioFileNameControl.value || this.audioFileNameControl.value === '') {
-        this.audioFileNameControl.setValue(files[0].name);
-      }
-    }
-  }
+  
 
   moveBack = (index: number) => {
     this.stop();
@@ -397,29 +381,13 @@ export class VideoComposerComponent implements OnInit {
     endDate.setMilliseconds(endTimeMilliseconds);
 
     if (index + this.clipsPerBlock > this.clipsFormArray.length) {
-      endDate = this.endOfVideoDate;
+      var videoDurationMilliseconds = this._videoDurationSeconds * millisecondsInSecond + (this.videoDelayMillisecondsControl.value ?? 0);
+      var endVideoDate = new Date(0, 0, 0);
+      endVideoDate.setMilliseconds(videoDurationMilliseconds);
+      endDate = endVideoDate;
     }
 
     return [startDate, endDate];
-  }
-
-  get endOfVideoDate() {
-    var videoDurationMilliseconds = this._videoDurationSeconds * millisecondsInSecond + (this.videoDelayMillisecondsControl.value ?? 0);
-    var endVideoDate = new Date(0, 0, 0);
-    endVideoDate.setMilliseconds(videoDurationMilliseconds);
-    return endVideoDate;
-  }
-
-  get displayEndOfVideoTime() {
-    return this.datePipe.transform(this.endOfVideoDate, 'HH:mm:ss.SSS');
-  }
-
-  get displayCurrentTime() {
-    var currentTime = this._videoDurationSeconds * millisecondsInSecond * this.progress / 100 + (this.videoDelayMillisecondsControl.value ?? 0);
-    var currentDate = new Date(0, 0, 0);
-    currentDate.setMilliseconds(currentTime);
-
-    return this.datePipe.transform(currentDate, 'HH:mm:ss.SSS');
   }
 
   displayTimeLineTimeRangeFromClipIndex = (index: number) => {
@@ -456,8 +424,6 @@ export class VideoComposerComponent implements OnInit {
     return 0;
   }
 
-  private _currentTimeSeconds = 0;
-
   private get _clipDurationSeconds() {
     return secondsInMinute / this.bpmControl.value * beatsPerLayer;
   }
@@ -466,76 +432,25 @@ export class VideoComposerComponent implements OnInit {
     return this.clipsFormArray.length * this._clipDurationSeconds;
   }
 
-  get progress() {
-    if (this._currentTimeSeconds > 0) {
-      return this._currentTimeSeconds / this._videoDurationSeconds * 100;
-    }
-
-    return this.selectedClipIndex / this.clipsFormArray.length * 100
-  }
-
   get playingClipIndex() {
-    if (this._currentTimeSeconds > 0) {
-      return Math.floor(this.clipsFormArray.length * this._currentTimeSeconds / this._videoDurationSeconds);
+    if (this.videoplayer) {
+      return this.videoplayer.playingClipIndex;
     }
 
-    return this.selectedClipIndex
+    return 0;
   }
 
   get percentageOfPlayingClipDuration() {
-    var currentTimeInClip = this._currentTimeSeconds % this._clipDurationSeconds;
-    return currentTimeInClip / this._clipDurationSeconds;
-  }
-
-  get leftPosition() {
-    var frameInClipNumber = Math.round(frameTotal * this.percentageOfPlayingClipDuration);
-    if (frameInClipNumber >= frameTotal) {
-      frameInClipNumber = frameTotal - 1;
+    if (this.videoplayer) {
+      return this.videoplayer.percentageOfPlayingClipDuration;
     }
 
-    return -(frameInClipNumber) * imageWidth;
-  }
-
-  togglePlay = () => {
-    if (!this.isPlaying) {
-      var startTime = Date.now() - this.selectedClipIndex * this._clipDurationSeconds * millisecondsInSecond;
-      if (this.hasAudioFile) {
-        this.audioPlayer.currentTime = this.selectedClipIndex * this._clipDurationSeconds + (this.videoDelayMillisecondsControl.value ?? 0) / millisecondsInSecond;
-        this.audioPlayer.play();
-      }
-
-      this.isPlaying = true;
-      timer(0, framesPerSecond * millisecondsInSecond).pipe(
-        takeWhile(() => this.isPlaying)
-      ).subscribe(() => {
-        var currentTimeSeconds = 0;
-        if (this.hasAudioFile) {
-          currentTimeSeconds = this.audioPlayer.currentTime - (this.videoDelayMillisecondsControl.value ?? 0) / millisecondsInSecond;
-        } else {
-          var newTime = Date.now();
-          currentTimeSeconds = (newTime - startTime) / millisecondsInSecond;
-        }
-
-        if (currentTimeSeconds >= this._videoDurationSeconds) {
-          this.stop();
-        } else {
-          this._currentTimeSeconds = currentTimeSeconds;
-        }
-      });
-    } else {
-      this.stop();
-    }
-  }
-
-  get hasAudioFile() {
-    return this.audioPlayer.src?.length > 0;
+    return 0;
   }
 
   stop = () => {
-    this._currentTimeSeconds = 0;
-    this.isPlaying = false;
-    if (this.hasAudioFile) {
-      this.audioPlayer.pause();
+    if (this.videoplayer) {
+      this.videoplayer.stop();
     }
   }
 }

@@ -27,8 +27,11 @@ export class VideoBuilderComponent implements OnInit {
   videos: Video[] = [];
   showSelectedVideo = false;
   videoLoading = false;
+  selectedVideo! : Video;
+  audioplayer = new Audio();
 
   selectVideo = (video: Video) =>{
-
+    this.selectedVideo = video;
+    this.showSelectedVideo = true;
   }
 }
