@@ -1,14 +1,13 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { MsalGuard } from '@azure/msal-angular';
-import { ClipComposerComponent } from './clipcomposer/clipcomposer.component';
+import { ClipBuilderComponent } from './clipbuilder/clipbuilder.component';
 
 import { HomeComponent } from './home/home.component';
 import { LayerFinderComponent } from './layerfinder/layerfinder.component';
 import { LayerUploadComponent } from './layerupload/layerupload.component';
-import { MyLayersComponent } from './mylayers/mylayers.component';
-import { VideoBuilderComponent } from './videobuilder/videobuilder.component';
-import { VideoComposerComponent } from './videocomposer/videocomposer.component';
+import { MyLibraryComponent } from './mylibrary/mylibrary.component';
+import { MusicVideoBuilderComponent } from './musicvideobuilder/musicvideobuilder.component';
 
 const routes: Routes = [
   {
@@ -23,29 +22,22 @@ const routes: Routes = [
     ]
   },
   {
-    path: 'clipComposer',
-    component: ClipComposerComponent,
+    path: 'clipBuilder',
+    component: ClipBuilderComponent,
     canActivate: [
       MsalGuard
     ]
   },
   {
-    path: 'videoComposer',
-    component: VideoComposerComponent,
+    path: 'musicVideoBuilder',
+    component: MusicVideoBuilderComponent,
     canActivate: [
       MsalGuard
     ]
   },
   {
-    path: 'videoBuilder',
-    component: VideoBuilderComponent,
-    canActivate: [
-      MsalGuard
-    ]
-  },
-  {
-    path: 'myLayers',
-    component: MyLayersComponent,
+    path: 'myLibrary',
+    component: MyLibraryComponent,
     canActivate: [
       MsalGuard
     ]
@@ -75,7 +67,6 @@ const isIframe = window !== window.parent && !window.opener;
 
 @NgModule({
   imports: [RouterModule.forRoot(routes, {
-    useHash: true,
     // Don't perform initial navigation in iframes
     initialNavigation: !isIframe ? 'enabled' : 'disabled'
   })],

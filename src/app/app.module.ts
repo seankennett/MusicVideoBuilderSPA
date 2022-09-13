@@ -16,10 +16,9 @@ import { LayerFinderComponent } from './layerfinder/layerfinder.component';
 import { LayerUploadComponent } from './layerupload/layerupload.component';
 import { LayertypecontrolComponent } from './layertypecontrol/layertypecontrol.component';
 import { GalleryplayerComponent } from './galleryplayer/galleryplayer.component';
-import { ClipComposerComponent } from './clipcomposer/clipcomposer.component';
-import { VideoComposerComponent } from './videocomposer/videocomposer.component';
-import { VideoBuilderComponent } from './videobuilder/videobuilder.component';
-import { MyLayersComponent } from './mylayers/mylayers.component';
+import { ClipBuilderComponent } from './clipbuilder/clipbuilder.component';
+import { MusicVideoBuilderComponent } from './musicvideobuilder/musicvideobuilder.component';
+import { MyLibraryComponent } from './mylibrary/mylibrary.component';
 import { BreadcrumbComponent } from './breadcrumb/breadcrumb.component';
 import { BpmcontrolComponent } from './bpmcontrol/bpmcontrol.component';
 import { DatePipe } from '@angular/common';
@@ -74,10 +73,9 @@ export function MSALGuardConfigFactory(): MsalGuardConfiguration {
     LayerUploadComponent,
     LayertypecontrolComponent,
     GalleryplayerComponent,
-    ClipComposerComponent,
-    VideoComposerComponent,
-    VideoBuilderComponent,
-    MyLayersComponent,
+    ClipBuilderComponent,
+    MusicVideoBuilderComponent,
+    MyLibraryComponent,
     BreadcrumbComponent,
     BpmcontrolComponent,
     GalleryvideoComponent,

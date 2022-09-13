@@ -15,14 +15,9 @@
     <p *ngIf="!loginDisplay">First you must have an account with us so you'll need to <a href="#" (click)="login()">Sign in</a>, we only need a username and email to save your work against.</p>
     <ol>
         <li>Use <a [routerLink]="['/layerFinder']">Layer Finder</a> to select layers you're interested in.</li>
-        <li>Use <a [routerLink]="['/clipComposer']">Clip Composer</a> to combine these layers into short clips.</li>
-        <li>Use <a [routerLink]="['/videoComposer']">Video Composer</a> to combine your clips with your music file to
+        <li>Use <a [routerLink]="['/clipBuilder']">Clip Builder</a> to combine these layers into short clips.</li>
+        <li>Use <a [routerLink]="['/musicVideoBuilder']">Music Video Builder</a> to combine your clips with your music file to
             create
             your video.</li>
-        <li>Use <a [routerLink]="['/videoBuilder']">Video Builder</a> to generate your FFmpeg code and download all
-            necessary
-            assets to build your video on your device. There is a free low resolution version for testing and a 4K
-            version to
-            purchase.</li>
     </ol>
 </div>

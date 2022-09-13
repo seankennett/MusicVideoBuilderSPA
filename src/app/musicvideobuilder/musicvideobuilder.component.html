@@ -1,10 +1,10 @@
 <app-breadcrumb
-    [links]="[{display:'Layer Finder', path:'layerFinder' }, {display:'Clip Composer', path:'clipComposer' }, {display:'Video Composer', path:'videoComposer' }]">
+    [links]="[{display:'Layer Finder', path:'layerFinder', icon:'search' }, {display:'Clip Builder', path:'clipBuilder', icon:'stack' }, {display:'Music Video Builder', path:'musicVideoBuilder', icon:'hammer' }]">
 </app-breadcrumb>
 <div class="container">
-    <h1>Video Composer</h1>
-    <p class="lead">Video composer allows you to combine clips to either make a new video or edit an existing one.</p>
-    <p>Once you create a video you can then use this to <a [routerLink]="['/videoBuilder']">build a video</a>. Use the
+    <h1><i class="bi bi-hammer"></i> Music Video Builder</h1>
+    <p class="lead">Music video builder allows you to combine clips to either make a new video or edit an existing one.</p>
+    <p>Once you create a video in the editor then you can download the assets to create your video on your machine. Use the
         controls below to create or edit your videos</p>
     <ng-container *ngIf="!showEditor && this.videos.length > 0">
         <h2>Saved Videos</h2>
@@ -271,8 +271,4 @@
             </div>
         </form>
     </ng-container>
-    <div class="mb-3">
-        <button type="button" class="btn btn-secondary" [routerLink]="'/videoBuilder'" [disabled]="!hasVideo"><i
-                class="bi bi-arrow-right-circle-fill"></i> Video Builder</button>
-    </div>
 </div>

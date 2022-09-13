@@ -15,11 +15,11 @@ const millisecondsInSecond = 1000;
 const secondsInMinute = 60;
 
 @Component({
-  selector: 'app-videocomposer',
-  templateUrl: './videocomposer.component.html',
-  styleUrls: ['./videocomposer.component.scss']
+  selector: 'app-musicvideobuilder',
+  templateUrl: './musicvideobuilder.component.html',
+  styleUrls: ['./musicvideobuilder.component.scss']
 })
-export class VideoComposerComponent implements OnInit {
+export class MusicVideoBuilderComponent implements OnInit {
 
   constructor(private formBuilder: FormBuilder, private videoService: VideoService, private clipService: ClipService, private datePipe: DatePipe) { }
 
@@ -46,10 +46,6 @@ export class VideoComposerComponent implements OnInit {
   @ViewChild(VideoplayerComponent) videoplayer!: VideoplayerComponent;
 
   videos: Video[] = [];
-  get hasVideo() {
-    return this.videos.length > 0;
-  }
-
   clips: Clip[] = [];
   Formats = Formats;
   formatList: Formats[] = [

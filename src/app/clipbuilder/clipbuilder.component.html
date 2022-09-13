@@ -1,10 +1,10 @@
 <app-breadcrumb
-    [links]="[{display:'Layer Finder', path:'layerFinder' }, {display:'Clip Composer', path:'clipComposer' }]">
+    [links]="[{display:'Layer Finder', path:'layerFinder', icon:'search' }, {display:'Clip Builder', path:'clipBuilder', icon:'stack'}]">
 </app-breadcrumb>
 <div class="container">
-    <h1>Clip Composer</h1>
-    <p class="lead">Clip composer allows you to combine layers to either make a new clip or edit an existing one.</p>
-    <p>Once you create a clip you can then use this to <a [routerLink]="['/videoComposer']">compose a video</a>. Use the
+    <h1><i class="bi bi-stack"></i> Clip Builder</h1>
+    <p class="lead">Clip builder allows you to combine layers to either make a new clip or edit an existing one.</p>
+    <p>Once you create a clip you can then use this to <a [routerLink]="['/videoBuilder']">compose a video</a>. Use the
         controls below to create or edit your clips</p>
     <app-bpmcontrol (bpmEvent)="setBpm($event)" (isPlayingEvent)="setIsPlaying($event)"></app-bpmcontrol>
     <ng-container *ngIf="!showEditor && this.clips.length > 0">
@@ -68,11 +68,11 @@
                             {{layerControl.value.layerName}}
                             <div class="btn-group float-end" role="group">
                                 <button *ngIf="i > 1" type="button" class="btn btn-secondary ms-1"
-                                    (click)="moveUp(i)"><i class="bi bi-arrow-up-circle-fill"></i> Move Up</button>
+                                    (click)="moveBack(i)"><i class="bi bi-back"></i> Move Back</button>
                                 <button *ngIf="i !== layersFormArray.controls.length - 1 && i !== 0" type="button"
-                                    class="btn btn-secondary ms-1" (click)="moveDown(i)"><i
-                                        class="bi bi-arrow-down-circle-fill"></i> Move
-                                    Down</button>
+                                    class="btn btn-secondary ms-1" (click)="moveForward(i)"><i
+                                        class="bi bi-front"></i> Move
+                                    Forward</button>
                                 <button *ngIf="i === layersFormArray.controls.length - 1" type="button"
                                     class="btn btn-danger ms-1" (click)="removeLayer(i)"><i
                                         class="bi bi-dash-circle-fill"></i>
@@ -122,7 +122,7 @@
         </form>
     </ng-container>
     <div class="mb-3">
-        <button type="button" class="btn btn-secondary" [routerLink]="'/videoComposer'" [disabled]="!hasClip"><i
-                class="bi bi-arrow-right-circle-fill"></i> Video Composer</button>
+        <button type="button" class="btn btn-secondary" [routerLink]="'/musicVideoBuilder'" [disabled]="!hasClip"><i
+                class="bi bi-arrow-right-circle-fill"></i> Music Video Builder</button>
     </div>
 </div>

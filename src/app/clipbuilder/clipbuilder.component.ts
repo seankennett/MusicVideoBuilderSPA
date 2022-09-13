@@ -11,11 +11,11 @@ import { UserLayer } from '../userlayer';
 import { UserlayerService } from '../userlayer.service';
 
 @Component({
-  selector: 'app-clipcomposer',
-  templateUrl: './clipcomposer.component.html',
-  styleUrls: ['./clipcomposer.component.scss']
+  selector: 'app-clipbuilder',
+  templateUrl: './clipbuilder.component.html',
+  styleUrls: ['./clipbuilder.component.scss']
 })
-export class ClipComposerComponent implements OnInit {
+export class ClipBuilderComponent implements OnInit {
 
   constructor(private formBuilder: FormBuilder, private userLayerService: UserlayerService, private clipService: ClipService) { }
 
@@ -93,13 +93,13 @@ export class ClipComposerComponent implements OnInit {
     this.layersFormArray.removeAt(index);
   }
 
-  moveUp = (index: number) => {
+  moveBack = (index: number) => {
     let currentControl = this.layersFormArray.controls[index];
     this.layersFormArray.controls[index] = this.layersFormArray.controls[index - 1];
     this.layersFormArray.controls[index - 1] = currentControl;
   }
 
-  moveDown = (index: number) => {
+  moveForward = (index: number) => {
     let currentControl = this.layersFormArray.controls[index];
     this.layersFormArray.controls[index] = this.layersFormArray.controls[index + 1];
     this.layersFormArray.controls[index + 1] = currentControl;

@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ClipcomposerComponent } from './clipcomposer.component';
+import { MyLibraryComponent } from './mylibrary.component';
 
-describe('ClipcomposerComponent', () => {
-  let component: ClipcomposerComponent;
-  let fixture: ComponentFixture<ClipcomposerComponent>;
+describe('MyLibraryComponent', () => {
+  let component: MyLibraryComponent;
+  let fixture: ComponentFixture<MyLibraryComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ ClipcomposerComponent ]
+      declarations: [ MyLibraryComponent ]
     })
     .compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(ClipcomposerComponent);
+    fixture = TestBed.createComponent(MyLibraryComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

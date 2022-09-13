@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { MylayersComponent } from './mylayers.component';
+import { MusicVideoBuilderComponent } from './musicvideobuilder.component';
 
-describe('MylayersComponent', () => {
-  let component: MylayersComponent;
-  let fixture: ComponentFixture<MylayersComponent>;
+describe('MusicVideoBuilderComponent', () => {
+  let component: MusicVideoBuilderComponent;
+  let fixture: ComponentFixture<MusicVideoBuilderComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ MylayersComponent ]
+      declarations: [ MusicVideoBuilderComponent ]
     })
     .compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(MylayersComponent);
+    fixture = TestBed.createComponent(MusicVideoBuilderComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
