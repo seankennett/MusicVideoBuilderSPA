@@ -1,6 +1,8 @@
+import { Location } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { AbstractControl, FormBuilder, Validators } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
 import { Clip } from '../clip';
 import { ClipService } from '../clip.service';
@@ -17,7 +19,7 @@ import { UserlayerService } from '../userlayer.service';
 })
 export class ClipBuilderComponent implements OnInit {
 
-  constructor(private formBuilder: FormBuilder, private userLayerService: UserlayerService, private clipService: ClipService) { }
+  constructor(private formBuilder: FormBuilder, private userLayerService: UserlayerService, private clipService: ClipService, private route: ActivatedRoute, private location: Location) { }
 
   ngOnInit(): void {
     this.userLayerService.getAll().pipe(
@@ -35,13 +37,31 @@ export class ClipBuilderComponent implements OnInit {
         return throwError(() => new Error('Something went wrong on the server, try again!'));
       })
     ).subscribe((clips: Clip[]) => {
-      this.clips = clips
+      this.clips = clips;
+      var id = Number(this.route.firstChild?.snapshot?.params['id']);
+      if (!isNaN(id)){
+        var clip = clips.find(x => x.clipId === id);
+        if (clip){
+          this.editClip(clip);
+        }
+      }
     });
   }
+
 
   clips: Clip[] = [];
   userLayers: UserLayer[] = [];
   clipId: number = 0;
+
+  setClipId = (clipId: number) =>{
+    this.clipId = clipId;
+    if (clipId === 0){
+      this.location.replaceState('/clipBuilder/');
+    }else{    
+      this.location.replaceState('/clipBuilder/' + clipId);
+    }
+
+  }
 
   get userBackgrounds() {
     return this.userLayers.filter(l => l.layerType === Layertypes.Background);
@@ -68,7 +88,7 @@ export class ClipBuilderComponent implements OnInit {
   isAddingLayer = false;
 
   toggleEditor = () => {
-    this.clipId = 0;
+    this.setClipId(0);
     this.clipNameControl.reset();
     this.layersFormArray.clear();
     this.isAddingLayer = false;
@@ -140,7 +160,7 @@ export class ClipBuilderComponent implements OnInit {
 
   editClip = (clip: Clip) => {
     this.toggleEditor();
-    this.clipId = clip.clipId;
+    this.setClipId(clip.clipId);
     this.clipNameControl.setValue(clip.clipName);
     clip.userLayers.forEach(ul => {
       var userLayer = this.userLayers.find(userLayer => userLayer.userLayerId === ul.userLayerId);
