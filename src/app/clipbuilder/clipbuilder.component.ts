@@ -127,6 +127,11 @@ export class ClipBuilderComponent implements OnInit {
 
   saving = false;
 
+  unchangedClip: Clip = <Clip>{};
+  noClipChanges = () =>{
+    return JSON.stringify(this.unchangedClip) === JSON.stringify(this.editorClip);
+  }
+
   get editorClip() : Clip {
     return <Clip>{
       clipId: this.clipId,
@@ -168,6 +173,8 @@ export class ClipBuilderComponent implements OnInit {
         this.addLayer(userLayer);
       }
     });
+
+    this.unchangedClip = {...this.editorClip};
   }
 
   disableLayer = (layer: Layer) => {

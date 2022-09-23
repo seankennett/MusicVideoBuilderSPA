@@ -17,18 +17,22 @@ const imageWidth = 384;
 export class VideoplayerComponent implements OnInit {
 
   @Input() selectedClipIndex = 0;
-  
+
   audioPlayer = new Audio();
   get hasAudioFile() {
     return this.audioPlayer.src?.length > 0;
   }
   @Input() video!: Video;
 
-  get clipDurationSeconds(){
-    return secondsInMinute / this.video.bpm * beatsPerLayer;
+  get clipDurationSeconds() {
+    if (this.video.bpm) {
+      return secondsInMinute / this.video.bpm * beatsPerLayer;
+    }
+
+    return 0;
   };
 
-  get videoDurationSeconds(){
+  get videoDurationSeconds() {
     return this.video.clips.length * this.clipDurationSeconds;
   }
 
@@ -131,7 +135,7 @@ export class VideoplayerComponent implements OnInit {
     }
   }
 
-  setSelectedClipIndex = (index: number) =>{
+  setSelectedClipIndex = (index: number) => {
     this.setSelectedIndexEvent.emit(index);
   }
 

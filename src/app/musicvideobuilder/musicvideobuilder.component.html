@@ -3,15 +3,18 @@
 </app-breadcrumb>
 <div class="container">
     <h1><i class="bi bi-hammer"></i> Music Video Builder</h1>
-    <p class="lead">Music video builder allows you to combine clips to either make a new video or edit an existing one.</p>
-    <p>Once you create a video in the editor then you can download the assets to create your video on your machine. Use the
+    <p class="lead">Music video builder allows you to combine clips to either make a new video or edit an existing one.
+    </p>
+    <p>Once you create a video in the editor then you can download the assets to create your video on your machine. Use
+        the
         controls below to create or edit your videos</p>
     <ng-container *ngIf="!showEditor && this.videos.length > 0">
         <h2>Saved Videos</h2>
         <div class="mb-3">
             <div class="row">
                 <div *ngFor="let video of videos; let i = index" class="col-sm mb-3">
-                    <app-galleryvideo [video]="video" (buttonClickEvent)="editVideo($event)" [loading]="editorLoading"></app-galleryvideo>                    
+                    <app-galleryvideo [video]="video" (buttonClickEvent)="editVideo($event)" [loading]="editorLoading">
+                    </app-galleryvideo>
                 </div>
             </div>
         </div>
@@ -94,17 +97,23 @@
                                     Delay must be a positive whole numnber.
                                 </div>
                             </div>
-                        </div> 
+                        </div>
                         <div class="mb-3">
-                            <span [ngbTooltip]="bpmInvalidTooltip()" placement="right">
-                                <button type="button" [disabled]="disableTimelineTab()" class="btn btn-secondary"
+                            <button type="submit" [disabled]="!videoForm.valid || saving || noVideoEditorChanges()"
+                                class="btn btn-primary me-1">Save</button>
+                            <span [ngbTooltip]="bpmInvalidTooltip()">
+                                <button type="button" [disabled]="disableTimelineTab()" class="btn btn-secondary me-1"
                                     (click)="setTabId(2)">Go to timeline</button>
+                            </span>
+                            <span [ngbTooltip]="noVideoEditorChangesTooltip()">
+                                <button type="button" [disabled]="!noVideoEditorChanges()" class="btn btn-secondary"
+                                    (click)="setTabId(3)">Go to builder</button>
                             </span>
                         </div>
                     </ng-template>
                 </li>
                 <li [ngbNavItem]="2" [disabled]="disableTimelineTab()" [ngbTooltip]="bpmInvalidTooltip()"
-                    placement="right" (hidden)="stop()">
+                    (hidden)="stop()">
                     <a ngbNavLink>Timeline</a>
                     <ng-template ngbNavContent>
                         <ng-container *ngIf="showEditor && !showClipPicker && clipsFormArray.length > 0">
@@ -233,8 +242,9 @@
                             </div>
                             <div class="mb-3">
                                 <h3>Final Video Player</h3>
-                                <app-videoplayer [selectedClipIndex]="selectedClipIndex" [video]="editorVideo" (setSelectedIndexEvent)="setSelectedClipIndex($event)"></app-videoplayer> 
-                            </div>                            
+                                <app-videoplayer [selectedClipIndex]="selectedClipIndex" [video]="editorVideo"
+                                    (setSelectedIndexEvent)="setSelectedClipIndex($event)"></app-videoplayer>
+                            </div>
                         </ng-container>
                         <div class="mb-3" *ngIf="showClipPicker || clipsFormArray.length === 0">
                             <h3>Pick A Clip</h3>
@@ -254,20 +264,30 @@
                                 *ngIf="clipsFormArray.length > 0"><i class="bi bi-dash-circle-fill"></i>
                                 Cancel</button>
                         </div>
-
                         <div class="mb-3">
-                            <button type="button" class="btn btn-secondary" (click)="setTabId(1)">Go to
+                            <button type="submit" [disabled]="!videoForm.valid || saving || noVideoEditorChanges()"
+                                class="btn btn-primary me-1">Save</button>
+                            <button type="button" class="btn btn-secondary me-1" (click)="setTabId(1)">Go to
                                 details</button>
+                            <span [ngbTooltip]="noVideoEditorChangesTooltip()">
+                                <button type="button" [disabled]="!noVideoEditorChanges()" class="btn btn-secondary"
+                                    (click)="setTabId(3)">Go to builder</button>
+                            </span>
                         </div>
+                    </ng-template>
+                </li>
+                <li [ngbNavItem]="3" [disabled]="!noVideoEditorChanges()" [ngbTooltip]="noVideoEditorChangesTooltip()">
+                    <a ngbNavLink>Builder</a>
+                    <ng-template ngbNavContent>
+
                     </ng-template>
                 </li>
             </ul>
             <div [ngbNavOutlet]="nav"></div>
             <div class="mb-3">
-                <button type="submit" [disabled]="!videoForm.valid || saving" class="btn btn-primary me-1">Save</button>
                 <button type="button" class="btn btn-danger" (click)="toggleEditor()"><i
                         class="bi bi-dash-circle-fill"></i>
-                    Cancel</button>
+                    Exit Editor</button>
             </div>
         </form>
     </ng-container>

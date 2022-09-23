@@ -159,6 +159,7 @@ export class MusicVideoBuilderComponent implements OnInit {
   }
 
   editorLoading = false;
+  unchangedVideo: Video = <Video>{};
 
   editVideo = (video: Video) => {
     this.editorLoading = true;
@@ -187,8 +188,14 @@ export class MusicVideoBuilderComponent implements OnInit {
         }
       });
 
+      this.unchangedVideo = { ...this.editorVideo };
+
       this.editorLoading = false;
     });
+  }
+
+  noVideoEditorChanges = () => {
+    return JSON.stringify(this.editorVideo) === JSON.stringify(this.unchangedVideo);
   }
 
   get editorVideo(): Video {
@@ -217,11 +224,13 @@ export class MusicVideoBuilderComponent implements OnInit {
       this.saving = false;
       if (this.videoId === 0) {
         this.videos.push(video);
+        this.videoId = video.videoId;
+        this.unchangedVideo = { ...this.editorVideo };
       } else {
         let index = this.videos.findIndex(vid => vid.videoId === this.videoId);
         this.videos[index] = video;
+        this.unchangedVideo = { ...this.editorVideo };
       }
-      this.toggleEditor();
     });
   }
 
@@ -269,7 +278,10 @@ export class MusicVideoBuilderComponent implements OnInit {
     return !this.bpmControl.valid ? 'You must set bpm as a minimum to see timeline' : '';
   }
 
-  
+  noVideoEditorChangesTooltip = () => {
+    return this.noVideoEditorChanges() ? '' : 'You have unsaved changes';
+  }
+
 
   moveBack = (index: number) => {
     this.stop();
@@ -387,8 +399,12 @@ export class MusicVideoBuilderComponent implements OnInit {
   }
 
   displayTimeLineTimeRangeFromClipIndex = (index: number) => {
-    var dates = this.calculateTimeRangeFromClipIndex(index);
-    return this.datePipe.transform(dates[0], 'HH:mm:ss.SSS') + ' to ' + this.datePipe.transform(dates[1], 'HH:mm:ss.SSS');
+    if (this.bpmControl.valid) {
+      var dates = this.calculateTimeRangeFromClipIndex(index);
+      return this.datePipe.transform(dates[0], 'HH:mm:ss.SSS') + ' to ' + this.datePipe.transform(dates[1], 'HH:mm:ss.SSS');
+    }
+
+    return '';
   }
 
   calculateClipNameFromClipIndex = (index: number) => {
