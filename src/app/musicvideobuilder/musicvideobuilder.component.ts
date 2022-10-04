@@ -9,6 +9,8 @@ import { catchError, throwError, timer, takeWhile } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 import { DatePipe } from '@angular/common';
 import { VideoplayerComponent } from '../videoplayer/videoplayer.component';
+import { Userlayerstatus } from '../userlayerstatus';
+import { UserLayer } from '../userlayer';
 
 const beatsPerLayer = 4;
 const millisecondsInSecond = 1000;
@@ -209,6 +211,15 @@ export class MusicVideoBuilderComponent implements OnInit {
         return control.value;
       })
     };
+  }
+
+  get layersToBuy(): UserLayer[] {
+    var layers = this.editorVideo.clips.flatMap(c => c.userLayers).filter(l => l.userLayerStatus === Userlayerstatus.Saved);
+    return [...new Map(layers.map(item => [item.userLayerId, item])).values()]
+  }
+
+  get hasAllLayers(): boolean {
+    return this.layersToBuy.length === 0;
   }
 
   onSubmit = () => {
@@ -464,5 +475,17 @@ export class MusicVideoBuilderComponent implements OnInit {
     if (this.videoplayer) {
       this.videoplayer.stop();
     }
+  }
+
+  freeDownload = () => {
+    alert('free download ' + this.videoId);
+  }
+
+  download = () => {
+    alert('purchased download ' + this.videoId);
+  }
+
+  buyMissingLayers = () =>{
+    alert('buy missing layers ' + this.videoId);
   }
 }

@@ -279,7 +279,32 @@
                 <li [ngbNavItem]="3" [disabled]="!noVideoEditorChanges()" [ngbTooltip]="noVideoEditorChangesTooltip()">
                     <a ngbNavLink>Builder</a>
                     <ng-template ngbNavContent>
-
+                        <h3>Free Test Download</h3>
+                        <div class="mb-3">
+                            <p>This button enables you to download load resolution watermarked assets along with your
+                                ffmpeg code in order to build a video to check it all works</p>
+                            <button type="button" class="btn btn-secondary" (click)="freeDownload()"><i
+                                    class="bi bi-download"></i> Test Download</button>
+                        </div>
+                        <h3>Download</h3>
+                        <div class="mb-3" *ngIf="hasAllLayers">
+                            <p>You have bought all the layers in this video, please use the button below to get your 4k
+                                assets and ffmpeg code</p>
+                            <button type="button" class="btn btn-secondary" (click)="download()"><i
+                                    class="bi bi-download"></i> Test Download</button>
+                        </div>
+                        <ng-container *ngIf="!hasAllLayers">
+                            <div class="mb-3">
+                                <p>For the full quality video without watermarks you will need to purchase the following layers.  You can purchase all at the bottom, alternatively remove or buy individually.
+                                </p>
+                                {{layersToBuy | json}}
+                            </div>
+                            <div class="mb-3">
+                                <p>You can purchase all the missing layers above using the button below.</p>
+                                <button type="button" class="btn btn-primary" (click)="buyMissingLayers()"><i
+                                        class="bi bi-credit-card"></i> Buy All</button>
+                            </div>
+                        </ng-container>
                     </ng-template>
                 </li>
             </ul>
