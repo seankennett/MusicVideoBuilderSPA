@@ -11,10 +11,16 @@ import { DatePipe } from '@angular/common';
 import { VideoplayerComponent } from '../videoplayer/videoplayer.component';
 import { Userlayerstatus } from '../userlayerstatus';
 import { UserLayer } from '../userlayer';
+import * as JSZip from 'jszip';
+import { saveAs } from 'file-saver';
 
 const beatsPerLayer = 4;
 const millisecondsInSecond = 1000;
 const secondsInMinute = 60;
+
+const imageWidth = 384;
+const imageHeight = 216;
+const frameTotal = 64;
 
 @Component({
   selector: 'app-musicvideobuilder',
@@ -477,15 +483,69 @@ export class MusicVideoBuilderComponent implements OnInit {
     }
   }
 
-  freeDownload = () => {
-    alert('free download ' + this.videoId);
+  freeDownload = async () => {
+
+    // call server to get ffmpeg code and send back asset ids (this should be accurate in memeory but better to have proper validation)
+
+    var layers = this.editorVideo.clips.flatMap(c => c.userLayers)
+    var uniqueLayers = [...new Map(layers.map(item => [item.userLayerId, item])).values()];
+    var videoName = this.editorVideo.videoName;
+
+    var zip = new JSZip();
+
+    var imagePromises: any[] = [];
+    uniqueLayers.forEach((layer, index) => {
+      var folder = zip.folder(layer.layerId);
+      var imagePromise = new Promise((resolve) => {
+        var spriteImage = new Image();
+        spriteImage.crossOrigin = '*';
+        spriteImage.onload = () => {
+          var blobPromises = [];
+          for (var i = 0; i < frameTotal; i++) {
+            var blobPromise = new Promise((blobResolve) => {
+              var canvas = document.createElement("canvas");
+              var canvasContext = canvas.getContext("2d");
+
+              canvas.width = imageWidth;
+              canvas.height = imageHeight;
+
+              canvasContext?.drawImage(spriteImage, i * imageWidth, 0, imageWidth, imageHeight, 0, 0, imageWidth, imageHeight);
+              
+              // stupid closures (i was always 63) without this
+              function toBlob(i: number){
+                canvas.toBlob(blob => {
+                  if (folder && blob) {
+                    folder.file(i + '.png', blob);
+                  }
+                  blobResolve("");
+                });
+              }
+              
+              toBlob(i);
+            });
+            blobPromises.push(blobPromise);
+          }
+
+          Promise.all(blobPromises).then(x => resolve(""));
+        }
+        spriteImage.src = 'https://cdn.musicvideobuilder.com/' + layer.layerId + '/' + layer.layerId + '.png';
+      });
+      imagePromises.push(imagePromise);
+    });
+
+    Promise.all(imagePromises).then(async x => {
+      await zip.generateAsync({ type: "blob" }).then(function (content) {
+        // see FileSaver.js
+        saveAs(content, videoName + ".zip");
+      });
+    });
   }
 
   download = () => {
-    alert('purchased download ' + this.videoId);
-  }
+        alert('purchased download ' + this.videoId);
+      }
 
-  buyMissingLayers = () =>{
-    alert('buy missing layers ' + this.videoId);
-  }
+  buyMissingLayers = () => {
+        alert('buy missing layers ' + this.videoId);
+      }
 }
