@@ -13,6 +13,8 @@ import { Userlayerstatus } from '../userlayerstatus';
 import { UserLayer } from '../userlayer';
 import * as JSZip from 'jszip';
 import { saveAs } from 'file-saver';
+import { VideoassetsService } from '../videoassets.service';
+import { VideoAssets } from '../videoassets';
 
 const beatsPerLayer = 4;
 const millisecondsInSecond = 1000;
@@ -29,7 +31,7 @@ const frameTotal = 64;
 })
 export class MusicVideoBuilderComponent implements OnInit {
 
-  constructor(private formBuilder: FormBuilder, private videoService: VideoService, private clipService: ClipService, private datePipe: DatePipe) { }
+  constructor(private formBuilder: FormBuilder, private videoService: VideoService, private clipService: ClipService, private videoAssetService: VideoassetsService, private datePipe: DatePipe) { }
 
   ngOnInit(): void {
     this.videoService.getAll().pipe(
@@ -486,16 +488,18 @@ export class MusicVideoBuilderComponent implements OnInit {
   freeDownload = async () => {
 
     // call server to get ffmpeg code and send back asset ids (this should be accurate in memeory but better to have proper validation)
-
-    var layers = this.editorVideo.clips.flatMap(c => c.userLayers)
-    var uniqueLayers = [...new Map(layers.map(item => [item.userLayerId, item])).values()];
+    this.videoAssetService.get(this.videoId, true).pipe(
+      catchError((error: HttpErrorResponse) => {
+        alert('Something went wrong on the server, try again!');
+        return throwError(() => new Error('Something went wrong on the server, try again!'));
+      })
+    ).subscribe((videoAssets: VideoAssets) => {
     var videoName = this.editorVideo.videoName;
-
     var zip = new JSZip();
 
     var imagePromises: any[] = [];
-    uniqueLayers.forEach((layer, index) => {
-      var folder = zip.folder(layer.layerId);
+    videoAssets.imageUrls.forEach((imageUrl) => {
+      var folder = zip.folder(imageUrl.layerId);
       var imagePromise = new Promise((resolve) => {
         var spriteImage = new Image();
         spriteImage.crossOrigin = '*';
@@ -528,7 +532,7 @@ export class MusicVideoBuilderComponent implements OnInit {
 
           Promise.all(blobPromises).then(x => resolve(""));
         }
-        spriteImage.src = 'https://cdn.musicvideobuilder.com/' + layer.layerId + '/' + layer.layerId + '.png';
+        spriteImage.src = imageUrl.url;
       });
       imagePromises.push(imagePromise);
     });
@@ -539,6 +543,7 @@ export class MusicVideoBuilderComponent implements OnInit {
         saveAs(content, videoName + ".zip");
       });
     });
+  });
   }
 
   download = () => {

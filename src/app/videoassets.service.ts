@@ -2,22 +2,18 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { protectedResources } from './auth-config';
-import { Video } from './video';
+import { VideoAssets } from './videoassets';
 
 @Injectable({
   providedIn: 'root'
 })
-export class VideoService {
+export class VideoassetsService {
 
-  url = environment.apiEndpoint + '/Videos'
+  baseurl = environment.apiEndpoint + '/Videos';
 
   constructor(private http: HttpClient) { }
 
-  post(video : Video) {
-    return this.http.post<Video>(this.url, video);
-  }
-
-  getAll(){
-    return this.http.get<Video[]>(this.url);
+  get(videoId: number, free: boolean) {
+    return this.http.get<VideoAssets>(this.baseurl + '/' + videoId + '/Assets?free=' + free);
   }
 }
