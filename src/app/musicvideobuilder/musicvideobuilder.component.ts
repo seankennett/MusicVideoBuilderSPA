@@ -522,7 +522,6 @@ export class MusicVideoBuilderComponent implements OnInit {
         return throwError(() => new Error('Something went wrong on the server, try again!'));
       })
     ).subscribe((videoAssets: VideoAssets) => {
-      var videoName = this.editorVideo.videoName;
       var zip = new JSZip();
       if (this.videoplayer?.file?.name) {
         zip.file(this.videoplayer?.file?.name, this.videoplayer?.file)
@@ -572,7 +571,7 @@ export class MusicVideoBuilderComponent implements OnInit {
       Promise.all(imagePromises).then(async x => {
         await zip.generateAsync({ type: "blob" }).then(function (content) {
           // see FileSaver.js
-          saveAs(content, videoName + ".zip");
+          saveAs(content, videoAssets.videoName + ".zip");
           that.generatingZip = false;
           that.zipProgress = 0;
         });
