@@ -7,7 +7,7 @@ import { Clip } from '../clip';
 import { VideoService } from '../video.service';
 import { catchError, throwError, timer, takeWhile } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
-import { DatePipe } from '@angular/common';
+import { DatePipe, Location } from '@angular/common';
 import { VideoplayerComponent } from '../videoplayer/videoplayer.component';
 import { Userlayerstatus } from '../userlayerstatus';
 import { UserLayer } from '../userlayer';
@@ -15,6 +15,8 @@ import * as JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 import { VideoassetsService } from '../videoassets.service';
 import { VideoAssets } from '../videoassets';
+import { ActivatedRoute } from '@angular/router';
+import { NgbNavChangeEvent } from '@ng-bootstrap/ng-bootstrap';
 
 const beatsPerLayer = 4;
 const millisecondsInSecond = 1000;
@@ -31,7 +33,8 @@ const frameTotal = 64;
 })
 export class MusicVideoBuilderComponent implements OnInit {
 
-  constructor(private formBuilder: FormBuilder, private videoService: VideoService, private clipService: ClipService, private videoAssetService: VideoassetsService, private datePipe: DatePipe) { }
+  constructor(private formBuilder: FormBuilder, private videoService: VideoService, private clipService: ClipService, private videoAssetService: VideoassetsService, 
+    private datePipe: DatePipe, private route: ActivatedRoute, private location: Location) { }
 
   ngOnInit(): void {
     this.videoService.getAll().pipe(
@@ -39,8 +42,16 @@ export class MusicVideoBuilderComponent implements OnInit {
         alert('Something went wrong on the server, try again!');
         return throwError(() => new Error('Something went wrong on the server, try again!'));
       })
-    ).subscribe((videos: Video[]) => {
-      this.videos = videos
+    ).subscribe((videos: Video[]) => {      
+      var id = Number(this.route.firstChild?.snapshot?.params['id']);
+      var tab = Number(this.route.firstChild?.snapshot?.queryParams['tab']);;
+      if (!isNaN(id) && !isNaN(tab)){
+        var video = videos.find(x => x.videoId === id);
+        if (video){
+          this.editVideo({video: video, tab: tab}, 0);
+        }
+      }
+      this.videos = videos;
     });
 
     this.clipService.getAll().pipe(
@@ -65,6 +76,14 @@ export class MusicVideoBuilderComponent implements OnInit {
   ]
 
   videoId: number = 0;
+  setVideoId = (videoId: number, tabId: number | null) =>{
+    this.videoId = videoId;
+    if (videoId === 0 || tabId === null){
+      this.location.replaceState('/musicVideoBuilder/');
+    }else{    
+      this.setTabId(tabId);
+    }
+  }
 
   timelineEditorStart = 1;
   timelineEditorEnd = 2;
@@ -161,37 +180,42 @@ export class MusicVideoBuilderComponent implements OnInit {
   isPlaying = false;
 
   setTabId = (activeTabId: number) => {
+    this.location.replaceState('/musicVideoBuilder/' + this.videoId + '?tab=' + activeTabId);
     this.activeTabId = activeTabId;
   }
 
+  navChange = (navEvent: NgbNavChangeEvent) =>{
+    this.location.replaceState('/musicVideoBuilder/' + this.videoId + '?tab=' + navEvent.nextId);
+  }
+
   disableTimelineTab = () => {
-    return !this.bpmControl.valid || !this.videoDelayMillisecondsControl.valid
+    return !this.bpmControl.valid || !this.videoDelayMillisecondsControl.valid || this.generatingZip
   }
 
   editorLoading = false;
   unchangedVideo: Video = <Video>{};
 
-  editVideo = (video: Video) => {
+  editVideo = (videoRoute: {video: Video, tab: number}, delay: number) => {
     this.editorLoading = true;
     // PLEASE WORK OUT HOW TO DO THIS PROPERLY!
-    timer(100).subscribe(() => {
+    timer(delay).subscribe(() => {
       this.toggleEditor();
-      this.videoId = video.videoId;
-      this.videoNameControl.setValue(video.videoName);
-      this.bpmControl.setValue(video.bpm);
-      this.formatControl.setValue(video.format);
-      this.videoDelayMillisecondsControl.setValue(video.videoDelayMilliseconds);
+      this.setVideoId(videoRoute.video.videoId, videoRoute.tab);
+      this.videoNameControl.setValue(videoRoute.video.videoName);
+      this.bpmControl.setValue(videoRoute.video.bpm);
+      this.formatControl.setValue(videoRoute.video.format);
+      this.videoDelayMillisecondsControl.setValue(videoRoute.video.videoDelayMilliseconds);
 
-      if (video.clips.length > 32) {
+      if (videoRoute.video.clips.length > 32) {
         this.clipsPerBlock = 16;
       }
-      else if (video.clips.length > 8) {
+      else if (videoRoute.video.clips.length > 8) {
         this.clipsPerBlock = 4;
       }
 
-      this.setTimelineEnd(video.clips.length + 1);
+      this.setTimelineEnd(videoRoute.video.clips.length + 1);
 
-      video.clips.forEach(cl => {
+      videoRoute.video.clips.forEach(cl => {
         var clip = this.clips.find(clip => clip.clipId === cl.clipId);
         if (clip) {
           this.clipsFormArray.push(this.formBuilder.control(clip));
@@ -243,7 +267,7 @@ export class MusicVideoBuilderComponent implements OnInit {
       this.saving = false;
       if (this.videoId === 0) {
         this.videos.push(video);
-        this.videoId = video.videoId;
+        this.setVideoId(video.videoId, this.activeTabId);
         this.unchangedVideo = { ...this.editorVideo };
       } else {
         let index = this.videos.findIndex(vid => vid.videoId === this.videoId);
@@ -254,7 +278,7 @@ export class MusicVideoBuilderComponent implements OnInit {
   }
 
   toggleEditor = () => {
-    this.videoId = 0;
+    this.setVideoId(0, null);
     this.videoNameControl.reset();
     this.bpmControl.reset();
     this.formatControl.setValue(1);
@@ -485,72 +509,80 @@ export class MusicVideoBuilderComponent implements OnInit {
     }
   }
 
+  generatingZip = false;
+  zipProgress = 0;
   freeDownload = async () => {
 
+    this.generatingZip = true;
     // call server to get ffmpeg code and send back asset ids (this should be accurate in memeory but better to have proper validation)
     this.videoAssetService.get(this.videoId, true).pipe(
       catchError((error: HttpErrorResponse) => {
         alert('Something went wrong on the server, try again!');
+        this.generatingZip = false;
         return throwError(() => new Error('Something went wrong on the server, try again!'));
       })
     ).subscribe((videoAssets: VideoAssets) => {
-    var videoName = this.editorVideo.videoName;
-    var zip = new JSZip();
+      var videoName = this.editorVideo.videoName;
+      var zip = new JSZip();
 
-    var imagePromises: any[] = [];
-    videoAssets.imageUrls.forEach((imageUrl) => {
-      var folder = zip.folder(imageUrl.layerId);
-      var imagePromise = new Promise((resolve) => {
-        var spriteImage = new Image();
-        spriteImage.crossOrigin = '*';
-        spriteImage.onload = () => {
-          var blobPromises = [];
-          for (var i = 0; i < frameTotal; i++) {
-            var blobPromise = new Promise((blobResolve) => {
-              var canvas = document.createElement("canvas");
-              var canvasContext = canvas.getContext("2d");
+      var that = this;
+      var imagePromises: any[] = [];
+      videoAssets.imageUrls.forEach((imageUrl) => {
+        var folder = zip.folder(imageUrl.layerId);
+        var imagePromise = new Promise((resolve) => {
+          var spriteImage = new Image();
+          spriteImage.crossOrigin = '*';
+          spriteImage.onload = () => {
+            var blobPromises = [];
+            for (var i = 0; i < frameTotal; i++) {
+              var blobPromise = new Promise((blobResolve) => {
+                var canvas = document.createElement("canvas");
+                var canvasContext = canvas.getContext("2d");
 
-              canvas.width = imageWidth;
-              canvas.height = imageHeight;
+                canvas.width = imageWidth;
+                canvas.height = imageHeight;
 
-              canvasContext?.drawImage(spriteImage, i * imageWidth, 0, imageWidth, imageHeight, 0, 0, imageWidth, imageHeight);
-              
-              // stupid closures (i was always 63) without this
-              function toBlob(i: number){
-                canvas.toBlob(blob => {
-                  if (folder && blob) {
-                    folder.file(i + '.png', blob);
-                  }
-                  blobResolve("");
-                });
-              }
-              
-              toBlob(i);
-            });
-            blobPromises.push(blobPromise);
+                canvasContext?.drawImage(spriteImage, i * imageWidth, 0, imageWidth, imageHeight, 0, 0, imageWidth, imageHeight);
+
+                // stupid closures (i was always 63) without this
+                function toBlob(i: number) {
+                  canvas.toBlob(blob => {
+                    if (folder && blob) {
+                      folder.file(i + '.png', blob);
+                    }
+                    that.zipProgress += 100 / videoAssets.imageUrls.length / frameTotal;
+                    blobResolve("");
+                  });
+                }
+
+                toBlob(i);
+              });
+              blobPromises.push(blobPromise);
+            }
+
+            Promise.all(blobPromises).then(x => resolve(""));
           }
-
-          Promise.all(blobPromises).then(x => resolve(""));
-        }
-        spriteImage.src = imageUrl.url;
+          spriteImage.src = imageUrl.url;
+        });
+        imagePromises.push(imagePromise);
       });
-      imagePromises.push(imagePromise);
-    });
 
-    Promise.all(imagePromises).then(async x => {
-      await zip.generateAsync({ type: "blob" }).then(function (content) {
-        // see FileSaver.js
-        saveAs(content, videoName + ".zip");
+      Promise.all(imagePromises).then(async x => {
+        await zip.generateAsync({ type: "blob" }).then(function (content) {
+          // see FileSaver.js
+          saveAs(content, videoName + ".zip");
+          that.generatingZip = false;
+          that.zipProgress = 0;
+        });
       });
     });
-  });
   }
 
   download = () => {
-        alert('purchased download ' + this.videoId);
-      }
+    alert('purchased download ' + this.videoId);
+  }
 
   buyMissingLayers = () => {
-        alert('buy missing layers ' + this.videoId);
-      }
+    alert('buy missing layers ' + this.videoId);
+  }
 }

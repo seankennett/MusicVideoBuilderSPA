@@ -42,6 +42,15 @@ const routes: Routes = [
     component: MusicVideoBuilderComponent,
     canActivate: [
       MsalGuard
+    ],
+    children: [
+      {
+        path: ':id',
+        component: ClipBuilderComponent,
+        canActivate: [
+          MsalGuard
+        ]
+      }
     ]
   },
   {

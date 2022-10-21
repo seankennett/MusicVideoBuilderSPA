@@ -13,22 +13,24 @@
         <div class="mb-3">
             <div class="row">
                 <div *ngFor="let video of videos; let i = index" class="col-sm mb-3">
-                    <app-galleryvideo [video]="video" (buttonClickEvent)="editVideo($event)" [loading]="editorLoading">
+                    <app-galleryvideo [video]="video" (buttonClickEvent)="editVideo($event, 100)" [loading]="editorLoading">
                     </app-galleryvideo>
                 </div>
             </div>
         </div>
     </ng-container>
-    <div [ngbTooltip]="canAddVideoTooltip()" placement="right" *ngIf="!showEditor" class="mb-3">
-        <button type="button" class="btn btn-success" (click)="toggleEditor()" [disabled]="!canAddVideo()"><i
-                class="bi bi-dash-circle-fill"></i>
-            Add new video</button>
+    <div *ngIf="!showEditor" class="mb-3">
+        <span [ngbTooltip]="canAddVideoTooltip()" placement="right">
+            <button type="button" class="btn btn-success" (click)="toggleEditor()" [disabled]="!canAddVideo()"><i
+                    class="bi bi-dash-circle-fill"></i>
+                Add new video</button>
+        </span>
     </div>
     <ng-container *ngIf="showEditor">
         <h2>Video Editor</h2>
         <form [formGroup]="videoForm" (ngSubmit)="onSubmit()">
-            <ul ngbNav #nav="ngbNav" class="nav-tabs" [(activeId)]="activeTabId" [destroyOnHide]="false">
-                <li [ngbNavItem]="1">
+            <ul ngbNav #nav="ngbNav" class="nav-tabs" [(activeId)]="activeTabId" [destroyOnHide]="false" (navChange)="navChange($event)">
+                <li [ngbNavItem]="1" [disabled]="generatingZip">
                     <a ngbNavLink>Details</a>
                     <ng-template ngbNavContent>
                         <div class="mb-3">
@@ -283,26 +285,41 @@
                         <div class="mb-3">
                             <p>This button enables you to download low resolution watermarked assets along with your
                                 ffmpeg code in order to build a video to check it all works</p>
-                            <button type="button" class="btn btn-secondary" (click)="freeDownload()"><i
-                                    class="bi bi-download"></i> Test Download</button>
+                            <button type="button" class="btn btn-secondary" (click)="freeDownload()"
+                                [disabled]="generatingZip"><i class="bi bi-download"></i> Test Download</button>
+                        </div>
+                        <div class="mb-3" *ngIf="generatingZip">
+                            <label class="form-label">Creating zip progress</label>
+                            <div class="progress">
+                                <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0"
+                                    aria-valuemax="100" [style.width]="zipProgress + '%'"></div>
+                            </div>
                         </div>
                         <h3>Download</h3>
                         <div class="mb-3" *ngIf="hasAllLayers">
                             <p>You have bought all the layers in this video, please use the button below to get your 4k
-                                assets and ffmpeg code</p>
+                                assets and ffmpeg code.</p>
                             <button type="button" class="btn btn-secondary" (click)="download()"><i
                                     class="bi bi-download"></i> Test Download</button>
                         </div>
                         <ng-container *ngIf="!hasAllLayers">
                             <div class="mb-3">
-                                <p>For the full quality video without watermarks you will need to purchase the following layers.  You can purchase all at the bottom, alternatively remove or buy individually.
+                                <p>For the full quality video without watermarks you will need to purchase the following
+                                    layers. You can purchase all at the bottom, alternatively remove or buy
+                                    individually.
                                 </p>
                                 {{layersToBuy | json}}
                             </div>
                             <div class="mb-3">
                                 <p>You can purchase all the missing layers above using the button below.</p>
-                                <button type="button" class="btn btn-primary" (click)="buyMissingLayers()"><i
-                                        class="bi bi-credit-card"></i> Buy All</button>
+                                <button type="button" class="btn btn-primary" (click)="buyMissingLayers()"
+                                    [disabled]="generatingZip"><i class="bi bi-credit-card"></i> Buy All</button>
+                            </div>
+                            <div class="mb-3">
+                                <button type="button" class="btn btn-secondary me-1" (click)="setTabId(1)">Go to
+                                    details</button>
+                                <button type="button" class="btn btn-secondary" (click)="setTabId(2)">Go to
+                                    timeline</button>
                             </div>
                         </ng-container>
                     </ng-template>
@@ -310,7 +327,7 @@
             </ul>
             <div [ngbNavOutlet]="nav"></div>
             <div class="mb-3">
-                <button type="button" class="btn btn-danger" (click)="toggleEditor()"><i
+                <button type="button" class="btn btn-danger" (click)="toggleEditor()" [disabled]="generatingZip"><i
                         class="bi bi-dash-circle-fill"></i>
                     Exit Editor</button>
             </div>

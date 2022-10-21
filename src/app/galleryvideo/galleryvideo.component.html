@@ -10,18 +10,23 @@
     <ul class="list-group list-group-flush">
         <li class="list-group-item">BPM: {{video.bpm}}</li>
         <li class="list-group-item">
-            <button type="button" (click)="buttonClick()" class="btn btn-primary"
+            <button type="button" (click)="buttonClick(1)" class="btn btn-primary me-1"
                 [disabled]="loading">
-                <ng-container *ngIf="displayEdit">
-                <i class="bi bi-pencil-square"></i> Edit <span
+                <i class="bi bi-pencil-square"></i> Edit Details <span
                     class="spinner-border spinner-border-sm ms-1" role="status" aria-hidden="true"
                     *ngIf="loading"></span>
-                </ng-container>
-                <ng-container *ngIf="!displayEdit">
-                    <i class="bi bi-hammer"></i> Build <span
-                        class="spinner-border spinner-border-sm ms-1" role="status" aria-hidden="true"
-                        *ngIf="loading"></span>
-                    </ng-container>
+                </button>
+            <button type="button" (click)="buttonClick(2)" class="btn btn-primary me-1"
+                [disabled]="loading">
+                <i class="bi bi-pencil-square"></i> Edit Timeline <span
+                    class="spinner-border spinner-border-sm ms-1" role="status" aria-hidden="true"
+                    *ngIf="loading"></span>
+                </button>
+                <button type="button" (click)="buttonClick(3)" class="btn btn-primary me-1"
+                [disabled]="loading">
+                <i class="bi bi-hammer"></i> Build <span
+                    class="spinner-border spinner-border-sm ms-1" role="status" aria-hidden="true"
+                    *ngIf="loading"></span>
                 </button>
         </li>
     </ul>

@@ -13,9 +13,8 @@ export class GalleryvideoComponent implements OnInit {
 
   @Input() video!: Video
   @Input() loading = false;
-  @Input() displayEdit = true;
 
-  @Output() buttonClickEvent = new EventEmitter<Video>();
+  @Output() buttonClickEvent = new EventEmitter<{video: Video, tab: number}>();
 
   Formats = Formats;
   constructor() { }
@@ -23,8 +22,8 @@ export class GalleryvideoComponent implements OnInit {
   ngOnInit(): void {
   }
 
-  buttonClick = () => {
-    this.buttonClickEvent.emit(this.video);
+  buttonClick = (tab: number) => {
+    this.buttonClickEvent.emit({video: this.video, tab: tab});
   }
 
   getClipIndex = (isTop: boolean, isLeft: boolean) => {
