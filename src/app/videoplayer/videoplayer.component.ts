@@ -22,6 +22,8 @@ export class VideoplayerComponent implements OnInit {
   get hasAudioFile() {
     return this.audioPlayer.src?.length > 0;
   }
+  file: File | null = null;
+
   @Input() video!: Video;
 
   get clipDurationSeconds() {
@@ -143,6 +145,7 @@ export class VideoplayerComponent implements OnInit {
     const files = (event.target as HTMLInputElement).files;
     if (files) {
       this.audioPlayer.src = URL.createObjectURL(files[0]);
+      this.file = files[0];
     }
   }
 

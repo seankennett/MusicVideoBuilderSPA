@@ -286,7 +286,10 @@
                             <p>This button enables you to download low resolution watermarked assets along with your
                                 ffmpeg code in order to build a video to check it all works</p>
                             <button type="button" class="btn btn-secondary" (click)="freeDownload()"
-                                [disabled]="generatingZip"><i class="bi bi-download"></i> Test Download</button>
+                                [disabled]="generatingZip"><i class="bi bi-download"></i> Test Download</button>                            
+                        </div>
+                        <div class="mb-3" *ngIf="videoplayer && !videoplayer.hasAudioFile">
+                            <ngb-alert [type]="'warning'" [dismissible]="false"><i class="bi bi-exclamation-triangle-fill"></i> No audio file selected, if you don't want audio then please continue otherwise go to timeline view to add.</ngb-alert>
                         </div>
                         <div class="mb-3" *ngIf="generatingZip">
                             <label class="form-label">Creating zip progress</label>

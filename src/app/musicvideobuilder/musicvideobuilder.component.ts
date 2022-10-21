@@ -33,7 +33,7 @@ const frameTotal = 64;
 })
 export class MusicVideoBuilderComponent implements OnInit {
 
-  constructor(private formBuilder: FormBuilder, private videoService: VideoService, private clipService: ClipService, private videoAssetService: VideoassetsService, 
+  constructor(private formBuilder: FormBuilder, private videoService: VideoService, private clipService: ClipService, private videoAssetService: VideoassetsService,
     private datePipe: DatePipe, private route: ActivatedRoute, private location: Location) { }
 
   ngOnInit(): void {
@@ -42,13 +42,13 @@ export class MusicVideoBuilderComponent implements OnInit {
         alert('Something went wrong on the server, try again!');
         return throwError(() => new Error('Something went wrong on the server, try again!'));
       })
-    ).subscribe((videos: Video[]) => {      
+    ).subscribe((videos: Video[]) => {
       var id = Number(this.route.firstChild?.snapshot?.params['id']);
       var tab = Number(this.route.firstChild?.snapshot?.queryParams['tab']);;
-      if (!isNaN(id) && !isNaN(tab)){
+      if (!isNaN(id) && !isNaN(tab)) {
         var video = videos.find(x => x.videoId === id);
-        if (video){
-          this.editVideo({video: video, tab: tab}, 0);
+        if (video) {
+          this.editVideo({ video: video, tab: tab }, 0);
         }
       }
       this.videos = videos;
@@ -76,11 +76,11 @@ export class MusicVideoBuilderComponent implements OnInit {
   ]
 
   videoId: number = 0;
-  setVideoId = (videoId: number, tabId: number | null) =>{
+  setVideoId = (videoId: number, tabId: number | null) => {
     this.videoId = videoId;
-    if (videoId === 0 || tabId === null){
+    if (videoId === 0 || tabId === null) {
       this.location.replaceState('/musicVideoBuilder/');
-    }else{    
+    } else {
       this.setTabId(tabId);
     }
   }
@@ -184,7 +184,7 @@ export class MusicVideoBuilderComponent implements OnInit {
     this.activeTabId = activeTabId;
   }
 
-  navChange = (navEvent: NgbNavChangeEvent) =>{
+  navChange = (navEvent: NgbNavChangeEvent) => {
     this.location.replaceState('/musicVideoBuilder/' + this.videoId + '?tab=' + navEvent.nextId);
   }
 
@@ -195,7 +195,7 @@ export class MusicVideoBuilderComponent implements OnInit {
   editorLoading = false;
   unchangedVideo: Video = <Video>{};
 
-  editVideo = (videoRoute: {video: Video, tab: number}, delay: number) => {
+  editVideo = (videoRoute: { video: Video, tab: number }, delay: number) => {
     this.editorLoading = true;
     // PLEASE WORK OUT HOW TO DO THIS PROPERLY!
     timer(delay).subscribe(() => {
@@ -515,7 +515,7 @@ export class MusicVideoBuilderComponent implements OnInit {
 
     this.generatingZip = true;
     // call server to get ffmpeg code and send back asset ids (this should be accurate in memeory but better to have proper validation)
-    this.videoAssetService.get(this.videoId, true).pipe(
+    this.videoAssetService.get(this.videoId, true, this.videoplayer?.file?.name).pipe(
       catchError((error: HttpErrorResponse) => {
         alert('Something went wrong on the server, try again!');
         this.generatingZip = false;
@@ -524,7 +524,9 @@ export class MusicVideoBuilderComponent implements OnInit {
     ).subscribe((videoAssets: VideoAssets) => {
       var videoName = this.editorVideo.videoName;
       var zip = new JSZip();
-
+      if (this.videoplayer?.file?.name) {
+        zip.file(this.videoplayer?.file?.name, this.videoplayer?.file)
+      }
       var that = this;
       var imagePromises: any[] = [];
       videoAssets.imageUrls.forEach((imageUrl) => {
