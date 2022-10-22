@@ -1,7 +1,8 @@
+import { Ffmpegcode } from "./ffmpegcode";
 import { Imagemetadata } from "./imagemetadata";
 
 export interface VideoAssets {
-    code: string,
+    videoName: string,
     imageUrls: Imagemetadata[],
-    videoName:string
+    ffmpegCode:Ffmpegcode
 }

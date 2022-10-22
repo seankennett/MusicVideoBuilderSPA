@@ -526,6 +526,9 @@ export class MusicVideoBuilderComponent implements OnInit {
       if (this.videoplayer?.file?.name) {
         zip.file(this.videoplayer?.file?.name, this.videoplayer?.file)
       }
+      zip.file('filter.txt', videoAssets.ffmpegCode.filterComplexScript);
+      zip.file('command.txt', videoAssets.ffmpegCode.command);
+      
       var that = this;
       var imagePromises: any[] = [];
       videoAssets.imageUrls.forEach((imageUrl) => {
