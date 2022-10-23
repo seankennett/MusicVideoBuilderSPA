@@ -37,7 +37,7 @@ steps:
     app_location: '/dist/$(appName)'
     api_location: 'api'
     output_location: '$(Build.Repository.LocalPath)/dist/$(appName)'
-    config_file_location: '/assets'
+    config_file_location: '/dist/$(appName)/assets'
     azure_static_web_apps_api_token: $(StaticWebAppDeploymentToken)    
 - task: PowerShell@2
   displayName: 'Clear Cloudflare Cache'
