@@ -24,6 +24,7 @@ import { BpmcontrolComponent } from './bpmcontrol/bpmcontrol.component';
 import { DatePipe } from '@angular/common';
 import { GalleryvideoComponent } from './galleryvideo/galleryvideo.component';
 import { VideoplayerComponent } from './videoplayer/videoplayer.component';
+import { NotfoundComponent } from './notfound/notfound.component';
 
 /**
  * Here we pass the configuration parameters to create an MSAL instance.
@@ -79,7 +80,8 @@ export function MSALGuardConfigFactory(): MsalGuardConfiguration {
     BreadcrumbComponent,
     BpmcontrolComponent,
     GalleryvideoComponent,
-    VideoplayerComponent
+    VideoplayerComponent,
+    NotfoundComponent
   ],
   imports: [
     BrowserModule,

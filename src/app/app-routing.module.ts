@@ -8,6 +8,7 @@ import { LayerFinderComponent } from './layerfinder/layerfinder.component';
 import { LayerUploadComponent } from './layerupload/layerupload.component';
 import { MyLibraryComponent } from './mylibrary/mylibrary.component';
 import { MusicVideoBuilderComponent } from './musicvideobuilder/musicvideobuilder.component';
+import { NotfoundComponent } from './notfound/notfound.component';
 
 const routes: Routes = [
   {
@@ -61,24 +62,13 @@ const routes: Routes = [
     ]
   },
   {
-  // Needed for hash routing
-  path: 'error',
-  component: HomeComponent
-},
-{
-  // Needed for hash routing
-  path: 'state',
-  component: HomeComponent
-},
-{
-  // Needed for hash routing
-  path: 'code',
-  component: HomeComponent
-},
-{
-  path: '',
-  component: HomeComponent
-}
+    path: '',
+    component: HomeComponent
+  },
+  {
+    path: '**',
+    component: NotfoundComponent
+  }
 ];
 
 const isIframe = window !== window.parent && !window.opener;

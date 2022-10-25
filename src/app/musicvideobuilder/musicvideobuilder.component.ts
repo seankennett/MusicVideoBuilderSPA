@@ -509,16 +509,21 @@ export class MusicVideoBuilderComponent implements OnInit {
     }
   }
 
+  showZipInstructions = false;
   generatingZip = false;
+  isGettingCode = false;
+  isDownloadingZip = false;
   zipProgress = 0;
   freeDownload = async () => {
 
     this.generatingZip = true;
+    this.isGettingCode = true;
     // call server to get ffmpeg code and send back asset ids (this should be accurate in memeory but better to have proper validation)
     this.videoAssetService.get(this.videoId, true, this.videoplayer?.file?.name).pipe(
       catchError((error: HttpErrorResponse) => {
         alert('Something went wrong on the server, try again!');
         this.generatingZip = false;
+        this.isGettingCode = false;
         return throwError(() => new Error('Something went wrong on the server, try again!'));
       })
     ).subscribe((videoAssets: VideoAssets) => {
@@ -555,6 +560,7 @@ export class MusicVideoBuilderComponent implements OnInit {
                       folder.file(i + '.png', blob);
                     }
                     that.zipProgress += 100 / videoAssets.imageUrls.length / frameTotal;
+                    that.isGettingCode = false;
                     blobResolve("");
                   });
                 }
@@ -572,11 +578,14 @@ export class MusicVideoBuilderComponent implements OnInit {
       });
 
       Promise.all(imagePromises).then(async x => {
+        this.isDownloadingZip = true;
         await zip.generateAsync({ type: "blob" }).then(function (content) {
           // see FileSaver.js
           saveAs(content, videoAssets.videoName + ".zip");
           that.generatingZip = false;
+          that.isDownloadingZip = false;
           that.zipProgress = 0;
+          that.showZipInstructions = true;
         });
       });
     });
