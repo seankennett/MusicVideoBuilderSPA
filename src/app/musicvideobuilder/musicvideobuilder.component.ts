@@ -509,7 +509,6 @@ export class MusicVideoBuilderComponent implements OnInit {
     }
   }
 
-  showZipInstructions = false;
   generatingZip = false;
   isGettingCode = false;
   isDownloadingZip = false;
@@ -585,7 +584,6 @@ export class MusicVideoBuilderComponent implements OnInit {
           that.generatingZip = false;
           that.isDownloadingZip = false;
           that.zipProgress = 0;
-          that.showZipInstructions = true;
         });
       });
     });
