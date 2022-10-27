@@ -13,7 +13,7 @@ import { Userlayerstatus } from '../userlayerstatus';
 import { UserLayer } from '../userlayer';
 import * as JSZip from 'jszip';
 import { saveAs } from 'file-saver';
-import { guess, analyze } from 'web-audio-beat-detector';
+import { guess } from 'web-audio-beat-detector';
 import { VideoassetsService } from '../videoassets.service';
 import { VideoAssets } from '../videoassets';
 import { ActivatedRoute } from '@angular/router';
