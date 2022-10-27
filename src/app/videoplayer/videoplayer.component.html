@@ -30,18 +30,3 @@
         </ul>
     </div>
 </div>
-<div class="mb-3">
-    <ngb-alert [type]="'info'" [dismissible]="false"><i class="bi bi-info-circle-fill"></i> Your
-        audio file must be of a constant bpm for this to work properly. Also note that each clip is
-        four beats in length so your audio can't miss one, two or three beats.</ngb-alert>
-</div>
-<div class="mb-3">
-    <label for="audioFile" class="form-label">Audio File Selector</label>
-    <input class="form-control" type="file" id="audioFile" accept=".mp3" (change)="onFileUpload($event)" />
-    <div class="form-text">
-        This is to add audio when you play your video in the final video player in the timeline
-        section and is optional. If this is an existing
-        video you will need to select your track again as we don't upload these files. Also
-        limited to mp3 format due to browser restrictions.
-    </div>
-</div>

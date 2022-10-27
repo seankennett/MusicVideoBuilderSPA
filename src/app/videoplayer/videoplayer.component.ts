@@ -22,7 +22,6 @@ export class VideoplayerComponent implements OnInit {
   get hasAudioFile() {
     return this.audioPlayer.src?.length > 0;
   }
-  file: File | null = null;
 
   @Input() video!: Video;
 
@@ -140,13 +139,4 @@ export class VideoplayerComponent implements OnInit {
   setSelectedClipIndex = (index: number) => {
     this.setSelectedIndexEvent.emit(index);
   }
-
-  onFileUpload = (event: any) => {
-    const files = (event.target as HTMLInputElement).files;
-    if (files) {
-      this.audioPlayer.src = URL.createObjectURL(files[0]);
-      this.file = files[0];
-    }
-  }
-
 }

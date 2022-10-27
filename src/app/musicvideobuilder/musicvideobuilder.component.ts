@@ -13,6 +13,7 @@ import { Userlayerstatus } from '../userlayerstatus';
 import { UserLayer } from '../userlayer';
 import * as JSZip from 'jszip';
 import { saveAs } from 'file-saver';
+import { guess, analyze } from 'web-audio-beat-detector';
 import { VideoassetsService } from '../videoassets.service';
 import { VideoAssets } from '../videoassets';
 import { ActivatedRoute } from '@angular/router';
@@ -289,6 +290,8 @@ export class MusicVideoBuilderComponent implements OnInit {
     this.setTimelineEnd(2);
     this.stop();
     this.setSelectedClipIndex(0);
+    this.guessedBpm = null;
+    this.guessedVideoDelay = null;
 
     this.activeTabId = 1;
     this.showClipPicker = false;
@@ -509,6 +512,41 @@ export class MusicVideoBuilderComponent implements OnInit {
     }
   }
 
+  file: File | null = null;
+
+  guessedBpm: number | null = null;
+  guessedVideoDelay: number | null = null;
+  guessingBpm = false;
+
+  onFileUpload = (event: any) => {
+    this.guessedBpm = null;
+    this.guessedVideoDelay = null;
+    this.stop();
+    const files = (event.target as HTMLInputElement).files;
+
+    if (files && files.length === 1) {
+      this.videoplayer.audioPlayer.src = URL.createObjectURL(files[0]);
+      this.file = files[0];
+      this.guessingBpm = true;
+      this.file.arrayBuffer().then(arrayBuffer => {
+        const audioContext = new AudioContext();
+        audioContext.decodeAudioData(arrayBuffer).then(audioBuffer => {
+          guess(audioBuffer).then(({ bpm, offset }) => {
+            this.guessingBpm = false;
+            this.guessedBpm = { bpm, offset }.bpm;
+            this.guessedVideoDelay = Math.round({ bpm, offset }.offset * millisecondsInSecond);
+          })
+            .catch((err) => {
+              this.guessingBpm = false;
+            });
+        });
+      });
+    } else {
+      this.videoplayer.audioPlayer = new Audio();
+      this.file = null;
+    }
+  }
+
   generatingZip = false;
   isGettingCode = false;
   isDownloadingZip = false;
@@ -518,7 +556,7 @@ export class MusicVideoBuilderComponent implements OnInit {
     this.generatingZip = true;
     this.isGettingCode = true;
     // call server to get ffmpeg code and send back asset ids (this should be accurate in memeory but better to have proper validation)
-    this.videoAssetService.get(this.videoId, true, this.videoplayer?.file?.name).pipe(
+    this.videoAssetService.get(this.videoId, true, this.file?.name).pipe(
       catchError((error: HttpErrorResponse) => {
         alert('Something went wrong on the server, try again!');
         this.generatingZip = false;
@@ -527,12 +565,12 @@ export class MusicVideoBuilderComponent implements OnInit {
       })
     ).subscribe((videoAssets: VideoAssets) => {
       var zip = new JSZip();
-      if (this.videoplayer?.file?.name) {
-        zip.file(this.videoplayer?.file?.name, this.videoplayer?.file)
+      if (this.file?.name) {
+        zip.file(this.file?.name, this.file)
       }
       zip.file('filter.txt', videoAssets.ffmpegCode.filterComplexScript);
       zip.file('command.txt', videoAssets.ffmpegCode.command);
-      
+
       var that = this;
       var imagePromises: any[] = [];
       videoAssets.imageUrls.forEach((imageUrl) => {
