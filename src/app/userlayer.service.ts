@@ -7,7 +7,6 @@ import { UserLayer } from './userlayer';
   providedIn: 'root'
 })
 export class UserlayerService {
-
   url = protectedResources.userLayerApi.endpoint
 
   constructor(private http: HttpClient) { }
@@ -18,5 +17,9 @@ export class UserlayerService {
 
   postUserLayer(userLayer: UserLayer){
     return this.http.post<UserLayer>(this.url, userLayer);
+  }
+
+  delete(userLayerId: number) {
+    return this.http.delete(this.url + '/' + userLayerId);
   }
 }

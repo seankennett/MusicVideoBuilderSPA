@@ -8,7 +8,6 @@ import { Video } from './video';
   providedIn: 'root'
 })
 export class VideoService {
-
   url = environment.apiEndpoint + '/Videos'
 
   constructor(private http: HttpClient) { }
@@ -19,5 +18,9 @@ export class VideoService {
 
   getAll(){
     return this.http.get<Video[]>(this.url);
+  }
+
+  delete(videoId: number) {
+    return this.http.delete(this.url + '/' + videoId);
   }
 }

@@ -19,4 +19,8 @@ export class ClipService {
   getAll(){
     return this.http.get<Clip[]>(this.url);
   }
+
+  delete(clipId: number) {
+    return this.http.delete(this.url + '/' + clipId);
+  }
 }

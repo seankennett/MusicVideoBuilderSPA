@@ -21,6 +21,8 @@ export class GalleryplayerComponent implements OnInit, OnChanges {
   @Output() addButtonClickLayerEvent = new EventEmitter<Layer>();
   @Output() addButtonClickClipEvent = new EventEmitter<Clip>();
   @Output() editButtonClickClipEvent = new EventEmitter<Clip>();
+  @Output() removeButtonClickClipEvent = new EventEmitter<Clip>();
+  @Output() removeButtonClickLayerEvent = new EventEmitter<Layer>();
 
   @Input() bpm!: number;
   @Input() isPlaying: boolean = false;
@@ -93,7 +95,8 @@ export class GalleryplayerComponent implements OnInit, OnChanges {
   }
 
   removeButtonClick = () => {
-    
+    this.removeButtonClickClipEvent.emit(this.clip);
+    this.removeButtonClickLayerEvent.emit(this.layer);
   }
 
   editButtonClick = () => {

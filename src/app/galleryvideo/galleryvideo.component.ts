@@ -13,6 +13,8 @@ export class GalleryvideoComponent implements OnInit {
 
   @Input() video!: Video
   @Input() loading = false;
+  @Input() showEdit = true;
+  @Input() showRemove = false;
 
   @Output() buttonClickEvent = new EventEmitter<{video: Video, tab: number}>();
 

@@ -9,7 +9,7 @@
     <h5 class="card-header">{{video.videoName}}.{{Formats[video.format]}}</h5>
     <ul class="list-group list-group-flush">
         <li class="list-group-item">BPM: {{video.bpm}}</li>
-        <li class="list-group-item">
+        <li class="list-group-item" *ngIf="showEdit">
             <button type="button" (click)="buttonClick(1)" class="btn btn-primary me-1"
                 [disabled]="loading">
                 <i class="bi bi-pencil-square"></i> Edit Details <span
@@ -25,6 +25,14 @@
                 <button type="button" (click)="buttonClick(3)" class="btn btn-primary me-1"
                 [disabled]="loading">
                 <i class="bi bi-hammer"></i> Build <span
+                    class="spinner-border spinner-border-sm ms-1" role="status" aria-hidden="true"
+                    *ngIf="loading"></span>
+                </button>
+        </li>
+        <li class="list-group-item" *ngIf="showRemove">
+            <button type="button" (click)="buttonClick(1)" class="btn btn-danger"
+                [disabled]="loading">
+                <i class="bi bi-dash-circle-fill"></i> Remove <span
                     class="spinner-border spinner-border-sm ms-1" role="status" aria-hidden="true"
                     *ngIf="loading"></span>
                 </button>
