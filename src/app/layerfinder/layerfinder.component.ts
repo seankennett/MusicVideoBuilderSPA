@@ -106,7 +106,7 @@ export class LayerFinderComponent implements OnInit {
   selectedTags: string[] = [];
 
   get hasBackground() {
-    return this.layerFinders.some(x => (x.userLayerStatus === Userlayerstatus.Saved || x.userLayerStatus === Userlayerstatus.Bought) && x.layerType === Layertypes.Background);
+    return this.layerFinders.some(x => x.layerType === Layertypes.Background);
   }
 
   formatter = (tag: string) => tag;
@@ -159,7 +159,7 @@ export class LayerFinderComponent implements OnInit {
     ).subscribe();
   }
 
-  disableLayer = (layer: Layer) => !this.isLoggedIn || layer?.userLayerStatus === Userlayerstatus.Bought || layer?.userLayerStatus === Userlayerstatus.Saved;
+  disableLayer = (layer: Layer) => !this.isLoggedIn || layer?.userLayerStatus != null;
 
   disableLayerTooltip = (layer: Layer) => {
     if (!this.isLoggedIn){
