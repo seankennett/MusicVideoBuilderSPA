@@ -44,24 +44,23 @@ export class MusicVideoBuilderComponent implements OnInit {
         return throwError(() => new Error('Something went wrong on the server, try again!'));
       })
     ).subscribe((videos: Video[]) => {
-      var id = Number(this.route.firstChild?.snapshot?.params['id']);
-      var tab = Number(this.route.firstChild?.snapshot?.queryParams['tab']);;
-      if (!isNaN(id) && !isNaN(tab)) {
-        var video = videos.find(x => x.videoId === id);
-        if (video) {
-          this.editVideo({ video: video, tab: tab }, 0);
+      this.clipService.getAll().pipe(
+        catchError((error: HttpErrorResponse) => {
+          alert('Something went wrong on the server, try again!');
+          return throwError(() => new Error('Something went wrong on the server, try again!'));
+        })
+      ).subscribe((clips: Clip[]) => {
+        var id = Number(this.route.firstChild?.snapshot?.params['id']);
+        var tab = Number(this.route.firstChild?.snapshot?.queryParams['tab']);;
+        if (!isNaN(id) && !isNaN(tab)) {
+          var video = videos.find(x => x.videoId === id);
+          if (video) {
+            this.editVideo({ video: video, tab: tab }, 0);
+          }
         }
-      }
-      this.videos = videos;
-    });
-
-    this.clipService.getAll().pipe(
-      catchError((error: HttpErrorResponse) => {
-        alert('Something went wrong on the server, try again!');
-        return throwError(() => new Error('Something went wrong on the server, try again!'));
-      })
-    ).subscribe((clips: Clip[]) => {
-      this.clips = clips
+        this.videos = videos;
+        this.clips = clips
+      });
     });
   }
 

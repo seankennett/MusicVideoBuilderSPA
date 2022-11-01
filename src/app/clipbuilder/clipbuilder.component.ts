@@ -22,29 +22,28 @@ export class ClipBuilderComponent implements OnInit {
   constructor(private formBuilder: FormBuilder, private userLayerService: UserlayerService, private clipService: ClipService, private route: ActivatedRoute, private location: Location) { }
 
   ngOnInit(): void {
-    this.userLayerService.getAll().pipe(
-      catchError((error: HttpErrorResponse) => {
-        alert('Something went wrong on the server, try again!');
-        return throwError(() => new Error('Something went wrong on the server, try again!'));
-      })
-    ).subscribe((userLayers: UserLayer[]) => {
-      this.userLayers = userLayers
-    });
-
     this.clipService.getAll().pipe(
       catchError((error: HttpErrorResponse) => {
         alert('Something went wrong on the server, try again!');
         return throwError(() => new Error('Something went wrong on the server, try again!'));
       })
     ).subscribe((clips: Clip[]) => {
-      this.clips = clips;
-      var id = Number(this.route.firstChild?.snapshot?.params['id']);
-      if (!isNaN(id)){
-        var clip = clips.find(x => x.clipId === id);
-        if (clip){
-          this.editClip(clip);
+      this.userLayerService.getAll().pipe(
+        catchError((error: HttpErrorResponse) => {
+          alert('Something went wrong on the server, try again!');
+          return throwError(() => new Error('Something went wrong on the server, try again!'));
+        })
+      ).subscribe((userLayers: UserLayer[]) => {
+        this.clips = clips;
+        var id = Number(this.route.firstChild?.snapshot?.params['id']);
+        if (!isNaN(id)) {
+          var clip = clips.find(x => x.clipId === id);
+          if (clip) {
+            this.editClip(clip);
+          }
         }
-      }
+        this.userLayers = userLayers
+      });
     });
   }
 
@@ -53,11 +52,11 @@ export class ClipBuilderComponent implements OnInit {
   userLayers: UserLayer[] = [];
   clipId: number = 0;
 
-  setClipId = (clipId: number) =>{
+  setClipId = (clipId: number) => {
     this.clipId = clipId;
-    if (clipId === 0){
+    if (clipId === 0) {
       this.location.replaceState('/clipBuilder/');
-    }else{    
+    } else {
       this.location.replaceState('/clipBuilder/' + clipId);
     }
 
@@ -71,7 +70,7 @@ export class ClipBuilderComponent implements OnInit {
     return this.userLayers.filter(l => l.layerType === Layertypes.Foreground);
   }
 
-  get hasClip(){
+  get hasClip() {
     return this.clips.length > 0;
   }
 
@@ -100,7 +99,7 @@ export class ClipBuilderComponent implements OnInit {
     this.isAddingLayer = !this.isAddingLayer;
   }
 
-  closeWarning = () =>{
+  closeWarning = () => {
     this.showExistingClipWarning = false;
   }
 
@@ -128,11 +127,11 @@ export class ClipBuilderComponent implements OnInit {
   saving = false;
 
   unchangedClip: Clip = <Clip>{};
-  noClipChanges = () =>{
+  noClipChanges = () => {
     return JSON.stringify(this.unchangedClip) === JSON.stringify(this.editorClip);
   }
 
-  get editorClip() : Clip {
+  get editorClip(): Clip {
     return <Clip>{
       clipId: this.clipId,
       clipName: this.clipNameControl.value,
@@ -174,7 +173,7 @@ export class ClipBuilderComponent implements OnInit {
       }
     });
 
-    this.unchangedClip = {...this.editorClip};
+    this.unchangedClip = { ...this.editorClip };
   }
 
   disableLayer = (layer: Layer) => {
@@ -190,18 +189,17 @@ export class ClipBuilderComponent implements OnInit {
 
   canAddLayer = () => {
     //return this.userLayers && this.userLayers.length !== 0 && this.userBackgrounds.length !== 0 && (this.userForegrounds.length !== 0 || this.layersFormArray.length === 0);
-    if (this.userLayers && this.userLayers.length !== 0 && this.userBackgrounds.length !== 0 && (this.userForegrounds.length !== 0 || this.layersFormArray.length === 0)){
+    if (this.userLayers && this.userLayers.length !== 0 && this.userBackgrounds.length !== 0 && (this.userForegrounds.length !== 0 || this.layersFormArray.length === 0)) {
       return true;
-    } 
+    }
 
     return false;
   }
 
-  canAddLayerTooltip = () =>{
-    if (!this.userLayers || this.userLayers.length === 0 || this.userBackgrounds.length === 0) { 
+  canAddLayerTooltip = () => {
+    if (!this.userLayers || this.userLayers.length === 0 || this.userBackgrounds.length === 0) {
       return 'You must select a minimum of one background layer';
-    } else if (this.userForegrounds.length === 0 && this.layersFormArray.length > 0)
-    {
+    } else if (this.userForegrounds.length === 0 && this.layersFormArray.length > 0) {
       return 'You must select a foreground to be able to add more';
     }
 
@@ -210,11 +208,11 @@ export class ClipBuilderComponent implements OnInit {
 
   bpm: number = 0;
   isPlaying: boolean = false;
-  setBpm = (bpm: number) =>{
+  setBpm = (bpm: number) => {
     this.bpm = bpm;
   }
 
-  setIsPlaying = (isPlaying: boolean) =>{
+  setIsPlaying = (isPlaying: boolean) => {
     this.isPlaying = isPlaying;
   }
 }
