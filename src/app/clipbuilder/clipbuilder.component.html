@@ -20,7 +20,7 @@
     </ng-container>
     <div [ngbTooltip]="canAddLayerTooltip()" placement="right" *ngIf="!showEditor" class="mb-3">
         <button type="button" class="btn btn-success" (click)="toggleEditor()" [disabled]="!canAddLayer()"><i
-                class="bi bi-dash-circle-fill"></i>
+                class="bi bi-plus-circle-fill"></i>
             Add new clip</button>
     </div>
     <ng-container *ngIf="showEditor">

@@ -136,7 +136,7 @@
                                     (click)="setTabId(2)">Go to timeline</button>
                             </span>
                             <span [ngbTooltip]="noVideoEditorChangesTooltip()">
-                                <button type="button" [disabled]="!noVideoEditorChanges()" class="btn btn-secondary"
+                                <button type="button" [disabled]="!noVideoEditorChanges()" [ngClass]="noVideoEditorChanges() ? 'btn btn-primary' : 'btn btn-secondary'"
                                     (click)="setTabId(3)">Go to builder</button>
                             </span>
                         </div>
@@ -300,7 +300,7 @@
                             <button type="button" class="btn btn-secondary me-1" (click)="setTabId(1)">Go to
                                 details</button>
                             <span [ngbTooltip]="noVideoEditorChangesTooltip()">
-                                <button type="button" [disabled]="!noVideoEditorChanges()" class="btn btn-secondary"
+                                <button type="button" [disabled]="!noVideoEditorChanges()" [ngClass]="noVideoEditorChanges() ? 'btn btn-primary' : 'btn btn-secondary'"
                                     (click)="setTabId(3)">Go to builder</button>
                             </span>
                         </div>
