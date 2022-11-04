@@ -53,7 +53,8 @@
             </ng-container>
         </div>
         <div class="mb-3" *ngIf="guessedBpm && guessedVideoDelay">
-            <ngb-alert [type]="'info'" [dismissible]="false"><i class="bi bi-info-circle-fill"></i> Our analysis estimates your bpm as {{guessedBpm}} and video delay as {{guessedVideoDelay}} milliseconds.</ngb-alert>
+            <ngb-alert [type]="'info'" [dismissible]="false"><i class="bi bi-info-circle-fill"></i> Our analysis
+                estimates your bpm as {{guessedBpm}} and video delay as {{guessedVideoDelay}} milliseconds.</ngb-alert>
         </div>
         <form [formGroup]="videoForm" (ngSubmit)="onSubmit()">
             <ul ngbNav #nav="ngbNav" class="nav-tabs" [(activeId)]="activeTabId" [destroyOnHide]="false"
@@ -136,7 +137,8 @@
                                     (click)="setTabId(2)">Go to timeline</button>
                             </span>
                             <span [ngbTooltip]="noVideoEditorChangesTooltip()">
-                                <button type="button" [disabled]="!noVideoEditorChanges()" [ngClass]="noVideoEditorChanges() ? 'btn btn-primary' : 'btn btn-secondary'"
+                                <button type="button" [disabled]="!noVideoEditorChanges()"
+                                    [ngClass]="noVideoEditorChanges() ? 'btn btn-primary' : 'btn btn-secondary'"
                                     (click)="setTabId(3)">Go to builder</button>
                             </span>
                         </div>
@@ -300,7 +302,8 @@
                             <button type="button" class="btn btn-secondary me-1" (click)="setTabId(1)">Go to
                                 details</button>
                             <span [ngbTooltip]="noVideoEditorChangesTooltip()">
-                                <button type="button" [disabled]="!noVideoEditorChanges()" [ngClass]="noVideoEditorChanges() ? 'btn btn-primary' : 'btn btn-secondary'"
+                                <button type="button" [disabled]="!noVideoEditorChanges()"
+                                    [ngClass]="noVideoEditorChanges() ? 'btn btn-primary' : 'btn btn-secondary'"
                                     (click)="setTabId(3)">Go to builder</button>
                             </span>
                         </div>
@@ -313,8 +316,31 @@
                         <div class="mb-3">
                             <p>This button enables you to download low resolution watermarked assets along with your
                                 ffmpeg code in order to build a video to check it all works</p>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="" id="includeCodeFiles"
+                                    [(ngModel)]="includeCodeFiles" [ngModelOptions]="{standalone: true}">
+                                <label class="form-check-label" for="includeCode">
+                                    Include code files in zip
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="" id="includeImageFiles"
+                                    [(ngModel)]="includeImageFiles" [ngModelOptions]="{standalone: true}">
+                                <label class="form-check-label" for="includeImages">
+                                    Include image files in zip
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="" id="includeAudioFile"
+                                    [(ngModel)]="includeAudioFile" [ngModelOptions]="{standalone: true}"
+                                    [disabled]="file === null">
+                                <label class="form-check-label" for="includeAudioFile">
+                                    Include audio file in zip
+                                </label>
+                            </div>
                             <button type="button" class="btn btn-secondary" (click)="freeDownload()"
-                                [disabled]="generatingZip"><i class="bi bi-download"></i> Test Download</button>
+                                [disabled]="generatingZip || (!includeImageFiles && !includeCodeFiles)"><i
+                                    class="bi bi-download"></i> Test Download</button>
                         </div>
                         <div class="mb-3" *ngIf="!file && !generatingZip">
                             <ngb-alert [type]="'warning'" [dismissible]="false"><i
@@ -323,17 +349,19 @@
                             </ngb-alert>
                         </div>
                         <div class="mb-3" *ngIf="generatingZip">
-                            <label class="form-label">Getting ffmpeg code</label>
+                            <label class="form-label">Getting required data</label>
                             <div class="progress">
                                 <div [ngClass]="{'progress-bar': true, 'progress-bar-animated': isGettingCode, 'progress-bar-striped': true}"
                                     role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
                                     style="width: 100%;"></div>
                             </div>
-                            <label class="form-label">Splitting sprites progress</label>
-                            <div class="progress">
-                                <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0"
-                                    aria-valuemax="100" [style.width]="zipProgress + '%'"></div>
-                            </div>
+                            <ng-container *ngIf="includeImageFiles">
+                                <label class="form-label">Splitting sprites progress</label>
+                                <div class="progress">
+                                    <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0"
+                                        aria-valuemax="100" [style.width]="zipProgress + '%'"></div>
+                                </div>
+                            </ng-container>
                             <label class="form-label">Generating zip</label>
                             <div class="progress">
                                 <div [ngClass]="{'progress-bar': true, 'progress-bar-animated': isDownloadingZip, 'progress-bar-striped': true}"

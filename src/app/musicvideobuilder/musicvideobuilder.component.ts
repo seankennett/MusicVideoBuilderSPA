@@ -524,6 +524,7 @@ export class MusicVideoBuilderComponent implements OnInit {
     const files = (event.target as HTMLInputElement).files;
 
     if (files && files.length === 1) {
+      this.includeAudioFile = true;
       this.videoplayer.audioPlayer.src = URL.createObjectURL(files[0]);
       this.file = files[0];
       this.guessingBpm = true;
@@ -543,8 +544,13 @@ export class MusicVideoBuilderComponent implements OnInit {
     } else {
       this.videoplayer.audioPlayer = new Audio();
       this.file = null;
+      this.includeAudioFile = false;
     }
   }
+
+  includeCodeFiles = true;
+  includeImageFiles = true;
+  includeAudioFile = false;
 
   generatingZip = false;
   isGettingCode = false;
@@ -555,7 +561,7 @@ export class MusicVideoBuilderComponent implements OnInit {
     this.generatingZip = true;
     this.isGettingCode = true;
     // call server to get ffmpeg code and send back asset ids (this should be accurate in memeory but better to have proper validation)
-    this.videoAssetService.get(this.videoId, true, this.file?.name).pipe(
+    this.videoAssetService.get(this.videoId, true, this.includeAudioFile ? this.file?.name : undefined, this.includeCodeFiles, this.includeImageFiles).pipe(
       catchError((error: HttpErrorResponse) => {
         alert('Something went wrong on the server, try again!');
         this.generatingZip = false;
@@ -564,54 +570,59 @@ export class MusicVideoBuilderComponent implements OnInit {
       })
     ).subscribe((videoAssets: VideoAssets) => {
       var zip = new JSZip();
-      if (this.file?.name) {
-        zip.file(this.file?.name, this.file)
+      if (this.includeAudioFile && this.file?.name) {
+        zip.file(this.file.name, this.file)
       }
-      zip.file('filter.txt', videoAssets.ffmpegCode.filterComplexScript);
-      zip.file('command.txt', videoAssets.ffmpegCode.command);
+
+      if (this.includeCodeFiles === true) {
+        zip.file('filter.txt', videoAssets.ffmpegCode.filterComplexScript);
+        zip.file('command.txt', videoAssets.ffmpegCode.command);
+      }
 
       var that = this;
       var imagePromises: any[] = [];
-      videoAssets.imageUrls.forEach((imageUrl) => {
-        var folder = zip.folder(imageUrl.layerId);
-        var imagePromise = new Promise((resolve) => {
-          var spriteImage = new Image();
-          spriteImage.crossOrigin = '*';
-          spriteImage.onload = () => {
-            var blobPromises = [];
-            for (var i = 0; i < frameTotal; i++) {
-              var blobPromise = new Promise((blobResolve) => {
-                var canvas = document.createElement("canvas");
-                var canvasContext = canvas.getContext("2d");
+      if (this.includeImageFiles === true) {
+        videoAssets.imageUrls.forEach((imageUrl) => {
+          var folder = zip.folder(imageUrl.layerId);
+          var imagePromise = new Promise((resolve) => {
+            var spriteImage = new Image();
+            spriteImage.crossOrigin = '*';
+            spriteImage.onload = () => {
+              var blobPromises = [];
+              for (var i = 0; i < frameTotal; i++) {
+                var blobPromise = new Promise((blobResolve) => {
+                  var canvas = document.createElement("canvas");
+                  var canvasContext = canvas.getContext("2d");
 
-                canvas.width = imageWidth;
-                canvas.height = imageHeight;
+                  canvas.width = imageWidth;
+                  canvas.height = imageHeight;
 
-                canvasContext?.drawImage(spriteImage, i * imageWidth, 0, imageWidth, imageHeight, 0, 0, imageWidth, imageHeight);
+                  canvasContext?.drawImage(spriteImage, i * imageWidth, 0, imageWidth, imageHeight, 0, 0, imageWidth, imageHeight);
 
-                // stupid closures (i was always 63) without this
-                function toBlob(i: number) {
-                  canvas.toBlob(blob => {
-                    if (folder && blob) {
-                      folder.file(i + '.png', blob);
-                    }
-                    that.zipProgress += 100 / videoAssets.imageUrls.length / frameTotal;
-                    that.isGettingCode = false;
-                    blobResolve("");
-                  });
-                }
+                  // stupid closures (i was always 63) without this
+                  function toBlob(i: number) {
+                    canvas.toBlob(blob => {
+                      if (folder && blob) {
+                        folder.file(i + '.png', blob);
+                      }
+                      that.zipProgress += 100 / videoAssets.imageUrls.length / frameTotal;
+                      that.isGettingCode = false;
+                      blobResolve("");
+                    });
+                  }
 
-                toBlob(i);
-              });
-              blobPromises.push(blobPromise);
+                  toBlob(i);
+                });
+                blobPromises.push(blobPromise);
+              }
+
+              Promise.all(blobPromises).then(x => resolve(""));
             }
-
-            Promise.all(blobPromises).then(x => resolve(""));
-          }
-          spriteImage.src = imageUrl.url;
+            spriteImage.src = imageUrl.url;
+          });
+          imagePromises.push(imagePromise);
         });
-        imagePromises.push(imagePromise);
-      });
+      }
 
       Promise.all(imagePromises).then(async x => {
         this.isDownloadingZip = true;

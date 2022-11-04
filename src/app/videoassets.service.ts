@@ -13,7 +13,7 @@ export class VideoassetsService {
 
   constructor(private http: HttpClient) { }
 
-  get(videoId: number, free: boolean, audioFileName: string | undefined) {
-    return this.http.get<VideoAssets>(this.baseurl + '/' + videoId + '/Assets?free=' + free + '&audioFileName=' + (audioFileName ?? '') );
+  get(videoId: number, free: boolean, audioFileName: string | undefined, includeCodeFiles: boolean, includeImageFiles: boolean) {
+    return this.http.get<VideoAssets>(this.baseurl + '/' + videoId + '/Assets?free=' + free + '&audioFileName=' + (audioFileName ?? '') + '&includeCodes=' + includeCodeFiles + '&includeImages=' + includeImageFiles );
   }
 }
