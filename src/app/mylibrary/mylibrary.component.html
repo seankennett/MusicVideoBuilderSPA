@@ -3,66 +3,80 @@
     <h1><i class="bi bi-collection-fill"></i> My Library</h1>
     <p class="lead">My Library is the place to go to remove videos, clips and layers.
     </p>
-    <ng-container *ngIf="this.videos.length > 0">
-        <h2>Videos</h2>
-        <p>Videos have no dependencies so you can delete these without worrying what uses them.</p>
-        <div class="mb-3">
-            <div class="row">
-                <div *ngFor="let video of videos; let i = index" class="col-sm mb-3">
-                    <app-galleryvideo [video]="video" [showEdit]="false" [showRemove]="true" (buttonClickEvent)="removeVideo($event)" [loading]="loading">
-                    </app-galleryvideo>
-                </div>
-            </div>
-        </div>
-    </ng-container>
-    <ng-container *ngIf="this.dependentClips.length > 0">
-        <h2>Dependent Clips</h2>
-        <p>These clips have dependencies on videos.  The links below the clip go to the videos that use it.  You must remove the clip from all videos to make it independent and then you can remove it.</p>
-        <div class="mb-3">
-            <div class="row">
-                <div *ngFor="let dependentClip of dependentClips; let i = index" class="col-sm mb-3">
-                    <app-galleryplayer [clip]="dependentClip.clip" [showAdd]="false" [showEdit]="false" [showRemove]="false"></app-galleryplayer>
-                    <div class="list-group text-center">
-                        <a *ngFor="let video of dependentClip.videos" class="list-group-item" [routerLink]="['/musicVideoBuilder', video.videoId]" [queryParams]="{tab: 2}">Go to {{video.videoName}} video timeline</a>
+    <app-pageloading [pageLoading]="pageLoading"></app-pageloading>
+    <ng-container *ngIf="!pageLoading">
+        <ng-container *ngIf="this.videos.length > 0">
+            <h2>Videos</h2>
+            <p>Videos have no dependencies so you can delete these without worrying what uses them.</p>
+            <div class="mb-3">
+                <div class="row">
+                    <div *ngFor="let video of videos; let i = index" class="col-sm mb-3">
+                        <app-galleryvideo [video]="video" [showEdit]="false" [showRemove]="true"
+                            (buttonClickEvent)="removeVideo($event)" [loading]="loading">
+                        </app-galleryvideo>
                     </div>
                 </div>
             </div>
-        </div>
-    </ng-container>
-    <ng-container *ngIf="this.independentClips.length > 0">
-        <h2>Independent Clips</h2>
-        <p>Independent clips have no dependencies so you can delete these without worrying what uses them.</p>
-        <div class="mb-3">
-            <div class="row">
-                <div *ngFor="let independentClip of independentClips; let i = index" class="col-sm mb-3">
-                    <app-galleryplayer [clip]="independentClip" [showAdd]="false" [showEdit]="false" [showRemove]="true" (removeButtonClickClipEvent)="removeClip($event)"></app-galleryplayer>
-                </div>
-            </div>
-        </div>
-    </ng-container>
-    <ng-container *ngIf="this.dependentUserLayers.length > 0">
-        <h2>Dependent Layers</h2>
-        <p>These layers have dependencies on clips.  The links below the layer go to the clips that use it.  You must remove the layer from all clips to make it independent and then you can remove it.</p>
-        <div class="mb-3">
-            <div class="row">
-                <div *ngFor="let dependentUserLayer of dependentUserLayers; let i = index" class="col-sm mb-3">
-                    <app-galleryplayer [layer]="dependentUserLayer.userLayer" [showAdd]="false" [showEdit]="false" [showRemove]="false"></app-galleryplayer>
-                    <div class="list-group text-center">
-                        <a *ngFor="let clip of dependentUserLayer.clips" class="list-group-item" [routerLink]="['/clipBuilder', clip.clipId]">Go to {{clip.clipName}} clip builder</a>
+        </ng-container>
+        <ng-container *ngIf="this.dependentClips.length > 0">
+            <h2>Dependent Clips</h2>
+            <p>These clips have dependencies on videos. The links below the clip go to the videos that use it. You must
+                remove the clip from all videos to make it independent and then you can remove it.</p>
+            <div class="mb-3">
+                <div class="row">
+                    <div *ngFor="let dependentClip of dependentClips; let i = index" class="col-sm mb-3">
+                        <app-galleryplayer [clip]="dependentClip.clip" [showAdd]="false" [showEdit]="false"
+                            [showRemove]="false"></app-galleryplayer>
+                        <div class="list-group text-center">
+                            <a *ngFor="let video of dependentClip.videos" class="list-group-item"
+                                [routerLink]="['/musicVideoBuilder', video.videoId]" [queryParams]="{tab: 2}">Go to
+                                {{video.videoName}} video timeline</a>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </ng-container>
-    <ng-container *ngIf="this.independentUserLayers.length > 0">
-        <h2>Independent Layers</h2>
-        <p>Independent layers have no dependencies so you can delete these without worrying what uses them.</p>
-        <div class="mb-3">
-            <div class="row">
-                <div *ngFor="let independentUserLayer of independentUserLayers; let i = index" class="col-sm mb-3">
-                    <app-galleryplayer [layer]="independentUserLayer" [showAdd]="false" [showEdit]="false" [showRemove]="true" (removeButtonClickLayerEvent)="removeUserLayer($event)"></app-galleryplayer>
+        </ng-container>
+        <ng-container *ngIf="this.independentClips.length > 0">
+            <h2>Independent Clips</h2>
+            <p>Independent clips have no dependencies so you can delete these without worrying what uses them.</p>
+            <div class="mb-3">
+                <div class="row">
+                    <div *ngFor="let independentClip of independentClips; let i = index" class="col-sm mb-3">
+                        <app-galleryplayer [clip]="independentClip" [showAdd]="false" [showEdit]="false"
+                            [showRemove]="true" (removeButtonClickClipEvent)="removeClip($event)"></app-galleryplayer>
+                    </div>
                 </div>
             </div>
-        </div>
+        </ng-container>
+        <ng-container *ngIf="this.dependentUserLayers.length > 0">
+            <h2>Dependent Layers</h2>
+            <p>These layers have dependencies on clips. The links below the layer go to the clips that use it. You must
+                remove the layer from all clips to make it independent and then you can remove it.</p>
+            <div class="mb-3">
+                <div class="row">
+                    <div *ngFor="let dependentUserLayer of dependentUserLayers; let i = index" class="col-sm mb-3">
+                        <app-galleryplayer [layer]="dependentUserLayer.userLayer" [showAdd]="false" [showEdit]="false"
+                            [showRemove]="false"></app-galleryplayer>
+                        <div class="list-group text-center">
+                            <a *ngFor="let clip of dependentUserLayer.clips" class="list-group-item"
+                                [routerLink]="['/clipBuilder', clip.clipId]">Go to {{clip.clipName}} clip builder</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </ng-container>
+        <ng-container *ngIf="this.independentUserLayers.length > 0">
+            <h2>Independent Layers</h2>
+            <p>Independent layers have no dependencies so you can delete these without worrying what uses them.</p>
+            <div class="mb-3">
+                <div class="row">
+                    <div *ngFor="let independentUserLayer of independentUserLayers; let i = index" class="col-sm mb-3">
+                        <app-galleryplayer [layer]="independentUserLayer" [showAdd]="false" [showEdit]="false"
+                            [showRemove]="true" (removeButtonClickLayerEvent)="removeUserLayer($event)">
+                        </app-galleryplayer>
+                    </div>
+                </div>
+            </div>
+        </ng-container>
     </ng-container>
 </div>

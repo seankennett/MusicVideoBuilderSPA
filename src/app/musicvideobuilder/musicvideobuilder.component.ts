@@ -38,18 +38,8 @@ export class MusicVideoBuilderComponent implements OnInit {
     private datePipe: DatePipe, private route: ActivatedRoute, private location: Location) { }
 
   ngOnInit(): void {
-    this.videoService.getAll().pipe(
-      catchError((error: HttpErrorResponse) => {
-        alert('Something went wrong on the server, try again!');
-        return throwError(() => new Error('Something went wrong on the server, try again!'));
-      })
-    ).subscribe((videos: Video[]) => {
-      this.clipService.getAll().pipe(
-        catchError((error: HttpErrorResponse) => {
-          alert('Something went wrong on the server, try again!');
-          return throwError(() => new Error('Something went wrong on the server, try again!'));
-        })
-      ).subscribe((clips: Clip[]) => {
+    this.videoService.getAll().subscribe((videos: Video[]) => {
+      this.clipService.getAll().subscribe((clips: Clip[]) => {
         var id = Number(this.route.firstChild?.snapshot?.params['id']);
         var tab = Number(this.route.firstChild?.snapshot?.queryParams['tab']);;
         if (!isNaN(id) && !isNaN(tab)) {
@@ -59,10 +49,13 @@ export class MusicVideoBuilderComponent implements OnInit {
           }
         }
         this.videos = videos;
-        this.clips = clips
+        this.clips = clips;
+        this.pageLoading = false;
       });
     });
   }
+
+  pageLoading = true;
 
   @ViewChild(VideoplayerComponent) videoplayer!: VideoplayerComponent;
 
@@ -261,7 +254,7 @@ export class MusicVideoBuilderComponent implements OnInit {
     this.videoService.post(this.editorVideo).pipe(
       catchError((error: HttpErrorResponse) => {
         this.saving = false;
-        return throwError(() => new Error('Something went wrong on the server, try again!'));
+        return throwError(() => new Error());
       })
     ).subscribe(video => {
       this.saving = false;
@@ -563,10 +556,9 @@ export class MusicVideoBuilderComponent implements OnInit {
     // call server to get ffmpeg code and send back asset ids (this should be accurate in memeory but better to have proper validation)
     this.videoAssetService.get(this.videoId, true, this.includeAudioFile ? this.file?.name : undefined, this.includeCodeFiles, this.includeImageFiles).pipe(
       catchError((error: HttpErrorResponse) => {
-        alert('Something went wrong on the server, try again!');
         this.generatingZip = false;
         this.isGettingCode = false;
-        return throwError(() => new Error('Something went wrong on the server, try again!'));
+        return throwError(() => new Error());
       })
     ).subscribe((videoAssets: VideoAssets) => {
       var zip = new JSZip();

@@ -3,384 +3,402 @@
 </app-breadcrumb>
 <div class="container">
     <h1><i class="bi bi-hammer"></i> Music Video Builder</h1>
-    <p class="lead">Music video builder allows you to combine clips to either make a new video or edit an existing one.
+    <p class="lead">Music video builder allows you to combine clips to either make a new video or edit an existing
+        one.
     </p>
-    <p>Once you create a video in the editor then you can download the assets to create your video on your machine. Use
+    <p>Once you create a video in the editor then you can download the assets to create your video on your machine.
+        Use
         the
         controls below to create or edit your videos</p>
-    <ng-container *ngIf="!showEditor && this.videos.length > 0">
-        <h2>Saved Videos</h2>
-        <div class="mb-3">
-            <div class="row">
-                <div *ngFor="let video of videos; let i = index" class="col-sm mb-3">
-                    <app-galleryvideo [video]="video" (buttonClickEvent)="editVideo($event, 100)"
-                        [loading]="editorLoading">
-                    </app-galleryvideo>
+    <app-pageloading [pageLoading]="pageLoading"></app-pageloading>
+    <ng-container *ngIf="!pageLoading">
+        <ng-container *ngIf="!showEditor && this.videos.length > 0">
+            <h2>Saved Videos</h2>
+            <div class="mb-3">
+                <div class="row">
+                    <div *ngFor="let video of videos; let i = index" class="col-sm mb-3">
+                        <app-galleryvideo [video]="video" (buttonClickEvent)="editVideo($event, 100)"
+                            [loading]="editorLoading">
+                        </app-galleryvideo>
+                    </div>
                 </div>
             </div>
+        </ng-container>
+        <div *ngIf="!showEditor" class="mb-3">
+            <span [ngbTooltip]="canAddVideoTooltip()" placement="right">
+                <button type="button" class="btn btn-success" (click)="toggleEditor()" [disabled]="!canAddVideo()"><i
+                        class="bi bi-plus-circle-fill"></i>
+                    Add new video</button>
+            </span>
         </div>
-    </ng-container>
-    <div *ngIf="!showEditor" class="mb-3">
-        <span [ngbTooltip]="canAddVideoTooltip()" placement="right">
-            <button type="button" class="btn btn-success" (click)="toggleEditor()" [disabled]="!canAddVideo()"><i
-                    class="bi bi-plus-circle-fill"></i>
-                Add new video</button>
-        </span>
-    </div>
-    <ng-container *ngIf="showEditor">
-        <h2>Video Editor</h2>
-        <div class="mb-3">
-            <ngb-alert [type]="'info'" [dismissible]="false"><i class="bi bi-info-circle-fill"></i> Your
-                audio file must be of a constant bpm for this to work properly. Also note that each clip is
-                four beats in length so your audio can't miss one, two or three beats.</ngb-alert>
-        </div>
-        <div class="mb-3">
-            <label for="audioFile" class="form-label">Audio File Selector</label>
-            <input class="form-control" type="file" id="audioFile" accept=".mp3" (change)="onFileUpload($event)"
-                [disabled]="generatingZip" />
-            <div class="form-text">
-                This is to add audio when you play your video in the final video player in the timeline
-                section and is optional. If this is an existing
-                video you will need to select your track again as we don't upload these files. Also
-                limited to mp3 format due to browser restrictions.
+        <ng-container *ngIf="showEditor">
+            <h2>Video Editor</h2>
+            <div class="mb-3">
+                <ngb-alert [type]="'info'" [dismissible]="false"><i class="bi bi-info-circle-fill"></i> Your
+                    audio file must be of a constant bpm for this to work properly. Also note that each clip is
+                    four beats in length so your audio can't miss one, two or three beats.</ngb-alert>
             </div>
-            <ng-container *ngIf="guessingBpm">
-                <label class="form-label">Guessing bpm from file</label>
-                <div class="progress">
-                    <div class="progress-bar progress-bar-animated progress-bar-striped" role="progressbar"
-                        aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 100%;"></div>
+            <div class="mb-3">
+                <label for="audioFile" class="form-label">Audio File Selector</label>
+                <input class="form-control" type="file" id="audioFile" accept=".mp3" (change)="onFileUpload($event)"
+                    [disabled]="generatingZip" />
+                <div class="form-text">
+                    This is to add audio when you play your video in the final video player in the timeline
+                    section and is optional. If this is an existing
+                    video you will need to select your track again as we don't upload these files. Also
+                    limited to mp3 format due to browser restrictions.
                 </div>
-            </ng-container>
-        </div>
-        <div class="mb-3" *ngIf="guessedBpm && guessedVideoDelay">
-            <ngb-alert [type]="'info'" [dismissible]="false"><i class="bi bi-info-circle-fill"></i> Our analysis
-                estimates your bpm as {{guessedBpm}} and video delay as {{guessedVideoDelay}} milliseconds.</ngb-alert>
-        </div>
-        <form [formGroup]="videoForm" (ngSubmit)="onSubmit()">
-            <ul ngbNav #nav="ngbNav" class="nav-tabs" [(activeId)]="activeTabId" [destroyOnHide]="false"
-                (navChange)="navChange($event)">
-                <li [ngbNavItem]="1" [disabled]="generatingZip">
-                    <a ngbNavLink>Details</a>
-                    <ng-template ngbNavContent>
-                        <div class="mb-3">
-                            <label for="videoName" class="form-label">Video Name<span
-                                    class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="videoName" formControlName="videoNameControl" />
-                            <div class="form-text">Try to pick something short. Has to be Alpha Numeric and unique
-                                across your
-                                videos.
-                            </div>
-                            <div class="form-text text-danger"
-                                *ngIf="videoNameControl?.invalid  && (videoNameControl?.dirty || videoNameControl?.touched)">
-                                <div [hidden]="!videoNameControl?.errors?.['required']">
-                                    Video name is required.
-                                </div>
-                                <div [hidden]="!videoNameControl?.errors?.['maxlength']">
-                                    Video name max length is 50 characters.
-                                </div>
-                                <div [hidden]="!videoNameControl?.errors?.['pattern']">
-                                    Video name must be alpha numeric.
-                                </div>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="videoBpm" class="form-label">Video BPM (playback speed)<span
-                                    class="text-danger">*</span></label>
-                            <input type="number" class="form-control" min="90" max="250" step="1" id="videoBpm"
-                                formControlName="bpmControl" />
-                            <div class="form-text">Must be between 90 and 250 beats per minute.
-                            </div>
-                            <div class="form-text text-danger"
-                                *ngIf="bpmControl?.invalid  && (bpmControl?.dirty || bpmControl?.touched)">
-                                <div [hidden]="!bpmControl?.errors?.['required']">
-                                    BPM is required.
-                                </div>
-                                <div [hidden]="!bpmControl?.errors?.['min']">
-                                    BPM must be over 90.
-                                </div>
-                                <div [hidden]="!bpmControl?.errors?.['max']">
-                                    BPM must be under 250
-                                </div>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="format" class="form-label">Format</label>
-                            <select id="format" formControlName="formatControl" class="form-control">
-                                <option [ngValue]="lt" *ngFor="let lt of formatList">
-                                    {{Formats[lt]}}
-                                </option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="videoDelayMilliseconds" class="form-label">Video Delay in milliseconds</label>
-                            <input type="number" class="form-control" min="0" max="2147483647" step="1"
-                                id="videoDelayMilliseconds" formControlName="videoDelayMillisecondsControl" />
-                            <div class="form-text">This is the delay in milliseconds from the start of your audio to
-                                where the first
-                                beat kicks in. This will be when the video starts. Leave blank or 0 for no delay.
-                            </div>
-                            <div class="form-text text-danger"
-                                *ngIf="videoDelayMillisecondsControl?.invalid  && (videoDelayMillisecondsControl?.dirty || videoDelayMillisecondsControl?.touched)">
-                                <div [hidden]="!videoDelayMillisecondsControl?.errors?.['max']">
-                                    Delay must be less than 2147483647.
-                                </div>
-                                <div [hidden]="!videoDelayMillisecondsControl?.errors?.['pattern']">
-                                    Delay must be a positive whole numnber.
-                                </div>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <button type="submit" [disabled]="!videoForm.valid || saving || noVideoEditorChanges()"
-                                class="btn btn-primary me-1">Save</button>
-                            <span [ngbTooltip]="bpmInvalidTooltip()">
-                                <button type="button" [disabled]="disableTimelineTab()" class="btn btn-secondary me-1"
-                                    (click)="setTabId(2)">Go to timeline</button>
-                            </span>
-                            <span [ngbTooltip]="noVideoEditorChangesTooltip()">
-                                <button type="button" [disabled]="!noVideoEditorChanges()"
-                                    [ngClass]="noVideoEditorChanges() ? 'btn btn-primary' : 'btn btn-secondary'"
-                                    (click)="setTabId(3)">Go to builder</button>
-                            </span>
-                        </div>
-                    </ng-template>
-                </li>
-                <li [ngbNavItem]="2" [disabled]="disableTimelineTab()" [ngbTooltip]="bpmInvalidTooltip()"
-                    (hidden)="stop()">
-                    <a ngbNavLink>Timeline</a>
-                    <ng-template ngbNavContent>
-                        <ng-container *ngIf="showEditor && !showClipPicker && clipsFormArray.length > 0">
-                            <h3>Timeline View Options</h3>
+                <ng-container *ngIf="guessingBpm">
+                    <label class="form-label">Guessing bpm from file</label>
+                    <div class="progress">
+                        <div class="progress-bar progress-bar-animated progress-bar-striped" role="progressbar"
+                            aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 100%;"></div>
+                    </div>
+                </ng-container>
+            </div>
+            <div class="mb-3" *ngIf="guessedBpm && guessedVideoDelay">
+                <ngb-alert [type]="'info'" [dismissible]="false"><i class="bi bi-info-circle-fill"></i> Our analysis
+                    estimates your bpm as {{guessedBpm}} and video delay as {{guessedVideoDelay}} milliseconds.
+                </ngb-alert>
+            </div>
+            <form [formGroup]="videoForm" (ngSubmit)="onSubmit()">
+                <ul ngbNav #nav="ngbNav" class="nav-tabs" [(activeId)]="activeTabId" [destroyOnHide]="false"
+                    (navChange)="navChange($event)">
+                    <li [ngbNavItem]="1" [disabled]="generatingZip">
+                        <a ngbNavLink>Details</a>
+                        <ng-template ngbNavContent>
                             <div class="mb-3">
-                                <label for="clipsPerBlock" class="form-label">Number of clips per timeline block</label>
-                                <select id="clipsPerBlock" class="form-control" [(ngModel)]="clipsPerBlock"
-                                    [ngModelOptions]="{standalone: true}">
-                                    <option [ngValue]="1">
-                                        1
-                                    </option>
-                                    <option [ngValue]="4" [disabled]="isInvalidSelection(4)">
-                                        4
-                                    </option>
-                                    <option [ngValue]="16" [disabled]="isInvalidSelection(16)">
-                                        16
-                                    </option>
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label for="timelineEditorStart" class="form-label">Timeline selection start, start of
-                                    clip #
-                                    {{timelineEditorStart}}</label>
-                                <input type="range" class="form-range" id="timelineEditorStart" min="1"
-                                    [max]="clipsFormArray.length" [(ngModel)]="timelineEditorStart"
-                                    [ngModelOptions]="{standalone: true}" (change)="timelineStartChange($event)">
-                            </div>
-                            <div class="mb-3">
-                                <label for="timelineEditorEnd" class="form-label">Timeline selection end, start of clip
-                                    #
-                                    {{timelineEditorEnd}}</label>
-                                <input type="range" class="form-range" id="timelineEditorEnd" min="2"
-                                    [max]="clipsFormArray.length + 1" [(ngModel)]="timelineEditorEnd"
-                                    [ngModelOptions]="{standalone: true}" (change)="timelineEndChange($event)">
-                            </div>
-                            <div class="mb-3" *ngIf="isInvalidSelection(4)">
-                                <ngb-alert [type]="'warning'" [dismissible]="false"><i
-                                        class="bi bi-exclamation-triangle-fill"></i>{{getAlertText(4)}}</ngb-alert>
-                            </div>
-                            <div class="mb-3" role="alert" *ngIf="isInvalidSelection(16)">
-                                <ngb-alert [type]="'warning'" [dismissible]="false"><i
-                                        class="bi bi-exclamation-triangle-fill"></i>{{getAlertText(16)}}</ngb-alert>
-                            </div>
-                            <div class="mb-3" *ngIf="this.clipsFormArray.length > 0">
-                                <h3>Timeline Blocks</h3>
-                                <div class="row">
-                                    <ng-container
-                                        *ngFor="let clipControl of this.clipsFormArray.controls; let i = index; let last = last">
-                                        <div class="col-3 mb-3" *ngIf="showBlock(i)">
-                                            <div class="card text-center">
-                                                <div class="imageContainer">
-                                                    <img *ngFor="let layerloop of clipControl.value.userLayers; let i = index"
-                                                        [src]="'https://cdn.musicvideobuilder.com/' + layerloop.layerId + '/' + layerloop.layerId + '.png'"
-                                                        [alt]="layerloop.layerName" [style.left.px]="0"
-                                                        [style.z-index]="i" />
-                                                </div>
-                                                <h5 class="card-header">{{calculateClipNameFromClipIndex(i)}}</h5>
-                                                <ul class="list-group list-group-flush">
-                                                    <li class="list-group-item">
-                                                        <span [ngbTooltip]="'Move back'"
-                                                            *ngIf="i > 0 && i + clipsPerBlock <= clipsFormArray.length">
-                                                            <button type="button" class="btn btn-secondary me-1"
-                                                                (click)="moveBack(i)">
-                                                                <i class="bi bi-arrow-left-circle-fill"></i></button>
-                                                        </span>
-                                                        <span [ngbTooltip]="'Remove'">
-                                                            <button type="button" class="btn btn-danger me-1"
-                                                                (click)="removeClip(i)">
-                                                                <i class="bi bi-dash-circle-fill"></i></button>
-                                                        </span>
-                                                        <span [ngbTooltip]="'Add copy after current'">
-                                                            <button type="button" class="btn btn-primary me-1"
-                                                                (click)="copyClip(i)">
-                                                                <i class="bi bi-files"></i></button>
-                                                        </span>
-                                                        <span [ngbTooltip]="'Move forward'"
-                                                            *ngIf="i + 2 * clipsPerBlock <= clipsFormArray.length">
-                                                            <button type="button" class="btn btn-secondary"
-                                                                (click)="moveForward(i)">
-                                                                <i class="bi bi-arrow-right-circle-fill"></i></button>
-                                                        </span>
-                                                    </li>
-                                                    <li class="list-group-item">
-                                                        <span [ngbTooltip]="'Start player from here.'">
-                                                            <button type="button" class="btn btn-info me-1"
-                                                                (click)="setSelectedClipIndex(i)"
-                                                                [disabled]="i === this.selectedClipIndex">
-                                                                <i class="bi bi-bookmark-star-fill"></i></button>
-                                                        </span>
-                                                        <span [ngbTooltip]="'Set quick timeline selection.'"
-                                                            *ngIf="clipsPerBlock !== 1">
-                                                            <button type="button" class="btn btn-secondary me-1"
-                                                                (click)="setQuickTimelineSelection(i)">
-                                                                <i class="bi bi-zoom-in"></i></button>
-                                                        </span>
-                                                    </li>
-                                                    <li class="list-group-item">
-                                                        Beat #: {{calculateBeatRangeFromClipIndex(i)}}
-                                                    </li>
-                                                    <li class="list-group-item">
-                                                        Time: {{displayTimeLineTimeRangeFromClipIndex(i) }}
-                                                    </li>
-                                                    <li class="list-group-item">
-                                                        <div class="progress">
-                                                            <div class="progress-bar" role="progressbar"
-                                                                aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
-                                                                [style.width.%]="getProgress(i, playingClipIndex, percentageOfPlayingClipDuration)">
-                                                            </div>
-                                                        </div>
-                                                    </li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </ng-container>
-                                    <div class="form-text text-danger" *ngIf="clipsFormArray?.invalid">
-                                        <div [hidden]="!clipsFormArray?.errors?.['maxlength']">
-                                            You can't have more than 32767 clips in a video.
-                                        </div>
+                                <label for="videoName" class="form-label">Video Name<span
+                                        class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="videoName"
+                                    formControlName="videoNameControl" />
+                                <div class="form-text">Try to pick something short. Has to be Alpha Numeric and unique
+                                    across your
+                                    videos.
+                                </div>
+                                <div class="form-text text-danger"
+                                    *ngIf="videoNameControl?.invalid  && (videoNameControl?.dirty || videoNameControl?.touched)">
+                                    <div [hidden]="!videoNameControl?.errors?.['required']">
+                                        Video name is required.
+                                    </div>
+                                    <div [hidden]="!videoNameControl?.errors?.['maxlength']">
+                                        Video name max length is 50 characters.
+                                    </div>
+                                    <div [hidden]="!videoNameControl?.errors?.['pattern']">
+                                        Video name must be alpha numeric.
                                     </div>
                                 </div>
                             </div>
                             <div class="mb-3">
-                                <button type="button" (click)="toggleClipPicker()" class="btn btn-success">
-                                    <i class="bi bi-plus-circle-fill"></i> Pick clip to add to end of
-                                    timeline</button>
+                                <label for="videoBpm" class="form-label">Video BPM (playback speed)<span
+                                        class="text-danger">*</span></label>
+                                <input type="number" class="form-control" min="90" max="250" step="1" id="videoBpm"
+                                    formControlName="bpmControl" />
+                                <div class="form-text">Must be between 90 and 250 beats per minute.
+                                </div>
+                                <div class="form-text text-danger"
+                                    *ngIf="bpmControl?.invalid  && (bpmControl?.dirty || bpmControl?.touched)">
+                                    <div [hidden]="!bpmControl?.errors?.['required']">
+                                        BPM is required.
+                                    </div>
+                                    <div [hidden]="!bpmControl?.errors?.['min']">
+                                        BPM must be over 90.
+                                    </div>
+                                    <div [hidden]="!bpmControl?.errors?.['max']">
+                                        BPM must be under 250
+                                    </div>
+                                </div>
                             </div>
                             <div class="mb-3">
-                                <h3>Final Video Player</h3>
-                                <app-videoplayer [selectedClipIndex]="selectedClipIndex" [video]="editorVideo"
-                                    (setSelectedIndexEvent)="setSelectedClipIndex($event)"></app-videoplayer>
+                                <label for="format" class="form-label">Format</label>
+                                <select id="format" formControlName="formatControl" class="form-control">
+                                    <option [ngValue]="lt" *ngFor="let lt of formatList">
+                                        {{Formats[lt]}}
+                                    </option>
+                                </select>
                             </div>
-                        </ng-container>
-                        <div class="mb-3" *ngIf="showClipPicker || clipsFormArray.length === 0">
-                            <h3>Pick A Clip</h3>
-                            <ngb-alert [type]="'warning'" [dismissible]="false" *ngIf="clipsFormArray.length === 0"><i
-                                    class="bi bi-exclamation-triangle-fill"></i> To be able to save your video you must
-                                have at least one clip in your timeline.</ngb-alert>
-                            <p>This clip will be placed after all the other clips you have at the end of the timeline.
-                            </p>
-                            <div class="row">
-                                <div *ngFor="let clip of clips; let i = index" class="col-sm mb-3">
-                                    <app-galleryplayer [clip]="clip" [bpm]="bpmControl.value"
-                                        (addButtonClickClipEvent)="addClipPickerClip($event)">
-                                    </app-galleryplayer>
+                            <div class="mb-3">
+                                <label for="videoDelayMilliseconds" class="form-label">Video Delay in
+                                    milliseconds</label>
+                                <input type="number" class="form-control" min="0" max="2147483647" step="1"
+                                    id="videoDelayMilliseconds" formControlName="videoDelayMillisecondsControl" />
+                                <div class="form-text">This is the delay in milliseconds from the start of your audio to
+                                    where the first
+                                    beat kicks in. This will be when the video starts. Leave blank or 0 for no delay.
+                                </div>
+                                <div class="form-text text-danger"
+                                    *ngIf="videoDelayMillisecondsControl?.invalid  && (videoDelayMillisecondsControl?.dirty || videoDelayMillisecondsControl?.touched)">
+                                    <div [hidden]="!videoDelayMillisecondsControl?.errors?.['max']">
+                                        Delay must be less than 2147483647.
+                                    </div>
+                                    <div [hidden]="!videoDelayMillisecondsControl?.errors?.['pattern']">
+                                        Delay must be a positive whole numnber.
+                                    </div>
                                 </div>
                             </div>
-                            <button type="button" class="btn btn-danger" (click)="toggleClipPicker()"
-                                *ngIf="clipsFormArray.length > 0"><i class="bi bi-dash-circle-fill"></i>
-                                Cancel</button>
-                        </div>
-                        <div class="mb-3">
-                            <button type="submit" [disabled]="!videoForm.valid || saving || noVideoEditorChanges()"
-                                class="btn btn-primary me-1">Save</button>
-                            <button type="button" class="btn btn-secondary me-1" (click)="setTabId(1)">Go to
-                                details</button>
-                            <span [ngbTooltip]="noVideoEditorChangesTooltip()">
-                                <button type="button" [disabled]="!noVideoEditorChanges()"
-                                    [ngClass]="noVideoEditorChanges() ? 'btn btn-primary' : 'btn btn-secondary'"
-                                    (click)="setTabId(3)">Go to builder</button>
-                            </span>
-                        </div>
-                    </ng-template>
-                </li>
-                <li [ngbNavItem]="3" [disabled]="!noVideoEditorChanges()" [ngbTooltip]="noVideoEditorChangesTooltip()">
-                    <a ngbNavLink>Builder</a>
-                    <ng-template ngbNavContent>
-                        <h3>Free Test Download</h3>
-                        <div class="mb-3">
-                            <p>This button enables you to download low resolution watermarked assets along with your
-                                ffmpeg code in order to build a video to check it all works</p>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" value="" id="includeCodeFiles"
-                                    [(ngModel)]="includeCodeFiles" [ngModelOptions]="{standalone: true}">
-                                <label class="form-check-label" for="includeCode">
-                                    Include code files in zip
-                                </label>
+                            <div class="mb-3">
+                                <button type="submit" [disabled]="!videoForm.valid || saving || noVideoEditorChanges()"
+                                    class="btn btn-primary me-1">Save</button>
+                                <span [ngbTooltip]="bpmInvalidTooltip()">
+                                    <button type="button" [disabled]="disableTimelineTab()"
+                                        class="btn btn-secondary me-1" (click)="setTabId(2)">Go to timeline</button>
+                                </span>
+                                <span [ngbTooltip]="noVideoEditorChangesTooltip()">
+                                    <button type="button" [disabled]="!noVideoEditorChanges()"
+                                        [ngClass]="noVideoEditorChanges() ? 'btn btn-primary' : 'btn btn-secondary'"
+                                        (click)="setTabId(3)">Go to builder</button>
+                                </span>
                             </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" value="" id="includeImageFiles"
-                                    [(ngModel)]="includeImageFiles" [ngModelOptions]="{standalone: true}">
-                                <label class="form-check-label" for="includeImages">
-                                    Include image files in zip
-                                </label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" value="" id="includeAudioFile"
-                                    [(ngModel)]="includeAudioFile" [ngModelOptions]="{standalone: true}"
-                                    [disabled]="file === null">
-                                <label class="form-check-label" for="includeAudioFile">
-                                    Include audio file in zip
-                                </label>
-                            </div>
-                            <button type="button" class="btn btn-secondary" (click)="freeDownload()"
-                                [disabled]="generatingZip || (!includeImageFiles && !includeCodeFiles)"><i
-                                    class="bi bi-download"></i> Test Download</button>
-                        </div>
-                        <div class="mb-3" *ngIf="!file && !generatingZip">
-                            <ngb-alert [type]="'warning'" [dismissible]="false"><i
-                                    class="bi bi-exclamation-triangle-fill"></i> No audio file selected, if you
-                                don't want audio then please continue otherwise add above.
-                            </ngb-alert>
-                        </div>
-                        <div class="mb-3" *ngIf="generatingZip">
-                            <label class="form-label">Getting required data</label>
-                            <div class="progress">
-                                <div [ngClass]="{'progress-bar': true, 'progress-bar-animated': isGettingCode, 'progress-bar-striped': true}"
-                                    role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
-                                    style="width: 100%;"></div>
-                            </div>
-                            <ng-container *ngIf="includeImageFiles">
-                                <label class="form-label">Splitting sprites progress</label>
-                                <div class="progress">
-                                    <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0"
-                                        aria-valuemax="100" [style.width]="zipProgress + '%'"></div>
+                        </ng-template>
+                    </li>
+                    <li [ngbNavItem]="2" [disabled]="disableTimelineTab()" [ngbTooltip]="bpmInvalidTooltip()"
+                        (hidden)="stop()">
+                        <a ngbNavLink>Timeline</a>
+                        <ng-template ngbNavContent>
+                            <ng-container *ngIf="showEditor && !showClipPicker && clipsFormArray.length > 0">
+                                <h3>Timeline View Options</h3>
+                                <div class="mb-3">
+                                    <label for="clipsPerBlock" class="form-label">Number of clips per timeline
+                                        block</label>
+                                    <select id="clipsPerBlock" class="form-control" [(ngModel)]="clipsPerBlock"
+                                        [ngModelOptions]="{standalone: true}">
+                                        <option [ngValue]="1">
+                                            1
+                                        </option>
+                                        <option [ngValue]="4" [disabled]="isInvalidSelection(4)">
+                                            4
+                                        </option>
+                                        <option [ngValue]="16" [disabled]="isInvalidSelection(16)">
+                                            16
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="timelineEditorStart" class="form-label">Timeline selection start, start
+                                        of
+                                        clip #
+                                        {{timelineEditorStart}}</label>
+                                    <input type="range" class="form-range" id="timelineEditorStart" min="1"
+                                        [max]="clipsFormArray.length" [(ngModel)]="timelineEditorStart"
+                                        [ngModelOptions]="{standalone: true}" (change)="timelineStartChange($event)">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="timelineEditorEnd" class="form-label">Timeline selection end, start of
+                                        clip
+                                        #
+                                        {{timelineEditorEnd}}</label>
+                                    <input type="range" class="form-range" id="timelineEditorEnd" min="2"
+                                        [max]="clipsFormArray.length + 1" [(ngModel)]="timelineEditorEnd"
+                                        [ngModelOptions]="{standalone: true}" (change)="timelineEndChange($event)">
+                                </div>
+                                <div class="mb-3" *ngIf="isInvalidSelection(4)">
+                                    <ngb-alert [type]="'warning'" [dismissible]="false"><i
+                                            class="bi bi-exclamation-triangle-fill"></i>{{getAlertText(4)}}</ngb-alert>
+                                </div>
+                                <div class="mb-3" role="alert" *ngIf="isInvalidSelection(16)">
+                                    <ngb-alert [type]="'warning'" [dismissible]="false"><i
+                                            class="bi bi-exclamation-triangle-fill"></i>{{getAlertText(16)}}</ngb-alert>
+                                </div>
+                                <div class="mb-3" *ngIf="this.clipsFormArray.length > 0">
+                                    <h3>Timeline Blocks</h3>
+                                    <div class="row">
+                                        <ng-container
+                                            *ngFor="let clipControl of this.clipsFormArray.controls; let i = index; let last = last">
+                                            <div class="col-3 mb-3" *ngIf="showBlock(i)">
+                                                <div class="card text-center">
+                                                    <div class="imageContainer">
+                                                        <img *ngFor="let layerloop of clipControl.value.userLayers; let i = index"
+                                                            [src]="'https://cdn.musicvideobuilder.com/' + layerloop.layerId + '/' + layerloop.layerId + '.png'"
+                                                            [alt]="layerloop.layerName" [style.left.px]="0"
+                                                            [style.z-index]="i" />
+                                                    </div>
+                                                    <h5 class="card-header">{{calculateClipNameFromClipIndex(i)}}</h5>
+                                                    <ul class="list-group list-group-flush">
+                                                        <li class="list-group-item">
+                                                            <span [ngbTooltip]="'Move back'"
+                                                                *ngIf="i > 0 && i + clipsPerBlock <= clipsFormArray.length">
+                                                                <button type="button" class="btn btn-secondary me-1"
+                                                                    (click)="moveBack(i)">
+                                                                    <i
+                                                                        class="bi bi-arrow-left-circle-fill"></i></button>
+                                                            </span>
+                                                            <span [ngbTooltip]="'Remove'">
+                                                                <button type="button" class="btn btn-danger me-1"
+                                                                    (click)="removeClip(i)">
+                                                                    <i class="bi bi-dash-circle-fill"></i></button>
+                                                            </span>
+                                                            <span [ngbTooltip]="'Add copy after current'">
+                                                                <button type="button" class="btn btn-primary me-1"
+                                                                    (click)="copyClip(i)">
+                                                                    <i class="bi bi-files"></i></button>
+                                                            </span>
+                                                            <span [ngbTooltip]="'Move forward'"
+                                                                *ngIf="i + 2 * clipsPerBlock <= clipsFormArray.length">
+                                                                <button type="button" class="btn btn-secondary"
+                                                                    (click)="moveForward(i)">
+                                                                    <i
+                                                                        class="bi bi-arrow-right-circle-fill"></i></button>
+                                                            </span>
+                                                        </li>
+                                                        <li class="list-group-item">
+                                                            <span [ngbTooltip]="'Start player from here.'">
+                                                                <button type="button" class="btn btn-info me-1"
+                                                                    (click)="setSelectedClipIndex(i)"
+                                                                    [disabled]="i === this.selectedClipIndex">
+                                                                    <i class="bi bi-bookmark-star-fill"></i></button>
+                                                            </span>
+                                                            <span [ngbTooltip]="'Set quick timeline selection.'"
+                                                                *ngIf="clipsPerBlock !== 1">
+                                                                <button type="button" class="btn btn-secondary me-1"
+                                                                    (click)="setQuickTimelineSelection(i)">
+                                                                    <i class="bi bi-zoom-in"></i></button>
+                                                            </span>
+                                                        </li>
+                                                        <li class="list-group-item">
+                                                            Beat #: {{calculateBeatRangeFromClipIndex(i)}}
+                                                        </li>
+                                                        <li class="list-group-item">
+                                                            Time: {{displayTimeLineTimeRangeFromClipIndex(i) }}
+                                                        </li>
+                                                        <li class="list-group-item">
+                                                            <div class="progress">
+                                                                <div class="progress-bar" role="progressbar"
+                                                                    aria-valuenow="0" aria-valuemin="0"
+                                                                    aria-valuemax="100"
+                                                                    [style.width.%]="getProgress(i, playingClipIndex, percentageOfPlayingClipDuration)">
+                                                                </div>
+                                                            </div>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </ng-container>
+                                        <div class="form-text text-danger" *ngIf="clipsFormArray?.invalid">
+                                            <div [hidden]="!clipsFormArray?.errors?.['maxlength']">
+                                                You can't have more than 32767 clips in a video.
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <button type="button" (click)="toggleClipPicker()" class="btn btn-success">
+                                        <i class="bi bi-plus-circle-fill"></i> Pick clip to add to end of
+                                        timeline</button>
+                                </div>
+                                <div class="mb-3">
+                                    <h3>Final Video Player</h3>
+                                    <app-videoplayer [selectedClipIndex]="selectedClipIndex" [video]="editorVideo"
+                                        (setSelectedIndexEvent)="setSelectedClipIndex($event)"></app-videoplayer>
                                 </div>
                             </ng-container>
-                            <label class="form-label">Generating zip</label>
-                            <div class="progress">
-                                <div [ngClass]="{'progress-bar': true, 'progress-bar-animated': isDownloadingZip, 'progress-bar-striped': true}"
-                                    role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
-                                    [style.width]="isDownloadingZip ? '100%' : '0%'"></div>
+                            <div class="mb-3" *ngIf="showClipPicker || clipsFormArray.length === 0">
+                                <h3>Pick A Clip</h3>
+                                <ngb-alert [type]="'warning'" [dismissible]="false" *ngIf="clipsFormArray.length === 0">
+                                    <i class="bi bi-exclamation-triangle-fill"></i> To be able to save your video you
+                                    must
+                                    have at least one clip in your timeline.
+                                </ngb-alert>
+                                <p>This clip will be placed after all the other clips you have at the end of the
+                                    timeline.
+                                </p>
+                                <div class="row">
+                                    <div *ngFor="let clip of clips; let i = index" class="col-sm mb-3">
+                                        <app-galleryplayer [clip]="clip" [bpm]="bpmControl.value"
+                                            (addButtonClickClipEvent)="addClipPickerClip($event)">
+                                        </app-galleryplayer>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn btn-danger" (click)="toggleClipPicker()"
+                                    *ngIf="clipsFormArray.length > 0"><i class="bi bi-dash-circle-fill"></i>
+                                    Cancel</button>
                             </div>
-                        </div>
-                        <div class="mb-3">
-                            <p>When you have downloaded your zip then you can build your video using ffmpeg. If you do
-                                not have ffmpeg then you will need to do this first.</p>
-                            <ol>
-                                <li>Extract your zip and make note of it's location.</li>
-                                <li>Using your favourite command line tool, go to the location of the extracted zip.
-                                </li>
-                                <li>Open the command.txt document and copy the ffmpeg command it contains.</li>
-                                <li>Paste the command in your command line tool and hit enter.</li>
-                            </ol>
-                        </div>
-                        <!-- <h3>Download</h3>
+                            <div class="mb-3">
+                                <button type="submit" [disabled]="!videoForm.valid || saving || noVideoEditorChanges()"
+                                    class="btn btn-primary me-1">Save</button>
+                                <button type="button" class="btn btn-secondary me-1" (click)="setTabId(1)">Go to
+                                    details</button>
+                                <span [ngbTooltip]="noVideoEditorChangesTooltip()">
+                                    <button type="button" [disabled]="!noVideoEditorChanges()"
+                                        [ngClass]="noVideoEditorChanges() ? 'btn btn-primary' : 'btn btn-secondary'"
+                                        (click)="setTabId(3)">Go to builder</button>
+                                </span>
+                            </div>
+                        </ng-template>
+                    </li>
+                    <li [ngbNavItem]="3" [disabled]="!noVideoEditorChanges()"
+                        [ngbTooltip]="noVideoEditorChangesTooltip()">
+                        <a ngbNavLink>Builder</a>
+                        <ng-template ngbNavContent>
+                            <h3>Free Test Download</h3>
+                            <div class="mb-3">
+                                <p>This button enables you to download low resolution watermarked assets along with your
+                                    ffmpeg code in order to build a video to check it all works</p>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="" id="includeCodeFiles"
+                                        [(ngModel)]="includeCodeFiles" [ngModelOptions]="{standalone: true}">
+                                    <label class="form-check-label" for="includeCode">
+                                        Include code files in zip
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="" id="includeImageFiles"
+                                        [(ngModel)]="includeImageFiles" [ngModelOptions]="{standalone: true}">
+                                    <label class="form-check-label" for="includeImages">
+                                        Include image files in zip
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="" id="includeAudioFile"
+                                        [(ngModel)]="includeAudioFile" [ngModelOptions]="{standalone: true}"
+                                        [disabled]="file === null">
+                                    <label class="form-check-label" for="includeAudioFile">
+                                        Include audio file in zip
+                                    </label>
+                                </div>
+                                <button type="button" class="btn btn-secondary" (click)="freeDownload()"
+                                    [disabled]="generatingZip || (!includeImageFiles && !includeCodeFiles)"><i
+                                        class="bi bi-download"></i> Test Download</button>
+                            </div>
+                            <div class="mb-3" *ngIf="!file && !generatingZip">
+                                <ngb-alert [type]="'warning'" [dismissible]="false"><i
+                                        class="bi bi-exclamation-triangle-fill"></i> No audio file selected, if you
+                                    don't want audio then please continue otherwise add above.
+                                </ngb-alert>
+                            </div>
+                            <div class="mb-3" *ngIf="generatingZip">
+                                <label class="form-label">Getting required data</label>
+                                <div class="progress">
+                                    <div [ngClass]="{'progress-bar': true, 'progress-bar-animated': isGettingCode, 'progress-bar-striped': true}"
+                                        role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
+                                        style="width: 100%;"></div>
+                                </div>
+                                <ng-container *ngIf="includeImageFiles">
+                                    <label class="form-label">Splitting sprites progress</label>
+                                    <div class="progress">
+                                        <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0"
+                                            aria-valuemax="100" [style.width]="zipProgress + '%'"></div>
+                                    </div>
+                                </ng-container>
+                                <label class="form-label">Generating zip</label>
+                                <div class="progress">
+                                    <div [ngClass]="{'progress-bar': true, 'progress-bar-animated': isDownloadingZip, 'progress-bar-striped': true}"
+                                        role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
+                                        [style.width]="isDownloadingZip ? '100%' : '0%'"></div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <p>When you have downloaded your zip then you can build your video using ffmpeg. If you
+                                    do
+                                    not have ffmpeg then you will need to do this first.</p>
+                                <ol>
+                                    <li>Extract your zip and make note of it's location.</li>
+                                    <li>Using your favourite command line tool, go to the location of the extracted zip.
+                                    </li>
+                                    <li>Open the command.txt document and copy the ffmpeg command it contains.</li>
+                                    <li>Paste the command in your command line tool and hit enter.</li>
+                                </ol>
+                            </div>
+                            <!-- <h3>Download</h3>
                         <div class="mb-3" *ngIf="hasAllLayers">
                             <p>You have bought all the layers in this video, please use the button below to get your 4k
                                 assets and ffmpeg code.</p>
@@ -407,15 +425,16 @@
                                     timeline</button>
                             </div>
                         </ng-container> -->
-                    </ng-template>
-                </li>
-            </ul>
-            <div [ngbNavOutlet]="nav"></div>
-            <div class="mb-3">
-                <button type="button" class="btn btn-danger" (click)="toggleEditor()" [disabled]="generatingZip"><i
-                        class="bi bi-dash-circle-fill"></i>
-                    Exit Editor</button>
-            </div>
-        </form>
+                        </ng-template>
+                    </li>
+                </ul>
+                <div [ngbNavOutlet]="nav"></div>
+                <div class="mb-3">
+                    <button type="button" class="btn btn-danger" (click)="toggleEditor()" [disabled]="generatingZip"><i
+                            class="bi bi-dash-circle-fill"></i>
+                        Exit Editor</button>
+                </div>
+            </form>
+        </ng-container>
     </ng-container>
 </div>

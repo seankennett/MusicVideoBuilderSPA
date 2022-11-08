@@ -26,19 +26,9 @@ export class MyLibraryComponent implements OnInit {
   independentUserLayers: UserLayer[] = [];
 
   ngOnInit(): void {
-    this.videoService.getAll().pipe(
-      catchError((error: HttpErrorResponse) => {
-        alert('Something went wrong on the server, try again!');
-        return throwError(() => new Error('Something went wrong on the server, try again!'));
-      })
-    ).subscribe((videos: Video[]) => {
+    this.videoService.getAll().subscribe((videos: Video[]) => {
       this.videos = videos;
-      this.clipService.getAll().pipe(
-        catchError((error: HttpErrorResponse) => {
-          alert('Something went wrong on the server, try again!');
-          return throwError(() => new Error('Something went wrong on the server, try again!'));
-        })
-      ).subscribe((clips: Clip[]) => {
+      this.clipService.getAll().subscribe((clips: Clip[]) => {
         clips.forEach(clip => {
           var dependentVideos = videos.filter(v => v.clips.some(c => c.clipId === clip.clipId));
           if (dependentVideos.length > 0) {
@@ -48,12 +38,7 @@ export class MyLibraryComponent implements OnInit {
           }
         });
 
-        this.userLayerService.getAll().pipe(
-          catchError((error: HttpErrorResponse) => {
-            alert('Something went wrong on the server, try again!');
-            return throwError(() => new Error('Something went wrong on the server, try again!'));
-          })
-        ).subscribe((userLayers: UserLayer[]) => {
+        this.userLayerService.getAll().subscribe((userLayers: UserLayer[]) => {
           userLayers.forEach(userLayer => {
             var dependentClips = clips.filter(c => c.userLayers.some(u => u.userLayerId === userLayer.userLayerId));
             if (dependentClips.length > 0) {
@@ -62,10 +47,14 @@ export class MyLibraryComponent implements OnInit {
               this.independentUserLayers.push(userLayer);
             }
           });
+
+          this.pageLoading = false;
         });
       });
     });
   }
+
+  pageLoading = true;
 
   loading = false;
   removeVideo = (videoRoute: { video: Video, tab: number }) => {
@@ -73,8 +62,7 @@ export class MyLibraryComponent implements OnInit {
     this.videoService.delete(videoRoute.video.videoId).pipe(
       catchError((error: HttpErrorResponse) => {
         this.loading = false;
-        alert('Something went wrong on the server, try again!');
-        return throwError(() => new Error('Something went wrong on the server, try again!'));
+        return throwError(() => new Error());
       })
     ).subscribe(() => {
       this.videos = this.videos.filter(v => v.videoId !== videoRoute.video.videoId);
@@ -82,13 +70,12 @@ export class MyLibraryComponent implements OnInit {
     });
   }
 
-  removeClip = (clip: Clip) =>{
+  removeClip = (clip: Clip) => {
     this.loading = true;
     this.clipService.delete(clip.clipId).pipe(
       catchError((error: HttpErrorResponse) => {
         this.loading = false;
-        alert('Something went wrong on the server, try again!');
-        return throwError(() => new Error('Something went wrong on the server, try again!'));
+        return throwError(() => new Error());
       })
     ).subscribe(() => {
       this.independentClips = this.independentClips.filter(x => x.clipId !== clip.clipId);
@@ -96,14 +83,13 @@ export class MyLibraryComponent implements OnInit {
     });
   }
 
-  removeUserLayer = (layer: Layer) =>{
+  removeUserLayer = (layer: Layer) => {
     var userLayer = <UserLayer>layer;
     this.loading = true;
     this.userLayerService.delete(userLayer.userLayerId).pipe(
       catchError((error: HttpErrorResponse) => {
         this.loading = false;
-        alert('Something went wrong on the server, try again!');
-        return throwError(() => new Error('Something went wrong on the server, try again!'));
+        return throwError(() => new Error());
       })
     ).subscribe(() => {
       this.independentUserLayers = this.independentUserLayers.filter(x => x.userLayerId !== userLayer.userLayerId);

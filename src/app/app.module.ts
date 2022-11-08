@@ -25,6 +25,9 @@ import { DatePipe } from '@angular/common';
 import { GalleryvideoComponent } from './galleryvideo/galleryvideo.component';
 import { VideoplayerComponent } from './videoplayer/videoplayer.component';
 import { NotfoundComponent } from './notfound/notfound.component';
+import { PageloadingComponent } from './pageloading/pageloading.component';
+import { ToastsComponent } from './toasts/toasts.component';
+import { ErrorhandlerInterceptor } from './errorhandler.interceptor';
 
 /**
  * Here we pass the configuration parameters to create an MSAL instance.
@@ -81,7 +84,9 @@ export function MSALGuardConfigFactory(): MsalGuardConfiguration {
     BpmcontrolComponent,
     GalleryvideoComponent,
     VideoplayerComponent,
-    NotfoundComponent
+    NotfoundComponent,
+    PageloadingComponent,
+    ToastsComponent
   ],
   imports: [
     BrowserModule,
@@ -96,6 +101,11 @@ export function MSALGuardConfigFactory(): MsalGuardConfiguration {
     {
       provide: HTTP_INTERCEPTORS,
       useClass: MsalInterceptor,
+      multi: true
+    },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: ErrorhandlerInterceptor,
       multi: true
     },
     {

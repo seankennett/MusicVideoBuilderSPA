@@ -68,12 +68,7 @@ export class LayerUploadComponent implements OnInit {
   }
 
   getTags(): void {
-    this.tagsService.getTags().pipe(
-      catchError((error: HttpErrorResponse) => {
-        alert('Something went wrong on the server, try again!');
-        return throwError(() => new Error('Something went wrong on the server, try again!'));
-      })
-    ).subscribe((tags: Tag[]) => {
+    this.tagsService.getTags().subscribe((tags: Tag[]) => {
       this.tags = tags;
       this.disableEnableForm(false);
     });
@@ -136,7 +131,7 @@ export class LayerUploadComponent implements OnInit {
         this.uploadProgress = 0;
         this.imageValidationProgress = 0;
         this.disableEnableForm(false);
-        return throwError(() => new Error('Something went wrong on the server, try again!'));
+        return throwError(() => new Error());
       })
     ).subscribe(event => {
       if (event.type == HttpEventType.UploadProgress) {

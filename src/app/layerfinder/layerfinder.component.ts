@@ -11,6 +11,7 @@ import { UserlayerService } from '../userlayer.service';
 import { Layertypes } from '../layertypes';
 import { Userlayerstatus } from '../userlayerstatus';
 import { MsalService } from '@azure/msal-angular';
+import { ToastService } from '../toast.service';
 
 @Component({
   selector: 'app-layerfinder',
@@ -19,37 +20,31 @@ import { MsalService } from '@azure/msal-angular';
 })
 export class LayerFinderComponent implements OnInit {
 
-  constructor(private layerService: LayerFinderService, private userLayerService: UserlayerService, private authService: MsalService) { }
+  constructor(private layerService: LayerFinderService, private userLayerService: UserlayerService, private authService: MsalService, private toastService: ToastService) { }
 
   @ViewChild('bpmControl') bpmControl!: NgModel;
 
   ngOnInit(): void {
     this.isLoggedIn = this.authService.instance.getAllAccounts().length > 0;
-    this.layerService.getAll().pipe(
-      catchError((error: HttpErrorResponse) => {
-        alert('Something went wrong on the server, try again!');
-        return throwError(() => new Error('Something went wrong on the server, try again!'));
-      })
-    ).subscribe((layerFinders: LayerFinder[]) => {
+    this.layerService.getAll().subscribe((layerFinders: LayerFinder[]) => {
       this.layerFinders = layerFinders;
       this.disableSearch = false;
       if (this.isLoggedIn) {
-        this.userLayerService.getAll().pipe(
-          catchError((error: HttpErrorResponse) => {
-            alert('Something went wrong on the server, try again!');
-            return throwError(() => new Error('Something went wrong on the server, try again!'));
-          })
-        ).subscribe((userLayers: UserLayer[]) => {
+        this.userLayerService.getAll().subscribe((userLayers: UserLayer[]) => {
           for (var userLayer of userLayers) {
             let layerFinder = this.layerFinders.find(l => l.layerId === userLayer.layerId);
             if (layerFinder) {
               layerFinder.userLayerStatus = userLayer.userLayerStatus;
             }
           }
+
+          this.pageLoading = false;
         });
       }
     });
   }
+
+  pageLoading = true;
 
   private isLoggedIn = false;
   disableSearch = true;
@@ -154,7 +149,7 @@ export class LayerFinderComponent implements OnInit {
         if (layerFinder) {
           layerFinder.userLayerStatus = previousUserLayerStatus;
         }
-        return throwError(() => new Error('Something went wrong on the server, try again!'));
+        return throwError(() => new Error());
       })
     ).subscribe();
   }

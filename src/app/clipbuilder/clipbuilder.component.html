@@ -6,123 +6,131 @@
     <p class="lead">Clip builder allows you to combine layers to either make a new clip or edit an existing one.</p>
     <p>Once you create a clip you can then use this to <a [routerLink]="['/videoBuilder']">compose a video</a>. Use the
         controls below to create or edit your clips</p>
-    <app-bpmcontrol (bpmEvent)="setBpm($event)" (isPlayingEvent)="setIsPlaying($event)"></app-bpmcontrol>
-    <ng-container *ngIf="!showEditor && this.clips.length > 0">
-        <h2>Saved Clips</h2>
-        <div class="mb-3">
-            <div class="row">
-                <div *ngFor="let clip of clips; let i = index" class="col-sm mb-3">
-                    <app-galleryplayer [clip]="clip" [bpm]="bpm" [isPlaying]="isPlaying" [showEdit]="true"
-                        [showAdd]="false" (editButtonClickClipEvent)="editClip($event)"></app-galleryplayer>
-                </div>
-            </div>
-        </div>
-    </ng-container>
-    <div [ngbTooltip]="canAddLayerTooltip()" placement="right" *ngIf="!showEditor" class="mb-3">
-        <button type="button" class="btn btn-success" (click)="toggleEditor()" [disabled]="!canAddLayer()"><i
-                class="bi bi-plus-circle-fill"></i>
-            Add new clip</button>
-    </div>
-    <ng-container *ngIf="showEditor">
-        <h2>Clip Editor</h2>
-        <ngb-alert [type]="'warning'" [dismissible]="false" *ngIf="clipId > 0"><i class="bi bi-exclamation-triangle-fill"></i> Editing
-            existing clip. Changes here will reflect in existing videos.</ngb-alert>
-        <form [formGroup]="clipForm" (ngSubmit)="onSubmit()">
+    <app-pageloading [pageLoading]="pageLoading"></app-pageloading>
+    <ng-container *ngIf="!pageLoading">
+        <app-bpmcontrol (bpmEvent)="setBpm($event)" (isPlayingEvent)="setIsPlaying($event)"></app-bpmcontrol>
+        <ng-container *ngIf="!showEditor && this.clips.length > 0">
+            <h2>Saved Clips</h2>
             <div class="mb-3">
-                <label for="clipName" class="form-label">Clip Name<span class="text-danger">*</span></label>
-                <input type="text" class="form-control" id="clipName" formControlName="clipNameControl" />
-                <div class="form-text">Try to pick something short. Has to be Alpha Numeric and unique across your
-                    clips.
-                </div>
-                <div class="form-text text-danger"
-                    *ngIf="clipNameControl?.invalid  && (clipNameControl?.dirty || clipNameControl?.touched)">
-                    <div [hidden]="!clipNameControl?.errors?.['required']">
-                        Clip name is required.
-                    </div>
-                    <div [hidden]="!clipNameControl?.errors?.['maxlength']">
-                        Clip name max length is 50 characters.
-                    </div>
-                    <div [hidden]="!clipNameControl?.errors?.['pattern']">
-                        Clip name must be alpha numeric.
-                    </div>
-                </div>
-            </div>
-            <div class="mb-3" *ngIf="layersFormArray.length === 0">
-                <h3>Pick A Background Layer</h3>
-                <p></p>
-                <ngb-alert [type]="'warning'" [dismissible]="false"><i class="bi bi-exclamation-triangle-fill"></i> To be able to save your clip you must have a background layer.</ngb-alert>
                 <div class="row">
-                    <div *ngFor="let layer of userBackgrounds; let i = index" class="col-sm mb-3">
-                        <app-galleryplayer [layer]="layer" (addButtonClickLayerEvent)="addLayer($event)" [bpm]="bpm"
-                            [isPlaying]="isPlaying">
-                        </app-galleryplayer>
+                    <div *ngFor="let clip of clips; let i = index" class="col-sm mb-3">
+                        <app-galleryplayer [clip]="clip" [bpm]="bpm" [isPlaying]="isPlaying" [showEdit]="true"
+                            [showAdd]="false" (editButtonClickClipEvent)="editClip($event)"></app-galleryplayer>
                     </div>
                 </div>
             </div>
-            <ng-container *ngIf="layersFormArray.length > 0 && isAddingLayer === false">
+        </ng-container>
+        <div *ngIf="!showEditor" class="mb-3">
+            <span [ngbTooltip]="canAddLayerTooltip()" placement="right">
+                <button type="button" class="btn btn-success" (click)="toggleEditor()" [disabled]="!canAddLayer()"><i
+                        class="bi bi-plus-circle-fill"></i>
+                    Add new clip</button>
+            </span>
+        </div>
+        <ng-container *ngIf="showEditor">
+            <h2>Clip Editor</h2>
+            <ngb-alert [type]="'warning'" [dismissible]="false" *ngIf="clipId > 0"><i
+                    class="bi bi-exclamation-triangle-fill"></i> Editing
+                existing clip. Changes here will reflect in existing videos.</ngb-alert>
+            <form [formGroup]="clipForm" (ngSubmit)="onSubmit()">
                 <div class="mb-3">
-                    <h3>Clip Layers</h3>
-                    <ol class="list-group list-group-numbered">
-                        <li *ngFor="let layerControl of layersFormArray.controls; let i = index"
-                            class="list-group-item">
-                            {{layerControl.value.layerName}}
-                            <div class="btn-group float-end" role="group">
-                                <button *ngIf="i > 1" type="button" class="btn btn-secondary ms-1"
-                                    (click)="moveBack(i)"><i class="bi bi-back"></i> Move Back</button>
-                                <button *ngIf="i !== layersFormArray.controls.length - 1 && i !== 0" type="button"
-                                    class="btn btn-secondary ms-1" (click)="moveForward(i)"><i
-                                        class="bi bi-front"></i> Move
-                                    Forward</button>
-                                <button *ngIf="i === layersFormArray.controls.length - 1" type="button"
-                                    class="btn btn-danger ms-1" (click)="removeLayer(i)"><i
-                                        class="bi bi-dash-circle-fill"></i>
-                                    Remove</button>
-                            </div>
-                        </li>
-                    </ol>
-                    <div class="form-text text-danger" *ngIf="layersFormArray?.invalid">
-                        <div [hidden]="!layersFormArray?.errors?.['maxlength']">
-                            You can't have more than 255 layers in a clip.
+                    <label for="clipName" class="form-label">Clip Name<span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="clipName" formControlName="clipNameControl" />
+                    <div class="form-text">Try to pick something short. Has to be Alpha Numeric and unique across your
+                        clips.
+                    </div>
+                    <div class="form-text text-danger"
+                        *ngIf="clipNameControl?.invalid  && (clipNameControl?.dirty || clipNameControl?.touched)">
+                        <div [hidden]="!clipNameControl?.errors?.['required']">
+                            Clip name is required.
+                        </div>
+                        <div [hidden]="!clipNameControl?.errors?.['maxlength']">
+                            Clip name max length is 50 characters.
+                        </div>
+                        <div [hidden]="!clipNameControl?.errors?.['pattern']">
+                            Clip name must be alpha numeric.
                         </div>
                     </div>
                 </div>
-                <div class="mb-3">
-                    <span [ngbTooltip]="canAddLayerTooltip()" placement="right">
-                        <button type="button" class="btn btn-success" (click)="toggleAddNewLayer()"
-                            [disabled]="!canAddLayer()">
-                            <i class="bi bi-plus-circle-fill"></i> Add Another Layer</button>
-                    </span>
-                </div>
-                <div class="mb-3">
-                    <h3>Final Clip Player</h3>
-                    <app-galleryplayer [clip]="editorClip" [bpm]="bpm" [isPlaying]="isPlaying" [showAdd]="false">
-                    </app-galleryplayer>
-                </div>
-            </ng-container>
-            <div class="mb-3" *ngIf="isAddingLayer === true">
-                <h3>Pick A Foreground Layer</h3>
-                <p>This layer will be placed on top of all the other layers you have.</p>
-                <div class="row">
-                    <div *ngFor="let layer of userForegrounds; let i = index" class="col-sm mb-3">
-                        <app-galleryplayer [layer]="layer" (addButtonClickLayerEvent)="addLayer($event)"
-                            [disableFunction]="disableLayer" [disableTooltipFunction]="disableLayerTooltip" [bpm]="bpm"
-                            [isPlaying]="isPlaying">
-                        </app-galleryplayer>
+                <div class="mb-3" *ngIf="layersFormArray.length === 0">
+                    <h3>Pick A Background Layer</h3>
+                    <p></p>
+                    <ngb-alert [type]="'warning'" [dismissible]="false"><i class="bi bi-exclamation-triangle-fill"></i>
+                        To be able to save your clip you must have a background layer.</ngb-alert>
+                    <div class="row">
+                        <div *ngFor="let layer of userBackgrounds; let i = index" class="col-sm mb-3">
+                            <app-galleryplayer [layer]="layer" (addButtonClickLayerEvent)="addLayer($event)" [bpm]="bpm"
+                                [isPlaying]="isPlaying">
+                            </app-galleryplayer>
+                        </div>
                     </div>
                 </div>
-                <button type="button" class="btn btn-danger" (click)="toggleAddNewLayer()">
-                    <i class="bi bi-dash-circle-fill"></i> Cancel Adding Layer</button>
-            </div>
-            <div class="mb-3">
-                <button type="submit" [disabled]="!clipForm.valid || saving || noClipChanges()" class="btn btn-primary me-1">Save</button>
-                <button type="button" class="btn btn-danger" (click)="toggleEditor()"><i
-                        class="bi bi-dash-circle-fill"></i>
-                    Cancel</button>
-            </div>
-        </form>
+                <ng-container *ngIf="layersFormArray.length > 0 && isAddingLayer === false">
+                    <div class="mb-3">
+                        <h3>Clip Layers</h3>
+                        <ol class="list-group list-group-numbered">
+                            <li *ngFor="let layerControl of layersFormArray.controls; let i = index"
+                                class="list-group-item">
+                                {{layerControl.value.layerName}}
+                                <div class="btn-group float-end" role="group">
+                                    <button *ngIf="i > 1" type="button" class="btn btn-secondary ms-1"
+                                        (click)="moveBack(i)"><i class="bi bi-back"></i> Move Back</button>
+                                    <button *ngIf="i !== layersFormArray.controls.length - 1 && i !== 0" type="button"
+                                        class="btn btn-secondary ms-1" (click)="moveForward(i)"><i
+                                            class="bi bi-front"></i> Move
+                                        Forward</button>
+                                    <button *ngIf="i === layersFormArray.controls.length - 1" type="button"
+                                        class="btn btn-danger ms-1" (click)="removeLayer(i)"><i
+                                            class="bi bi-dash-circle-fill"></i>
+                                        Remove</button>
+                                </div>
+                            </li>
+                        </ol>
+                        <div class="form-text text-danger" *ngIf="layersFormArray?.invalid">
+                            <div [hidden]="!layersFormArray?.errors?.['maxlength']">
+                                You can't have more than 255 layers in a clip.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <span [ngbTooltip]="canAddLayerTooltip()" placement="right">
+                            <button type="button" class="btn btn-success" (click)="toggleAddNewLayer()"
+                                [disabled]="!canAddLayer()">
+                                <i class="bi bi-plus-circle-fill"></i> Add Another Layer</button>
+                        </span>
+                    </div>
+                    <div class="mb-3">
+                        <h3>Final Clip Player</h3>
+                        <app-galleryplayer [clip]="editorClip" [bpm]="bpm" [isPlaying]="isPlaying" [showAdd]="false">
+                        </app-galleryplayer>
+                    </div>
+                </ng-container>
+                <div class="mb-3" *ngIf="isAddingLayer === true">
+                    <h3>Pick A Foreground Layer</h3>
+                    <p>This layer will be placed on top of all the other layers you have.</p>
+                    <div class="row">
+                        <div *ngFor="let layer of userForegrounds; let i = index" class="col-sm mb-3">
+                            <app-galleryplayer [layer]="layer" (addButtonClickLayerEvent)="addLayer($event)"
+                                [disableFunction]="disableLayer" [disableTooltipFunction]="disableLayerTooltip"
+                                [bpm]="bpm" [isPlaying]="isPlaying">
+                            </app-galleryplayer>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-danger" (click)="toggleAddNewLayer()">
+                        <i class="bi bi-dash-circle-fill"></i> Cancel Adding Layer</button>
+                </div>
+                <div class="mb-3">
+                    <button type="submit" [disabled]="!clipForm.valid || saving || noClipChanges()"
+                        class="btn btn-primary me-1">Save</button>
+                    <button type="button" class="btn btn-danger" (click)="toggleEditor()"><i
+                            class="bi bi-dash-circle-fill"></i>
+                        Cancel</button>
+                </div>
+            </form>
+        </ng-container>
+        <div class="mb-3">
+            <button type="button" class="btn btn-secondary" [routerLink]="'/musicVideoBuilder'" [disabled]="!hasClip"><i
+                    class="bi bi-arrow-right-circle-fill"></i> Music Video Builder</button>
+        </div>
     </ng-container>
-    <div class="mb-3">
-        <button type="button" class="btn btn-secondary" [routerLink]="'/musicVideoBuilder'" [disabled]="!hasClip"><i
-                class="bi bi-arrow-right-circle-fill"></i> Music Video Builder</button>
-    </div>
 </div>

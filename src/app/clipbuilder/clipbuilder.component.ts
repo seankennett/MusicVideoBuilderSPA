@@ -22,18 +22,8 @@ export class ClipBuilderComponent implements OnInit {
   constructor(private formBuilder: FormBuilder, private userLayerService: UserlayerService, private clipService: ClipService, private route: ActivatedRoute, private location: Location) { }
 
   ngOnInit(): void {
-    this.clipService.getAll().pipe(
-      catchError((error: HttpErrorResponse) => {
-        alert('Something went wrong on the server, try again!');
-        return throwError(() => new Error('Something went wrong on the server, try again!'));
-      })
-    ).subscribe((clips: Clip[]) => {
-      this.userLayerService.getAll().pipe(
-        catchError((error: HttpErrorResponse) => {
-          alert('Something went wrong on the server, try again!');
-          return throwError(() => new Error('Something went wrong on the server, try again!'));
-        })
-      ).subscribe((userLayers: UserLayer[]) => {
+    this.clipService.getAll().subscribe((clips: Clip[]) => {
+      this.userLayerService.getAll().subscribe((userLayers: UserLayer[]) => {
         this.clips = clips;
         var id = Number(this.route.firstChild?.snapshot?.params['id']);
         if (!isNaN(id)) {
@@ -43,10 +33,12 @@ export class ClipBuilderComponent implements OnInit {
           }
         }
         this.userLayers = userLayers
+        this.pageLoading = false;
       });
     });
   }
 
+  pageLoading = true;
 
   clips: Clip[] = [];
   userLayers: UserLayer[] = [];
@@ -147,7 +139,7 @@ export class ClipBuilderComponent implements OnInit {
     this.clipService.post(this.editorClip).pipe(
       catchError((error: HttpErrorResponse) => {
         this.saving = false;
-        return throwError(() => new Error('Something went wrong on the server, try again!'));
+        return throwError(() => new Error());
       })
     ).subscribe((clip: Clip) => {
       this.saving = false;
