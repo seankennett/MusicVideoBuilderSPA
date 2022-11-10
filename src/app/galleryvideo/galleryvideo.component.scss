@@ -1,18 +1,24 @@
 $freeImageWidth: 384px;
-// $freeImageHeight: 216px;
 $galleryImageWidth: 192px;
 $imageHeight: 108px;
 
 .imageContainer{
     position:relative;
-    overflow:hidden;
     width:$freeImageWidth;
     height:$imageHeight;
     margin: auto;
 }
 
-.imageContainer img {
+.imageContainer div {
     position:absolute;
     top:0;
     height:$imageHeight;
+    width: $galleryImageWidth;
+    overflow:hidden;
+}
+
+.imageContainer img {
+    position:absolute;
+    height:$imageHeight;
+    left: 0;
 }
