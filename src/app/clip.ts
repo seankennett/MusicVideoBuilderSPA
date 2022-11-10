@@ -4,5 +4,6 @@ export interface Clip {
     clipId: number,
     clipName: string,
     userLayers: Array<UserLayer>
-    dateUpdated: Date
+    dateUpdated: Date,
+    backgroundColour: string
 }

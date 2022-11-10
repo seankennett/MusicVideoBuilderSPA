@@ -1,7 +1,7 @@
 import { Location } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
-import { AbstractControl, FormBuilder, Validators } from '@angular/forms';
+import { AbstractControl, FormArray, FormBuilder, FormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
 import { Clip } from '../clip';
@@ -38,6 +38,8 @@ export class ClipBuilderComponent implements OnInit {
     });
   }
 
+  Layertypes = Layertypes;
+
   pageLoading = true;
 
   clips: Clip[] = [];
@@ -67,12 +69,22 @@ export class ClipBuilderComponent implements OnInit {
   }
 
   clipNameControl = this.formBuilder.control('', [Validators.required, Validators.maxLength(50), Validators.pattern("[A-z0-9]+")]);
-  layersFormArray = this.formBuilder.array([], [Validators.required, Validators.maxLength(255)])
+  backgroundColourControl = this.formBuilder.control('#000000');
+  layersFormArray = this.formBuilder.array([], [Validators.maxLength(255)]);
 
   clipForm = this.formBuilder.group({
     clipNameControl: this.clipNameControl,
-    layersFormArray: this.layersFormArray
-  })
+    layersFormArray: this.layersFormArray,
+    backgroundColourControl: this.backgroundColourControl
+  }, {validator: this.clipFormValidator.bind(this)});
+
+  clipFormValidator(form: FormGroup): ValidationErrors | null {
+    if (this.backgroundColour === null && (form.get('layersFormArray') as FormArray).length === 0){
+      return {noLayers: true};
+    }
+    
+    return null;
+}
 
   showEditor = false;
   showExistingClipWarning = true;
@@ -81,6 +93,8 @@ export class ClipBuilderComponent implements OnInit {
   toggleEditor = () => {
     this.setClipId(0);
     this.clipNameControl.reset();
+    this.backgroundColourControl.reset('#000000');
+    this.backgroundColour = null;
     this.layersFormArray.clear();
     this.isAddingLayer = false;
     this.showExistingClipWarning = true;
@@ -129,7 +143,8 @@ export class ClipBuilderComponent implements OnInit {
       clipName: this.clipNameControl.value,
       userLayers: this.layersFormArray.controls.map((control) => {
         return control.value
-      })
+      }),
+      backgroundColour: this.backgroundColour
     };
   }
 
@@ -158,6 +173,7 @@ export class ClipBuilderComponent implements OnInit {
     this.toggleEditor();
     this.setClipId(clip.clipId);
     this.clipNameControl.setValue(clip.clipName);
+    this.backgroundColour = clip.backgroundColour;
     clip.userLayers.forEach(ul => {
       var userLayer = this.userLayers.find(userLayer => userLayer.userLayerId === ul.userLayerId);
       if (userLayer) {
@@ -196,6 +212,19 @@ export class ClipBuilderComponent implements OnInit {
     }
 
     return '';
+  }
+
+  backgroundColour: string | null = null;
+
+  addBackgroundColour = () =>{
+    this.backgroundColour = this.backgroundColourControl.value.substring(1);
+    this.isAddingLayer = false;
+    this.clipForm.updateValueAndValidity({onlySelf: true});
+  }
+
+  removeBackgroundColour = () =>{
+    this.backgroundColour = null;
+    this.backgroundColourControl.reset('#000000');
   }
 
   bpm: number = 0;

@@ -1,5 +1,5 @@
 <div class="card text-center">
-    <div class="imageContainer">
+    <div class="imageContainer" [style.background-color]="clip && clip.backgroundColour !== null ? '#' + clip.backgroundColour : 'none'">
         <img [src]="'https://cdn.musicvideobuilder.com/' + layer.layerId + '/' + layer.layerId + '.png'"
             [alt]="layer.layerName" [style.left.px]="leftPosition" *ngIf="layer" />
         <ng-container *ngIf="clip && clip.userLayers?.length ?? 0 > 0">

@@ -40,7 +40,7 @@ export class MyLibraryComponent implements OnInit {
 
         this.userLayerService.getAll().subscribe((userLayers: UserLayer[]) => {
           userLayers.forEach(userLayer => {
-            var dependentClips = clips.filter(c => c.userLayers.some(u => u.userLayerId === userLayer.userLayerId));
+            var dependentClips = clips.filter(c => c.userLayers && c.userLayers.some(u => u.userLayerId === userLayer.userLayerId));
             if (dependentClips.length > 0) {
               this.dependentUserLayers.push({ userLayer: userLayer, clips: dependentClips });
             } else {

@@ -21,11 +21,9 @@
             </div>
         </ng-container>
         <div *ngIf="!showEditor" class="mb-3">
-            <span [ngbTooltip]="canAddLayerTooltip()" placement="right">
-                <button type="button" class="btn btn-success" (click)="toggleEditor()" [disabled]="!canAddLayer()"><i
-                        class="bi bi-plus-circle-fill"></i>
-                    Add new clip</button>
-            </span>
+            <button type="button" class="btn btn-success" (click)="toggleEditor()"><i
+                    class="bi bi-plus-circle-fill"></i>
+                Add new clip</button>
         </div>
         <ng-container *ngIf="showEditor">
             <h2>Clip Editor</h2>
@@ -52,12 +50,23 @@
                         </div>
                     </div>
                 </div>
-                <div class="mb-3" *ngIf="layersFormArray.length === 0">
+                <div class="mb-3" *ngIf="layersFormArray.length === 0 && backgroundColour === null">
                     <h3>Pick A Background Layer</h3>
-                    <p></p>
+                    <p>You can either choose a solid colour background or select from the backgrounds you picked in <a
+                            [routerLink]="['/layerFinder']">Layer Finder</a></p>
                     <ngb-alert [type]="'warning'" [dismissible]="false"><i class="bi bi-exclamation-triangle-fill"></i>
                         To be able to save your clip you must have a background layer.</ngb-alert>
-                    <div class="row">
+                    <div class="mb-3">
+                        <label for="backgroundColour" class="form-label">Background Colour</label>
+                        <input type="color" class="form-control" id="backgroundColour"
+                        formControlName="backgroundColourControl" />           
+                    </div>
+                    <div class="mb-3">
+                        <button type="button" (click)="addBackgroundColour()" class="btn btn-success">
+                            <i class="bi bi-plus-circle-fill"></i> Add</button>
+                    </div>
+                    <div class="row" *ngIf="userBackgrounds.length > 0">
+                        <label class="form-label">Background Layer</label>
                         <div *ngFor="let layer of userBackgrounds; let i = index" class="col-sm mb-3">
                             <app-galleryplayer [layer]="layer" (addButtonClickLayerEvent)="addLayer($event)" [bpm]="bpm"
                                 [isPlaying]="isPlaying">
@@ -65,17 +74,24 @@
                         </div>
                     </div>
                 </div>
-                <ng-container *ngIf="layersFormArray.length > 0 && isAddingLayer === false">
+                <ng-container *ngIf="(layersFormArray.length > 0 || backgroundColour !== null) && isAddingLayer === false">
                     <div class="mb-3">
                         <h3>Clip Layers</h3>
                         <ol class="list-group list-group-numbered">
+                            <li *ngIf="backgroundColour !== null" class="list-group-item">Solid background 
+                                <i class="bi bi-square-fill" [style.color]="backgroundColour"></i>
+                                <div class="btn-group float-end" role="group">
+                                <button *ngIf="0 === layersFormArray.controls.length" type="button"
+                                class="btn btn-danger ms-1" (click)="removeBackgroundColour()"><i
+                                    class="bi bi-dash-circle-fill"></i>
+                                Remove</button></div></li>
                             <li *ngFor="let layerControl of layersFormArray.controls; let i = index"
                                 class="list-group-item">
                                 {{layerControl.value.layerName}}
                                 <div class="btn-group float-end" role="group">
-                                    <button *ngIf="i > 1" type="button" class="btn btn-secondary ms-1"
+                                    <button *ngIf="i > 0 && layersFormArray.controls[i - 1].value.layerType === Layertypes.Foreground" type="button" class="btn btn-secondary ms-1"
                                         (click)="moveBack(i)"><i class="bi bi-back"></i> Move Back</button>
-                                    <button *ngIf="i !== layersFormArray.controls.length - 1 && i !== 0" type="button"
+                                    <button *ngIf="i !== layersFormArray.controls.length - 1 && layerControl.value.layerType === Layertypes.Foreground" type="button"
                                         class="btn btn-secondary ms-1" (click)="moveForward(i)"><i
                                             class="bi bi-front"></i> Move
                                         Forward</button>

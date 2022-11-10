@@ -206,7 +206,7 @@
                                             *ngFor="let clipControl of this.clipsFormArray.controls; let i = index; let last = last">
                                             <div class="col-3 mb-3" *ngIf="showBlock(i)">
                                                 <div class="card text-center">
-                                                    <div class="imageContainer">
+                                                    <div class="imageContainer" [style.background-color]="clipControl.value.backgroundColour !== null ? '#' + clipControl.value.backgroundColour : 'none'">
                                                         <img *ngFor="let layerloop of clipControl.value.userLayers; let i = index"
                                                             [src]="'https://cdn.musicvideobuilder.com/' + layerloop.layerId + '/' + layerloop.layerId + '.png'"
                                                             [alt]="layerloop.layerName" [style.left.px]="0"
