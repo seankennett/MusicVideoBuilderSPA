@@ -25,6 +25,7 @@ export class ClipBuilderComponent implements OnInit {
     this.clipService.getAll().subscribe((clips: Clip[]) => {
       this.userLayerService.getAll().subscribe((userLayers: UserLayer[]) => {
         this.clips = clips;
+        this.userLayers = userLayers
         var id = Number(this.route.firstChild?.snapshot?.params['id']);
         if (!isNaN(id)) {
           var clip = clips.find(x => x.clipId === id);
@@ -32,7 +33,6 @@ export class ClipBuilderComponent implements OnInit {
             this.editClip(clip);
           }
         }
-        this.userLayers = userLayers
         this.pageLoading = false;
       });
     });
@@ -76,15 +76,15 @@ export class ClipBuilderComponent implements OnInit {
     clipNameControl: this.clipNameControl,
     layersFormArray: this.layersFormArray,
     backgroundColourControl: this.backgroundColourControl
-  }, {validator: this.clipFormValidator.bind(this)});
+  }, { validator: this.clipFormValidator.bind(this) });
 
   clipFormValidator(form: FormGroup): ValidationErrors | null {
-    if (this.backgroundColour === null && (form.get('layersFormArray') as FormArray).length === 0){
-      return {noLayers: true};
+    if (this.backgroundColour === null && (form.get('layersFormArray') as FormArray).length === 0) {
+      return { noLayers: true };
     }
-    
+
     return null;
-}
+  }
 
   showEditor = false;
   showExistingClipWarning = true;
@@ -173,7 +173,9 @@ export class ClipBuilderComponent implements OnInit {
     this.toggleEditor();
     this.setClipId(clip.clipId);
     this.clipNameControl.setValue(clip.clipName);
-    this.backgroundColour = clip.backgroundColour;
+    if (clip.backgroundColour !== null) {
+      this.addBackgroundColour(clip.backgroundColour);
+    }
     clip.userLayers.forEach(ul => {
       var userLayer = this.userLayers.find(userLayer => userLayer.userLayerId === ul.userLayerId);
       if (userLayer) {
@@ -216,13 +218,13 @@ export class ClipBuilderComponent implements OnInit {
 
   backgroundColour: string | null = null;
 
-  addBackgroundColour = () =>{
-    this.backgroundColour = this.backgroundColourControl.value.substring(1);
+  addBackgroundColour = (backgroundColour: string) => {
+    this.backgroundColour = backgroundColour;
     this.isAddingLayer = false;
-    this.clipForm.updateValueAndValidity({onlySelf: true});
+    this.clipForm.updateValueAndValidity({ onlySelf: true });
   }
 
-  removeBackgroundColour = () =>{
+  removeBackgroundColour = () => {
     this.backgroundColour = null;
     this.backgroundColourControl.reset('#000000');
   }

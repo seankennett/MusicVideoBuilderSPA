@@ -554,7 +554,7 @@ export class MusicVideoBuilderComponent implements OnInit {
     this.generatingZip = true;
     this.isGettingCode = true;
     // call server to get ffmpeg code and send back asset ids (this should be accurate in memeory but better to have proper validation)
-    this.videoAssetService.get(this.videoId, true, this.includeAudioFile ? this.file?.name : undefined, this.includeCodeFiles, this.includeImageFiles).pipe(
+    this.videoAssetService.get(this.videoId, true, this.file?.name, this.includeCodeFiles, this.includeImageFiles).pipe(
       catchError((error: HttpErrorResponse) => {
         this.generatingZip = false;
         this.isGettingCode = false;

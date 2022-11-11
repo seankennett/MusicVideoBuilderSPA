@@ -62,7 +62,7 @@
                         formControlName="backgroundColourControl" />           
                     </div>
                     <div class="mb-3">
-                        <button type="button" (click)="addBackgroundColour()" class="btn btn-success">
+                        <button type="button" (click)="addBackgroundColour(backgroundColourControl.value.substring(1))" class="btn btn-success">
                             <i class="bi bi-plus-circle-fill"></i> Add</button>
                     </div>
                     <div class="row" *ngIf="userBackgrounds.length > 0">
@@ -79,7 +79,7 @@
                         <h3>Clip Layers</h3>
                         <ol class="list-group list-group-numbered">
                             <li *ngIf="backgroundColour !== null" class="list-group-item">Solid background 
-                                <i class="bi bi-square-fill" [style.color]="backgroundColour"></i>
+                                <i class="bi bi-square-fill" [style.color]="'#' + backgroundColour"></i>
                                 <div class="btn-group float-end" role="group">
                                 <button *ngIf="0 === layersFormArray.controls.length" type="button"
                                 class="btn btn-danger ms-1" (click)="removeBackgroundColour()"><i
