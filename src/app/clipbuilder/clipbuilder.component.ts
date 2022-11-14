@@ -12,6 +12,8 @@ import { Layertypes } from '../layertypes';
 import { UserLayer } from '../userlayer';
 import { UserlayerService } from '../userlayer.service';
 
+const beatsPerLayer = 4;
+
 @Component({
   selector: 'app-clipbuilder',
   templateUrl: './clipbuilder.component.html',
@@ -71,16 +73,24 @@ export class ClipBuilderComponent implements OnInit {
   clipNameControl = this.formBuilder.control('', [Validators.required, Validators.maxLength(50), Validators.pattern("[A-z0-9]+")]);
   backgroundColourControl = this.formBuilder.control('#000000');
   layersFormArray = this.formBuilder.array([], [Validators.maxLength(255)]);
+  beatLengthControl = this.formBuilder.control(4, [Validators.required, Validators.max(4), Validators.min(1)]);
+  startingBeatControl = this.formBuilder.control(1, [Validators.required, Validators.max(4), Validators.min(1)]);
 
   clipForm = this.formBuilder.group({
     clipNameControl: this.clipNameControl,
     layersFormArray: this.layersFormArray,
-    backgroundColourControl: this.backgroundColourControl
+    backgroundColourControl: this.backgroundColourControl,
+    beatLengthControl: this.beatLengthControl,
+    startingBeatControl: this.startingBeatControl,
   }, { validator: this.clipFormValidator.bind(this) });
 
   clipFormValidator(form: FormGroup): ValidationErrors | null {
     if (this.backgroundColour === null && (form.get('layersFormArray') as FormArray).length === 0) {
       return { noLayers: true };
+    }
+
+    if (beatsPerLayer - form.get('beatLengthControl')?.value < form.get('startingBeatControl')?.value - 1) {
+      return { invalidBeatSettings: true };
     }
 
     return null;
@@ -95,6 +105,8 @@ export class ClipBuilderComponent implements OnInit {
     this.clipNameControl.reset();
     this.backgroundColourControl.reset('#000000');
     this.backgroundColour = null;
+    this.beatLengthControl.reset(4);
+    this.startingBeatControl.reset(1);
     this.layersFormArray.clear();
     this.isAddingLayer = false;
     this.showExistingClipWarning = true;
@@ -144,7 +156,9 @@ export class ClipBuilderComponent implements OnInit {
       userLayers: this.layersFormArray.controls.map((control) => {
         return control.value
       }),
-      backgroundColour: this.backgroundColour
+      backgroundColour: this.backgroundColour,
+      beatLength: this.beatLengthControl.value,
+      startingBeat: this.startingBeatControl.value,
     };
   }
 
@@ -176,6 +190,9 @@ export class ClipBuilderComponent implements OnInit {
     if (clip.backgroundColour !== null) {
       this.addBackgroundColour(clip.backgroundColour);
     }
+    this.beatLengthControl.setValue(clip.beatLength);
+    this.startingBeatControl.setValue(clip.startingBeat);
+    
     clip.userLayers.forEach(ul => {
       var userLayer = this.userLayers.find(userLayer => userLayer.userLayerId === ul.userLayerId);
       if (userLayer) {
@@ -237,5 +254,20 @@ export class ClipBuilderComponent implements OnInit {
 
   setIsPlaying = (isPlaying: boolean) => {
     this.isPlaying = isPlaying;
+  }
+
+  get startingBeatOptions() {
+    var startingBeatOptions = new Array<number>();
+    for (var i = 0; i <= beatsPerLayer - this.beatLengthControl.value; i++) {
+      startingBeatOptions.push(i + 1);
+    }
+
+    return startingBeatOptions;
+  };
+
+  updateStartingBeat() {
+    if (this.clipForm.hasError('invalidBeatSettings') === true) {
+      this.startingBeatControl.setValue(1);
+    }
   }
 }

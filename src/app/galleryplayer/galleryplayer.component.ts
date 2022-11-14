@@ -8,7 +8,7 @@ const secondsInMinute = 60;
 const millisecondsInSecond = 1000;
 const beatsPerLayer = 4;
 const frameTotal = 64;
-const framesPerSecond = 1/24;
+const framesPerSecond = 1 / 24;
 
 @Component({
   selector: 'app-galleryplayer',
@@ -27,8 +27,8 @@ export class GalleryplayerComponent implements OnInit, OnChanges {
   @Input() bpm!: number;
   @Input() isPlaying: boolean = false;
 
-  @Input() disableFunction: (layer: Layer) => boolean = (layer) => { return false}
-  @Input() disableTooltipFunction: (layer: Layer) => string = (layer) => {return ''}
+  @Input() disableFunction: (layer: Layer) => boolean = (layer) => { return false }
+  @Input() disableTooltipFunction: (layer: Layer) => string = (layer) => { return '' }
 
   @Input() showAdd: boolean = true;
   @Input() showEdit: boolean = false;
@@ -43,14 +43,20 @@ export class GalleryplayerComponent implements OnInit, OnChanges {
 
   constructor() { }
 
-  get playerTitle(){
+  get playerTitle() {
     return this.layer?.layerName ?? this.clip?.clipName ?? '';
+  }
+
+  private get skipFrames() {
+    return ((this.clip?.startingBeat ?? 1) - 1) * frameTotal / 4;
   }
 
   ngOnInit(): void {
     if (this.isPlaying === true) {
       this.togglePlay();
     }
+
+    this.leftPosition = -(this.skipFrames * imageWidth);
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -59,11 +65,15 @@ export class GalleryplayerComponent implements OnInit, OnChanges {
     } else if (changes['isPlaying'] && changes['isPlaying'].currentValue !== this.localIsPlaying) {
       this.togglePlay();
     }
+
+    if (changes['clip'] && changes['clip'].previousValue && changes['clip'].currentValue && changes['clip'].previousValue.startingBeat !== changes['clip'].currentValue.startingBeat && this.isPlaying === false) {
+      this.leftPosition = -(this.skipFrames * imageWidth);
+    }
   }
 
   togglePlay = () => {
     this.localIsPlaying = !this.localIsPlaying;
-    this.leftPosition = 0;
+    this.leftPosition = -(this.skipFrames * imageWidth);
     this.progress = 0;
     if (this.localIsPlaying) {
       var startTime = Date.now();
@@ -73,13 +83,17 @@ export class GalleryplayerComponent implements OnInit, OnChanges {
       ).subscribe(() => {
         var newTime = Date.now();
         var currentTime = (newTime - startTime) / millisecondsInSecond;
-        var layerDuration = secondsInMinute / this.localBpm.value * beatsPerLayer;
+
+        var numberOfBeats = this.clip?.beatLength ?? beatsPerLayer;
+        var layerDuration = secondsInMinute / this.localBpm.value * numberOfBeats;
         var currentTimeInLayer = currentTime % layerDuration;
 
-        var percentageOfLayerDuration = currentTimeInLayer / layerDuration;        
+        var percentageOfLayerDuration = currentTimeInLayer / layerDuration;
 
-        var frameInLayerNumber = Math.round(frameTotal * percentageOfLayerDuration);
-        if (frameInLayerNumber >= frameTotal){
+        var numberOfFrames = numberOfBeats * frameTotal / 4
+
+        var frameInLayerNumber = Math.round((numberOfFrames) * percentageOfLayerDuration) + this.skipFrames;
+        if (frameInLayerNumber >= frameTotal) {
           frameInLayerNumber = frameTotal - 1;
         }
 

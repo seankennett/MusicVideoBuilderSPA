@@ -50,6 +50,33 @@
                         </div>
                     </div>
                 </div>
+                <div class="mb-3">
+                    <label for="beatLength" class="form-label">Number Of Beats</label>
+                    <select id="beatLength" formControlName="beatLengthControl" class="form-control" (change)="updateStartingBeat()">
+                        <option [ngValue]="1">
+                            1
+                        </option>
+                        <option [ngValue]="2">
+                            2
+                        </option>
+                        <option [ngValue]="3">
+                            3
+                        </option>
+                        <option [ngValue]="4">
+                            4
+                        </option>
+                    </select>
+                    <div class="form-text">It is highly recommended you leave this setting at 4 beats.
+                    </div>
+                </div>
+                <div class="mb-3" *ngIf="startingBeatOptions.length > 1">
+                    <label for="startingBeat" class="form-label">Starting Beat</label>
+                    <select id="startingBeat" formControlName="startingBeatControl" class="form-control">
+                        <option [ngValue]="startingBeatOption" *ngFor="let startingBeatOption of startingBeatOptions">
+                            {{startingBeatOption}}
+                        </option>
+                    </select>
+                </div>
                 <div class="mb-3" *ngIf="layersFormArray.length === 0 && backgroundColour === null">
                     <h3>Pick A Background Layer</h3>
                     <p>You can either choose a solid colour background or select from the backgrounds you picked in <a
@@ -59,10 +86,11 @@
                     <div class="mb-3">
                         <label for="backgroundColour" class="form-label">Background Colour</label>
                         <input type="color" class="form-control" id="backgroundColour"
-                        formControlName="backgroundColourControl" />           
+                            formControlName="backgroundColourControl" />
                     </div>
                     <div class="mb-3">
-                        <button type="button" (click)="addBackgroundColour(backgroundColourControl.value.substring(1))" class="btn btn-success">
+                        <button type="button" (click)="addBackgroundColour(backgroundColourControl.value.substring(1))"
+                            class="btn btn-success">
                             <i class="bi bi-plus-circle-fill"></i> Add</button>
                     </div>
                     <div class="row" *ngIf="userBackgrounds.length > 0">
@@ -74,25 +102,31 @@
                         </div>
                     </div>
                 </div>
-                <ng-container *ngIf="(layersFormArray.length > 0 || backgroundColour !== null) && isAddingLayer === false">
+                <ng-container
+                    *ngIf="(layersFormArray.length > 0 || backgroundColour !== null) && isAddingLayer === false">
                     <div class="mb-3">
                         <h3>Clip Layers</h3>
                         <ol class="list-group list-group-numbered">
-                            <li *ngIf="backgroundColour !== null" class="list-group-item">Solid background 
+                            <li *ngIf="backgroundColour !== null" class="list-group-item">Solid background
                                 <i class="bi bi-square-fill" [style.color]="'#' + backgroundColour"></i>
                                 <div class="btn-group float-end" role="group">
-                                <button *ngIf="0 === layersFormArray.controls.length" type="button"
-                                class="btn btn-danger ms-1" (click)="removeBackgroundColour()"><i
-                                    class="bi bi-dash-circle-fill"></i>
-                                Remove</button></div></li>
+                                    <button *ngIf="0 === layersFormArray.controls.length" type="button"
+                                        class="btn btn-danger ms-1" (click)="removeBackgroundColour()"><i
+                                            class="bi bi-dash-circle-fill"></i>
+                                        Remove</button>
+                                </div>
+                            </li>
                             <li *ngFor="let layerControl of layersFormArray.controls; let i = index"
                                 class="list-group-item">
                                 {{layerControl.value.layerName}}
                                 <div class="btn-group float-end" role="group">
-                                    <button *ngIf="i > 0 && layersFormArray.controls[i - 1].value.layerType === Layertypes.Foreground" type="button" class="btn btn-secondary ms-1"
-                                        (click)="moveBack(i)"><i class="bi bi-back"></i> Move Back</button>
-                                    <button *ngIf="i !== layersFormArray.controls.length - 1 && layerControl.value.layerType === Layertypes.Foreground" type="button"
-                                        class="btn btn-secondary ms-1" (click)="moveForward(i)"><i
+                                    <button
+                                        *ngIf="i > 0 && layersFormArray.controls[i - 1].value.layerType === Layertypes.Foreground"
+                                        type="button" class="btn btn-secondary ms-1" (click)="moveBack(i)"><i
+                                            class="bi bi-back"></i> Move Back</button>
+                                    <button
+                                        *ngIf="i !== layersFormArray.controls.length - 1 && layerControl.value.layerType === Layertypes.Foreground"
+                                        type="button" class="btn btn-secondary ms-1" (click)="moveForward(i)"><i
                                             class="bi bi-front"></i> Move
                                         Forward</button>
                                     <button *ngIf="i === layersFormArray.controls.length - 1" type="button"

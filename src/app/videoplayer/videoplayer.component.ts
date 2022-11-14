@@ -25,27 +25,28 @@ export class VideoplayerComponent implements OnInit {
 
   @Input() video!: Video;
 
-  get clipDurationSeconds() {
-    if (this.video.bpm) {
-      return secondsInMinute / this.video.bpm * beatsPerLayer;
-    }
-
-    return 0;
-  };
-
   get videoDurationSeconds() {
-    return this.video.clips.length * this.clipDurationSeconds;
+    return this.video.clips.map(c => c.beatLength * secondsInMinute / this.video.bpm).reduce((a, c) => a + c, 0);
   }
 
   private _currentTimeSeconds = 0;
 
   get percentageOfPlayingClipDuration() {
-    var currentTimeInClip = this._currentTimeSeconds % this.clipDurationSeconds;
-    return currentTimeInClip / this.clipDurationSeconds;
+    if (this._currentTimeSeconds > 0) {
+      var timeBeforeCurrentClip = 0;
+      if (this.playingClipIndex > 0) {
+        timeBeforeCurrentClip = this.video.clips.slice(0, this.playingClipIndex).map(c => c.beatLength * secondsInMinute / this.video.bpm).reduce((a, c) => a + c, 0)
+      }
+      var currentTimeInClip = this._currentTimeSeconds - timeBeforeCurrentClip;
+
+      return currentTimeInClip / (this.video.clips[this.playingClipIndex].beatLength * secondsInMinute / this.video.bpm);
+    }
+    return 0;
   }
 
   get leftPosition() {
-    var frameInClipNumber = Math.round(frameTotal * this.percentageOfPlayingClipDuration);
+    var clip = this.video.clips[this.playingClipIndex];
+    var frameInClipNumber = Math.round(clip.beatLength * frameTotal / 4 * this.percentageOfPlayingClipDuration) + (this.video.clips[this.playingClipIndex].startingBeat - 1) * frameTotal / 4;
     if (frameInClipNumber >= frameTotal) {
       frameInClipNumber = frameTotal - 1;
     }
@@ -55,7 +56,13 @@ export class VideoplayerComponent implements OnInit {
 
   get playingClipIndex() {
     if (this._currentTimeSeconds > 0) {
-      return Math.floor(this.video.clips.length * this._currentTimeSeconds / this.videoDurationSeconds);
+      var endOfClipTimeSeconds = 0;
+      for (var i = 0; i < this.video.clips.length; i++) {
+        endOfClipTimeSeconds += this.video.clips[i].beatLength * secondsInMinute / this.video.bpm;
+        if (this._currentTimeSeconds < endOfClipTimeSeconds) {
+          return i;
+        }
+      }
     }
 
     return this.selectedClipIndex
@@ -66,7 +73,13 @@ export class VideoplayerComponent implements OnInit {
       return this._currentTimeSeconds / this.videoDurationSeconds * 100;
     }
 
-    return this.selectedClipIndex / this.video.clips.length * 100
+    if (this.selectedClipIndex > 0) {
+      var selectedIndexClipStartTimeSeconds = this.video.clips.slice(0, this.selectedClipIndex).map(c => c.beatLength * secondsInMinute / this.video.bpm).reduce((a, c) => a + c, 0);
+      return selectedIndexClipStartTimeSeconds / this.videoDurationSeconds * 100
+    }
+    else {
+      return 0;
+    }
   }
 
   get displayEndOfVideoTime() {
@@ -99,9 +112,10 @@ export class VideoplayerComponent implements OnInit {
 
   togglePlay = () => {
     if (!this.isPlaying) {
-      var startTime = Date.now() - this.selectedClipIndex * this.clipDurationSeconds * millisecondsInSecond;
+      var selectedClipTimeSeconds = this.video.clips.slice(0, this.selectedClipIndex).map(c => c.beatLength * secondsInMinute / this.video.bpm).reduce((a, c) => a + c, 0);
+      var startTime = Date.now() - selectedClipTimeSeconds * millisecondsInSecond;
       if (this.hasAudioFile) {
-        this.audioPlayer.currentTime = this.selectedClipIndex * this.clipDurationSeconds + (this.video.videoDelayMilliseconds ?? 0) / millisecondsInSecond;
+        this.audioPlayer.currentTime = selectedClipTimeSeconds + (this.video.videoDelayMilliseconds ?? 0) / millisecondsInSecond;
         this.audioPlayer.play();
       }
 

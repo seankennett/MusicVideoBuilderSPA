@@ -5,5 +5,7 @@ export interface Clip {
     clipName: string,
     userLayers: Array<UserLayer>
     dateUpdated: Date,
-    backgroundColour: string
+    backgroundColour: string,
+    beatLength: number,
+    startingBeat: number
 }

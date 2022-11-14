@@ -209,7 +209,7 @@
                                                     <div class="imageContainer" [style.background-color]="clipControl.value.backgroundColour !== null ? '#' + clipControl.value.backgroundColour : 'none'">
                                                         <img *ngFor="let layerloop of clipControl.value.userLayers; let i = index"
                                                             [src]="'https://cdn.musicvideobuilder.com/' + layerloop.layerId + '/' + layerloop.layerId + '.png'"
-                                                            [alt]="layerloop.layerName" [style.left.px]="0"
+                                                            [alt]="layerloop.layerName" [style.left.px]="calculateLeft(clipControl.value.startingBeat)"
                                                             [style.z-index]="i" />
                                                     </div>
                                                     <h5 class="card-header">{{calculateClipNameFromClipIndex(i)}}</h5>

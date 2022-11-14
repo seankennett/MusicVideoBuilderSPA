@@ -19,10 +19,10 @@ import { VideoAssets } from '../videoassets';
 import { ActivatedRoute } from '@angular/router';
 import { NgbNavChangeEvent } from '@ng-bootstrap/ng-bootstrap';
 
-const beatsPerLayer = 4;
 const millisecondsInSecond = 1000;
 const secondsInMinute = 60;
 
+const timelineImageWidth = 128;
 const imageWidth = 384;
 const imageHeight = 216;
 const frameTotal = 64;
@@ -404,34 +404,51 @@ export class MusicVideoBuilderComponent implements OnInit {
     }
   }
 
+  calculateLeft = (startingBeat: number) =>{
+    return -(startingBeat -1) * frameTotal / 4 * timelineImageWidth;
+  }
+
   calculateBeatRangeFromClipIndex = (index: number) => {
-    var beatStart = index * beatsPerLayer + 1;
-    var beatEnd = index * beatsPerLayer + this.clipsPerBlock * beatsPerLayer;
-    if (index + this.clipsPerBlock > this.clipsFormArray.length) {
-      beatEnd = this.clipsFormArray.length * beatsPerLayer;
+    if (this.clipsFormArray.controls.length === 0){
+      return '';
+    }
+
+    var beatsBefore = this.clipsFormArray.controls.slice(0, index).map(c => (c.value as Clip).beatLength).reduce((accumulator, current) => accumulator + current, 0);    
+    var beatStart = beatsBefore + 1;
+
+    var endOfBlockIndex = index + this.clipsPerBlock;
+    if (endOfBlockIndex > this.clipsFormArray.length) {
+      endOfBlockIndex = this.clipsFormArray.length;
+    }
+
+    var beatEnd = beatsBefore;
+    for (var i = endOfBlockIndex - 1; i >= index; i--) {
+      beatEnd += (this.clipsFormArray.controls[i].value as Clip).beatLength;
     }
 
     return beatStart + ' to ' + beatEnd;
-
   }
 
-  calculateTimeRangeFromClipIndex = (index: number) => {
-    var clipDurationMilliseconds = this._clipDurationSeconds * millisecondsInSecond;
+  calculateTimeRangeFromClipIndex = (index: number) => {  
     var videoDelay = (this.videoDelayMillisecondsControl.value ?? 0);
-    var startTimeMilliseconds = videoDelay + index * clipDurationMilliseconds;
+
+    var beatTimeMilliseconds = secondsInMinute * millisecondsInSecond / this.bpmControl.value;
+    var startTimeMilliseconds = videoDelay + this.clipsFormArray.controls.slice(0, index).map(c => beatTimeMilliseconds * (c.value as Clip).beatLength).reduce((accumulator, current) => accumulator + current, 0);  
     var startDate = new Date(0, 0, 0);
     startDate.setMilliseconds(startTimeMilliseconds);
 
-    var endTimeMilliseconds = startTimeMilliseconds + this.clipsPerBlock * clipDurationMilliseconds;
+    var endOfBlockIndex = index + this.clipsPerBlock;
+    if (endOfBlockIndex > this.clipsFormArray.length) {
+      endOfBlockIndex = this.clipsFormArray.length;
+    }
+
+    var endTimeMilliseconds = startTimeMilliseconds;
+    for (var i = endOfBlockIndex - 1; i >= index; i--) {
+      endTimeMilliseconds += (this.clipsFormArray.controls[i].value as Clip).beatLength * beatTimeMilliseconds;
+    }
+
     var endDate = new Date(0, 0, 0);
     endDate.setMilliseconds(endTimeMilliseconds);
-
-    if (index + this.clipsPerBlock > this.clipsFormArray.length) {
-      var videoDurationMilliseconds = this._videoDurationSeconds * millisecondsInSecond + (this.videoDelayMillisecondsControl.value ?? 0);
-      var endVideoDate = new Date(0, 0, 0);
-      endVideoDate.setMilliseconds(videoDurationMilliseconds);
-      endDate = endVideoDate;
-    }
 
     return [startDate, endDate];
   }
@@ -472,14 +489,6 @@ export class MusicVideoBuilderComponent implements OnInit {
     }
 
     return 0;
-  }
-
-  private get _clipDurationSeconds() {
-    return secondsInMinute / this.bpmControl.value * beatsPerLayer;
-  }
-
-  private get _videoDurationSeconds() {
-    return this.clipsFormArray.length * this._clipDurationSeconds;
   }
 
   get playingClipIndex() {
