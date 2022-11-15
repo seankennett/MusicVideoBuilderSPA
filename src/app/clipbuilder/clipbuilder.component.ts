@@ -192,13 +192,15 @@ export class ClipBuilderComponent implements OnInit {
     }
     this.beatLengthControl.setValue(clip.beatLength);
     this.startingBeatControl.setValue(clip.startingBeat);
-    
-    clip.userLayers.forEach(ul => {
-      var userLayer = this.userLayers.find(userLayer => userLayer.userLayerId === ul.userLayerId);
-      if (userLayer) {
-        this.addLayer(userLayer);
-      }
-    });
+
+    if (clip.userLayers) {
+      clip.userLayers.forEach(ul => {
+        var userLayer = this.userLayers.find(userLayer => userLayer.userLayerId === ul.userLayerId);
+        if (userLayer) {
+          this.addLayer(userLayer);
+        }
+      });
+    }
 
     this.unchangedClip = { ...this.editorClip };
   }
