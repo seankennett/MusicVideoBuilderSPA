@@ -100,10 +100,6 @@ export class LayerFinderComponent implements OnInit {
   };
   selectedTags: string[] = [];
 
-  get hasBackground() {
-    return this.layerFinders.some(x => x.layerType === Layertypes.Background);
-  }
-
   formatter = (tag: string) => tag;
 
   search: OperatorFunction<string, readonly string[]> = (

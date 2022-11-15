@@ -65,7 +65,7 @@
                 <ul ngbNav #nav="ngbNav" class="nav-tabs" [(activeId)]="activeTabId" [destroyOnHide]="false"
                     (navChange)="navChange($event)">
                     <li [ngbNavItem]="1" [disabled]="generatingZip">
-                        <a ngbNavLink>Details</a>
+                        <a ngbNavLink><i class="bi bi-pencil-square"></i> Details</a>
                         <ng-template ngbNavContent>
                             <div class="mb-3">
                                 <label for="videoName" class="form-label">Video Name<span
@@ -141,19 +141,19 @@
                                     class="btn btn-primary me-1">Save</button>
                                 <span [ngbTooltip]="bpmInvalidTooltip()">
                                     <button type="button" [disabled]="disableTimelineTab()"
-                                        class="btn btn-secondary me-1" (click)="setTabId(2)">Go to timeline</button>
+                                        class="btn btn-secondary me-1" (click)="setTabId(2)"><i class="bi bi-calendar3-week-fill"></i> Go to timeline</button>
                                 </span>
                                 <span [ngbTooltip]="noVideoEditorChangesTooltip()">
                                     <button type="button" [disabled]="!noVideoEditorChanges()"
                                         [ngClass]="noVideoEditorChanges() ? 'btn btn-primary' : 'btn btn-secondary'"
-                                        (click)="setTabId(3)">Go to builder</button>
+                                        (click)="setTabId(3)"><i class="bi bi-hammer"></i> Go to builder</button>
                                 </span>
                             </div>
                         </ng-template>
                     </li>
                     <li [ngbNavItem]="2" [disabled]="disableTimelineTab()" [ngbTooltip]="bpmInvalidTooltip()"
                         (hidden)="stop()">
-                        <a ngbNavLink>Timeline</a>
+                        <a ngbNavLink><i class="bi bi-calendar3-week-fill"></i> Timeline</a>
                         <ng-template ngbNavContent>
                             <ng-container *ngIf="showEditor && !showClipPicker && clipsFormArray.length > 0">
                                 <h3>Timeline View Options</h3>
@@ -315,19 +315,19 @@
                             <div class="mb-3">
                                 <button type="submit" [disabled]="!videoForm.valid || saving || noVideoEditorChanges()"
                                     class="btn btn-primary me-1">Save</button>
-                                <button type="button" class="btn btn-secondary me-1" (click)="setTabId(1)">Go to
+                                <button type="button" class="btn btn-secondary me-1" (click)="setTabId(1)"><i class="bi bi-pencil-square"></i> Go to
                                     details</button>
                                 <span [ngbTooltip]="noVideoEditorChangesTooltip()">
                                     <button type="button" [disabled]="!noVideoEditorChanges()"
                                         [ngClass]="noVideoEditorChanges() ? 'btn btn-primary' : 'btn btn-secondary'"
-                                        (click)="setTabId(3)">Go to builder</button>
+                                        (click)="setTabId(3)"><i class="bi bi-hammer"></i> Go to builder</button>
                                 </span>
                             </div>
                         </ng-template>
                     </li>
                     <li [ngbNavItem]="3" [disabled]="!noVideoEditorChanges()"
                         [ngbTooltip]="noVideoEditorChangesTooltip()">
-                        <a ngbNavLink>Builder</a>
+                        <a ngbNavLink><i class="bi bi-hammer"></i> Builder</a>
                         <ng-template ngbNavContent>
                             <h3>Free Test Download</h3>
                             <div class="mb-3">

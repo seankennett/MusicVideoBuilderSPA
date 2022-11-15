@@ -2,8 +2,8 @@
 <div class="container">
     <h1><i class="bi bi-search text-primary"></i> Layer Finder</h1>
     <p class="lead">Layer finder allows you to add new layers to your layers collection by searching through tags.</p>
-    <p>Once a layer is inside your collection you can use them to <a [routerLink]="['/clipBuilder']">build a
-            clip</a>. You can then use the clip to <a [routerLink]="['/musicVideoBuilder']">build a video</a>. Use the
+    <p>Once a layer is inside your collection you can use them to <a [routerLink]="['/clipBuilder']"><i class="bi bi-stack"></i>build a
+            clip</a>. You can then use the clip to <a [routerLink]="['/musicVideoBuilder']"><i class="bi bi-hammer"></i>build a video</a>. Use the
         controls below to search through all tags to show layers where you can click add to put inside your layer
         collection. You can't make a clip without a minimum of one background layer.</p>
     <app-pageloading [pageLoading]="pageLoading"></app-pageloading>
@@ -68,8 +68,7 @@
             </div>
         </ng-container>
         <div class="mb-3">
-            <button type="button" class="btn btn-secondary" [routerLink]="'/clipBuilder'" [disabled]="!hasBackground"><i
-                    class="bi bi-arrow-right-circle-fill"></i> Clip Builder</button>
+            <button type="button" class="btn btn-secondary" [routerLink]="'/clipBuilder'"><i class="bi bi-stack"></i> Clip Builder</button>
         </div>
     </ng-container>
 </div>
