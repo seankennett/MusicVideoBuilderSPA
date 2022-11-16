@@ -1,9 +1,11 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Clip } from '../clip';
 import { Formats } from '../formats';
 import { Video } from '../video';
 
 const imageWidth = 192;
 const byteSize = 256;
+const framesPerBeat = 16;
 @Component({
   selector: 'app-galleryvideo',
   templateUrl: './galleryvideo.component.html',
@@ -41,8 +43,12 @@ export class GalleryvideoComponent implements OnInit {
     return index;
   }
 
-  getClipLeft = (isLeft: boolean) => {
+  getContainerLeft = (isLeft: boolean) => {
     return isLeft === false ? imageWidth : 0;
+  }
+
+  getClipLeft = (clip: Clip) =>{
+    return -(clip.startingBeat - 1) * framesPerBeat * imageWidth;
   }
 
   getClipZIndex = (i: number, isLeft: boolean) => {
