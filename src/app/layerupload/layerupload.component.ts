@@ -126,7 +126,6 @@ export class LayerUploadComponent implements OnInit {
 
     this.layerUploadService.upload(formData).pipe(
       catchError((error: HttpErrorResponse) => {
-        alert('Something went wrong on the server, try again!');
         this.serverProgress = 0;
         this.uploadProgress = 0;
         this.imageValidationProgress = 0;
