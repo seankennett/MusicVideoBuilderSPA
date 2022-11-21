@@ -1,21 +1,23 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { protectedResources } from './auth-config';
+import { errorBody } from './errorhandler.interceptor';
+import { Layerupload } from './layerupload';
 
 @Injectable({
   providedIn: 'root'
 })
 export class LayerUploadService {
-
+  
   url = protectedResources.layerUploadApi.endpoint
 
   constructor(private http: HttpClient) { }
 
-  upload(formData: FormData) {
-    return this.http.post(this.url, formData, {
-      reportProgress: true,
-      observe: 'events',
-      responseType: 'text'
-    });
+  createContainer(layerUpload: Layerupload) {
+    return this.http.post<{containerSasUrl:string, layerId: string}>(this.url + '/CreateContainer', layerUpload, {context: errorBody("Unable to create storage container. Please try again.")});
+  }
+
+  post(layerUpload: Layerupload) {
+    return this.http.post(this.url, layerUpload, {context: errorBody("Unable to queue image processing. Please try again.")});
   }
 }

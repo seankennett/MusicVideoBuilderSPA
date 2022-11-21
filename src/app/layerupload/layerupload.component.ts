@@ -12,7 +12,12 @@ import {
 import { Tag } from '../tag';
 import { TagsService } from '../tags.service';
 import { LayerUploadService } from '../layerupload.service';
-import { HttpErrorResponse, HttpEventType } from '@angular/common/http';
+import { ContainerClient } from "@azure/storage-blob";
+import { Layerupload } from '../layerupload';
+import * as JSZip from 'jszip';
+import { ToastService } from '../toast.service';
+import { Router } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-layerupload',
@@ -21,7 +26,7 @@ import { HttpErrorResponse, HttpEventType } from '@angular/common/http';
 })
 export class LayerUploadComponent implements OnInit {
 
-  constructor(private formBuilder: FormBuilder, private tagsService: TagsService, private layerUploadService: LayerUploadService, private authService: MsalService) { }
+  constructor(private formBuilder: FormBuilder, private tagsService: TagsService, private layerUploadService: LayerUploadService, private toastService: ToastService, private router: Router) { }
 
 
   ngOnInit(): void {
@@ -110,38 +115,78 @@ export class LayerUploadComponent implements OnInit {
   }
 
   onSubmit() {
-    const formData = new FormData();
-    formData.append("layerName", this.layerUploadForm.get('layerName')?.value);
-    formData.append("layerType", this.layerType?.value);
-    this.layerFiles.controls.forEach((formGroup) => {
-      formData.append("files", formGroup.get('image')?.value);
-    });
-    this.existingTags.controls.forEach((formGroup) => {
-      formData.append("layerTags", formGroup.get('tagName')?.value);
-    });
-    formData.append("userObjectId", this.authService.instance.getAllAccounts()[0].localAccountId);
-
     this.serverProgress = 100;
     this.disableEnableForm(true);
 
-    this.layerUploadService.upload(formData).pipe(
-      catchError((error: HttpErrorResponse) => {
+    const tags: Array<string> = [];
+    this.existingTags.controls.forEach((formGroup) => {
+      tags.push(formGroup.get('tagName')?.value);
+    });
+    const layerUpload: Layerupload = { layerName: this.layerName?.value, layerType: this.layerType.value, tags: tags, layerId: undefined };
+
+    this.layerUploadService.createContainer(layerUpload)
+      .pipe(catchError((error: HttpErrorResponse) => {
         this.serverProgress = 0;
-        this.uploadProgress = 0;
         this.imageValidationProgress = 0;
         this.disableEnableForm(false);
         return throwError(() => new Error());
-      })
-    ).subscribe(event => {
-      if (event.type == HttpEventType.UploadProgress) {
-        var total = event.total ?? 1;
-        this.uploadProgress = Math.round(100 * (event.loaded / total));
-      } else if (event.type == HttpEventType.Response) {
-        if (event.ok) {
-          window.location.reload();
-        }
-      }
-    });
+      }))
+      .subscribe(({ containerSasUrl, layerId }) => {
+        var zip = new JSZip();
+        this.layerFiles.controls.forEach(layerFile => zip.file(layerFile.get('imageName')?.value, layerFile.get('image')?.value));
+        zip.generateAsync({ type: "blob" })
+          .then(blob => {
+            layerUpload.layerId = layerId;
+            var containerClient = new ContainerClient(containerSasUrl);
+            var blockBlobClient = containerClient.getBlockBlobClient(layerId + '.zip');
+            blockBlobClient.uploadData(blob)
+              .then(response => {
+                this.layerUploadService.post(layerUpload)
+                  .pipe(catchError((error: HttpErrorResponse) => {
+                    this.serverProgress = 0;
+                    this.imageValidationProgress = 0;
+                    this.disableEnableForm(false);
+                    return throwError(() => new Error());
+                  }))
+                  .subscribe(() => {
+                    window.location.reload();
+                  });
+              })
+              .catch(reason => {
+                this.serverProgress = 0;
+                this.imageValidationProgress = 0;
+                this.disableEnableForm(false);
+                this.toastService.show('Error uploading file to azure', this.router.url);
+              });
+          })
+          .catch(reason => {
+            this.serverProgress = 0;
+            this.imageValidationProgress = 0;
+            this.disableEnableForm(false);
+            this.toastService.show('Error generating zip', this.router.url);
+          });
+      });
+
+
+
+    // this.layerUploadService.upload(formData).pipe(
+    //   catchError((error: HttpErrorResponse) => {
+    //     this.serverProgress = 0;
+    //     this.uploadProgress = 0;
+    //     this.imageValidationProgress = 0;
+    //     this.disableEnableForm(false);
+    //     return throwError(() => new Error());
+    //   })
+    // ).subscribe(event => {
+    //   if (event.type == HttpEventType.UploadProgress) {
+    //     var total = event.total ?? 1;
+    //     this.uploadProgress = Math.round(100 * (event.loaded / total));
+    //   } else if (event.type == HttpEventType.Response) {
+    //     if (event.ok) {
+    //       window.location.reload();
+    //     }
+    //   }
+    // });
   }
 
   disableEnableForm(isDisabled: boolean) {
@@ -158,7 +203,6 @@ export class LayerUploadComponent implements OnInit {
   }
 
   uploadSub!: Subscription;
-  uploadProgress = 0;
   serverProgress = 0;
   imageValidationProgress = 0;
   disableOtherControls = false;
@@ -214,8 +258,9 @@ export class LayerUploadComponent implements OnInit {
     }
   }
 
-  onFileUpload = (event: any) => {
+  onFileUpload = async (event: any) => {
     const files = (event.target as HTMLInputElement).files;
+
     this.layerFilesFormArray.clear();
 
     var self = this;
@@ -232,8 +277,6 @@ export class LayerUploadComponent implements OnInit {
       self.layerFilesFormArray.push(imageForm);
     });
   }
-
-
 
   get imageWidth() {
     return 3840;

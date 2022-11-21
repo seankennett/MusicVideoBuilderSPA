@@ -117,17 +117,10 @@
             </ng-container>
         </div>
 
-        <button type="submit" [disabled]="!layerUploadForm.valid" class="btn btn-primary">Submit</button>
+        <button type="submit" [disabled]="!layerUploadForm.valid" class="btn btn-primary mb-3">Submit</button>
 
         <div class="mb-3">
-            <label class="form-label">Upload to server progress</label>
-            <div class="progress">
-                <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
-                    [style.width]="uploadProgress + '%'"></div>
-            </div>
-        </div>
-        <div class="mb-3">
-            <label class="form-label">Waiting on server response</label>
+            <label class="form-label">Sending Layer</label>
             <div class="progress">
                 <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
                     [style.width]="serverProgress + '%'"></div>
