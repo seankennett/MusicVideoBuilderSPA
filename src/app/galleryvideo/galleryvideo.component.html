@@ -2,7 +2,7 @@
     <div class="imageContainer" *ngFor="let isTop of [true, false]">
         <div *ngFor="let isLeft of [true, false]" [style.left.px]="getContainerLeft(isLeft)" [style.background-color]="video.clips[getClipIndex(isTop, isLeft)].backgroundColour !== null ? '#' + video.clips[getClipIndex(isTop, isLeft)].backgroundColour : 'none'">
             <img *ngFor="let layerloop of video.clips[getClipIndex(isTop, isLeft)].userLayers; let i = index"
-                [src]="'https://cdn.musicvideobuilder.com/' + layerloop.layerId + '/' + layerloop.layerId + '.png'"
+                [src]="'https://cdn.musicvideobuilder.com/sprites/' + layerloop.layerId + '.png'"
                 [alt]="layerloop.layerName" [style.z-index]="getClipZIndex(i, isLeft)" [style.left.px]="getClipLeft(video.clips[getClipIndex(isTop, isLeft)])"/>
         </div>            
     </div>
