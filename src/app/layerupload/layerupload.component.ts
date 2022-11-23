@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { MsalService } from '@azure/msal-angular';
 import { FormBuilder, Validators, FormArray, AbstractControl, ValidationErrors, ValidatorFn, FormGroup, AsyncValidatorFn } from '@angular/forms';
 import { Observable, OperatorFunction, Subscription, throwError } from 'rxjs';
 import {
@@ -12,7 +11,7 @@ import {
 import { Tag } from '../tag';
 import { TagsService } from '../tags.service';
 import { LayerUploadService } from '../layerupload.service';
-import { ContainerClient } from "@azure/storage-blob";
+import { BlockBlobClient } from "@azure/storage-blob";
 import { Layerupload } from '../layerupload';
 import * as JSZip from 'jszip';
 import { ToastService } from '../toast.service';
@@ -131,14 +130,13 @@ export class LayerUploadComponent implements OnInit {
         this.disableEnableForm(false);
         return throwError(() => new Error());
       }))
-      .subscribe(({ containerSasUrl, layerId }) => {
+      .subscribe(({ blobSasUrl, layerId }) => {
         var zip = new JSZip();
         this.layerFiles.controls.forEach(layerFile => zip.file(layerFile.get('imageName')?.value, layerFile.get('image')?.value));
         zip.generateAsync({ type: "blob" })
           .then(blob => {
             layerUpload.layerId = layerId;
-            var containerClient = new ContainerClient(containerSasUrl);
-            var blockBlobClient = containerClient.getBlockBlobClient(layerId + '.zip');
+            var blockBlobClient = new BlockBlobClient(blobSasUrl);
             blockBlobClient.uploadData(blob)
               .then(response => {
                 this.layerUploadService.post(layerUpload)
