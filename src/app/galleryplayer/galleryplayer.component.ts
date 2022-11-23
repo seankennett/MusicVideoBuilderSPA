@@ -2,6 +2,7 @@ import { Component, Input, OnInit, Output, EventEmitter, OnChanges, SimpleChange
 import { Layer } from '../layer';
 import { BehaviorSubject, switchMap, takeWhile, timer } from 'rxjs';
 import { Clip } from '../clip';
+import { environment } from 'src/environments/environment';
 
 const imageWidth = 384;
 const secondsInMinute = 60;
@@ -40,6 +41,8 @@ export class GalleryplayerComponent implements OnInit, OnChanges {
   localIsPlaying = false;
 
   progress = 0;
+  
+  storageUrl = environment.storageUrl;
 
   constructor() { }
 

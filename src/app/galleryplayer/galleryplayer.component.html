@@ -1,10 +1,10 @@
 <div class="card text-center">
     <div class="imageContainer" [style.background-color]="clip && clip.backgroundColour !== null ? '#' + clip.backgroundColour : 'none'">
-        <img [src]="'https://cdn.musicvideobuilder.com/sprites/' + layer.layerId + '.png'"
+        <img [src]="storageUrl + '/sprites/' + layer.layerId + '.png'"
             [alt]="layer.layerName" [style.left.px]="leftPosition" *ngIf="layer" />
         <ng-container *ngIf="clip && clip.userLayers?.length ?? 0 > 0">
             <img *ngFor="let layerloop of clip.userLayers; let i = index"
-                [src]="'https://cdn.musicvideobuilder.com/sprites/' + layerloop.layerId + '.png'"
+                [src]="storageUrl + '/sprites/' + layerloop.layerId + '.png'"
                 [alt]="layerloop.layerName" [style.left.px]="leftPosition" [style.z-index]="i" />
         </ng-container>
     </div>

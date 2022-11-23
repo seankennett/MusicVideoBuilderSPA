@@ -1,6 +1,7 @@
 import { DatePipe } from '@angular/common';
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { takeWhile, timer } from 'rxjs';
+import { environment } from 'src/environments/environment';
 import { Video } from '../video';
 
 const millisecondsInSecond = 1000;
@@ -18,6 +19,8 @@ export class VideoplayerComponent implements OnInit {
 
   @Input() selectedClipIndex = 0;
 
+  storageUrl = environment.storageUrl;
+  
   audioPlayer = new Audio();
   get hasAudioFile() {
     return this.audioPlayer.src?.length > 0;

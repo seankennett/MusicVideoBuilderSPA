@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { environment } from 'src/environments/environment';
 import { Clip } from '../clip';
 import { Formats } from '../formats';
 import { Video } from '../video';
@@ -21,6 +22,8 @@ export class GalleryvideoComponent implements OnInit {
   @Output() buttonClickEvent = new EventEmitter<{video: Video, tab: number}>();
 
   Formats = Formats;
+  storageUrl = environment.storageUrl;
+  
   constructor() { }
 
   ngOnInit(): void {

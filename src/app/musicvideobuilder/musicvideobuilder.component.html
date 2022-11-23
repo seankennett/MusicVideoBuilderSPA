@@ -207,7 +207,7 @@
                                                 <div class="card text-center">
                                                     <div class="imageContainer" [style.background-color]="clipControl.value.backgroundColour !== null ? '#' + clipControl.value.backgroundColour : 'none'">
                                                         <img *ngFor="let layerloop of clipControl.value.userLayers; let i = index"
-                                                            [src]="'https://cdn.musicvideobuilder.com/sprites/' + layerloop.layerId + '.png'"
+                                                            [src]="storageUrl + '/sprites/' + layerloop.layerId + '.png'"
                                                             [alt]="layerloop.layerName" [style.left.px]="calculateLeft(clipControl.value.startingBeat)"
                                                             [style.z-index]="i" />
                                                     </div>

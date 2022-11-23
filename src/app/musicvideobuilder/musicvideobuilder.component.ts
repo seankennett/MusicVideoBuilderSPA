@@ -18,6 +18,7 @@ import { VideoassetsService } from '../videoassets.service';
 import { VideoAssets } from '../videoassets';
 import { ActivatedRoute } from '@angular/router';
 import { NgbNavChangeEvent } from '@ng-bootstrap/ng-bootstrap';
+import { environment } from 'src/environments/environment';
 
 const millisecondsInSecond = 1000;
 const secondsInMinute = 60;
@@ -54,6 +55,8 @@ export class MusicVideoBuilderComponent implements OnInit {
       });
     });
   }
+
+  storageUrl = environment.storageUrl;
 
   pageLoading = true;
 
