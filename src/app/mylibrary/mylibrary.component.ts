@@ -66,6 +66,15 @@ export class MyLibraryComponent implements OnInit {
       })
     ).subscribe(() => {
       this.videos = this.videos.filter(v => v.videoId !== videoRoute.video.videoId);
+      var dependentClips = this.dependentClips.filter(d => d.videos.some(v => v.videoId === videoRoute.video.videoId));
+      dependentClips.forEach(dc => {
+        if (dc.videos.length === 1) {
+          this.independentClips.push(dc.clip);
+          this.dependentClips = this.dependentClips.filter(c => c.clip.clipId !== dc.clip.clipId);
+        } else {
+          dc.videos = dc.videos.filter(v => v.videoId !== videoRoute.video.videoId);
+        }
+      });
       this.loading = false;
     });
   }
@@ -79,6 +88,15 @@ export class MyLibraryComponent implements OnInit {
       })
     ).subscribe(() => {
       this.independentClips = this.independentClips.filter(x => x.clipId !== clip.clipId);
+      var dependentUserLayers = this.dependentUserLayers.filter(d => d.clips.some(c => c.clipId === clip.clipId));
+      dependentUserLayers.forEach(du => {
+        if (du.clips.length === 1) {
+          this.independentUserLayers.push(du.userLayer);
+          this.dependentUserLayers = this.dependentUserLayers.filter(u => u.userLayer.userLayerId !== du.userLayer.userLayerId);
+        } else {
+          du.clips = du.clips.filter(c => c.clipId !== clip.clipId);
+        }
+      });
       this.loading = false;
     });
   }
