@@ -82,6 +82,9 @@
                 <div [hidden]="!layerFiles?.errors?.['minlength']">
                     You must have {{numberOfImages}} images.
                 </div>
+                <div [hidden]="!layerFiles?.errors?.['forbiddenImageSize']">
+                    Maximum size for all images is {{maxFileSizeMB}} MB these files are {{layerFiles?.errors?.['forbiddenImageSize']?.value}} MB
+                </div>
             </div>
         </div>
 

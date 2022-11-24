@@ -18,6 +18,8 @@ import { ToastService } from '../toast.service';
 import { Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 
+const byteMultiplier = 1024;
+
 @Component({
   selector: 'app-layerupload',
   templateUrl: './layerupload.component.html',
@@ -26,7 +28,6 @@ import { HttpErrorResponse } from '@angular/common/http';
 export class LayerUploadComponent implements OnInit {
 
   constructor(private formBuilder: FormBuilder, private tagsService: TagsService, private layerUploadService: LayerUploadService, private toastService: ToastService, private router: Router) { }
-
 
   ngOnInit(): void {
     this.disableEnableForm(true);
@@ -81,7 +82,7 @@ export class LayerUploadComponent implements OnInit {
   tags: Tag[] = []
 
   existingTagsFormArray = this.formBuilder.array([], [Validators.required, Validators.minLength(5), Validators.maxLength(15)])
-  layerFilesFormArray = this.formBuilder.array([], [Validators.required, Validators.minLength(this.numberOfImages), Validators.maxLength(this.numberOfImages)])
+  layerFilesFormArray = this.formBuilder.array([], [Validators.required, Validators.minLength(this.numberOfImages), Validators.maxLength(this.numberOfImages), this.maxSizeValidator()])
   layerType = this.formBuilder.control(1, [Validators.required])
 
   layerUploadForm = this.formBuilder.group({
@@ -164,27 +165,6 @@ export class LayerUploadComponent implements OnInit {
             this.toastService.show('Error generating zip', this.router.url);
           });
       });
-
-
-
-    // this.layerUploadService.upload(formData).pipe(
-    //   catchError((error: HttpErrorResponse) => {
-    //     this.serverProgress = 0;
-    //     this.uploadProgress = 0;
-    //     this.imageValidationProgress = 0;
-    //     this.disableEnableForm(false);
-    //     return throwError(() => new Error());
-    //   })
-    // ).subscribe(event => {
-    //   if (event.type == HttpEventType.UploadProgress) {
-    //     var total = event.total ?? 1;
-    //     this.uploadProgress = Math.round(100 * (event.loaded / total));
-    //   } else if (event.type == HttpEventType.Response) {
-    //     if (event.ok) {
-    //       window.location.reload();
-    //     }
-    //   }
-    // });
   }
 
   disableEnableForm(isDisabled: boolean) {
@@ -287,6 +267,46 @@ export class LayerUploadComponent implements OnInit {
   get numberOfImages() {
     return 64;
   }
+
+  get maxFileSizeMB(){
+    return 225;
+  }
+
+  maxSizeValidator(): ValidatorFn {
+    return (formArray: AbstractControl) => {
+      if (formArray instanceof FormArray) {
+        const totalBytes = formArray.controls
+          .map((control) => {
+            var imageGroup = control as FormGroup;
+            if (imageGroup){
+              var fileControl = imageGroup.get('image');
+              if (fileControl){
+                  var file = fileControl.value as File;
+                  if (file){
+                    return file.size; 
+                  }
+                  return 0;
+              }
+
+              throw new Error('formArray is not an instance of FormArray');
+            }
+
+            throw new Error('formArray is not an instance of FormArray');
+          })
+          .reduce((prev, next) => prev + next, 0);
+
+          var totalMB = Math.round((totalBytes / byteMultiplier / byteMultiplier) * 100 + Number.EPSILON ) / 100;
+          if (totalMB > this.maxFileSizeMB){
+            return { forbiddenImageSize: { value: totalMB } };
+          }
+
+          return null;
+      }
+  
+      throw new Error('formArray is not an instance of FormArray');
+    }
+  };
+  
 
   forbiddenImageValidator(): AsyncValidatorFn {
     return (control: AbstractControl): Promise<ValidationErrors | null> => {
