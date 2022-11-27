@@ -217,8 +217,7 @@ export class ClipBuilderComponent implements OnInit {
   }
 
   canAddLayer = () => {
-    //return this.userLayers && this.userLayers.length !== 0 && this.userBackgrounds.length !== 0 && (this.userForegrounds.length !== 0 || this.layersFormArray.length === 0);
-    if (this.userLayers && this.userLayers.length !== 0 && this.userBackgrounds.length !== 0 && (this.userForegrounds.length !== 0 || this.layersFormArray.length === 0 || this.backgroundColour === null)) {
+    if (this.userForegrounds.length > 0) {
       return true;
     }
 
@@ -226,9 +225,7 @@ export class ClipBuilderComponent implements OnInit {
   }
 
   canAddLayerTooltip = () => {
-    if (!this.userLayers || this.userLayers.length === 0 || this.userBackgrounds.length === 0) {
-      return 'You must select a minimum of one background layer';
-    } else if (this.userForegrounds.length === 0 && this.layersFormArray.length > 0) {
+    if (this.userForegrounds.length === 0) {
       return 'You must select a foreground to be able to add more';
     }
 
