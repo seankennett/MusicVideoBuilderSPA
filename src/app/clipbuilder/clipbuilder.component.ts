@@ -218,7 +218,7 @@ export class ClipBuilderComponent implements OnInit {
 
   canAddLayer = () => {
     //return this.userLayers && this.userLayers.length !== 0 && this.userBackgrounds.length !== 0 && (this.userForegrounds.length !== 0 || this.layersFormArray.length === 0);
-    if (this.userLayers && this.userLayers.length !== 0 && this.userBackgrounds.length !== 0 && (this.userForegrounds.length !== 0 || this.layersFormArray.length === 0)) {
+    if (this.userLayers && this.userLayers.length !== 0 && this.userBackgrounds.length !== 0 && (this.userForegrounds.length !== 0 || this.layersFormArray.length === 0 || this.backgroundColour === null)) {
       return true;
     }
 
