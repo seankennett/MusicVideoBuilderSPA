@@ -37,10 +37,9 @@ export class LayerFinderComponent implements OnInit {
               layerFinder.userLayerStatus = userLayer.userLayerStatus;
             }
           }
-
-          this.pageLoading = false;
         });
       }
+      this.pageLoading = false;
     });
   }
 
@@ -153,10 +152,10 @@ export class LayerFinderComponent implements OnInit {
   disableLayer = (layer: Layer) => !this.isLoggedIn || layer?.userLayerStatus != null;
 
   disableLayerTooltip = (layer: Layer) => {
-    if (!this.isLoggedIn){
+    if (!this.isLoggedIn) {
       return 'You must be signed in to add layer';
     }
-    
+
     switch (layer?.userLayerStatus) {
       case Userlayerstatus.Bought: {
         return 'You have already bought this layer';
