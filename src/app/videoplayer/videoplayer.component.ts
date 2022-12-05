@@ -27,6 +27,7 @@ export class VideoplayerComponent implements OnInit {
   }
 
   @Input() video!: Video;
+  @Input() file: File | null = null;
 
   get videoDurationSeconds() {
     return this.video.clips.map(c => c.beatLength * secondsInMinute / this.video.bpm).reduce((a, c) => a + c, 0);
@@ -115,6 +116,12 @@ export class VideoplayerComponent implements OnInit {
 
   togglePlay = () => {
     if (!this.isPlaying) {
+      if (this.hasAudioFile === false && this.file !== null){
+          this.audioPlayer.src = URL.createObjectURL(this.file);
+      }else if (this.hasAudioFile === true && this.file === null){
+        this.audioPlayer = new Audio();
+      }
+
       var selectedClipTimeSeconds = this.video.clips.slice(0, this.selectedClipIndex).map(c => c.beatLength * secondsInMinute / this.video.bpm).reduce((a, c) => a + c, 0);
       var startTime = Date.now() - selectedClipTimeSeconds * millisecondsInSecond;
       if (this.hasAudioFile) {

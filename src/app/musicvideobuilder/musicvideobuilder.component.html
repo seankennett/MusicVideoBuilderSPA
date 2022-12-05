@@ -287,7 +287,7 @@
                                 <div class="mb-3">
                                     <h3>Final Video Player</h3>
                                     <app-videoplayer [selectedClipIndex]="selectedClipIndex" [video]="editorVideo"
-                                        (setSelectedIndexEvent)="setSelectedClipIndex($event)"></app-videoplayer>
+                                        (setSelectedIndexEvent)="setSelectedClipIndex($event)" [file]="file"></app-videoplayer>
                                 </div>
                             </ng-container>
                             <div class="mb-3" *ngIf="showClipPicker || clipsFormArray.length === 0">

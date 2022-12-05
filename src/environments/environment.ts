@@ -6,7 +6,7 @@ export const environment = {
   production: false,
   clientId: '63abaa40-64ab-455c-bd8a-35fe76b66bdf',
   apiEndpoint: 'https://localhost:7143/api',
-  storageUrl: 'http://127.0.0.1:10000/devstoreaccount1'
+  storageUrl: 'https://127.0.0.1:10000/devstoreaccount1'
 };
 
 /*
