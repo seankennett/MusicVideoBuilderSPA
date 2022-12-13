@@ -114,7 +114,6 @@ export class LayerUploadComponent implements OnInit {
   }
 
   onSubmit() {
-    this.serverProgress = 100;
     this.disableEnableForm(true);
 
     const tags: Array<string> = [];
@@ -136,7 +135,9 @@ export class LayerUploadComponent implements OnInit {
         var promiseList: Promise<BlobUploadCommonResponse>[] = [];
         this.layerFiles.controls.forEach(layerFile => {
           var blockBlobClient = containerClient.getBlockBlobClient('4k/raw/' + layerFile.get('imageName')?.value);
-          promiseList.push(blockBlobClient.uploadData(layerFile.get('image')?.value));
+          var promise = blockBlobClient.uploadData(layerFile.get('image')?.value);
+          promiseList.push(promise);
+          promise.then(x => this.serverProgress += 1/64*100)
         });
 
         Promise.all(promiseList).then(blobResponses => {
