@@ -11,9 +11,8 @@ import {
 import { Tag } from '../tag';
 import { TagsService } from '../tags.service';
 import { LayerUploadService } from '../layerupload.service';
-import { BlockBlobClient } from "@azure/storage-blob";
+import { BlobUploadCommonResponse, ContainerClient } from "@azure/storage-blob";
 import { Layerupload } from '../layerupload';
-import * as JSZip from 'jszip';
 import { ToastService } from '../toast.service';
 import { Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -131,39 +130,32 @@ export class LayerUploadComponent implements OnInit {
         this.disableEnableForm(false);
         return throwError(() => new Error());
       }))
-      .subscribe(({ blobSasUrl, layerId }) => {
-        var zip = new JSZip();
-        this.layerFiles.controls.forEach(layerFile => zip.file(layerFile.get('imageName')?.value, layerFile.get('image')?.value));
-        zip.generateAsync({ type: "blob" })
-          .then(blob => {
-            layerUpload.layerId = layerId;
-            var blockBlobClient = new BlockBlobClient(blobSasUrl);
-            blockBlobClient.uploadData(blob)
-              .then(response => {
-                this.layerUploadService.post(layerUpload)
-                  .pipe(catchError((error: HttpErrorResponse) => {
-                    this.serverProgress = 0;
-                    this.imageValidationProgress = 0;
-                    this.disableEnableForm(false);
-                    return throwError(() => new Error());
-                  }))
-                  .subscribe(() => {
-                    window.location.reload();
-                  });
-              })
-              .catch(reason => {
-                this.serverProgress = 0;
-                this.imageValidationProgress = 0;
-                this.disableEnableForm(false);
-                this.toastService.show('Error uploading file to azure', this.router.url);
-              });
-          })
-          .catch(reason => {
-            this.serverProgress = 0;
-            this.imageValidationProgress = 0;
-            this.disableEnableForm(false);
-            this.toastService.show('Error generating zip', this.router.url);
-          });
+      .subscribe(({ containerSasUrl, layerId }) => {
+        layerUpload.layerId = layerId;
+        var containerClient = new ContainerClient(containerSasUrl);
+        var promiseList: Promise<BlobUploadCommonResponse>[] = [];
+        this.layerFiles.controls.forEach(layerFile => {
+          var blockBlobClient = containerClient.getBlockBlobClient('4k/raw/' + layerFile.get('imageName')?.value);
+          promiseList.push(blockBlobClient.uploadData(layerFile.get('image')?.value));
+        });
+
+        Promise.all(promiseList).then(blobResponses => {
+          this.layerUploadService.post(layerUpload)
+            .pipe(catchError((error: HttpErrorResponse) => {
+              this.serverProgress = 0;
+              this.imageValidationProgress = 0;
+              this.disableEnableForm(false);
+              return throwError(() => new Error());
+            }))
+            .subscribe(() => {
+              window.location.reload();
+            });
+        }).catch(reason => {
+          this.serverProgress = 0;
+          this.imageValidationProgress = 0;
+          this.disableEnableForm(false);
+          this.toastService.show('Error uploading image to azure', this.router.url);
+        });
       });
   }
 
@@ -268,7 +260,7 @@ export class LayerUploadComponent implements OnInit {
     return 64;
   }
 
-  get maxFileSizeMB(){
+  get maxFileSizeMB() {
     return 225;
   }
 
@@ -278,14 +270,14 @@ export class LayerUploadComponent implements OnInit {
         const totalBytes = formArray.controls
           .map((control) => {
             var imageGroup = control as FormGroup;
-            if (imageGroup){
+            if (imageGroup) {
               var fileControl = imageGroup.get('image');
-              if (fileControl){
-                  var file = fileControl.value as File;
-                  if (file){
-                    return file.size; 
-                  }
-                  return 0;
+              if (fileControl) {
+                var file = fileControl.value as File;
+                if (file) {
+                  return file.size;
+                }
+                return 0;
               }
 
               throw new Error('formArray is not an instance of FormArray');
@@ -295,18 +287,18 @@ export class LayerUploadComponent implements OnInit {
           })
           .reduce((prev, next) => prev + next, 0);
 
-          var totalMB = Math.round((totalBytes / byteMultiplier / byteMultiplier) * 100 + Number.EPSILON ) / 100;
-          if (totalMB > this.maxFileSizeMB){
-            return { forbiddenImageSize: { value: totalMB } };
-          }
+        var totalMB = Math.round((totalBytes / byteMultiplier / byteMultiplier) * 100 + Number.EPSILON) / 100;
+        if (totalMB > this.maxFileSizeMB) {
+          return { forbiddenImageSize: { value: totalMB } };
+        }
 
-          return null;
+        return null;
       }
-  
+
       throw new Error('formArray is not an instance of FormArray');
     }
   };
-  
+
 
   forbiddenImageValidator(): AsyncValidatorFn {
     return (control: AbstractControl): Promise<ValidationErrors | null> => {

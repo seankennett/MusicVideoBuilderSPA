@@ -14,7 +14,7 @@ export class LayerUploadService {
   constructor(private http: HttpClient) { }
 
   createContainer(layerUpload: Layerupload) {
-    return this.http.post<{blobSasUrl:string, layerId: string}>(this.url + '/CreateContainer', layerUpload, {context: errorBody("Unable to create storage container. Please try again.")});
+    return this.http.post<{containerSasUrl:string, layerId: string}>(this.url + '/CreateContainer', layerUpload, {context: errorBody("Unable to create storage container. Please try again.")});
   }
 
   post(layerUpload: Layerupload) {
