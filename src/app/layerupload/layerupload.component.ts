@@ -18,6 +18,7 @@ import { Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 
 const byteMultiplier = 1024;
+const framesPerLayer = 64;
 
 @Component({
   selector: 'app-layerupload',
@@ -137,7 +138,7 @@ export class LayerUploadComponent implements OnInit {
           var blockBlobClient = containerClient.getBlockBlobClient('4k/raw/' + layerFile.get('imageName')?.value);
           var promise = blockBlobClient.uploadData(layerFile.get('image')?.value);
           promiseList.push(promise);
-          promise.then(x => this.serverProgress += 1/64*100)
+          promise.then(x => this.serverProgress += 1/framesPerLayer*100)
         });
 
         Promise.all(promiseList).then(blobResponses => {
