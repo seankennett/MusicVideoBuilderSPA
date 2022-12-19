@@ -646,4 +646,17 @@ export class MusicVideoBuilderComponent implements OnInit {
   buyMissingLayers = () => {
     alert('buy missing layers ' + this.videoId);
   }
+
+  password: string = "";
+
+  createVideo = () =>{
+    if (this.password !== ""){
+      this.videoAssetService.create(this.videoId, this.password).subscribe(() => {
+        alert('video added to queue, you will recieve an email with a link to your asset later.');
+      });
+    }
+    else{
+      alert('NEED A PASSWORD')
+    }
+  }
 }

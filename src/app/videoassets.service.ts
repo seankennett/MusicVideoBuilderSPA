@@ -8,7 +8,7 @@ import { VideoAssets } from './videoassets';
 @Injectable({
   providedIn: 'root'
 })
-export class VideoassetsService {
+export class VideoassetsService { 
 
   baseurl = environment.apiEndpoint + '/Videos';
 
@@ -17,5 +17,9 @@ export class VideoassetsService {
   get(videoId: number, free: boolean, audioFileName: string | undefined, includeCodeFiles: boolean, includeImageFiles: boolean) {
     return this.http.get<VideoAssets>(this.baseurl + '/' + videoId + '/Assets?free=' + free + '&audioFileName=' + (audioFileName ?? '') + '&includeCodes=' + includeCodeFiles + '&includeImages=' + includeImageFiles
     , {context: errorBody("Unable to get video assets from server. Please try again.")} );
+  }
+
+  create(videoId: number, password: string) {
+    return this.http.post(this.baseurl + '/' + videoId + '/Assets', {password: password}, {context: errorBody("Password incorrect or failed to create task.")})
   }
 }

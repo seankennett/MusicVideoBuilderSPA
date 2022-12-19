@@ -140,7 +140,8 @@
                                     class="btn btn-primary me-1">Save</button>
                                 <span [ngbTooltip]="bpmInvalidTooltip()">
                                     <button type="button" [disabled]="disableTimelineTab()"
-                                        class="btn btn-secondary me-1" (click)="setTabId(2)"><i class="bi bi-calendar3-week-fill"></i> Go to timeline</button>
+                                        class="btn btn-secondary me-1" (click)="setTabId(2)"><i
+                                            class="bi bi-calendar3-week-fill"></i> Go to timeline</button>
                                 </span>
                                 <span [ngbTooltip]="noVideoEditorChangesTooltip()">
                                     <button type="button" [disabled]="!noVideoEditorChanges()"
@@ -205,10 +206,12 @@
                                             *ngFor="let clipControl of this.clipsFormArray.controls; let i = index; let last = last">
                                             <div class="col-3 mb-3" *ngIf="showBlock(i)">
                                                 <div class="card text-center">
-                                                    <div class="imageContainer" [style.background-color]="clipControl.value.backgroundColour !== null ? '#' + clipControl.value.backgroundColour : 'none'">
+                                                    <div class="imageContainer"
+                                                        [style.background-color]="clipControl.value.backgroundColour !== null ? '#' + clipControl.value.backgroundColour : 'none'">
                                                         <img *ngFor="let layerloop of clipControl.value.userLayers; let i = index"
                                                             [src]="storageUrl + '/' + layerloop.layerId + '/sprite.png'"
-                                                            [alt]="layerloop.layerName" [style.left.px]="calculateLeft(clipControl.value.startingBeat)"
+                                                            [alt]="layerloop.layerName"
+                                                            [style.left.px]="calculateLeft(clipControl.value.startingBeat)"
                                                             [style.z-index]="i" />
                                                     </div>
                                                     <h5 class="card-header">{{calculateClipNameFromClipIndex(i)}}</h5>
@@ -287,7 +290,8 @@
                                 <div class="mb-3">
                                     <h3>Final Video Player</h3>
                                     <app-videoplayer [selectedClipIndex]="selectedClipIndex" [video]="editorVideo"
-                                        (setSelectedIndexEvent)="setSelectedClipIndex($event)" [file]="file"></app-videoplayer>
+                                        (setSelectedIndexEvent)="setSelectedClipIndex($event)"
+                                        [file]="file"></app-videoplayer>
                                 </div>
                             </ng-container>
                             <div class="mb-3" *ngIf="showClipPicker || clipsFormArray.length === 0">
@@ -314,7 +318,8 @@
                             <div class="mb-3">
                                 <button type="submit" [disabled]="!videoForm.valid || saving || noVideoEditorChanges()"
                                     class="btn btn-primary me-1">Save</button>
-                                <button type="button" class="btn btn-secondary me-1" (click)="setTabId(1)"><i class="bi bi-pencil-square"></i> Go to
+                                <button type="button" class="btn btn-secondary me-1" (click)="setTabId(1)"><i
+                                        class="bi bi-pencil-square"></i> Go to
                                     details</button>
                                 <span [ngbTooltip]="noVideoEditorChangesTooltip()">
                                     <button type="button" [disabled]="!noVideoEditorChanges()"
@@ -396,6 +401,20 @@
                                     <li>Open the command.txt document and copy the ffmpeg command it contains.</li>
                                     <li>Paste the command in your command line tool and hit enter.</li>
                                 </ol>
+                            </div>
+                            <h3>Create HD Video</h3>
+                            <div class="mb-3">
+                                <p>TODO: Add some kind of payment section before this is allowed.</p>
+                            </div>
+                            <div class="mb-3">
+                                <label for="password" class="form-label">Password</label>
+                                <input type="password" class="form-control" id="password" [(ngModel)]="password" [ngModelOptions]="{standalone: true}"/>
+                                <div class="form-text">Ask Sean for password.
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <button type="button" class="btn btn-secondary" (click)="createVideo()"><i
+                                        class="bi bi-download"></i> Create Video</button>
                             </div>
                             <!-- <h3>Download</h3>
                         <div class="mb-3" *ngIf="hasAllLayers">
