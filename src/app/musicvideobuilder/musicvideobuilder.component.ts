@@ -80,6 +80,8 @@ export class MusicVideoBuilderComponent implements OnInit {
     }
   }
 
+  isBuilding: boolean = false;
+
   timelineEditorStart = 1;
   timelineEditorEnd = 2;
 
@@ -196,6 +198,7 @@ export class MusicVideoBuilderComponent implements OnInit {
     timer(delay).subscribe(() => {
       this.toggleEditor();
       this.setVideoId(videoRoute.video.videoId, videoRoute.tab);
+      this.isBuilding = videoRoute.video.isBuilding;
       this.videoNameControl.setValue(videoRoute.video.videoName);
       this.bpmControl.setValue(videoRoute.video.bpm);
       this.formatControl.setValue(videoRoute.video.format);
@@ -234,6 +237,7 @@ export class MusicVideoBuilderComponent implements OnInit {
       videoDelayMilliseconds: this.videoDelayMillisecondsControl.value,
       videoId: this.videoId,
       videoName: this.videoNameControl.value,
+      isBuilding: this.isBuilding,
       clips: this.clipsFormArray.controls.map((control) => {
         return control.value;
       })
@@ -274,6 +278,7 @@ export class MusicVideoBuilderComponent implements OnInit {
 
   toggleEditor = () => {
     this.setVideoId(0, null);
+    this.isBuilding = false;
     this.videoNameControl.reset();
     this.bpmControl.reset();
     this.formatControl.setValue(1);
@@ -651,7 +656,8 @@ export class MusicVideoBuilderComponent implements OnInit {
 
   createVideo = () =>{
     if (this.password !== ""){
-      this.videoAssetService.create(this.videoId, this.password).subscribe(() => {
+      this.videoAssetService.create(this.videoId, this.password).subscribe(video => {
+        this.isBuilding = video.isBuilding;
         alert('video added to queue, you will recieve an email with a link to your asset later.');
       });
     }

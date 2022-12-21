@@ -1,8 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
-import { protectedResources } from './auth-config';
 import { errorBody } from './errorhandler.interceptor';
+import { Video } from './video';
 import { VideoAssets } from './videoassets';
 
 @Injectable({
@@ -20,6 +20,6 @@ export class VideoassetsService {
   }
 
   create(videoId: number, password: string) {
-    return this.http.post(this.baseurl + '/' + videoId + '/Assets', {password: password}, {context: errorBody("Password incorrect or failed to create task.")})
+    return this.http.post<Video>(this.baseurl + '/' + videoId + '/Assets', {password: password}, {context: errorBody("Password incorrect or failed to create task.")})
   }
 }

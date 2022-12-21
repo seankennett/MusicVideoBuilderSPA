@@ -408,13 +408,19 @@
                             </div>
                             <div class="mb-3">
                                 <label for="password" class="form-label">Password</label>
-                                <input type="password" class="form-control" id="password" [(ngModel)]="password" [ngModelOptions]="{standalone: true}"/>
+                                <input type="password" class="form-control" id="password" [(ngModel)]="password"
+                                    [ngModelOptions]="{standalone: true}" />
                                 <div class="form-text">Ask Sean for password.
                                 </div>
                             </div>
                             <div class="mb-3">
-                                <button type="button" class="btn btn-secondary" (click)="createVideo()"><i
-                                        class="bi bi-download"></i> Create Video</button>
+                                <button type="button" class="btn btn-secondary" (click)="createVideo()"
+                                    [disabled]="password === '' || isBuilding"><i class="bi bi-download"></i> Create
+                                    Video</button>
+                                <div class="form-text text-danger" *ngIf="isBuilding">
+                                    You are already building this video, you have to wait for this to finish until you
+                                    can build again.
+                                </div>
                             </div>
                             <!-- <h3>Download</h3>
                         <div class="mb-3" *ngIf="hasAllLayers">
