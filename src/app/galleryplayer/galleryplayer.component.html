@@ -1,11 +1,11 @@
 <div class="card text-center">
     <div class="imageContainer" [style.background-color]="clip && clip.backgroundColour !== null ? '#' + clip.backgroundColour : 'none'">
         <img [src]="storageUrl + '/' + layer.layerId + '/sprite.png'"
-            [alt]="layer.layerName" [style.left.px]="leftPosition" *ngIf="layer" />
+            [alt]="layer.layerName" [style.left.px]="leftPosition" *ngIf="layer" crossorigin="anonymous"/>
         <ng-container *ngIf="clip && clip.userLayers?.length ?? 0 > 0">
             <img *ngFor="let layerloop of clip.userLayers; let i = index"
                 [src]="storageUrl + '/' + layerloop.layerId + '/sprite.png'"
-                [alt]="layerloop.layerName" [style.left.px]="leftPosition" [style.z-index]="i" />
+                [alt]="layerloop.layerName" [style.left.px]="leftPosition" [style.z-index]="i" crossorigin="anonymous"/>
         </ng-container>
     </div>
     <div class="card-header" *ngIf="playerTitle !== ''">

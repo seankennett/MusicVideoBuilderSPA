@@ -593,7 +593,7 @@ export class MusicVideoBuilderComponent implements OnInit {
           var folder = zip.folder(imageUrl.layerId);
           var imagePromise = new Promise((resolve) => {
             var spriteImage = new Image();
-            spriteImage.crossOrigin = '*';
+            spriteImage.crossOrigin = 'anonymous';
             spriteImage.onload = () => {
               var blobPromises = [];
               for (var i = 0; i < frameTotal; i++) {
