@@ -44,7 +44,7 @@
                 <div class="form-text">
                     This is to add audio when you play your video in the final video player in the timeline
                     section and is optional. If this is an existing
-                    video you will need to select your track again as we don't upload these files. Also
+                    video you will need to select your track again as we don't keep hold of these files on our servers. Also
                     limited to mp3 format due to browser restrictions.
                 </div>
                 <ng-container *ngIf="guessingBpm">
@@ -415,7 +415,7 @@
                             </div>
                             <div class="mb-3">
                                 <button type="button" class="btn btn-secondary" (click)="createVideo()"
-                                    [disabled]="password === '' || isBuilding"><i class="bi bi-download"></i> Create
+                                    [disabled]="password === '' || isBuilding || isWaitingOnAudio"><i class="bi bi-download"></i> Create
                                     Video</button>
                                 <div class="form-text text-danger" *ngIf="isBuilding">
                                     You are already building this video, you have to wait for this to finish until you

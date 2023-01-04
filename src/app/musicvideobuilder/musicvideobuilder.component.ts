@@ -19,6 +19,7 @@ import { VideoAssets } from '../videoassets';
 import { ActivatedRoute } from '@angular/router';
 import { NgbNavChangeEvent } from '@ng-bootstrap/ng-bootstrap';
 import { environment } from 'src/environments/environment';
+import { BlockBlobClient } from '@azure/storage-blob';
 
 const millisecondsInSecond = 1000;
 const secondsInMinute = 60;
@@ -653,16 +654,44 @@ export class MusicVideoBuilderComponent implements OnInit {
   }
 
   password: string = "";
+  isWaitingOnAudio = false;
 
-  createVideo = () =>{
-    if (this.password !== ""){
-      this.videoAssetService.create(this.videoId, this.password).subscribe(video => {
-        this.isBuilding = video.isBuilding;
-        alert('video added to queue, you will recieve an email with a link to your asset later.');
-      });
+  createVideo = () => {
+    this.isWaitingOnAudio = true;
+    if (this.file?.name) {
+      this.videoAssetService.createAudioBlobUri(this.videoId, { password: this.password })
+        .pipe(catchError((error: HttpErrorResponse) => {
+          this.isWaitingOnAudio = false;
+          return throwError(() => new Error());
+        }))
+        .subscribe(blockBlobSasUrl => {
+          var blockBlobClient = new BlockBlobClient(blockBlobSasUrl);
+          if (this.file) {
+            blockBlobClient.uploadData(this.file).then(uploadResponse => {
+              this.videoAssetService.create(this.videoId, { password: this.password, audioBlobUrl: blockBlobSasUrl })
+                .pipe(catchError((error: HttpErrorResponse) => {
+                  this.isWaitingOnAudio = false;
+                  return throwError(() => new Error());
+                }))
+                .subscribe(video => {
+                  this.isBuilding = video.isBuilding;
+                  this.isWaitingOnAudio = false;
+                });
+            }).catch(error => this.isWaitingOnAudio = false);
+          }
+        });
+    } else {
+      this.videoAssetService.create(this.videoId, { password: this.password, audioBlobUrl: undefined })
+        .pipe(catchError((error: HttpErrorResponse) => {
+          this.isWaitingOnAudio = false;
+          return throwError(() => new Error());
+        }))
+        .subscribe(video => {
+          this.isBuilding = video.isBuilding;
+          this.isWaitingOnAudio = false;
+          alert('video added to queue, you will recieve an email with a link to your asset later.');
+        });
     }
-    else{
-      alert('NEED A PASSWORD')
-    }
+
   }
 }

@@ -8,7 +8,7 @@ import { VideoAssets } from './videoassets';
 @Injectable({
   providedIn: 'root'
 })
-export class VideoassetsService { 
+export class VideoassetsService {
 
   baseurl = environment.apiEndpoint + '/Videos';
 
@@ -19,7 +19,11 @@ export class VideoassetsService {
     , {context: errorBody("Unable to get video assets from server. Please try again.")} );
   }
 
-  create(videoId: number, password: string) {
-    return this.http.post<Video>(this.baseurl + '/' + videoId + '/Assets', {password: password}, {context: errorBody("Password incorrect or failed to create task.")})
+  create(videoId: number, audioBlob: { password: string; audioBlobUrl: string | undefined; }) {
+    return this.http.post<Video>(this.baseurl + '/' + videoId + '/Assets', audioBlob, {context: errorBody("Password incorrect or failed to create task.")})
   }
+
+  createAudioBlobUri(videoId: number, audioBlobCreation: { password: string; }) {
+    return this.http.post<string>(this.baseurl + '/' + videoId + '/Assets/CreateAudioBlobUri', audioBlobCreation, {context: errorBody("Problem uploading audio file.")})
+  } 
 }
