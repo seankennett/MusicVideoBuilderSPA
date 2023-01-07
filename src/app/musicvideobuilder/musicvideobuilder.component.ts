@@ -20,6 +20,7 @@ import { ActivatedRoute } from '@angular/router';
 import { NgbNavChangeEvent } from '@ng-bootstrap/ng-bootstrap';
 import { environment } from 'src/environments/environment';
 import { BlockBlobClient } from '@azure/storage-blob';
+import { Resolutions } from '../resolutions';
 
 const millisecondsInSecond = 1000;
 const secondsInMinute = 60;
@@ -65,6 +66,7 @@ export class MusicVideoBuilderComponent implements OnInit {
   videos: Video[] = [];
   clips: Clip[] = [];
   Formats = Formats;
+  Resolutions = Resolutions;
   formatList: Formats[] = [
     Formats.mp4,
     Formats.api,
@@ -654,41 +656,49 @@ export class MusicVideoBuilderComponent implements OnInit {
   }
 
   password: string = "";
-  isWaitingOnAudio = false;
+  isWaitingForCreate = false;
+  isUploadingAudio = false;
 
-  createVideo = () => {
-    this.isWaitingOnAudio = true;
+  createVideo = (resolution: Resolutions) => {
+    this.isWaitingForCreate = true;
     if (this.file?.name) {
-      this.videoAssetService.createAudioBlobUri(this.videoId, { password: this.password })
+      this.isUploadingAudio = true;
+      this.videoAssetService.createAudioBlobUri(this.videoId, { password: this.password, resolution })
         .pipe(catchError((error: HttpErrorResponse) => {
-          this.isWaitingOnAudio = false;
+          this.isWaitingForCreate = false;
+          this.isUploadingAudio = false;
           return throwError(() => new Error());
         }))
         .subscribe(blockBlobSasUrl => {
           var blockBlobClient = new BlockBlobClient(blockBlobSasUrl);
           if (this.file) {
             blockBlobClient.uploadData(this.file).then(uploadResponse => {
-              this.videoAssetService.create(this.videoId, { password: this.password, audioBlobUrl: blockBlobSasUrl })
+              this.videoAssetService.create(this.videoId, { password: this.password, audioBlobUrl: blockBlobSasUrl, resolution })
                 .pipe(catchError((error: HttpErrorResponse) => {
-                  this.isWaitingOnAudio = false;
+                  this.isWaitingForCreate = false;
+                  this.isUploadingAudio = false;
                   return throwError(() => new Error());
                 }))
                 .subscribe(video => {
                   this.isBuilding = video.isBuilding;
-                  this.isWaitingOnAudio = false;
+                  this.isWaitingForCreate = false;
+                  this.isUploadingAudio = false;
                 });
-            }).catch(error => this.isWaitingOnAudio = false);
+            }).catch(error => {
+              this.isWaitingForCreate = false;
+              this.isUploadingAudio = false;
+            });
           }
         });
     } else {
-      this.videoAssetService.create(this.videoId, { password: this.password, audioBlobUrl: undefined })
+      this.videoAssetService.create(this.videoId, { password: this.password, audioBlobUrl: undefined, resolution })
         .pipe(catchError((error: HttpErrorResponse) => {
-          this.isWaitingOnAudio = false;
+          this.isWaitingForCreate = false;
           return throwError(() => new Error());
         }))
         .subscribe(video => {
           this.isBuilding = video.isBuilding;
-          this.isWaitingOnAudio = false;
+          this.isWaitingForCreate = false;
           alert('video added to queue, you will recieve an email with a link to your asset later.');
         });
     }

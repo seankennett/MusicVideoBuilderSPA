@@ -44,7 +44,8 @@
                 <div class="form-text">
                     This is to add audio when you play your video in the final video player in the timeline
                     section and is optional. If this is an existing
-                    video you will need to select your track again as we don't keep hold of these files on our servers. Also
+                    video you will need to select your track again as we don't keep hold of these files on our servers.
+                    Also
                     limited to mp3 format due to browser restrictions.
                 </div>
                 <ng-container *ngIf="guessingBpm">
@@ -212,7 +213,7 @@
                                                             [src]="storageUrl + '/' + layerloop.layerId + '/sprite.png'"
                                                             [alt]="layerloop.layerName"
                                                             [style.left.px]="calculateLeft(clipControl.value.startingBeat)"
-                                                            [style.z-index]="i" crossorigin="anonymous"/>
+                                                            [style.z-index]="i" crossorigin="anonymous" />
                                                     </div>
                                                     <h5 class="card-header">{{calculateClipNameFromClipIndex(i)}}</h5>
                                                     <ul class="list-group list-group-flush">
@@ -414,12 +415,22 @@
                                 </div>
                             </div>
                             <div class="mb-3">
-                                <button type="button" class="btn btn-secondary" (click)="createVideo()"
-                                    [disabled]="password === '' || isBuilding || isWaitingOnAudio"><i class="bi bi-download"></i> Create
+                                <button type="button" class="btn btn-secondary" (click)="createVideo(Resolutions.Free)"
+                                    [disabled]="password === '' || isBuilding || isWaitingForCreate"><i
+                                        class="bi bi-download"></i> Create
                                     Video</button>
                                 <div class="form-text text-danger" *ngIf="isBuilding">
                                     You are already building this video, you have to wait for this to finish until you
                                     can build again.
+                                </div>
+                            </div>
+                            <div class="mb-3" *ngIf="isUploadingAudio">
+                                <label class="form-label">Uploading audio please wait</label>
+                                <div class="progress">
+                                    <div class="progress-bar progress-bar-animated progress-bar-striped"
+                                        role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"
+                                        style="width: 100%">
+                                    </div>
                                 </div>
                             </div>
                             <!-- <h3>Download</h3>
