@@ -334,105 +334,171 @@
                         [ngbTooltip]="noVideoEditorChangesTooltip()">
                         <a ngbNavLink><i class="bi bi-hammer"></i> Builder</a>
                         <ng-template ngbNavContent>
-                            <h3>Free Test Download</h3>
-                            <div class="mb-3">
-                                <p>This button enables you to download low resolution watermarked assets along with your
-                                    ffmpeg code in order to build a video to check it all works</p>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" value="" id="includeCodeFiles"
-                                        [(ngModel)]="includeCodeFiles" [ngModelOptions]="{standalone: true}">
-                                    <label class="form-check-label" for="includeCode">
-                                        Include code files in zip
-                                    </label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" value="" id="includeImageFiles"
-                                        [(ngModel)]="includeImageFiles" [ngModelOptions]="{standalone: true}">
-                                    <label class="form-check-label" for="includeImages">
-                                        Include image files in zip
-                                    </label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" value="" id="includeAudioFile"
-                                        [(ngModel)]="includeAudioFile" [ngModelOptions]="{standalone: true}"
-                                        [disabled]="file === null">
-                                    <label class="form-check-label" for="includeAudioFile">
-                                        Include audio file in zip
-                                    </label>
-                                </div>
-                                <button type="button" class="btn btn-secondary" (click)="freeDownload()"
-                                    [disabled]="generatingZip || (!includeImageFiles && !includeCodeFiles)"><i
-                                        class="bi bi-download"></i> Test Download</button>
-                            </div>
-                            <div class="mb-3" *ngIf="!file && !generatingZip">
-                                <ngb-alert [type]="'warning'" [dismissible]="false"><i
-                                        class="bi bi-exclamation-triangle-fill"></i> No audio file selected, if you
-                                    don't want audio then please continue otherwise add above.
-                                </ngb-alert>
-                            </div>
-                            <div class="mb-3" *ngIf="generatingZip">
-                                <label class="form-label">Getting required data</label>
-                                <div class="progress">
-                                    <div [ngClass]="{'progress-bar': true, 'progress-bar-animated': isGettingCode, 'progress-bar-striped': true}"
-                                        role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
-                                        style="width: 100%;"></div>
-                                </div>
-                                <ng-container *ngIf="includeImageFiles">
-                                    <label class="form-label">Splitting sprites progress</label>
-                                    <div class="progress">
-                                        <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0"
-                                            aria-valuemax="100" [style.width]="zipProgress + '%'"></div>
+                            <div>
+                                <h3>Free build it yourself option</h3>
+                                <div class="mb-3">
+                                    <p>This option enables you to download low resolution watermarked assets along with
+                                        an
+                                        ffmpeg code in order to build the video yourself.</p>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="" id="includeCodeFiles"
+                                            [(ngModel)]="includeCodeFiles" [ngModelOptions]="{standalone: true}">
+                                        <label class="form-check-label" for="includeCode">
+                                            Include code files in zip
+                                        </label>
                                     </div>
-                                </ng-container>
-                                <label class="form-label">Generating zip</label>
-                                <div class="progress">
-                                    <div [ngClass]="{'progress-bar': true, 'progress-bar-animated': isDownloadingZip, 'progress-bar-striped': true}"
-                                        role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
-                                        [style.width]="isDownloadingZip ? '100%' : '0%'"></div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="" id="includeImageFiles"
+                                            [(ngModel)]="includeImageFiles" [ngModelOptions]="{standalone: true}">
+                                        <label class="form-check-label" for="includeImages">
+                                            Include image files in zip
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="" id="includeAudioFile"
+                                            [(ngModel)]="includeAudioFile" [ngModelOptions]="{standalone: true}"
+                                            [disabled]="file === null">
+                                        <label class="form-check-label" for="includeAudioFile">
+                                            Include audio file in zip
+                                        </label>
+                                    </div>
+                                    <button type="button" class="btn btn-secondary" (click)="freeDownload()"
+                                        [disabled]="generatingZip || (!includeImageFiles && !includeCodeFiles)"><i
+                                            class="bi bi-download"></i> Download</button>
+                                </div>
+                                <div class="mb-3" *ngIf="!file && !generatingZip">
+                                    <ngb-alert [type]="'warning'" [dismissible]="false"><i
+                                            class="bi bi-exclamation-triangle-fill"></i> No audio file selected, if you
+                                        don't want audio then please continue otherwise add above.
+                                    </ngb-alert>
+                                </div>
+                                <div class="mb-3" *ngIf="generatingZip">
+                                    <label class="form-label">Getting required data</label>
+                                    <div class="progress">
+                                        <div [ngClass]="{'progress-bar': true, 'progress-bar-animated': isGettingCode, 'progress-bar-striped': true}"
+                                            role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
+                                            style="width: 100%;"></div>
+                                    </div>
+                                    <ng-container *ngIf="includeImageFiles">
+                                        <label class="form-label">Splitting sprites progress</label>
+                                        <div class="progress">
+                                            <div class="progress-bar" role="progressbar" aria-valuenow="0"
+                                                aria-valuemin="0" aria-valuemax="100" [style.width]="zipProgress + '%'">
+                                            </div>
+                                        </div>
+                                    </ng-container>
+                                    <label class="form-label">Generating zip</label>
+                                    <div class="progress">
+                                        <div [ngClass]="{'progress-bar': true, 'progress-bar-animated': isDownloadingZip, 'progress-bar-striped': true}"
+                                            role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
+                                            [style.width]="isDownloadingZip ? '100%' : '0%'"></div>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <p>When you have downloaded your zip then you can build your video using ffmpeg. If
+                                        you
+                                        do
+                                        not have ffmpeg then you will need to get this installed on your machine first.
+                                    </p>
+                                    <ol>
+                                        <li>Extract your zip and make note of it's location.</li>
+                                        <li>Using your favourite command line tool, go to the location of the extracted
+                                            zip.
+                                        </li>
+                                        <li>Open the command.txt document and copy the ffmpeg command it contains.</li>
+                                        <li>Paste the command in your command line tool and hit enter.</li>
+                                    </ol>
                                 </div>
                             </div>
-                            <div class="mb-3">
-                                <p>When you have downloaded your zip then you can build your video using ffmpeg. If you
-                                    do
-                                    not have ffmpeg then you will need to get this installed on your machine first.</p>
-                                <ol>
-                                    <li>Extract your zip and make note of it's location.</li>
-                                    <li>Using your favourite command line tool, go to the location of the extracted zip.
-                                    </li>
-                                    <li>Open the command.txt document and copy the ffmpeg command it contains.</li>
-                                    <li>Paste the command in your command line tool and hit enter.</li>
-                                </ol>
-                            </div>
-                            <h3>Create HD Video</h3>
-                            <div class="mb-3">
-                                <p>TODO: Add some kind of payment section before this is allowed.</p>
-                            </div>
-                            <div class="mb-3">
-                                <label for="password" class="form-label">Password</label>
-                                <input type="password" class="form-control" id="password" [(ngModel)]="password"
-                                    [ngModelOptions]="{standalone: true}" />
-                                <div class="form-text">Ask Sean for password.
+                            <div>
+                                <h3>Free built for you option</h3>
+                                <div class="mb-3">
+                                    <p>This option will build a watermarked low resolution video for you and send a download link to your account
+                                        email. Personal use only.</p>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="password" class="form-label">Password</label>
+                                    <input type="password" class="form-control" id="password" [(ngModel)]="password"
+                                        [ngModelOptions]="{standalone: true}" />
+                                    <div class="form-text">Ask Sean for password.
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <button type="button" class="btn btn-secondary"
+                                        (click)="createVideo(Resolutions.Free)"
+                                        [disabled]="password === '' || isBuilding || isWaitingForCreate"><i
+                                            class="bi bi-hammer"></i> Create
+                                        Video</button>
+                                    <div class="form-text text-danger" *ngIf="isBuilding">
+                                        You are already building this video, you have to wait for this to finish until
+                                        you
+                                        can build again.
+                                    </div>
                                 </div>
                             </div>
-                            <div class="mb-3">
-                                <button type="button" class="btn btn-secondary" (click)="createVideo(Resolutions.Free)"
-                                    [disabled]="password === '' || isBuilding || isWaitingForCreate"><i
-                                        class="bi bi-download"></i> Create
-                                    Video</button>
-                                <div class="form-text text-danger" *ngIf="isBuilding">
-                                    You are already building this video, you have to wait for this to finish until you
-                                    can build again.
+                            <div>
+                                <h3>HD built for you option</h3>
+                                <div class="mb-3">
+                                    <p>This option will build a HD video for you and send a download link to your account
+                                        email.
+                                    </p>
                                 </div>
+                                <div class="mb-3">
+                                    <label for="password" class="form-label">Password</label>
+                                    <input type="password" class="form-control" id="password" [(ngModel)]="password"
+                                        [ngModelOptions]="{standalone: true}" />
+                                    <div class="form-text">Ask Sean for password.
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <button type="button" class="btn btn-secondary"
+                                        (click)="createVideo(Resolutions.Hd)"
+                                        [disabled]="password === '' || isBuilding || isWaitingForCreate"><i
+                                            class="bi bi-hammer"></i> Create
+                                        Video</button>
+                                    <div class="form-text text-danger" *ngIf="isBuilding">
+                                        You are already building this video, you have to wait for this to finish until
+                                        you
+                                        can build again.
+                                    </div>
+                                </div>                                
+                            </div>
+                            <div>
+                                <h3>4k built for you option</h3>
+                                <div class="mb-3">
+                                    <p>This option will build a 4k video for you and send a download link to your account
+                                        email.
+                                    </p>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="password" class="form-label">Password</label>
+                                    <input type="password" class="form-control" id="password" [(ngModel)]="password"
+                                        [ngModelOptions]="{standalone: true}" />
+                                    <div class="form-text">Ask Sean for password.
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <button type="button" class="btn btn-secondary"
+                                        (click)="createVideo(Resolutions.FourK)"
+                                        [disabled]="password === '' || isBuilding || isWaitingForCreate"><i
+                                            class="bi bi-hammer"></i> Create
+                                        Video</button>
+                                    <div class="form-text text-danger" *ngIf="isBuilding">
+                                        You are already building this video, you have to wait for this to finish until
+                                        you
+                                        can build again.
+                                    </div>
+                                </div>                                
                             </div>
                             <div class="mb-3" *ngIf="isUploadingAudio">
-                                <label class="form-label">Uploading audio please wait</label>
-                                <div class="progress">
-                                    <div class="progress-bar progress-bar-animated progress-bar-striped"
-                                        role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"
-                                        style="width: 100%">
+                                    <label class="form-label">Uploading audio please wait</label>
+                                    <div class="progress">
+                                        <div class="progress-bar progress-bar-animated progress-bar-striped"
+                                            role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"
+                                            style="width: 100%">
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
                             <!-- <h3>Download</h3>
                         <div class="mb-3" *ngIf="hasAllLayers">
                             <p>You have bought all the layers in this video, please use the button below to get your 4k

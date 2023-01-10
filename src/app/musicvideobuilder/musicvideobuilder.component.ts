@@ -681,6 +681,7 @@ export class MusicVideoBuilderComponent implements OnInit {
                 }))
                 .subscribe(video => {
                   this.isBuilding = video.isBuilding;
+                  this.unchangedVideo = { ...this.editorVideo };
                   this.isWaitingForCreate = false;
                   this.isUploadingAudio = false;
                 });
@@ -698,8 +699,8 @@ export class MusicVideoBuilderComponent implements OnInit {
         }))
         .subscribe(video => {
           this.isBuilding = video.isBuilding;
+          this.unchangedVideo = { ...this.editorVideo };
           this.isWaitingForCreate = false;
-          alert('video added to queue, you will recieve an email with a link to your asset later.');
         });
     }
 
