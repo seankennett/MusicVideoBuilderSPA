@@ -594,6 +594,9 @@ export class MusicVideoBuilderComponent implements OnInit {
       if (this.includeImageFiles === true) {
         videoAssets.imageUrls.forEach((imageUrl) => {
           var folder = zip.folder(imageUrl.layerId);
+          if (folder) {
+            folder = folder.folder('free');
+          }
           var imagePromise = new Promise((resolve) => {
             var spriteImage = new Image();
             spriteImage.crossOrigin = 'anonymous';
