@@ -1,4 +1,5 @@
 export enum Userlayerstatus {
-    Bought = 1,
-    Saved = 2 
+    Saved = 1,
+    BoughtHd = 2,
+    Bought4k = 3
 }

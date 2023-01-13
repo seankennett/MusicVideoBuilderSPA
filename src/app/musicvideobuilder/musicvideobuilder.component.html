@@ -410,24 +410,27 @@
                                     </ol>
                                 </div>
                             </div>
+                            <div class="mb-3" *ngIf="isUploadingAudio">
+                                <label class="form-label">Uploading audio please wait</label>
+                                <div class="progress">
+                                    <div class="progress-bar progress-bar-animated progress-bar-striped"
+                                        role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"
+                                        style="width: 100%">
+                                    </div>
+                                </div>
+                            </div>
                             <div>
                                 <h3>Free built for you option</h3>
                                 <div class="mb-3">
-                                    <p>This option will build a watermarked low resolution video for you and send a download link to your account
+                                    <p>This option will build a watermarked low resolution video for you and send a
+                                        download link to your account
                                         email. Personal use only.</p>
                                 </div>
                                 <div class="mb-3">
-                                    <label for="password" class="form-label">Password</label>
-                                    <input type="password" class="form-control" id="password" [(ngModel)]="password"
-                                        [ngModelOptions]="{standalone: true}" />
-                                    <div class="form-text">Ask Sean for password.
-                                    </div>
-                                </div>
-                                <div class="mb-3">
-                                    <button type="button" class="btn btn-secondary"
-                                        (click)="createVideo(Resolutions.Free)"
-                                        [disabled]="password === '' || isBuilding || isWaitingForCreate"><i
-                                            class="bi bi-hammer"></i> Create
+                                    <button type="button" class="btn btn-primary"
+                                        (click)="createVideo(Resolutions.Saved)"
+                                        [disabled]="isBuilding || isWaitingForCreate"><i class="bi bi-hammer"></i>
+                                        Create
                                         Video</button>
                                     <div class="form-text text-danger" *ngIf="isBuilding">
                                         You are already building this video, you have to wait for this to finish until
@@ -439,66 +442,56 @@
                             <div>
                                 <h3>HD built for you option</h3>
                                 <div class="mb-3">
-                                    <p>This option will build a HD video for you and send a download link to your account
+                                    <p>This option will build a HD video for you and send a download link to your
+                                        account
                                         email.
                                     </p>
                                 </div>
                                 <div class="mb-3">
-                                    <label for="password" class="form-label">Password</label>
-                                    <input type="password" class="form-control" id="password" [(ngModel)]="password"
-                                        [ngModelOptions]="{standalone: true}" />
-                                    <div class="form-text">Ask Sean for password.
-                                    </div>
-                                </div>
-                                <div class="mb-3">
-                                    <button type="button" class="btn btn-secondary"
-                                        (click)="createVideo(Resolutions.Hd)"
-                                        [disabled]="password === '' || isBuilding || isWaitingForCreate"><i
-                                            class="bi bi-hammer"></i> Create
+                                    <button type="button" class="btn btn-primary"
+                                        (click)="createVideo(Resolutions.BoughtHd)"
+                                        [disabled]="isBuilding || isWaitingForCreate || missingHdLayers.length > 0"><i
+                                            class="bi bi-hammer"></i>
+                                        Create
                                         Video</button>
+                                    <button type="button" class="btn btn-success ms-3" *ngIf="missingHdLayers.length > 0"
+                                        (click)="buyMissingLayers(Resolutions.BoughtHd)"
+                                        [disabled]="isBuilding || isWaitingForCreate"><i class="bi bi-credit-card-fill"></i>
+                                        Purchase Missing Layers</button>
                                     <div class="form-text text-danger" *ngIf="isBuilding">
                                         You are already building this video, you have to wait for this to finish until
                                         you
                                         can build again.
                                     </div>
-                                </div>                                
+                                </div>
                             </div>
+
                             <div>
                                 <h3>4k built for you option</h3>
                                 <div class="mb-3">
-                                    <p>This option will build a 4k video for you and send a download link to your account
+                                    <p>This option will build a 4k video for you and send a download link to your
+                                        account
                                         email.
                                     </p>
                                 </div>
                                 <div class="mb-3">
-                                    <label for="password" class="form-label">Password</label>
-                                    <input type="password" class="form-control" id="password" [(ngModel)]="password"
-                                        [ngModelOptions]="{standalone: true}" />
-                                    <div class="form-text">Ask Sean for password.
-                                    </div>
-                                </div>
-                                <div class="mb-3">
-                                    <button type="button" class="btn btn-secondary"
-                                        (click)="createVideo(Resolutions.FourK)"
-                                        [disabled]="password === '' || isBuilding || isWaitingForCreate"><i
-                                            class="bi bi-hammer"></i> Create
+                                    <button type="button" class="btn btn-primary"
+                                        (click)="createVideo(Resolutions.Bought4k)"
+                                        [disabled]="isBuilding || isWaitingForCreate || missing4kLayers.length > 0"><i
+                                            class="bi bi-hammer"></i>
+                                        Create
                                         Video</button>
+                                    <button type="button" class="btn btn-success ms-3" *ngIf="missing4kLayers.length > 0"
+                                        (click)="buyMissingLayers(Resolutions.Bought4k)"
+                                        [disabled]="isBuilding || isWaitingForCreate"><i class="bi bi-credit-card-fill"></i>
+                                        Purchase Missing Layers</button>
                                     <div class="form-text text-danger" *ngIf="isBuilding">
                                         You are already building this video, you have to wait for this to finish until
                                         you
                                         can build again.
                                     </div>
-                                </div>                                
-                            </div>
-                            <div class="mb-3" *ngIf="isUploadingAudio">
-                                    <label class="form-label">Uploading audio please wait</label>
-                                    <div class="progress">
-                                        <div class="progress-bar progress-bar-animated progress-bar-striped"
-                                            role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"
-                                            style="width: 100%">
-                                        </div>
-                                    </div>
                                 </div>
+                            </div>
                             <!-- <h3>Download</h3>
                         <div class="mb-3" *ngIf="hasAllLayers">
                             <p>You have bought all the layers in this video, please use the button below to get your 4k

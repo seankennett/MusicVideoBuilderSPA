@@ -23,4 +23,8 @@ export class UserlayerService {
   delete(userLayerId: number) {
     return this.http.delete(this.url + '/' + userLayerId, {context: errorBody("Unable to remove layer from server. Please try again.")});
   }
+
+  put(userLayer: UserLayer) {
+    return this.http.put<UserLayer>(this.url, userLayer, {context: errorBody("Unable to update layer on server. Please try again.")});
+  }
 }

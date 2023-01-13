@@ -157,7 +157,8 @@ export class LayerFinderComponent implements OnInit {
     }
 
     switch (layer?.userLayerStatus) {
-      case Userlayerstatus.Bought: {
+      case Userlayerstatus.Bought4k:
+      case Userlayerstatus.BoughtHd: {
         return 'You have already bought this layer';
       }
       case Userlayerstatus.Saved: {

@@ -5,7 +5,7 @@ import { Formats } from '../formats';
 import { Video } from '../video';
 import { Clip } from '../clip';
 import { VideoService } from '../video.service';
-import { catchError, throwError, timer, takeWhile } from 'rxjs';
+import { catchError, throwError, timer, takeWhile, Observable, forkJoin } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 import { DatePipe, Location } from '@angular/common';
 import { VideoplayerComponent } from '../videoplayer/videoplayer.component';
@@ -20,7 +20,7 @@ import { ActivatedRoute } from '@angular/router';
 import { NgbNavChangeEvent } from '@ng-bootstrap/ng-bootstrap';
 import { environment } from 'src/environments/environment';
 import { BlockBlobClient } from '@azure/storage-blob';
-import { Resolutions } from '../resolutions';
+import { UserlayerService } from '../userlayer.service';
 
 const millisecondsInSecond = 1000;
 const secondsInMinute = 60;
@@ -37,7 +37,7 @@ const frameTotal = 64;
 })
 export class MusicVideoBuilderComponent implements OnInit {
   constructor(private formBuilder: FormBuilder, private videoService: VideoService, private clipService: ClipService, private videoAssetService: VideoassetsService,
-    private datePipe: DatePipe, private route: ActivatedRoute, private location: Location) { }
+    private datePipe: DatePipe, private route: ActivatedRoute, private location: Location, private userLayerService: UserlayerService) { }
 
   ngOnInit(): void {
     this.videoService.getAll().subscribe((videos: Video[]) => {
@@ -66,7 +66,7 @@ export class MusicVideoBuilderComponent implements OnInit {
   videos: Video[] = [];
   clips: Clip[] = [];
   Formats = Formats;
-  Resolutions = Resolutions;
+  Resolutions = Userlayerstatus;
   formatList: Formats[] = [
     Formats.mp4,
     Formats.api,
@@ -247,13 +247,17 @@ export class MusicVideoBuilderComponent implements OnInit {
     };
   }
 
-  get layersToBuy(): UserLayer[] {
-    var layers = this.editorVideo.clips.flatMap(c => c.userLayers).filter(l => l.userLayerStatus === Userlayerstatus.Saved);
-    return [...new Map(layers.map(item => [item.userLayerId, item])).values()]
+  get missing4kLayers(): UserLayer[] {
+    return this.getMissingLayers(this.editorVideo, Userlayerstatus.Bought4k);
   }
 
-  get hasAllLayers(): boolean {
-    return this.layersToBuy.length === 0;
+  get missingHdLayers(): UserLayer[] {
+    return this.getMissingLayers(this.editorVideo, Userlayerstatus.BoughtHd);
+  }
+
+  getMissingLayers = (video: Video, userLayerStatus: Userlayerstatus) => {
+    var layers = this.editorVideo.clips.filter(c => c.userLayers != null).flatMap(c => c.userLayers).filter(l => l.userLayerStatus != null && l.userLayerStatus < userLayerStatus);
+    return [...new Map(layers.map(item => [item.userLayerId, item])).values()]
   }
 
   onSubmit = () => {
@@ -572,7 +576,7 @@ export class MusicVideoBuilderComponent implements OnInit {
     this.generatingZip = true;
     this.isGettingCode = true;
     // call server to get ffmpeg code and send back asset ids (this should be accurate in memeory but better to have proper validation)
-    this.videoAssetService.get(this.videoId, true, this.file?.name, this.includeCodeFiles, this.includeImageFiles).pipe(
+    this.videoAssetService.get(this.videoId, this.file?.name, this.includeCodeFiles, this.includeImageFiles).pipe(
       catchError((error: HttpErrorResponse) => {
         this.generatingZip = false;
         this.isGettingCode = false;
@@ -650,23 +654,14 @@ export class MusicVideoBuilderComponent implements OnInit {
     });
   }
 
-  download = () => {
-    alert('purchased download ' + this.videoId);
-  }
-
-  buyMissingLayers = () => {
-    alert('buy missing layers ' + this.videoId);
-  }
-
-  password: string = "";
   isWaitingForCreate = false;
   isUploadingAudio = false;
 
-  createVideo = (resolution: Resolutions) => {
+  createVideo = (resolution: Userlayerstatus) => {
     this.isWaitingForCreate = true;
     if (this.file?.name) {
       this.isUploadingAudio = true;
-      this.videoAssetService.createAudioBlobUri(this.videoId, { password: this.password, resolution })
+      this.videoAssetService.createAudioBlobUri(this.videoId, { resolution })
         .pipe(catchError((error: HttpErrorResponse) => {
           this.isWaitingForCreate = false;
           this.isUploadingAudio = false;
@@ -676,7 +671,7 @@ export class MusicVideoBuilderComponent implements OnInit {
           var blockBlobClient = new BlockBlobClient(blockBlobSasUrl);
           if (this.file) {
             blockBlobClient.uploadData(this.file).then(uploadResponse => {
-              this.videoAssetService.create(this.videoId, { password: this.password, audioBlobUrl: blockBlobSasUrl, resolution })
+              this.videoAssetService.create(this.videoId, { audioBlobUrl: blockBlobSasUrl, resolution })
                 .pipe(catchError((error: HttpErrorResponse) => {
                   this.isWaitingForCreate = false;
                   this.isUploadingAudio = false;
@@ -695,7 +690,7 @@ export class MusicVideoBuilderComponent implements OnInit {
           }
         });
     } else {
-      this.videoAssetService.create(this.videoId, { password: this.password, audioBlobUrl: undefined, resolution })
+      this.videoAssetService.create(this.videoId, { audioBlobUrl: undefined, resolution })
         .pipe(catchError((error: HttpErrorResponse) => {
           this.isWaitingForCreate = false;
           return throwError(() => new Error());
@@ -706,6 +701,26 @@ export class MusicVideoBuilderComponent implements OnInit {
           this.isWaitingForCreate = false;
         });
     }
+  }
 
+  buyMissingLayers = (resolution: Userlayerstatus) => {
+    if (resolution === Userlayerstatus.Bought4k) {
+      this.buyUserLayers(this.missing4kLayers, resolution);
+    } else if (resolution === Userlayerstatus.BoughtHd) {
+      this.buyUserLayers(this.missingHdLayers, resolution);
+    }
+  }
+
+  buyUserLayers = (userLayers: UserLayer[], resolution: Userlayerstatus) => {
+    var userLayerUpdates = [];
+    for (var i = 0; i < userLayers.length; i++) {
+      var missingUserLayer = userLayers[i];
+      missingUserLayer.userLayerStatus = resolution;
+      userLayerUpdates.push(this.userLayerService.put(missingUserLayer));
+    }
+
+    forkJoin(userLayerUpdates).subscribe(userLayers =>{
+      window.location.reload();
+    })
   }
 }
