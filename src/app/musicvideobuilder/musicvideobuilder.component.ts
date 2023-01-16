@@ -5,17 +5,14 @@ import { Formats } from '../formats';
 import { Video } from '../video';
 import { Clip } from '../clip';
 import { VideoService } from '../video.service';
-import { catchError, throwError, timer, takeWhile, Observable, forkJoin } from 'rxjs';
+import { catchError, throwError, timer, forkJoin } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 import { DatePipe, Location } from '@angular/common';
 import { VideoplayerComponent } from '../videoplayer/videoplayer.component';
 import { Userlayerstatus } from '../userlayerstatus';
 import { UserLayer } from '../userlayer';
-import * as JSZip from 'jszip';
-import { saveAs } from 'file-saver';
 import { guess } from 'web-audio-beat-detector';
 import { VideoassetsService } from '../videoassets.service';
-import { VideoAssets } from '../videoassets';
 import { ActivatedRoute } from '@angular/router';
 import { NgbNavChangeEvent } from '@ng-bootstrap/ng-bootstrap';
 import { environment } from 'src/environments/environment';
@@ -26,8 +23,6 @@ const millisecondsInSecond = 1000;
 const secondsInMinute = 60;
 
 const timelineImageWidth = 128;
-const imageWidth = 384;
-const imageHeight = 216;
 const frameTotal = 64;
 
 @Component({
@@ -189,7 +184,7 @@ export class MusicVideoBuilderComponent implements OnInit {
   }
 
   disableTimelineTab = () => {
-    return !this.bpmControl.valid || !this.videoDelayMillisecondsControl.valid || this.generatingZip
+    return !this.bpmControl.valid || !this.videoDelayMillisecondsControl.valid || this.isWaitingForCreate
   }
 
   editorLoading = false;
@@ -541,7 +536,6 @@ export class MusicVideoBuilderComponent implements OnInit {
     const files = (event.target as HTMLInputElement).files;
 
     if (files && files.length === 1) {
-      this.includeAudioFile = true;
       this.file = files[0];
       this.guessingBpm = true;
       this.file.arrayBuffer().then(arrayBuffer => {
@@ -559,99 +553,7 @@ export class MusicVideoBuilderComponent implements OnInit {
       });
     } else {
       this.file = null;
-      this.includeAudioFile = false;
     }
-  }
-
-  includeCodeFiles = true;
-  includeImageFiles = true;
-  includeAudioFile = false;
-
-  generatingZip = false;
-  isGettingCode = false;
-  isDownloadingZip = false;
-  zipProgress = 0;
-  freeDownload = async () => {
-
-    this.generatingZip = true;
-    this.isGettingCode = true;
-    // call server to get ffmpeg code and send back asset ids (this should be accurate in memeory but better to have proper validation)
-    this.videoAssetService.get(this.videoId, this.file?.name, this.includeCodeFiles, this.includeImageFiles).pipe(
-      catchError((error: HttpErrorResponse) => {
-        this.generatingZip = false;
-        this.isGettingCode = false;
-        return throwError(() => new Error());
-      })
-    ).subscribe((videoAssets: VideoAssets) => {
-      var zip = new JSZip();
-      if (this.includeAudioFile && this.file?.name) {
-        zip.file(this.file.name, this.file)
-      }
-
-      if (this.includeCodeFiles === true) {
-        zip.file('filter.txt', videoAssets.ffmpegCode.filterComplexScript);
-        zip.file('command.txt', videoAssets.ffmpegCode.command);
-      }
-
-      var that = this;
-      var imagePromises: any[] = [];
-      if (this.includeImageFiles === true) {
-        videoAssets.imageUrls.forEach((imageUrl) => {
-          var folder = zip.folder(imageUrl.layerId);
-          if (folder) {
-            folder = folder.folder('free');
-          }
-          var imagePromise = new Promise((resolve) => {
-            var spriteImage = new Image();
-            spriteImage.crossOrigin = 'anonymous';
-            spriteImage.onload = () => {
-              var blobPromises = [];
-              for (var i = 0; i < frameTotal; i++) {
-                var blobPromise = new Promise((blobResolve) => {
-                  var canvas = document.createElement("canvas");
-                  var canvasContext = canvas.getContext("2d");
-
-                  canvas.width = imageWidth;
-                  canvas.height = imageHeight;
-
-                  canvasContext?.drawImage(spriteImage, i * imageWidth, 0, imageWidth, imageHeight, 0, 0, imageWidth, imageHeight);
-
-                  // stupid closures (i was always 63) without this
-                  function toBlob(i: number) {
-                    canvas.toBlob(blob => {
-                      if (folder && blob) {
-                        folder.file(i + '.png', blob);
-                      }
-                      that.zipProgress += 100 / videoAssets.imageUrls.length / frameTotal;
-                      that.isGettingCode = false;
-                      blobResolve("");
-                    });
-                  }
-
-                  toBlob(i);
-                });
-                blobPromises.push(blobPromise);
-              }
-
-              Promise.all(blobPromises).then(x => resolve(""));
-            }
-            spriteImage.src = imageUrl.url;
-          });
-          imagePromises.push(imagePromise);
-        });
-      }
-
-      Promise.all(imagePromises).then(async x => {
-        this.isDownloadingZip = true;
-        await zip.generateAsync({ type: "blob" }).then(function (content) {
-          // see FileSaver.js
-          saveAs(content, videoAssets.videoName + ".zip");
-          that.generatingZip = false;
-          that.isDownloadingZip = false;
-          that.zipProgress = 0;
-        });
-      });
-    });
   }
 
   isWaitingForCreate = false;
