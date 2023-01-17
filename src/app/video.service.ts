@@ -4,6 +4,7 @@ import { environment } from 'src/environments/environment';
 import { protectedResources } from './auth-config';
 import { errorBody } from './errorhandler.interceptor';
 import { Video } from './video';
+import { Videoasset } from './videoasset';
 
 @Injectable({
   providedIn: 'root'
@@ -19,6 +20,10 @@ export class VideoService {
 
   getAll(){
     return this.http.get<Video[]>(this.url, {context: errorBody("Unable to get user's videos from server. Please refresh to try again.")});
+  }
+
+  getAllAssets() {
+    return this.http.get<Videoasset[]>(this.url + '/Assets', {context: errorBody("Unable to get user's video assets from server. Please refresh to try again.")})
   }
 
   delete(videoId: number) {

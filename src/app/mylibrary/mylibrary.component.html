@@ -5,6 +5,15 @@
     </p>
     <app-pageloading [pageLoading]="pageLoading"></app-pageloading>
     <ng-container *ngIf="!pageLoading">
+        <ng-container *ngIf="this.videoAssets.length > 0">
+            <h2>Video Files</h2>
+            <p>Here are your built video files to download.</p>
+            <div class="list-group mb-3">
+                <a *ngFor="let videoAsset of this.videoAssets" [href]="videoAsset.downloadLink"
+                    class="list-group-item list-group-item-action"><h5>{{getFormattedDateTime(videoAsset.dateCreated)}} -
+                    {{videoAsset.videoName}}<i class="bi bi-download text-primary float-end"></i></h5></a>
+            </div>
+        </ng-container>
         <ng-container *ngIf="this.videos.length > 0">
             <h2>Videos</h2>
             <p>Videos have no dependencies so you can delete these without worrying what uses them.</p>

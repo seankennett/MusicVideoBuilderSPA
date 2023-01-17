@@ -4,16 +4,14 @@ import { environment } from 'src/environments/environment';
 import { errorBody } from './errorhandler.interceptor';
 import { Userlayerstatus } from './userlayerstatus';
 import { Video } from './video';
-import { VideoAssets } from './videoassets';
 
 @Injectable({
   providedIn: 'root'
 })
 export class VideoassetsService {
-
   baseurl = environment.apiEndpoint + '/Videos';
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) { }  
 
   create(videoId: number, buildRequest: { audioBlobUrl: string | undefined; resolution: Userlayerstatus }) {
     return this.http.post<Video>(this.baseurl + '/' + videoId + '/Assets', buildRequest, {context: errorBody("Problem setting up video build.")})
