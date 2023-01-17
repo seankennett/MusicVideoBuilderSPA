@@ -15,13 +15,8 @@ export class VideoassetsService {
 
   constructor(private http: HttpClient) { }
 
-  get(videoId: number, audioFileName: string | undefined, includeCodeFiles: boolean, includeImageFiles: boolean) {
-    return this.http.get<VideoAssets>(this.baseurl + '/' + videoId + '/Assets?audioFileName=' + (audioFileName ?? '') + '&includeCodes=' + includeCodeFiles + '&includeImages=' + includeImageFiles
-    , {context: errorBody("Unable to get video assets from server. Please try again.")} );
-  }
-
   create(videoId: number, buildRequest: { audioBlobUrl: string | undefined; resolution: Userlayerstatus }) {
-    return this.http.post<Video>(this.baseurl + '/' + videoId + '/Assets', buildRequest, {context: errorBody("Password incorrect or failed to create task.")})
+    return this.http.post<Video>(this.baseurl + '/' + videoId + '/Assets', buildRequest, {context: errorBody("Problem setting up video build.")})
   }
 
   createAudioBlobUri(videoId: number, audioBlobCreation: { resolution: Userlayerstatus }) {

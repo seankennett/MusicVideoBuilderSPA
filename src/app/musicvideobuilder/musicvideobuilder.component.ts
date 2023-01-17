@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { FormBuilder, Validators } from '@angular/forms';
+import { FormArray, FormBuilder, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { ClipService } from '../clip.service';
 import { Formats } from '../formats';
 import { Video } from '../video';
@@ -24,6 +24,8 @@ const secondsInMinute = 60;
 
 const timelineImageWidth = 128;
 const frameTotal = 64;
+
+const byteMultiplier = 1024;
 
 @Component({
   selector: 'app-musicvideobuilder',
@@ -162,7 +164,7 @@ export class MusicVideoBuilderComponent implements OnInit {
     formatControl: this.formatControl,
     videoDelayMillisecondsControl: this.videoDelayMillisecondsControl,
     clipsFormArray: this.clipsFormArray
-  })
+  }, { validators: videoLengthValidator })
 
   clipsPerBlock = 1;
 
@@ -529,14 +531,16 @@ export class MusicVideoBuilderComponent implements OnInit {
   guessedVideoDelay: number | null = null;
   guessingBpm = false;
 
+  maximumAudioFileSizeMB = 40
+
   onFileUpload = (event: any) => {
     this.guessedBpm = null;
     this.guessedVideoDelay = null;
     this.stop();
-    const files = (event.target as HTMLInputElement).files;
+    const uploadedFiles = (event.target as HTMLInputElement).files;
 
-    if (files && files.length === 1) {
-      this.file = files[0];
+    if (uploadedFiles && uploadedFiles.length === 1 && (Math.round((uploadedFiles[0].size / byteMultiplier / byteMultiplier) * 100 + Number.EPSILON) / 100) < this.maximumAudioFileSizeMB && uploadedFiles[0].name.endsWith('.mp3')) {
+      this.file = uploadedFiles[0];
       this.guessingBpm = true;
       this.file.arrayBuffer().then(arrayBuffer => {
         const audioContext = new AudioContext();
@@ -553,6 +557,7 @@ export class MusicVideoBuilderComponent implements OnInit {
       });
     } else {
       this.file = null;
+      event.target.value = null;
     }
   }
 
@@ -621,8 +626,27 @@ export class MusicVideoBuilderComponent implements OnInit {
       userLayerUpdates.push(this.userLayerService.put(missingUserLayer));
     }
 
-    forkJoin(userLayerUpdates).subscribe(userLayers =>{
+    forkJoin(userLayerUpdates).subscribe(userLayers => {
       window.location.reload();
     })
   }
+}
+const maximumVideoLengthMinutes = 15
+export function videoLengthValidator(formGroup: FormGroup): ValidationErrors | null {
+  var bpmControl = formGroup.get('bpmControl');
+  if (!bpmControl || bpmControl.invalid) {
+    return { noBpm: true };
+  }
+
+  var clipsFormArray = formGroup.get('clipsFormArray') as FormArray;
+  if (!clipsFormArray || clipsFormArray.invalid) {
+    return { noClips: true };
+  }
+
+  var totalAllowedBeats = maximumVideoLengthMinutes * bpmControl.value;
+  if (totalAllowedBeats < clipsFormArray.controls.map(c => c.value.beatLength as number).reduce((a, c) => a + c, 0)) {
+    return { videoTooLong: maximumVideoLengthMinutes }
+  }
+
+  return null;
 }

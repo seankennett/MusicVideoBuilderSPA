@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { MsalGuard } from '@azure/msal-angular';
-import { ClipBuilderComponent } from './clipbuilder/clipbuilder.component';
+import { ClipBuilderComponent } from './clipcomposer/clipbuilder.component';
 
 import { HomeComponent } from './home/home.component';
 import { LayerFinderComponent } from './layerfinder/layerfinder.component';

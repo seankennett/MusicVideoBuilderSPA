@@ -17,7 +17,6 @@ import { ToastService } from '../toast.service';
 import { Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 
-const byteMultiplier = 1024;
 const framesPerLayer = 64;
 
 @Component({
@@ -82,7 +81,7 @@ export class LayerUploadComponent implements OnInit {
   tags: Tag[] = []
 
   existingTagsFormArray = this.formBuilder.array([], [Validators.required, Validators.minLength(5), Validators.maxLength(15)])
-  layerFilesFormArray = this.formBuilder.array([], [Validators.required, Validators.minLength(this.numberOfImages), Validators.maxLength(this.numberOfImages), this.maxSizeValidator()])
+  layerFilesFormArray = this.formBuilder.array([], [Validators.required, Validators.minLength(this.numberOfImages), Validators.maxLength(this.numberOfImages)])
   layerType = this.formBuilder.control(1, [Validators.required])
 
   layerUploadForm = this.formBuilder.group({
@@ -265,42 +264,6 @@ export class LayerUploadComponent implements OnInit {
   get maxFileSizeMB() {
     return 225;
   }
-
-  maxSizeValidator(): ValidatorFn {
-    return (formArray: AbstractControl) => {
-      if (formArray instanceof FormArray) {
-        const totalBytes = formArray.controls
-          .map((control) => {
-            var imageGroup = control as FormGroup;
-            if (imageGroup) {
-              var fileControl = imageGroup.get('image');
-              if (fileControl) {
-                var file = fileControl.value as File;
-                if (file) {
-                  return file.size;
-                }
-                return 0;
-              }
-
-              throw new Error('formArray is not an instance of FormArray');
-            }
-
-            throw new Error('formArray is not an instance of FormArray');
-          })
-          .reduce((prev, next) => prev + next, 0);
-
-        var totalMB = Math.round((totalBytes / byteMultiplier / byteMultiplier) * 100 + Number.EPSILON) / 100;
-        if (totalMB > this.maxFileSizeMB) {
-          return { forbiddenImageSize: { value: totalMB } };
-        }
-
-        return null;
-      }
-
-      throw new Error('formArray is not an instance of FormArray');
-    }
-  };
-
 
   forbiddenImageValidator(): AsyncValidatorFn {
     return (control: AbstractControl): Promise<ValidationErrors | null> => {

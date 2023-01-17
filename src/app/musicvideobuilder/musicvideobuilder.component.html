@@ -42,7 +42,7 @@
                 <input class="form-control" type="file" id="audioFile" accept=".mp3" (change)="onFileUpload($event)"
                     [disabled]="isWaitingForCreate" />
                 <div class="form-text">
-                    This is to add audio when you play your video in the final video player in the timeline
+                    40 MB maximum file size.  This is to add audio when you play your video in the final video player in the timeline
                     section and is optional. If this is an existing
                     video you will need to select your track again as we don't keep hold of these files on our servers.
                     Also
@@ -150,6 +150,10 @@
                                         (click)="setTabId(3)"><i class="bi bi-hammer"></i> Go to builder</button>
                                 </span>
                             </div>
+                            <div class="form-text text-danger mb-3"
+                                    *ngIf="videoForm.invalid && videoForm.errors?.['videoTooLong']">
+                                    Video must be less than {{videoForm.errors?.['videoTooLong']}} minutes long ignoring delay
+                                </div>
                         </ng-template>
                     </li>
                     <li [ngbNavItem]="2" [disabled]="disableTimelineTab()" [ngbTooltip]="bpmInvalidTooltip()"
@@ -328,6 +332,10 @@
                                         (click)="setTabId(3)"><i class="bi bi-hammer"></i> Go to builder</button>
                                 </span>
                             </div>
+                            <div class="form-text text-danger mb-3"
+                                    *ngIf="videoForm.invalid && videoForm.errors?.['videoTooLong']">
+                                    Video must be less than {{videoForm.errors?.['videoTooLong']}} minutes long ignoring delay
+                                </div>
                         </ng-template>
                     </li>
                     <li [ngbNavItem]="3" [disabled]="!noVideoEditorChanges()"
@@ -386,7 +394,7 @@
                                             class="bi bi-hammer"></i>
                                         Create
                                         Video</button>
-                                    <button type="button" class="btn btn-success ms-3" *ngIf="missingHdLayers.length > 0"
+                                    <button type="button" class="btn btn-success ms-1" *ngIf="missingHdLayers.length > 0"
                                         (click)="buyMissingLayers(Resolutions.BoughtHd)"
                                         [disabled]="isBuilding || isWaitingForCreate"><i class="bi bi-credit-card-fill"></i>
                                         Purchase Missing Layers</button>
@@ -408,7 +416,7 @@
                                             class="bi bi-hammer"></i>
                                         Create
                                         Video</button>
-                                    <button type="button" class="btn btn-success ms-3" *ngIf="missing4kLayers.length > 0"
+                                    <button type="button" class="btn btn-success ms-1" *ngIf="missing4kLayers.length > 0"
                                         (click)="buyMissingLayers(Resolutions.Bought4k)"
                                         [disabled]="isBuilding || isWaitingForCreate"><i class="bi bi-credit-card-fill"></i>
                                         Purchase Missing Layers</button>

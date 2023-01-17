@@ -48,6 +48,8 @@ export class ClipBuilderComponent implements OnInit {
   userLayers: UserLayer[] = [];
   clipId: number = 0;
 
+  maximumUserLayers = 9;
+
   setClipId = (clipId: number) => {
     this.clipId = clipId;
     if (clipId === 0) {
@@ -72,7 +74,7 @@ export class ClipBuilderComponent implements OnInit {
 
   clipNameControl = this.formBuilder.control('', [Validators.required, Validators.maxLength(50), Validators.pattern("[A-z0-9]+")]);
   backgroundColourControl = this.formBuilder.control('#000000');
-  layersFormArray = this.formBuilder.array([], [Validators.maxLength(255)]);
+  layersFormArray = this.formBuilder.array([], [Validators.maxLength(this.maximumUserLayers)]);
   beatLengthControl = this.formBuilder.control(4, [Validators.required, Validators.max(4), Validators.min(1)]);
   startingBeatControl = this.formBuilder.control(1, [Validators.required, Validators.max(4), Validators.min(1)]);
 
@@ -217,7 +219,7 @@ export class ClipBuilderComponent implements OnInit {
   }
 
   canAddLayer = () => {
-    if (this.userForegrounds.length > 0) {
+    if (this.userForegrounds.length > 0 && this.layersFormArray.length < this.maximumUserLayers) {
       return true;
     }
 
@@ -227,6 +229,10 @@ export class ClipBuilderComponent implements OnInit {
   canAddLayerTooltip = () => {
     if (this.userForegrounds.length === 0) {
       return 'You must select a foreground to be able to add more';
+    }
+
+    if (this.layersFormArray.length >= this.maximumUserLayers) {
+      return 'You can only have ' + this.maximumUserLayers + ' layers per clip';
     }
 
     return '';

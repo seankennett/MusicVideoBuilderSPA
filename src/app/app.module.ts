@@ -16,7 +16,7 @@ import { LayerFinderComponent } from './layerfinder/layerfinder.component';
 import { LayerUploadComponent } from './layerupload/layerupload.component';
 import { LayertypecontrolComponent } from './layertypecontrol/layertypecontrol.component';
 import { GalleryplayerComponent } from './galleryplayer/galleryplayer.component';
-import { ClipBuilderComponent } from './clipbuilder/clipbuilder.component';
+import { ClipBuilderComponent } from './clipcomposer/clipbuilder.component';
 import { MusicVideoBuilderComponent } from './musicvideobuilder/musicvideobuilder.component';
 import { MyLibraryComponent } from './mylibrary/mylibrary.component';
 import { BreadcrumbComponent } from './breadcrumb/breadcrumb.component';
