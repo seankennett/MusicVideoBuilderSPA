@@ -28,6 +28,14 @@ export class MyLibraryComponent implements OnInit {
   dependentUserLayers: { userLayer: UserLayer, clips: Clip[] }[] = [];
   independentUserLayers: UserLayer[] = [];
 
+  get buildingVideos(){
+    return this.videos.filter(v => v.isBuilding);
+  }
+
+  get notBuildingVideos(){
+    return this.videos.filter(v => !v.isBuilding);
+  }
+
   ngOnInit(): void {
     this.videoService.getAllAssets().subscribe((videoAssets: Videoasset[]) => {
       this.videoAssets = videoAssets;

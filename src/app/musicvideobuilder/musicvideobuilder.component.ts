@@ -13,11 +13,12 @@ import { Userlayerstatus } from '../userlayerstatus';
 import { UserLayer } from '../userlayer';
 import { guess } from 'web-audio-beat-detector';
 import { VideoassetsService } from '../videoassets.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { NgbNavChangeEvent } from '@ng-bootstrap/ng-bootstrap';
 import { environment } from 'src/environments/environment';
 import { BlockBlobClient } from '@azure/storage-blob';
 import { UserlayerService } from '../userlayer.service';
+import { ToastService } from '../toast.service';
 
 const millisecondsInSecond = 1000;
 const secondsInMinute = 60;
@@ -34,7 +35,7 @@ const byteMultiplier = 1024;
 })
 export class MusicVideoBuilderComponent implements OnInit {
   constructor(private formBuilder: FormBuilder, private videoService: VideoService, private clipService: ClipService, private videoAssetService: VideoassetsService,
-    private datePipe: DatePipe, private route: ActivatedRoute, private location: Location, private userLayerService: UserlayerService) { }
+    private datePipe: DatePipe, private route: ActivatedRoute, private location: Location, private userLayerService: UserlayerService, private toastService: ToastService, private router: Router) { }
 
   ngOnInit(): void {
     this.videoService.getAll().subscribe((videos: Video[]) => {
@@ -539,22 +540,29 @@ export class MusicVideoBuilderComponent implements OnInit {
     this.stop();
     const uploadedFiles = (event.target as HTMLInputElement).files;
 
-    if (uploadedFiles && uploadedFiles.length === 1 && (Math.round((uploadedFiles[0].size / byteMultiplier / byteMultiplier) * 100 + Number.EPSILON) / 100) < this.maximumAudioFileSizeMB && uploadedFiles[0].name.endsWith('.mp3')) {
-      this.file = uploadedFiles[0];
-      this.guessingBpm = true;
-      this.file.arrayBuffer().then(arrayBuffer => {
-        const audioContext = new AudioContext();
-        audioContext.decodeAudioData(arrayBuffer).then(audioBuffer => {
-          guess(audioBuffer).then(({ bpm, offset }) => {
-            this.guessingBpm = false;
-            this.guessedBpm = { bpm, offset }.bpm;
-            this.guessedVideoDelay = Math.round({ bpm, offset }.offset * millisecondsInSecond);
-          })
-            .catch((err) => {
+    if (uploadedFiles && uploadedFiles.length === 1) {
+      if ((Math.round((uploadedFiles[0].size / byteMultiplier / byteMultiplier) * 100 + Number.EPSILON) / 100) < this.maximumAudioFileSizeMB && uploadedFiles[0].name.endsWith('.mp3')) {
+        this.file = uploadedFiles[0];
+        this.guessingBpm = true;
+        this.file.arrayBuffer().then(arrayBuffer => {
+          const audioContext = new AudioContext();
+          audioContext.decodeAudioData(arrayBuffer).then(audioBuffer => {
+            guess(audioBuffer).then(({ bpm, offset }) => {
               this.guessingBpm = false;
-            });
+              this.guessedBpm = { bpm, offset }.bpm;
+              this.guessedVideoDelay = Math.round({ bpm, offset }.offset * millisecondsInSecond);
+            })
+              .catch((err) => {
+                this.guessingBpm = false;
+              });
+          });
         });
-      });
+      }
+      else {
+        this.toastService.show('Invalid audio file.  It must be an mp3 and under 40MB.', this.router.url);
+        this.file = null;
+        event.target.value = null;
+      }
     } else {
       this.file = null;
       event.target.value = null;
@@ -591,6 +599,7 @@ export class MusicVideoBuilderComponent implements OnInit {
                   this.isUploadingAudio = false;
                 });
             }).catch(error => {
+              this.toastService.show('Problem uploading audio file to storage.', this.router.url);
               this.isWaitingForCreate = false;
               this.isUploadingAudio = false;
             });
