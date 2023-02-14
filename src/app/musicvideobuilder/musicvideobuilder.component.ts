@@ -274,11 +274,15 @@ export class MusicVideoBuilderComponent implements OnInit {
         this.setVideoId(video.videoId, this.activeTabId);
         this.unchangedVideo = { ...this.editorVideo };
       } else {
-        let index = this.videos.findIndex(vid => vid.videoId === this.videoId);
-        this.videos[index] = video;
-        this.unchangedVideo = { ...this.editorVideo };
+        this.updateExistingInMemoryVideo(video);
       }
     });
+  }
+
+  updateExistingInMemoryVideo = (video: Video) =>{
+    let index = this.videos.findIndex(vid => vid.videoId === this.videoId);
+    this.videos[index] = video;
+    this.unchangedVideo = { ...this.editorVideo };
   }
 
   toggleEditor = () => {
@@ -613,7 +617,7 @@ export class MusicVideoBuilderComponent implements OnInit {
         }))
         .subscribe(video => {
           this.isBuilding = video.isBuilding;
-          this.unchangedVideo = { ...this.editorVideo };
+          this.updateExistingInMemoryVideo(video);
           this.isWaitingForCreate = false;
         });
     }
