@@ -28,6 +28,8 @@ import { NotfoundComponent } from './notfound/notfound.component';
 import { PageloadingComponent } from './pageloading/pageloading.component';
 import { ToastsComponent } from './toasts/toasts.component';
 import { ErrorhandlerInterceptor } from './errorhandler.interceptor';
+import { NgxStripeModule } from 'ngx-stripe';
+import { environment } from 'src/environments/environment';
 
 /**
  * Here we pass the configuration parameters to create an MSAL instance.
@@ -90,6 +92,7 @@ export function MSALGuardConfigFactory(): MsalGuardConfiguration {
   ],
   imports: [
     BrowserModule,
+    NgxStripeModule.forRoot(environment.stripePublishableKey),
     AppRoutingModule,
     NgbModule,
     HttpClientModule,

@@ -42,7 +42,8 @@
                 <input class="form-control" type="file" id="audioFile" accept=".mp3" (change)="onFileUpload($event)"
                     [disabled]="isWaitingForCreate" />
                 <div class="form-text">
-                    40 MB maximum file size.  This is to add audio when you play your video in the final video player in the timeline
+                    40 MB maximum file size. This is to add audio when you play your video in the final video player in
+                    the timeline
                     section and is optional. If this is an existing
                     video you will need to select your track again as we don't keep hold of these files on our servers.
                     Also
@@ -61,12 +62,14 @@
                     estimates your bpm as {{guessedBpm}} and video delay as {{guessedVideoDelay}} milliseconds.
                 </ngb-alert>
             </div>
-            <form [formGroup]="videoForm" (ngSubmit)="onSubmit()">
-                <ul ngbNav #nav="ngbNav" class="nav-tabs mb-3" [(activeId)]="activeTabId" [destroyOnHide]="false"
-                    (navChange)="navChange($event)">
+
+            <ul ngbNav #nav="ngbNav" class="nav-tabs mb-3" [(activeId)]="activeTabId" [destroyOnHide]="false"
+                (navChange)="navChange($event)">
+                <ng-container [formGroup]="videoForm">
                     <li [ngbNavItem]="1" [disabled]="isWaitingForCreate">
                         <a ngbNavLink><i class="bi bi-pencil-square"></i> Details</a>
                         <ng-template ngbNavContent>
+                            <h3>Video Details</h3>
                             <div class="mb-3">
                                 <label for="videoName" class="form-label">Video Name<span
                                         class="text-danger">*</span></label>
@@ -137,8 +140,8 @@
                                 </div>
                             </div>
                             <div class="mb-3">
-                                <button type="submit" [disabled]="!videoForm.valid || saving || noVideoEditorChanges()"
-                                    class="btn btn-primary me-1">Save</button>
+                                <button type="button" [disabled]="!videoForm.valid || saving || noVideoEditorChanges()"
+                                    class="btn btn-primary me-1" (click)="saveVideo()">Save</button>
                                 <span [ngbTooltip]="bpmInvalidTooltip()">
                                     <button type="button" [disabled]="disableTimelineTab()"
                                         class="btn btn-secondary me-1" (click)="setTabId(2)"><i
@@ -151,9 +154,10 @@
                                 </span>
                             </div>
                             <div class="form-text text-danger mb-3"
-                                    *ngIf="videoForm.invalid && videoForm.errors?.['videoTooLong']">
-                                    Video must be less than {{videoForm.errors?.['videoTooLong']}} minutes long ignoring delay
-                                </div>
+                                *ngIf="videoForm.invalid && videoForm.errors?.['videoTooLong']">
+                                Video must be less than {{videoForm.errors?.['videoTooLong']}} minutes long ignoring
+                                delay
+                            </div>
                         </ng-template>
                     </li>
                     <li [ngbNavItem]="2" [disabled]="disableTimelineTab()" [ngbTooltip]="bpmInvalidTooltip()"
@@ -321,8 +325,8 @@
                                     Cancel</button>
                             </div>
                             <div class="mb-3">
-                                <button type="submit" [disabled]="!videoForm.valid || saving || noVideoEditorChanges()"
-                                    class="btn btn-primary me-1">Save</button>
+                                <button type="button" [disabled]="!videoForm.valid || saving || noVideoEditorChanges()"
+                                    class="btn btn-primary me-1" (click)="saveVideo()">Save</button>
                                 <button type="button" class="btn btn-secondary me-1" (click)="setTabId(1)"><i
                                         class="bi bi-pencil-square"></i> Go to
                                     details</button>
@@ -333,132 +337,137 @@
                                 </span>
                             </div>
                             <div class="form-text text-danger mb-3"
-                                    *ngIf="videoForm.invalid && videoForm.errors?.['videoTooLong']">
-                                    Video must be less than {{videoForm.errors?.['videoTooLong']}} minutes long ignoring delay
-                                </div>
+                                *ngIf="videoForm.invalid && videoForm.errors?.['videoTooLong']">
+                                Video must be less than {{videoForm.errors?.['videoTooLong']}} minutes long ignoring
+                                delay
+                            </div>
                         </ng-template>
                     </li>
-                    <li [ngbNavItem]="3" [disabled]="!noVideoEditorChanges()"
-                        [ngbTooltip]="noVideoEditorChangesTooltip()">
-                        <a ngbNavLink><i class="bi bi-hammer"></i> Builder</a>
-                        <ng-template ngbNavContent>
-                            <div class="mb-3" *ngIf="!file">
-                                <ngb-alert [type]="'warning'" [dismissible]="false"><i
-                                        class="bi bi-exclamation-triangle-fill"></i> No audio file selected, if you
-                                    don't want audio then please continue otherwise add above.
-                                </ngb-alert>
-                            </div>
-                            <div class="mb-3" *ngIf="isBuilding">
-                                <ngb-alert [type]="'danger'" [dismissible]="false"><i
-                                        class="bi bi-exclamation-triangle-fill"></i> You are already building this video, you have to wait for this to finish until
-                                        you
-                                        can build again.
-                                </ngb-alert>
-                            </div>
-                            <div class="mb-3" *ngIf="isUploadingAudio">
-                                <label class="form-label">Uploading audio please wait</label>
-                                <div class="progress">
-                                    <div class="progress-bar progress-bar-animated progress-bar-striped"
-                                        role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"
-                                        style="width: 100%">
-                                    </div>
-                                </div>
-                            </div>
-                            <div>
-                                <h3>Free built for you option</h3>
-                                <div class="mb-3">
-                                    <p>This option will build a watermarked low resolution video for you and send a
-                                        download link to your account
-                                        email. Personal use only.</p>
-                                </div>
-                                <div class="mb-3">
-                                    <button type="button" class="btn btn-primary"
-                                        (click)="createVideo(Resolutions.Saved)"
-                                        [disabled]="isBuilding || isWaitingForCreate"><i class="bi bi-hammer"></i>
-                                        Create
-                                        Video</button>
-                                </div>
-                            </div>
-                            <div>
-                                <h3>HD built for you option</h3>
-                                <div class="mb-3">
-                                    <p>This option will build a HD video for you and send a download link to your
-                                        account
-                                        email.
-                                    </p>
-                                </div>
-                                <div class="mb-3">
-                                    <button type="button" class="btn btn-primary"
-                                        (click)="createVideo(Resolutions.BoughtHd)"
-                                        [disabled]="isBuilding || isWaitingForCreate || missingHdLayers.length > 0"><i
-                                            class="bi bi-hammer"></i>
-                                        Create
-                                        Video</button>
-                                    <button type="button" class="btn btn-success ms-1" *ngIf="missingHdLayers.length > 0"
-                                        (click)="buyMissingLayers(Resolutions.BoughtHd)"
-                                        [disabled]="isBuilding || isWaitingForCreate"><i class="bi bi-credit-card-fill"></i>
-                                        Purchase Missing Layers</button>
-                                </div>
-                            </div>
-
-                            <div>
-                                <h3>4k built for you option</h3>
-                                <div class="mb-3">
-                                    <p>This option will build a 4k video for you and send a download link to your
-                                        account
-                                        email.
-                                    </p>
-                                </div>
-                                <div class="mb-3">
-                                    <button type="button" class="btn btn-primary"
-                                        (click)="createVideo(Resolutions.Bought4k)"
-                                        [disabled]="isBuilding || isWaitingForCreate || missing4kLayers.length > 0"><i
-                                            class="bi bi-hammer"></i>
-                                        Create
-                                        Video</button>
-                                    <button type="button" class="btn btn-success ms-1" *ngIf="missing4kLayers.length > 0"
-                                        (click)="buyMissingLayers(Resolutions.Bought4k)"
-                                        [disabled]="isBuilding || isWaitingForCreate"><i class="bi bi-credit-card-fill"></i>
-                                        Purchase Missing Layers</button>
-                                </div>
-                            </div>
-                            <!-- <h3>Download</h3>
-                        <div class="mb-3" *ngIf="hasAllLayers">
-                            <p>You have bought all the layers in this video, please use the button below to get your 4k
-                                assets and ffmpeg code.</p>
-                            <button type="button" class="btn btn-secondary" (click)="download()"><i
-                                    class="bi bi-download"></i> Test Download</button>
+                </ng-container>
+                <li [ngbNavItem]="3" [disabled]="!noVideoEditorChanges()" [ngbTooltip]="noVideoEditorChangesTooltip()">
+                    <a ngbNavLink><i class="bi bi-hammer"></i> Builder</a>
+                    <ng-template ngbNavContent>
+                        <div class="mb-3" *ngIf="!file">
+                            <ngb-alert [type]="'warning'" [dismissible]="false"><i
+                                    class="bi bi-exclamation-triangle-fill"></i> No audio file selected, if you
+                                don't want audio then please continue otherwise add above.
+                            </ngb-alert>
                         </div>
-                        <ng-container *ngIf="!hasAllLayers">
+                        <div class="mb-3" *ngIf="isBuilding">
+                            <ngb-alert [type]="'danger'" [dismissible]="false"><i
+                                    class="bi bi-exclamation-triangle-fill"></i> You are already building this video,
+                                you have to wait for this to finish until
+                                you
+                                can build again.
+                            </ngb-alert>
+                        </div>
+                        <div class="mb-3" *ngIf="isUploadingAudio">
+                            <label class="form-label">Uploading audio please wait</label>
+                            <div class="progress">
+                                <div class="progress-bar progress-bar-animated progress-bar-striped" role="progressbar"
+                                    aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%">
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <h3>Build Video</h3>
                             <div class="mb-3">
-                                <p>For the full quality video without watermarks you will need to purchase the following
-                                    layers. You can purchase all at the bottom, alternatively remove or buy
-                                    individually.
+                                <p>Use the options below to determine the resolution and license you want. Please
+                                    remember that once you have a license you then only need to pay for build costs in
+                                    future for the layers used.</p>
+                            </div>
+                            <form [formGroup]="builderForm" (ngSubmit)="createVideo()">
+                                <div class="mb-3">
+                                    <label for="resolution" class="form-label">Resolution</label>
+                                    <select id="resolution" formControlName="resolutionControl" class="form-control" (change)="resolutionChange()">
+                                        <option [ngValue]="resolution.userLayerStatus"
+                                            *ngFor="let resolution of resolutionList">
+                                            {{resolution.displayName}}
+                                        </option>
+                                    </select>                                    
+                                </div>
+                                <div class="mb-3">
+                                    <label for="license" class="form-label">License</label>
+                                    <select id="license" formControlName="licenseControl" class="form-control">
+                                        <option [ngValue]="license"
+                                            *ngFor="let license of licenseList">
+                                            {{License[license]}}
+                                        </option>
+                                    </select>                                    
+                                </div>
+                                <div class="mb-3">
+                                    <p>Cost</p>
+                                    <ul class="list-group">
+                                        <li class="list-group-item" *ngFor="let missingLayer of missingLayers"><h6 class="float-start">{{License[licenseControl.value]}} license for layer {{missingLayer.layerName}}</h6><h6 class="float-end">{{layerLicenseCost | currency:"GBP":"symbol"}}</h6></li>
+                                        <li class="list-group-item"><h5 class="float-start">License Total</h5><h5 class="float-end">{{layerLicensesCost | currency:"GBP":"symbol"}}</h5></li>
+                                        <li class="list-group-item"><h5 class="float-start">Build Total</h5><h5 class="float-end">{{buildCost | currency:"GBP":"symbol"}}</h5></li>
+                                        <li class="list-group-item"><h3 class="float-start">Total</h3><h3 class="float-end">{{total | currency:"GBP":"symbol"}}</h3></li>
+                                    </ul>
+                                </div>
+                                <div class="mb-3">
+                                    <button type="submit" class="btn btn-primary"
+                                    [disabled]="isBuilding || isWaitingForCreate" *ngIf="total === 0"><i class="bi bi-hammer"></i>
+                                    Create
+                                    Video</button>
+                                    <button type="button" class="btn btn-success"
+                                    [disabled]="isBuilding || isWaitingForCreate" *ngIf="total > 0"><i class="bi bi-credit-card-fill"></i>
+                                    Checkout</button>
+                                </div>
+                            </form>
+                        </div>
+                        <!-- <div>
+                            <h3>HD built for you option</h3>
+                            <div class="mb-3">
+                                <p>This option will build a HD video for you and send a download link to your
+                                    account
+                                    email.
                                 </p>
-                                {{layersToBuy | json}}
                             </div>
                             <div class="mb-3">
-                                <p>You can purchase all the missing layers above using the button below.</p>
-                                <button type="button" class="btn btn-primary" (click)="buyMissingLayers()"
-                                    [disabled]="generatingZip"><i class="bi bi-credit-card"></i> Buy All</button>
+                                <button type="button" class="btn btn-primary"
+                                    (click)="createVideo(Resolutions.BoughtHd)"
+                                    [disabled]="isBuilding || isWaitingForCreate || missingHdLayers.length > 0"><i
+                                        class="bi bi-hammer"></i>
+                                    Create
+                                    Video</button>
+                                <button type="button" class="btn btn-success ms-1" *ngIf="missingHdLayers.length > 0"
+                                    (click)="buyMissingLayers(Resolutions.BoughtHd)"
+                                    [disabled]="isBuilding || isWaitingForCreate"><i class="bi bi-credit-card-fill"></i>
+                                    Purchase Missing Layers</button>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3>4k built for you option</h3>
+                            <div class="mb-3">
+                                <p>This option will build a 4k video for you and send a download link to your
+                                    account
+                                    email.
+                                </p>
                             </div>
                             <div class="mb-3">
-                                <button type="button" class="btn btn-secondary me-1" (click)="setTabId(1)">Go to
-                                    details</button>
-                                <button type="button" class="btn btn-secondary" (click)="setTabId(2)">Go to
-                                    timeline</button>
+                                <button type="button" class="btn btn-primary"
+                                    (click)="createVideo(Resolutions.Bought4k)"
+                                    [disabled]="isBuilding || isWaitingForCreate || missing4kLayers.length > 0"><i
+                                        class="bi bi-hammer"></i>
+                                    Create
+                                    Video</button>
+                                <button type="button" class="btn btn-success ms-1" *ngIf="missing4kLayers.length > 0"
+                                    (click)="buyMissingLayers(Resolutions.Bought4k)"
+                                    [disabled]="isBuilding || isWaitingForCreate"><i class="bi bi-credit-card-fill"></i>
+                                    Purchase Missing Layers</button>
                             </div>
-                        </ng-container> -->
-                        </ng-template>
-                    </li>
-                </ul>
-                <div [ngbNavOutlet]="nav"></div>
-                <div class="mb-3">
-                    <button type="button" class="btn btn-danger" (click)="toggleEditor()" [disabled]="isWaitingForCreate"><i
-                            class="bi bi-dash-circle-fill"></i>
-                        Exit Editor</button>
-                </div>
-            </form>
+                        </div> -->
+                    </ng-template>
+                </li>
+            </ul>
+            <div [ngbNavOutlet]="nav"></div>
+            <div class="mb-3">
+                <button type="button" class="btn btn-danger" (click)="toggleEditor()" [disabled]="isWaitingForCreate"><i
+                        class="bi bi-dash-circle-fill"></i>
+                    Exit Editor</button>
+            </div>
+
         </ng-container>
     </ng-container>
 </div>

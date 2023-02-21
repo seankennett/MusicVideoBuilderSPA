@@ -19,6 +19,7 @@ import { environment } from 'src/environments/environment';
 import { BlockBlobClient } from '@azure/storage-blob';
 import { UserlayerService } from '../userlayer.service';
 import { ToastService } from '../toast.service';
+import { License } from '../license';
 
 const millisecondsInSecond = 1000;
 const secondsInMinute = 60;
@@ -64,7 +65,30 @@ export class MusicVideoBuilderComponent implements OnInit {
   videos: Video[] = [];
   clips: Clip[] = [];
   Formats = Formats;
-  Resolutions = Userlayerstatus;
+  resolutionList = [{
+    displayName: 'Free (384x216)',
+    userLayerStatus: Userlayerstatus.Saved
+  }, {
+    displayName: 'HD (1920x1080)',
+    userLayerStatus: Userlayerstatus.BoughtHd
+  }, {
+    displayName: '4K (3840x2160)',
+    userLayerStatus: Userlayerstatus.Bought4k
+  }];
+
+  resolutionChange = ()=>{
+    if (this.resolutionControl.value === Userlayerstatus.Saved){
+      this.licenseControl.setValue(License.Personal);
+      this.licenseList = [License.Personal];
+    }else{
+      this.licenseList = [License.Personal, License.Standard, License.Enhanced];
+    }
+  }
+
+  License = License;
+  licenseList = [License.Personal]
+  
+
   formatList: Formats[] = [
     Formats.mp4,
     Formats.api,
@@ -167,6 +191,13 @@ export class MusicVideoBuilderComponent implements OnInit {
     clipsFormArray: this.clipsFormArray
   }, { validators: videoLengthValidator })
 
+  resolutionControl = this.formBuilder.control(Userlayerstatus.Saved, [Validators.required]);
+  licenseControl = this.formBuilder.control(License.Personal, [Validators.required]);
+  builderForm = this.formBuilder.group({
+    resolutionControl: this.resolutionControl,
+    licenseControl: this.licenseControl
+  })
+
   clipsPerBlock = 1;
 
   showEditor = false;
@@ -245,12 +276,8 @@ export class MusicVideoBuilderComponent implements OnInit {
     };
   }
 
-  get missing4kLayers(): UserLayer[] {
-    return this.getMissingLayers(this.editorVideo, Userlayerstatus.Bought4k);
-  }
-
-  get missingHdLayers(): UserLayer[] {
-    return this.getMissingLayers(this.editorVideo, Userlayerstatus.BoughtHd);
+  get missingLayers(): UserLayer[] {
+    return this.getMissingLayers(this.editorVideo, this.resolutionControl.value);
   }
 
   getMissingLayers = (video: Video, userLayerStatus: Userlayerstatus) => {
@@ -258,7 +285,7 @@ export class MusicVideoBuilderComponent implements OnInit {
     return [...new Map(layers.map(item => [item.userLayerId, item])).values()]
   }
 
-  onSubmit = () => {
+  saveVideo = () => {
     this.saving = true;
     this.stop();
 
@@ -279,7 +306,7 @@ export class MusicVideoBuilderComponent implements OnInit {
     });
   }
 
-  updateExistingInMemoryVideo = (video: Video) =>{
+  updateExistingInMemoryVideo = (video: Video) => {
     let index = this.videos.findIndex(vid => vid.videoId === this.videoId);
     this.videos[index] = video;
     this.unchangedVideo = { ...this.editorVideo };
@@ -576,7 +603,8 @@ export class MusicVideoBuilderComponent implements OnInit {
   isWaitingForCreate = false;
   isUploadingAudio = false;
 
-  createVideo = (resolution: Userlayerstatus) => {
+  createVideo = () => {
+    var resolution = this.resolutionControl.value;
     this.isWaitingForCreate = true;
     if (this.file?.name) {
       this.isUploadingAudio = true;
@@ -623,12 +651,49 @@ export class MusicVideoBuilderComponent implements OnInit {
     }
   }
 
-  buyMissingLayers = (resolution: Userlayerstatus) => {
-    if (resolution === Userlayerstatus.Bought4k) {
-      this.buyUserLayers(this.missing4kLayers, resolution);
-    } else if (resolution === Userlayerstatus.BoughtHd) {
-      this.buyUserLayers(this.missingHdLayers, resolution);
+  get buildCost() {
+    return (this.resolutionControl.value - 1) * 5;
+  }
+
+  get layerLicenseCost(){
+    var layerResolutionCost = 0;
+    switch (this.resolutionControl.value) {
+      case Userlayerstatus.BoughtHd:
+        layerResolutionCost = 25;
+        break;
+      case Userlayerstatus.Bought4k:
+        layerResolutionCost = 50;
+        break;
     }
+
+    return layerResolutionCost * this.licenseFactor(this.licenseControl.value);
+  }
+
+  get layerLicensesCost() {
+    return this.layerLicenseCost * this.missingLayers.length;
+  }
+
+  licenseFactor = (license: License) => {
+    switch (license) {
+      case License.Standard:
+        return 1;
+      case License.Enhanced:
+        return 3;
+      default:
+        return 0;
+    }
+  }
+
+  get total() {
+    if (this.resolutionControl.value === Userlayerstatus.Saved) {
+      return 0;
+    }
+
+    return this.buildCost + this.layerLicensesCost;
+  }
+
+  buyMissingLayers = (resolution: Userlayerstatus) => {
+      this.buyUserLayers(this.missingLayers, resolution);
   }
 
   buyUserLayers = (userLayers: UserLayer[], resolution: Userlayerstatus) => {
@@ -644,6 +709,7 @@ export class MusicVideoBuilderComponent implements OnInit {
     })
   }
 }
+
 const maximumVideoLengthMinutes = 15
 export function videoLengthValidator(formGroup: FormGroup): ValidationErrors | null {
   var bpmControl = formGroup.get('bpmControl');
