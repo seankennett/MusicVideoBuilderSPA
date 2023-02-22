@@ -9,7 +9,7 @@ import { catchError, throwError, timer, forkJoin } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 import { DatePipe, Location } from '@angular/common';
 import { VideoplayerComponent } from '../videoplayer/videoplayer.component';
-import { Userlayerstatus } from '../userlayerstatus';
+import { Resolution } from '../resolution';
 import { UserLayer } from '../userlayer';
 import { guess } from 'web-audio-beat-detector';
 import { VideoassetsService } from '../videoassets.service';
@@ -20,6 +20,7 @@ import { BlockBlobClient } from '@azure/storage-blob';
 import { UserlayerService } from '../userlayer.service';
 import { ToastService } from '../toast.service';
 import { License } from '../license';
+import { Layer } from '../layer';
 
 const millisecondsInSecond = 1000;
 const secondsInMinute = 60;
@@ -67,17 +68,17 @@ export class MusicVideoBuilderComponent implements OnInit {
   Formats = Formats;
   resolutionList = [{
     displayName: 'Free (384x216)',
-    userLayerStatus: Userlayerstatus.Saved
+    userLayerStatus: Resolution.Free
   }, {
     displayName: 'HD (1920x1080)',
-    userLayerStatus: Userlayerstatus.BoughtHd
+    userLayerStatus: Resolution.Hd
   }, {
     displayName: '4K (3840x2160)',
-    userLayerStatus: Userlayerstatus.Bought4k
+    userLayerStatus: Resolution.FourK
   }];
 
   resolutionChange = ()=>{
-    if (this.resolutionControl.value === Userlayerstatus.Saved){
+    if (this.resolutionControl.value === Resolution.Free){
       this.licenseControl.setValue(License.Personal);
       this.licenseList = [License.Personal];
     }else{
@@ -191,7 +192,7 @@ export class MusicVideoBuilderComponent implements OnInit {
     clipsFormArray: this.clipsFormArray
   }, { validators: videoLengthValidator })
 
-  resolutionControl = this.formBuilder.control(Userlayerstatus.Saved, [Validators.required]);
+  resolutionControl = this.formBuilder.control(Resolution.Free, [Validators.required]);
   licenseControl = this.formBuilder.control(License.Personal, [Validators.required]);
   builderForm = this.formBuilder.group({
     resolutionControl: this.resolutionControl,
@@ -230,7 +231,8 @@ export class MusicVideoBuilderComponent implements OnInit {
     timer(delay).subscribe(() => {
       this.toggleEditor();
       this.setVideoId(videoRoute.video.videoId, videoRoute.tab);
-      this.isBuilding = videoRoute.video.isBuilding;
+      //TODO
+      this.isBuilding = false;
       this.videoNameControl.setValue(videoRoute.video.videoName);
       this.bpmControl.setValue(videoRoute.video.bpm);
       this.formatControl.setValue(videoRoute.video.format);
@@ -276,13 +278,13 @@ export class MusicVideoBuilderComponent implements OnInit {
     };
   }
 
-  get missingLayers(): UserLayer[] {
+  get missingLayers(): Layer[] {
     return this.getMissingLayers(this.editorVideo, this.resolutionControl.value);
   }
 
-  getMissingLayers = (video: Video, userLayerStatus: Userlayerstatus) => {
-    var layers = this.editorVideo.clips.filter(c => c.userLayers != null).flatMap(c => c.userLayers).filter(l => l.userLayerStatus != null && l.userLayerStatus < userLayerStatus);
-    return [...new Map(layers.map(item => [item.userLayerId, item])).values()]
+  getMissingLayers = (video: Video, resolution: Resolution) => {
+    var layers = this.editorVideo.clips.filter(c => c.layers != null).flatMap(c => c.layers).filter(l => true/*l.userLayerStatus != null && l.userLayerStatus < userLayerStatus*/);
+    return [...new Map(layers.map(item => [item.layerId, item])).values()]
   }
 
   saveVideo = () => {
@@ -605,10 +607,11 @@ export class MusicVideoBuilderComponent implements OnInit {
 
   createVideo = () => {
     var resolution = this.resolutionControl.value;
+    var license = this.licenseControl.value;
     this.isWaitingForCreate = true;
     if (this.file?.name) {
       this.isUploadingAudio = true;
-      this.videoAssetService.createAudioBlobUri(this.videoId, { resolution })
+      this.videoAssetService.createAudioBlobUri(this.videoId, { resolution, license })
         .pipe(catchError((error: HttpErrorResponse) => {
           this.isWaitingForCreate = false;
           this.isUploadingAudio = false;
@@ -618,14 +621,14 @@ export class MusicVideoBuilderComponent implements OnInit {
           var blockBlobClient = new BlockBlobClient(blockBlobSasUrl);
           if (this.file) {
             blockBlobClient.uploadData(this.file).then(uploadResponse => {
-              this.videoAssetService.create(this.videoId, { audioBlobUrl: blockBlobSasUrl, resolution })
+              this.videoAssetService.create(this.videoId, { audioBlobUrl: blockBlobSasUrl, resolution, license })
                 .pipe(catchError((error: HttpErrorResponse) => {
                   this.isWaitingForCreate = false;
                   this.isUploadingAudio = false;
                   return throwError(() => new Error());
                 }))
                 .subscribe(video => {
-                  this.isBuilding = video.isBuilding;
+                  this.isBuilding = true;
                   this.unchangedVideo = { ...this.editorVideo };
                   this.isWaitingForCreate = false;
                   this.isUploadingAudio = false;
@@ -638,13 +641,13 @@ export class MusicVideoBuilderComponent implements OnInit {
           }
         });
     } else {
-      this.videoAssetService.create(this.videoId, { audioBlobUrl: undefined, resolution })
+      this.videoAssetService.create(this.videoId, { audioBlobUrl: undefined, resolution, license })
         .pipe(catchError((error: HttpErrorResponse) => {
           this.isWaitingForCreate = false;
           return throwError(() => new Error());
         }))
         .subscribe(video => {
-          this.isBuilding = video.isBuilding;
+          this.isBuilding = true;
           this.updateExistingInMemoryVideo(video);
           this.isWaitingForCreate = false;
         });
@@ -658,10 +661,10 @@ export class MusicVideoBuilderComponent implements OnInit {
   get layerLicenseCost(){
     var layerResolutionCost = 0;
     switch (this.resolutionControl.value) {
-      case Userlayerstatus.BoughtHd:
+      case Resolution.Hd:
         layerResolutionCost = 25;
         break;
-      case Userlayerstatus.Bought4k:
+      case Resolution.FourK:
         layerResolutionCost = 50;
         break;
     }
@@ -685,28 +688,28 @@ export class MusicVideoBuilderComponent implements OnInit {
   }
 
   get total() {
-    if (this.resolutionControl.value === Userlayerstatus.Saved) {
+    if (this.resolutionControl.value === Resolution.Free) {
       return 0;
     }
 
     return this.buildCost + this.layerLicensesCost;
   }
 
-  buyMissingLayers = (resolution: Userlayerstatus) => {
-      this.buyUserLayers(this.missingLayers, resolution);
+  buyMissingLayers = (resolution: Resolution) => {
+      //this.buyUserLayers(this.missingLayers, resolution);
   }
 
-  buyUserLayers = (userLayers: UserLayer[], resolution: Userlayerstatus) => {
-    var userLayerUpdates = [];
-    for (var i = 0; i < userLayers.length; i++) {
-      var missingUserLayer = userLayers[i];
-      missingUserLayer.userLayerStatus = resolution;
-      userLayerUpdates.push(this.userLayerService.put(missingUserLayer));
-    }
+  buyUserLayers = (userLayers: UserLayer[], resolution: Resolution) => {
+    // var userLayerUpdates = [];
+    // for (var i = 0; i < userLayers.length; i++) {
+    //   var missingUserLayer = userLayers[i];
+    //   missingUserLayer.userLayerStatus = resolution;
+    //   userLayerUpdates.push(this.userLayerService.put(missingUserLayer));
+    // }
 
-    forkJoin(userLayerUpdates).subscribe(userLayers => {
-      window.location.reload();
-    })
+    // forkJoin(userLayerUpdates).subscribe(userLayers => {
+    //   window.location.reload();
+    // })
   }
 }
 

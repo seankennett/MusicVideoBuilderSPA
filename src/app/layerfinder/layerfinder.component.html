@@ -46,9 +46,8 @@
             <app-bpmcontrol (bpmEvent)="setBpm($event)" (isPlayingEvent)="setIsPlaying($event)"></app-bpmcontrol>
             <div class="row">
                 <div *ngFor="let layer of selectedLayers; let i = index" class="col-sm mb-3">
-                    <app-galleryplayer [layer]="layer" (addButtonClickLayerEvent)="addUserLayer($event)" [bpm]="bpm"
-                        [isPlaying]="isPlaying" [disableFunction]="disableLayer"
-                        [disableTooltipFunction]="disableLayerTooltip">
+                    <app-galleryplayer [layer]="layer" [bpm]="bpm"
+                        [isPlaying]="isPlaying">
                     </app-galleryplayer>
                 </div>
             </div>
@@ -60,9 +59,7 @@
             <app-bpmcontrol (bpmEvent)="setBpm($event)" (isPlayingEvent)="setIsPlaying($event)"></app-bpmcontrol>
             <div class="row">
                 <div *ngFor="let layer of popularLayers; let i = index" class="col-sm mb-3">
-                    <app-galleryplayer [layer]="layer" (addButtonClickLayerEvent)="addUserLayer($event)" [bpm]="bpm"
-                        [isPlaying]="isPlaying" [disableFunction]="disableLayer"
-                        [disableTooltipFunction]="disableLayerTooltip">
+                    <app-galleryplayer [layer]="layer" [bpm]="bpm" [isPlaying]="isPlaying">
                     </app-galleryplayer>
                 </div>
             </div>

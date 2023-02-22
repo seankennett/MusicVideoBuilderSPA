@@ -8,9 +8,8 @@ import { Clip } from '../clip';
 import { ClipService } from '../clip.service';
 import { Layer } from '../layer';
 import { LayerFinder } from '../layerfinder';
+import { LayerFinderService } from '../layerfinder.service';
 import { Layertypes } from '../layertypes';
-import { UserLayer } from '../userlayer';
-import { UserlayerService } from '../userlayer.service';
 
 const beatsPerLayer = 4;
 
@@ -21,13 +20,13 @@ const beatsPerLayer = 4;
 })
 export class ClipBuilderComponent implements OnInit {
 
-  constructor(private formBuilder: FormBuilder, private userLayerService: UserlayerService, private clipService: ClipService, private route: ActivatedRoute, private location: Location) { }
+  constructor(private formBuilder: FormBuilder, private layerFinderService: LayerFinderService, private clipService: ClipService, private route: ActivatedRoute, private location: Location) { }
 
   ngOnInit(): void {
     this.clipService.getAll().subscribe((clips: Clip[]) => {
-      this.userLayerService.getAll().subscribe((userLayers: UserLayer[]) => {
+      this.layerFinderService.getAll().subscribe((layers: LayerFinder[]) => {
         this.clips = clips;
-        this.userLayers = userLayers
+        this.layers = layers
         var id = Number(this.route.firstChild?.snapshot?.params['id']);
         if (!isNaN(id)) {
           var clip = clips.find(x => x.clipId === id);
@@ -45,10 +44,10 @@ export class ClipBuilderComponent implements OnInit {
   pageLoading = true;
 
   clips: Clip[] = [];
-  userLayers: UserLayer[] = [];
+  layers: LayerFinder[] = [];
   clipId: number = 0;
 
-  maximumUserLayers = 9;
+  maximumLayers = 9;
 
   setClipId = (clipId: number) => {
     this.clipId = clipId;
@@ -61,11 +60,11 @@ export class ClipBuilderComponent implements OnInit {
   }
 
   get userBackgrounds() {
-    return this.userLayers.filter(l => l.layerType === Layertypes.Background);
+    return this.layers.filter(l => l.layerType === Layertypes.Background);
   }
 
   get userForegrounds() {
-    return this.userLayers.filter(l => l.layerType === Layertypes.Foreground);
+    return this.layers.filter(l => l.layerType === Layertypes.Foreground);
   }
 
   get hasClip() {
@@ -74,7 +73,7 @@ export class ClipBuilderComponent implements OnInit {
 
   clipNameControl = this.formBuilder.control('', [Validators.required, Validators.maxLength(50), Validators.pattern("[A-z0-9]+")]);
   backgroundColourControl = this.formBuilder.control('#000000');
-  layersFormArray = this.formBuilder.array([], [Validators.maxLength(this.maximumUserLayers)]);
+  layersFormArray = this.formBuilder.array([], [Validators.maxLength(this.maximumLayers)]);
   beatLengthControl = this.formBuilder.control(4, [Validators.required, Validators.max(4), Validators.min(1)]);
   startingBeatControl = this.formBuilder.control(1, [Validators.required, Validators.max(4), Validators.min(1)]);
 
@@ -123,7 +122,7 @@ export class ClipBuilderComponent implements OnInit {
     this.showExistingClipWarning = false;
   }
 
-  addLayer = (selectedLayer: Layer | UserLayer) => {
+  addLayer = (selectedLayer: Layer) => {
     this.isAddingLayer = false;
     this.layersFormArray.push(this.formBuilder.control(selectedLayer));
   }
@@ -155,7 +154,7 @@ export class ClipBuilderComponent implements OnInit {
     return <Clip>{
       clipId: this.clipId,
       clipName: this.clipNameControl.value,
-      userLayers: this.layersFormArray.controls.map((control) => {
+      layers: this.layersFormArray.controls.map((control) => {
         return control.value
       }),
       backgroundColour: this.backgroundColour,
@@ -195,11 +194,11 @@ export class ClipBuilderComponent implements OnInit {
     this.beatLengthControl.setValue(clip.beatLength);
     this.startingBeatControl.setValue(clip.startingBeat);
 
-    if (clip.userLayers) {
-      clip.userLayers.forEach(ul => {
-        var userLayer = this.userLayers.find(userLayer => userLayer.userLayerId === ul.userLayerId);
-        if (userLayer) {
-          this.addLayer(userLayer);
+    if (clip.layers) {
+      clip.layers.forEach(l => {
+        var layer = this.layers.find(layer => layer.layerId === l.layerId);
+        if (layer) {
+          this.addLayer(layer);
         }
       });
     }
@@ -219,7 +218,7 @@ export class ClipBuilderComponent implements OnInit {
   }
 
   canAddLayer = () => {
-    if (this.userForegrounds.length > 0 && this.layersFormArray.length < this.maximumUserLayers) {
+    if (this.userForegrounds.length > 0 && this.layersFormArray.length < this.maximumLayers) {
       return true;
     }
 
@@ -231,8 +230,8 @@ export class ClipBuilderComponent implements OnInit {
       return 'You must select a foreground to be able to add more';
     }
 
-    if (this.layersFormArray.length >= this.maximumUserLayers) {
-      return 'You can only have ' + this.maximumUserLayers + ' layers per clip';
+    if (this.layersFormArray.length >= this.maximumLayers) {
+      return 'You can only have ' + this.maximumLayers + ' layers per clip';
     }
 
     return '';

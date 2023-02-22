@@ -3,13 +3,9 @@ import { Component, OnInit } from '@angular/core';
 import { catchError, throwError } from 'rxjs';
 import { Clip } from '../clip';
 import { ClipService } from '../clip.service';
-import { Layer } from '../layer';
-import { UserLayer } from '../userlayer';
-import { UserlayerService } from '../userlayer.service';
 import { Video } from '../video';
 import { VideoService } from '../video.service';
 import { Videoasset } from '../videoasset';
-import { VideoassetsService } from '../videoassets.service';
 
 @Component({
   selector: 'app-mylibrary',
@@ -18,22 +14,22 @@ import { VideoassetsService } from '../videoassets.service';
 })
 export class MyLibraryComponent implements OnInit {
 
-  constructor(private videoService: VideoService, private clipService: ClipService, private userLayerService: UserlayerService) { }
+  constructor(private videoService: VideoService, private clipService: ClipService) { }
 
   videoAssets: Videoasset[] = [];
   videos: Video[] = [];
   dependentClips: { clip: Clip, videos: Video[] }[] = [];
   independentClips: Clip[] = [];
   clips: Clip[] = [];
-  dependentUserLayers: { userLayer: UserLayer, clips: Clip[] }[] = [];
-  independentUserLayers: UserLayer[] = [];
 
   get buildingVideos(){
-    return this.videos.filter(v => v.isBuilding);
+    //TODO
+    return this.videos.filter(v => false);
   }
 
   get notBuildingVideos(){
-    return this.videos.filter(v => !v.isBuilding);
+    //TODO
+    return this.videos.filter(v => true);
   }
 
   ngOnInit(): void {
@@ -49,17 +45,6 @@ export class MyLibraryComponent implements OnInit {
             } else {
               this.independentClips.push(clip);
             }
-          });
-
-          this.userLayerService.getAll().subscribe((userLayers: UserLayer[]) => {
-            userLayers.forEach(userLayer => {
-              var dependentClips = clips.filter(c => c.userLayers && c.userLayers.some(u => u.userLayerId === userLayer.userLayerId));
-              if (dependentClips.length > 0) {
-                this.dependentUserLayers.push({ userLayer: userLayer, clips: dependentClips });
-              } else {
-                this.independentUserLayers.push(userLayer);
-              }
-            });
 
             this.pageLoading = false;
           });
@@ -108,31 +93,7 @@ export class MyLibraryComponent implements OnInit {
       })
     ).subscribe(() => {
       this.independentClips = this.independentClips.filter(x => x.clipId !== clip.clipId);
-      var dependentUserLayers = this.dependentUserLayers.filter(d => d.clips.some(c => c.clipId === clip.clipId));
-      dependentUserLayers.forEach(du => {
-        if (du.clips.length === 1) {
-          this.independentUserLayers.push(du.userLayer);
-          this.dependentUserLayers = this.dependentUserLayers.filter(u => u.userLayer.userLayerId !== du.userLayer.userLayerId);
-        } else {
-          du.clips = du.clips.filter(c => c.clipId !== clip.clipId);
-        }
-      });
       this.loading = false;
     });
   }
-
-  removeUserLayer = (layer: Layer) => {
-    var userLayer = <UserLayer>layer;
-    this.loading = true;
-    this.userLayerService.delete(userLayer.userLayerId).pipe(
-      catchError((error: HttpErrorResponse) => {
-        this.loading = false;
-        return throwError(() => new Error());
-      })
-    ).subscribe(() => {
-      this.independentUserLayers = this.independentUserLayers.filter(x => x.userLayerId !== userLayer.userLayerId);
-      this.loading = false;
-    });
-  }
-
 }

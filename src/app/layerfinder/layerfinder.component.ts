@@ -1,15 +1,10 @@
-import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { NgModel } from '@angular/forms';
-import { catchError, debounceTime, distinctUntilChanged, filter, map, Observable, OperatorFunction, throwError } from 'rxjs';
-import { Layer } from '../layer';
+import { debounceTime, distinctUntilChanged, filter, map, Observable, OperatorFunction } from 'rxjs';
 import { LayerFinderService } from '../layerfinder.service';
 import { LayerFinder } from '../layerfinder';
 import { PopularTag } from '../populartag';
-import { UserLayer } from '../userlayer';
-import { UserlayerService } from '../userlayer.service';
 import { Layertypes } from '../layertypes';
-import { Userlayerstatus } from '../userlayerstatus';
 import { MsalService } from '@azure/msal-angular';
 import { ToastService } from '../toast.service';
 
@@ -20,7 +15,7 @@ import { ToastService } from '../toast.service';
 })
 export class LayerFinderComponent implements OnInit {
 
-  constructor(private layerService: LayerFinderService, private userLayerService: UserlayerService, private authService: MsalService, private toastService: ToastService) { }
+  constructor(private layerService: LayerFinderService, private authService: MsalService, private toastService: ToastService) { }
 
   @ViewChild('bpmControl') bpmControl!: NgModel;
 
@@ -29,16 +24,6 @@ export class LayerFinderComponent implements OnInit {
     this.layerService.getAll().subscribe((layerFinders: LayerFinder[]) => {
       this.layerFinders = layerFinders;
       this.disableSearch = false;
-      if (this.isLoggedIn) {
-        this.userLayerService.getAll().subscribe((userLayers: UserLayer[]) => {
-          for (var userLayer of userLayers) {
-            let layerFinder = this.layerFinders.find(l => l.layerId === userLayer.layerId);
-            if (layerFinder) {
-              layerFinder.userLayerStatus = userLayer.userLayerStatus;
-            }
-          }
-        });
-      }
       this.pageLoading = false;
     });
   }
@@ -129,45 +114,6 @@ export class LayerFinderComponent implements OnInit {
 
   removeSelectedTag = (tag: string) => {
     this.selectedTags = this.selectedTags.filter(t => t !== tag);
-  }
-
-  addUserLayer = (selectedLayer: Layer) => {
-    var previousUserLayerStatus = selectedLayer.userLayerStatus;
-
-    let layerFinder = this.layerFinders.find(l => l.layerId === selectedLayer.layerId);
-    if (layerFinder) {
-      layerFinder.userLayerStatus = Userlayerstatus.Saved;
-    }
-
-    this.userLayerService.postUserLayer({ layerId: selectedLayer.layerId, userLayerId: 0, dateUpdated: new Date(), userLayerStatus: selectedLayer.userLayerStatus, layerType: selectedLayer.layerType, layerName: selectedLayer.layerName }).pipe(
-      catchError((error: HttpErrorResponse) => {
-        if (layerFinder) {
-          layerFinder.userLayerStatus = previousUserLayerStatus;
-        }
-        return throwError(() => new Error());
-      })
-    ).subscribe();
-  }
-
-  disableLayer = (layer: Layer) => !this.isLoggedIn || layer?.userLayerStatus != null;
-
-  disableLayerTooltip = (layer: Layer) => {
-    if (!this.isLoggedIn) {
-      return 'You must be signed in to add layer';
-    }
-
-    switch (layer?.userLayerStatus) {
-      case Userlayerstatus.Bought4k:
-      case Userlayerstatus.BoughtHd: {
-        return 'You have already bought this layer';
-      }
-      case Userlayerstatus.Saved: {
-        return 'You have already saved this layer';
-      }
-      default: {
-        return '';
-      }
-    }
   }
 
   setBpm = (bpm: number) => {

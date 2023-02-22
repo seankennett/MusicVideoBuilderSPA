@@ -73,36 +73,6 @@
                     </div>
                 </div>
             </div>
-        </ng-container>
-        <ng-container *ngIf="this.dependentUserLayers.length > 0">
-            <h2>Dependent Layers</h2>
-            <p>These layers have dependencies on clips. The links below the layer go to the clips that use it. You must
-                remove the layer from all clips to make it independent and then you can remove it.</p>
-            <div class="mb-3">
-                <div class="row">
-                    <div *ngFor="let dependentUserLayer of dependentUserLayers; let i = index" class="col-sm mb-3">
-                        <app-galleryplayer [layer]="dependentUserLayer.userLayer" [showAdd]="false" [showEdit]="false"
-                            [showRemove]="false"></app-galleryplayer>
-                        <div class="list-group text-center">
-                            <a *ngFor="let clip of dependentUserLayer.clips" class="list-group-item"
-                                [routerLink]="['/clipBuilder', clip.clipId]">Go to {{clip.clipName}} clip builder</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </ng-container>
-        <ng-container *ngIf="this.independentUserLayers.length > 0">
-            <h2>Independent Layers</h2>
-            <p>Independent layers have no dependencies so you can delete these without worrying what uses them.</p>
-            <div class="mb-3">
-                <div class="row">
-                    <div *ngFor="let independentUserLayer of independentUserLayers; let i = index" class="col-sm mb-3">
-                        <app-galleryplayer [layer]="independentUserLayer" [showAdd]="false" [showEdit]="false"
-                            [showRemove]="true" (removeButtonClickLayerEvent)="removeUserLayer($event)">
-                        </app-galleryplayer>
-                    </div>
-                </div>
-            </div>
-        </ng-container>
+        </ng-container>        
     </ng-container>
 </div>

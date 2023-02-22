@@ -7,6 +7,5 @@ export interface Video {
     clips: Array<Clip>,
     bpm: number,
     format: Formats,
-    videoDelayMilliseconds: number,
-    isBuilding: boolean
+    videoDelayMilliseconds: number
 }

@@ -1,7 +1,7 @@
 <div class="mb-3">
     <div class="card text-center">
         <div class="imageContainer" [style.background-color]="video.clips[playingClipIndex].backgroundColour !== null ? '#' + video.clips[playingClipIndex].backgroundColour : 'none'">
-            <img *ngFor="let layerloop of video.clips[playingClipIndex].userLayers; let i = index"
+            <img *ngFor="let layerloop of video.clips[playingClipIndex].layers; let i = index"
                 [src]="storageUrl + '/' + layerloop.layerId + '/sprite.png'"
                 [alt]="layerloop.layerName" [style.left.px]="leftPosition" [style.z-index]="i" 
                 crossorigin="anonymous"/>

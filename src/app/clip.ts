@@ -1,9 +1,9 @@
-import { UserLayer } from "./userlayer"
+import { Layer } from "./layer"
 
 export interface Clip {
     clipId: number,
     clipName: string,
-    userLayers: Array<UserLayer>
+    layers: Array<Layer>
     dateUpdated: Date,
     backgroundColour: string,
     beatLength: number,

@@ -217,7 +217,7 @@
                                                 <div class="card text-center">
                                                     <div class="imageContainer"
                                                         [style.background-color]="clipControl.value.backgroundColour !== null ? '#' + clipControl.value.backgroundColour : 'none'">
-                                                        <img *ngFor="let layerloop of clipControl.value.userLayers; let i = index"
+                                                        <img *ngFor="let layerloop of clipControl.value.layers; let i = index"
                                                             [src]="storageUrl + '/' + layerloop.layerId + '/sprite.png'"
                                                             [alt]="layerloop.layerName"
                                                             [style.left.px]="calculateLeft(clipControl.value.startingBeat)"
