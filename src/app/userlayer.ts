@@ -1,5 +1,10 @@
-import { Layer } from "./layer";
+import { License } from "./license";
+import { Resolution } from "./resolution";
 
-export interface UserLayer extends Layer {
-    userLayerId: number
+export interface UserLayer {
+    userLayerId: number,
+    resolution: Resolution,
+    license: License,
+    layerId: string,
+    layerName: string
 }

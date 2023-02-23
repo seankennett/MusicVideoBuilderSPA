@@ -15,16 +15,4 @@ export class UserlayerService {
   getAll() {
     return this.http.get<UserLayer[]>(this.url, {context: errorBody("Unable to get layers from server. Please refresh to try again.")});
   }
-
-  postUserLayer(userLayer: UserLayer){
-    return this.http.post<UserLayer>(this.url, userLayer, {context: errorBody("Unable to add layer on server. Please try again.")});
-  }
-
-  delete(userLayerId: number) {
-    return this.http.delete(this.url + '/' + userLayerId, {context: errorBody("Unable to remove layer from server. Please try again.")});
-  }
-
-  put(userLayer: UserLayer) {
-    return this.http.put<UserLayer>(this.url, userLayer, {context: errorBody("Unable to update layer on server. Please try again.")});
-  }
 }

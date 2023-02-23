@@ -42,17 +42,20 @@ export class MusicVideoBuilderComponent implements OnInit {
   ngOnInit(): void {
     this.videoService.getAll().subscribe((videos: Video[]) => {
       this.clipService.getAll().subscribe((clips: Clip[]) => {
-        var id = Number(this.route.firstChild?.snapshot?.params['id']);
-        var tab = Number(this.route.firstChild?.snapshot?.queryParams['tab']);;
-        if (!isNaN(id) && !isNaN(tab)) {
-          var video = videos.find(x => x.videoId === id);
-          if (video) {
-            this.editVideo({ video: video, tab: tab }, 0);
+        this.userLayerService.getAll().subscribe((userLayers: UserLayer[]) => {
+          var id = Number(this.route.firstChild?.snapshot?.params['id']);
+          var tab = Number(this.route.firstChild?.snapshot?.queryParams['tab']);;
+          if (!isNaN(id) && !isNaN(tab)) {
+            var video = videos.find(x => x.videoId === id);
+            if (video) {
+              this.editVideo({ video: video, tab: tab }, 0);
+            }
           }
-        }
-        this.videos = videos;
-        this.clips = clips;
-        this.pageLoading = false;
+          this.videos = videos;
+          this.clips = clips;
+          this.userLayers = userLayers;
+          this.pageLoading = false;
+        });
       });
     });
   }
@@ -65,6 +68,8 @@ export class MusicVideoBuilderComponent implements OnInit {
 
   videos: Video[] = [];
   clips: Clip[] = [];
+  userLayers: UserLayer[] = [];
+
   Formats = Formats;
   resolutionList = [{
     displayName: 'Free (384x216)',
@@ -77,18 +82,18 @@ export class MusicVideoBuilderComponent implements OnInit {
     userLayerStatus: Resolution.FourK
   }];
 
-  resolutionChange = ()=>{
-    if (this.resolutionControl.value === Resolution.Free){
+  resolutionChange = () => {
+    if (this.resolutionControl.value === Resolution.Free) {
       this.licenseControl.setValue(License.Personal);
       this.licenseList = [License.Personal];
-    }else{
+    } else {
       this.licenseList = [License.Personal, License.Standard, License.Enhanced];
     }
   }
 
   License = License;
   licenseList = [License.Personal]
-  
+
 
   formatList: Formats[] = [
     Formats.mp4,
@@ -278,13 +283,14 @@ export class MusicVideoBuilderComponent implements OnInit {
     };
   }
 
-  get missingLayers(): Layer[] {
-    return this.getMissingLayers(this.editorVideo, this.resolutionControl.value);
+  get unlicensedLayers(): Layer[] {
+    return this.getUnlicensedLayers(this.editorVideo, this.resolutionControl.value, this.licenseControl.value);
   }
 
-  getMissingLayers = (video: Video, resolution: Resolution) => {
-    var layers = this.editorVideo.clips.filter(c => c.layers != null).flatMap(c => c.layers).filter(l => true/*l.userLayerStatus != null && l.userLayerStatus < userLayerStatus*/);
-    return [...new Map(layers.map(item => [item.layerId, item])).values()]
+  getUnlicensedLayers = (video: Video, resolution: Resolution, license: License) => {
+    var licensedLayers = this.userLayers.filter(u => u.resolution == resolution && u.license == license);
+    var unlicensedLayers = video.clips.filter(c => c.layers != null).flatMap(c => c.layers).filter(l => !licensedLayers.some(ll => ll.layerId === l.layerId));
+    return [...new Map(unlicensedLayers.map(item => [item.layerId, item])).values()]
   }
 
   saveVideo = () => {
@@ -658,7 +664,7 @@ export class MusicVideoBuilderComponent implements OnInit {
     return (this.resolutionControl.value - 1) * 5;
   }
 
-  get layerLicenseCost(){
+  get layerLicenseCost() {
     var layerResolutionCost = 0;
     switch (this.resolutionControl.value) {
       case Resolution.Hd:
@@ -673,7 +679,7 @@ export class MusicVideoBuilderComponent implements OnInit {
   }
 
   get layerLicensesCost() {
-    return this.layerLicenseCost * this.missingLayers.length;
+    return this.layerLicenseCost * this.unlicensedLayers.length;
   }
 
   licenseFactor = (license: License) => {
@@ -696,7 +702,7 @@ export class MusicVideoBuilderComponent implements OnInit {
   }
 
   buyMissingLayers = (resolution: Resolution) => {
-      //this.buyUserLayers(this.missingLayers, resolution);
+    //this.buyUserLayers(this.missingLayers, resolution);
   }
 
   buyUserLayers = (userLayers: UserLayer[], resolution: Resolution) => {
