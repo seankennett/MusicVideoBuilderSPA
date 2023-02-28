@@ -424,12 +424,12 @@
                                         </ul>
                                     </div>
                                     <div class="mb-3">
-                                        <button type="button" class="btn btn-primary" (click)="createVideo()"
+                                        <button type="button" class="btn btn-primary" (click)="checkout()"
                                             [disabled]="isBuilding || isWaitingForCreate" *ngIf="total === 0"><i
                                                 class="bi bi-hammer"></i>
                                             Create
                                             Video</button>
-                                        <button type="button" class="btn btn-success"
+                                        <button type="button" class="btn btn-success" (click)="checkout()"
                                             [disabled]="isBuilding || isWaitingForCreate" *ngIf="total > 0"><i
                                                 class="bi bi-credit-card-fill"></i>
                                             Payment</button>

@@ -1,5 +1,8 @@
+import { Buildstatus } from "./buildstatus";
+
 export interface Videoasset {
-    videoName:string,
+    videoId:number,
     dateCreated:Date,
-    downloadLink:string
+    downloadLink:string,
+    buildStatus:Buildstatus
 }

@@ -21,6 +21,9 @@ import { UserlayerService } from '../userlayer.service';
 import { ToastService } from '../toast.service';
 import { License } from '../license';
 import { Layer } from '../layer';
+import { Videobuildrequest } from '../videobuildrequest';
+import { Videoasset } from '../videoasset';
+import { Buildstatus } from '../buildstatus';
 
 const millisecondsInSecond = 1000;
 const secondsInMinute = 60;
@@ -43,18 +46,21 @@ export class MusicVideoBuilderComponent implements OnInit {
     this.videoService.getAll().subscribe((videos: Video[]) => {
       this.clipService.getAll().subscribe((clips: Clip[]) => {
         this.userLayerService.getAll().subscribe((userLayers: UserLayer[]) => {
-          var id = Number(this.route.firstChild?.snapshot?.params['id']);
-          var tab = Number(this.route.firstChild?.snapshot?.queryParams['tab']);;
-          if (!isNaN(id) && !isNaN(tab)) {
-            var video = videos.find(x => x.videoId === id);
-            if (video) {
-              this.editVideo({ video: video, tab: tab }, 0);
+          this.videoService.getAllAssets().subscribe((videoAssets: Videoasset[]) => {
+            this.videoAssets = videoAssets;
+            var id = Number(this.route.firstChild?.snapshot?.params['id']);
+            var tab = Number(this.route.firstChild?.snapshot?.queryParams['tab']);;
+            if (!isNaN(id) && !isNaN(tab)) {
+              var video = videos.find(x => x.videoId === id);
+              if (video) {
+                this.editVideo({ video: video, tab: tab }, 0);
+              }
             }
-          }
-          this.videos = videos;
-          this.clips = clips;
-          this.userLayers = userLayers;
-          this.pageLoading = false;
+            this.videos = videos;
+            this.clips = clips;
+            this.userLayers = userLayers;
+            this.pageLoading = false;
+          });
         });
       });
     });
@@ -69,6 +75,7 @@ export class MusicVideoBuilderComponent implements OnInit {
   videos: Video[] = [];
   clips: Clip[] = [];
   userLayers: UserLayer[] = [];
+  videoAssets: Videoasset[] = [];
 
   Formats = Formats;
   resolutionList = [{
@@ -111,7 +118,9 @@ export class MusicVideoBuilderComponent implements OnInit {
     }
   }
 
-  isBuilding: boolean = false;
+  get isBuilding(){
+    return this.videoAssets.some(va => va.videoId === this.videoId && (va.buildStatus === Buildstatus.BuildingPending || va.buildStatus === Buildstatus.PaymentChargePending));
+  }
 
   timelineEditorStart = 1;
   timelineEditorEnd = 2;
@@ -236,8 +245,6 @@ export class MusicVideoBuilderComponent implements OnInit {
     timer(delay).subscribe(() => {
       this.toggleEditor();
       this.setVideoId(videoRoute.video.videoId, videoRoute.tab);
-      //TODO
-      this.isBuilding = false;
       this.videoNameControl.setValue(videoRoute.video.videoName);
       this.bpmControl.setValue(videoRoute.video.bpm);
       this.formatControl.setValue(videoRoute.video.format);
@@ -276,7 +283,6 @@ export class MusicVideoBuilderComponent implements OnInit {
       videoDelayMilliseconds: this.videoDelayMillisecondsControl.value,
       videoId: this.videoId,
       videoName: this.videoNameControl.value,
-      isBuilding: this.isBuilding,
       clips: this.clipsFormArray.controls.map((control) => {
         return control.value;
       })
@@ -309,20 +315,15 @@ export class MusicVideoBuilderComponent implements OnInit {
         this.setVideoId(video.videoId, this.activeTabId);
         this.unchangedVideo = { ...this.editorVideo };
       } else {
-        this.updateExistingInMemoryVideo(video);
+        let index = this.videos.findIndex(vid => vid.videoId === this.videoId);
+    this.videos[index] = video;
+    this.unchangedVideo = { ...this.editorVideo };
       }
     });
   }
 
-  updateExistingInMemoryVideo = (video: Video) => {
-    let index = this.videos.findIndex(vid => vid.videoId === this.videoId);
-    this.videos[index] = video;
-    this.unchangedVideo = { ...this.editorVideo };
-  }
-
   toggleEditor = () => {
     this.setVideoId(0, null);
-    this.isBuilding = false;
     this.videoNameControl.reset();
     this.bpmControl.reset();
     this.formatControl.setValue(1);
@@ -611,53 +612,57 @@ export class MusicVideoBuilderComponent implements OnInit {
   isWaitingForCreate = false;
   isUploadingAudio = false;
 
-  createVideo = () => {
+  checkout = () => {
     var resolution = this.resolutionControl.value;
     var license = this.licenseControl.value;
-    this.isWaitingForCreate = true;
-    if (this.file?.name) {
-      this.isUploadingAudio = true;
-      this.videoAssetService.createAudioBlobUri(this.videoId, { resolution, license })
-        .pipe(catchError((error: HttpErrorResponse) => {
-          this.isWaitingForCreate = false;
-          this.isUploadingAudio = false;
-          return throwError(() => new Error());
-        }))
-        .subscribe(blockBlobSasUrl => {
-          var blockBlobClient = new BlockBlobClient(blockBlobSasUrl);
-          if (this.file) {
-            blockBlobClient.uploadData(this.file).then(uploadResponse => {
-              this.videoAssetService.create(this.videoId, { audioBlobUrl: blockBlobSasUrl, resolution, license })
-                .pipe(catchError((error: HttpErrorResponse) => {
-                  this.isWaitingForCreate = false;
-                  this.isUploadingAudio = false;
-                  return throwError(() => new Error());
-                }))
-                .subscribe(video => {
-                  this.isBuilding = true;
-                  this.unchangedVideo = { ...this.editorVideo };
-                  this.isWaitingForCreate = false;
-                  this.isUploadingAudio = false;
-                });
-            }).catch(error => {
-              this.toastService.show('Problem uploading audio file to storage.', this.router.url);
-              this.isWaitingForCreate = false;
-              this.isUploadingAudio = false;
-            });
-          }
-        });
-    } else {
-      this.videoAssetService.create(this.videoId, { audioBlobUrl: undefined, resolution, license })
-        .pipe(catchError((error: HttpErrorResponse) => {
-          this.isWaitingForCreate = false;
-          return throwError(() => new Error());
-        }))
-        .subscribe(video => {
-          this.isBuilding = true;
-          this.updateExistingInMemoryVideo(video);
-          this.isWaitingForCreate = false;
-        });
+    var buildId = (<any>crypto).randomUUID();
+    if (resolution === Resolution.Free) {
+      let videoBuildRequest: Videobuildrequest = { resolution, buildId };
+      this.isWaitingForCreate = true;
+      if (this.file?.name) {
+        this.isUploadingAudio = true;
+        this.videoAssetService.createAudioBlobUri(this.videoId, videoBuildRequest)
+          .pipe(catchError((error: HttpErrorResponse) => {
+            this.isWaitingForCreate = false;
+            this.isUploadingAudio = false;
+            return throwError(() => new Error());
+          }))
+          .subscribe(blockBlobSasUrl => {
+            var blockBlobClient = new BlockBlobClient(blockBlobSasUrl);
+            if (this.file) {
+              blockBlobClient.uploadData(this.file).then(uploadResponse => {
+                this.videoAssetService.create(this.videoId, videoBuildRequest)
+                  .pipe(catchError((error: HttpErrorResponse) => {
+                    this.isWaitingForCreate = false;
+                    this.isUploadingAudio = false;
+                    return throwError(() => new Error());
+                  }))
+                  .subscribe(videoAsset => {
+                    this.videoAssets.push(videoAsset);
+                    this.unchangedVideo = { ...this.editorVideo };
+                    this.isWaitingForCreate = false;
+                    this.isUploadingAudio = false;
+                  });
+              }).catch(error => {
+                this.toastService.show('Problem uploading audio file to storage.', this.router.url);
+                this.isWaitingForCreate = false;
+                this.isUploadingAudio = false;
+              });
+            }
+          });
+      } else {
+        this.videoAssetService.create(this.videoId, videoBuildRequest)
+          .pipe(catchError((error: HttpErrorResponse) => {
+            this.isWaitingForCreate = false;
+            return throwError(() => new Error());
+          }))
+          .subscribe(videoAsset => {
+            this.videoAssets.push(videoAsset);
+            this.isWaitingForCreate = false;
+          });
+      }
     }
+
   }
 
   get buildCost() {

@@ -1,8 +1,10 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { catchError, throwError } from 'rxjs';
+import { Buildstatus } from '../buildstatus';
 import { Clip } from '../clip';
 import { ClipService } from '../clip.service';
+import { Formats } from '../formats';
 import { Video } from '../video';
 import { VideoService } from '../video.service';
 import { Videoasset } from '../videoasset';
@@ -22,14 +24,16 @@ export class MyLibraryComponent implements OnInit {
   independentClips: Clip[] = [];
   clips: Clip[] = [];
 
-  get buildingVideos(){
-    //TODO
-    return this.videos.filter(v => false);
+  get buildingVideos(){    
+    return this.videos.filter(v => this.videoAssets.some(va => va.videoId === v.videoId && (va.buildStatus == Buildstatus.BuildingPending || va.buildStatus == Buildstatus.PaymentChargePending)));
   }
 
   get notBuildingVideos(){
-    //TODO
-    return this.videos.filter(v => true);
+    return this.videos.filter(v => !this.buildingVideos.some(b => b.videoId === v.videoId));
+  }
+
+  get completeVideoAssets(){
+    return this.videoAssets.filter(va => va.buildStatus === Buildstatus.Complete);
   }
 
   ngOnInit(): void {
@@ -95,5 +99,13 @@ export class MyLibraryComponent implements OnInit {
       this.independentClips = this.independentClips.filter(x => x.clipId !== clip.clipId);
       this.loading = false;
     });
+  }
+
+  getVideoName = (videoId: number) =>{
+    var video = this.videos.find(v => v.videoId === videoId);
+    if (video){
+      return video.videoName + '.' + Formats[video.format];
+    }
+    return 'Unknown';
   }
 }
