@@ -24,6 +24,8 @@ import { Layer } from '../layer';
 import { Videobuildrequest } from '../videobuildrequest';
 import { Videoasset } from '../videoasset';
 import { Buildstatus } from '../buildstatus';
+import { StripeCardElementOptions, StripeElementsOptions } from '@stripe/stripe-js';
+import { StripePaymentElementComponent, StripeService } from 'ngx-stripe';
 
 const millisecondsInSecond = 1000;
 const secondsInMinute = 60;
@@ -40,7 +42,7 @@ const byteMultiplier = 1024;
 })
 export class MusicVideoBuilderComponent implements OnInit {
   constructor(private formBuilder: FormBuilder, private videoService: VideoService, private clipService: ClipService, private videoAssetService: VideoassetsService,
-    private datePipe: DatePipe, private route: ActivatedRoute, private location: Location, private userLayerService: UserlayerService, private toastService: ToastService, private router: Router) { }
+    private datePipe: DatePipe, private route: ActivatedRoute, private location: Location, private userLayerService: UserlayerService, private toastService: ToastService, private router: Router, private stripeService: StripeService) { }
 
   ngOnInit(): void {
     this.videoService.getAll().subscribe((videos: Video[]) => {
@@ -49,7 +51,7 @@ export class MusicVideoBuilderComponent implements OnInit {
           this.videoService.getAllAssets().subscribe((videoAssets: Videoasset[]) => {
             this.videoAssets = videoAssets;
             var id = Number(this.route.firstChild?.snapshot?.params['id']);
-            var tab = Number(this.route.firstChild?.snapshot?.queryParams['tab']);;
+            var tab = Number(this.route.firstChild?.snapshot?.queryParams['tab']);
             if (!isNaN(id) && !isNaN(tab)) {
               var video = videos.find(x => x.videoId === id);
               if (video) {
@@ -118,7 +120,7 @@ export class MusicVideoBuilderComponent implements OnInit {
     }
   }
 
-  get isBuilding(){
+  get isBuilding() {
     return this.videoAssets.some(va => va.videoId === this.videoId && (va.buildStatus === Buildstatus.BuildingPending || va.buildStatus === Buildstatus.PaymentChargePending));
   }
 
@@ -316,8 +318,8 @@ export class MusicVideoBuilderComponent implements OnInit {
         this.unchangedVideo = { ...this.editorVideo };
       } else {
         let index = this.videos.findIndex(vid => vid.videoId === this.videoId);
-    this.videos[index] = video;
-    this.unchangedVideo = { ...this.editorVideo };
+        this.videos[index] = video;
+        this.unchangedVideo = { ...this.editorVideo };
       }
     });
   }
@@ -612,57 +614,72 @@ export class MusicVideoBuilderComponent implements OnInit {
   isWaitingForCreate = false;
   isUploadingAudio = false;
 
-  checkout = () => {
-    var resolution = this.resolutionControl.value;
-    var license = this.licenseControl.value;
+  createFreeVideo = () => {
+    var resolution = Resolution.Free;
     var buildId = (<any>crypto).randomUUID();
-    if (resolution === Resolution.Free) {
-      let videoBuildRequest: Videobuildrequest = { resolution, buildId };
-      this.isWaitingForCreate = true;
-      if (this.file?.name) {
-        this.isUploadingAudio = true;
-        this.videoAssetService.createAudioBlobUri(this.videoId, videoBuildRequest)
-          .pipe(catchError((error: HttpErrorResponse) => {
+
+    let videoBuildRequest: Videobuildrequest = { resolution, buildId };
+    this.uploadAudio(videoBuildRequest, this.freeVideoSuccessCallback);
+  }
+
+  private uploadAudio = (videoBuildRequest: Videobuildrequest, successAction: (videoBuildRequest: Videobuildrequest) => void) =>{
+    this.isWaitingForCreate = true;
+    if (this.file?.name) {
+    this.isUploadingAudio = true;
+    this.videoAssetService.createAudioBlobUri(this.videoId, videoBuildRequest)
+      .pipe(catchError((error: HttpErrorResponse) => {
+        this.isWaitingForCreate = false;
+        this.isUploadingAudio = false;
+        return throwError(() => new Error());
+      }))
+      .subscribe(blockBlobSasUrl => {
+        var blockBlobClient = new BlockBlobClient(blockBlobSasUrl);
+        if (this.file) {
+          blockBlobClient.uploadData(this.file).then(uploadResponse => {
+            successAction(videoBuildRequest);
+          }).catch(error => {
+            this.toastService.show('Problem uploading audio file to storage.', this.router.url);
             this.isWaitingForCreate = false;
             this.isUploadingAudio = false;
-            return throwError(() => new Error());
-          }))
-          .subscribe(blockBlobSasUrl => {
-            var blockBlobClient = new BlockBlobClient(blockBlobSasUrl);
-            if (this.file) {
-              blockBlobClient.uploadData(this.file).then(uploadResponse => {
-                this.videoAssetService.create(this.videoId, videoBuildRequest)
-                  .pipe(catchError((error: HttpErrorResponse) => {
-                    this.isWaitingForCreate = false;
-                    this.isUploadingAudio = false;
-                    return throwError(() => new Error());
-                  }))
-                  .subscribe(videoAsset => {
-                    this.videoAssets.push(videoAsset);
-                    this.unchangedVideo = { ...this.editorVideo };
-                    this.isWaitingForCreate = false;
-                    this.isUploadingAudio = false;
-                  });
-              }).catch(error => {
-                this.toastService.show('Problem uploading audio file to storage.', this.router.url);
-                this.isWaitingForCreate = false;
-                this.isUploadingAudio = false;
-              });
-            }
           });
-      } else {
-        this.videoAssetService.create(this.videoId, videoBuildRequest)
-          .pipe(catchError((error: HttpErrorResponse) => {
-            this.isWaitingForCreate = false;
-            return throwError(() => new Error());
-          }))
-          .subscribe(videoAsset => {
-            this.videoAssets.push(videoAsset);
-            this.isWaitingForCreate = false;
-          });
-      }
+        } else {
+          this.toastService.show('Problem uploading audio file to storage.', this.router.url);
+        }
+      });
+    }else {
+      successAction(videoBuildRequest);
     }
+  }
 
+  private freeVideoSuccessCallback = (videoBuildRequest: Videobuildrequest) => {
+    this.videoAssetService.create(this.videoId, videoBuildRequest)
+    .pipe(catchError((error: HttpErrorResponse) => {
+      this.isWaitingForCreate = false;
+      return throwError(() => new Error());
+    }))
+    .subscribe(videoAsset => {
+      this.router.navigateByUrl('/confirmation?resolution=' + videoBuildRequest.resolution);
+    });
+  }
+
+  paymentBuildId: string = ''
+
+  createPaymentIntent = () => {
+    this.isWaitingForCreate = true;
+    var buildId = (<any>crypto).randomUUID();
+    var resolution = this.resolutionControl.value;
+    var license = this.licenseControl.value;
+    this.videoAssetService.checkout(this.videoId, { buildId, license, resolution, cost: this.total })
+      .pipe(catchError((error: HttpErrorResponse) => {
+        this.isWaitingForCreate = false;
+        return throwError(() => new Error());
+      }))
+      .subscribe(clientSecret => {
+        this.isWaitingForCreate = false;
+        this.elementOptions.clientSecret = clientSecret;
+        this.paymentBuildId = buildId;
+        this.setTabId(4);
+      });
   }
 
   get buildCost() {
@@ -706,21 +723,58 @@ export class MusicVideoBuilderComponent implements OnInit {
     return this.buildCost + this.layerLicensesCost;
   }
 
-  buyMissingLayers = (resolution: Resolution) => {
-    //this.buyUserLayers(this.missingLayers, resolution);
+  cardOptions: StripeCardElementOptions = {
+    style: {
+      base: {
+        fontFamily: 'arial,sans-serif',
+        fontSize: '1rem'
+      },
+    }
+  };
+
+  @ViewChild(StripePaymentElementComponent)
+  paymentElement!: StripePaymentElementComponent;
+
+  elementOptions: StripeElementsOptions = {
+    locale: 'en',
+    appearance:{
+      variables:{
+        fontSizeBase: '1rem',
+        fontSizeSm:'1rem',
+        fontFamily: 'arial,sans-serif',
+        spacingGridRow: '1rem'
+      }
+    }
+  };
+
+  pay = () => {
+    let videoBuildRequest: Videobuildrequest = { resolution: this.resolutionControl.value, buildId: this.paymentBuildId };
+    this.uploadAudio(videoBuildRequest, this.payVideoSuccessCallback); 
   }
 
-  buyUserLayers = (userLayers: UserLayer[], resolution: Resolution) => {
-    // var userLayerUpdates = [];
-    // for (var i = 0; i < userLayers.length; i++) {
-    //   var missingUserLayer = userLayers[i];
-    //   missingUserLayer.userLayerStatus = resolution;
-    //   userLayerUpdates.push(this.userLayerService.put(missingUserLayer));
-    // }
+  private payVideoSuccessCallback = (videoBuildRequest: Videobuildrequest) =>{
+    this.stripeService.confirmPayment({
+      elements: this.paymentElement.elements,
+      confirmParams: {
+        return_url: 'http://localhost:4200/confirmation?resolution=' + videoBuildRequest.resolution
+      },
+      redirect: 'always'
+    }).subscribe(result => {
+      this.isWaitingForCreate = false;
+      this.isUploadingAudio = false;
+      if (result.error){
+        this.toastService.show(result.error?.message ?? 'Error in payment', this.router.url);
+      }
+    });
+  }
 
-    // forkJoin(userLayerUpdates).subscribe(userLayers => {
-    //   window.location.reload();
-    // })
+  invalidCardDetails = true
+  cardChange = (event: any) =>{
+    if (event.complete) {
+      this.invalidCardDetails = false;
+    } else if (event.error) {
+      this.invalidCardDetails = true;
+    }
   }
 }
 

@@ -349,30 +349,7 @@
                         [ngbTooltip]="noVideoEditorChangesTooltip()">
                         <a ngbNavLink><i class="bi bi-hammer"></i> Builder</a>
                         <ng-template ngbNavContent>
-                            <div class="mb-3" *ngIf="!file">
-                                <ngb-alert [type]="'warning'" [dismissible]="false"><i
-                                        class="bi bi-exclamation-triangle-fill"></i> No audio file selected, if you
-                                    don't want audio then please continue otherwise add above.
-                                </ngb-alert>
-                            </div>
-                            <div class="mb-3" *ngIf="isBuilding">
-                                <ngb-alert [type]="'danger'" [dismissible]="false"><i
-                                        class="bi bi-exclamation-triangle-fill"></i> You are already building this
-                                    video,
-                                    you have to wait for this to finish until
-                                    you
-                                    can build again.
-                                </ngb-alert>
-                            </div>
-                            <div class="mb-3" *ngIf="isUploadingAudio">
-                                <label class="form-label">Uploading audio please wait</label>
-                                <div class="progress">
-                                    <div class="progress-bar progress-bar-animated progress-bar-striped"
-                                        role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"
-                                        style="width: 100%">
-                                    </div>
-                                </div>
-                            </div>
+                            <app-builddisplaystatus [file]="file" [isBuilding]="isBuilding" [isUploadingAudio]="isUploadingAudio"></app-builddisplaystatus>
                             <div>
                                 <h3>Build Video</h3>
                                 <div class="mb-3">
@@ -381,66 +358,103 @@
                                         in
                                         future for the layers used.</p>
                                 </div>
-                                    <div class="mb-3">
-                                        <label for="resolution" class="form-label">Resolution</label>
-                                        <select id="resolution" formControlName="resolutionControl" class="form-control"
-                                            (change)="resolutionChange()">
-                                            <option [ngValue]="resolution.userLayerStatus"
-                                                *ngFor="let resolution of resolutionList">
-                                                {{resolution.displayName}}
-                                            </option>
-                                        </select>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="license" class="form-label">License</label>
-                                        <select id="license" formControlName="licenseControl" class="form-control">
-                                            <option [ngValue]="license" *ngFor="let license of licenseList">
-                                                {{License[license]}}
-                                            </option>
-                                        </select>
-                                    </div>
-                                    <div class="mb-3">
-                                        <p>Cost</p>
-                                        <ul class="list-group">
-                                            <li class="list-group-item" *ngFor="let unlicensedLayer of unlicensedLayers">
-                                                <h6 class="float-start">{{License[licenseControl.value]}} license for
-                                                    layer {{unlicensedLayer.layerName}}</h6>
-                                                <h6 class="float-end">{{layerLicenseCost | currency:"GBP":"symbol"}}
-                                                </h6>
-                                            </li>
-                                            <li class="list-group-item">
-                                                <h5 class="float-start">License Total</h5>
-                                                <h5 class="float-end">{{layerLicensesCost | currency:"GBP":"symbol"}}
-                                                </h5>
-                                            </li>
-                                            <li class="list-group-item">
-                                                <h5 class="float-start">Build Total</h5>
-                                                <h5 class="float-end">{{buildCost | currency:"GBP":"symbol"}}</h5>
-                                            </li>
-                                            <li class="list-group-item">
-                                                <h3 class="float-start">Total</h3>
-                                                <h3 class="float-end">{{total | currency:"GBP":"symbol"}}</h3>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                    <div class="mb-3">
-                                        <button type="button" class="btn btn-primary" (click)="checkout()"
-                                            [disabled]="isBuilding || isWaitingForCreate" *ngIf="total === 0"><i
-                                                class="bi bi-hammer"></i>
-                                            Create
-                                            Video</button>
-                                        <button type="button" class="btn btn-success" (click)="checkout()"
-                                            [disabled]="isBuilding || isWaitingForCreate" *ngIf="total > 0"><i
-                                                class="bi bi-credit-card-fill"></i>
-                                            Payment</button>
-                                    </div>
+                                <div class="mb-3">
+                                    <label for="resolution" class="form-label">Resolution</label>
+                                    <select id="resolution" formControlName="resolutionControl" class="form-control"
+                                        (change)="resolutionChange()">
+                                        <option [ngValue]="resolution.userLayerStatus"
+                                            *ngFor="let resolution of resolutionList">
+                                            {{resolution.displayName}}
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="license" class="form-label">License</label>
+                                    <select id="license" formControlName="licenseControl" class="form-control">
+                                        <option [ngValue]="license" *ngFor="let license of licenseList">
+                                            {{License[license]}}
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <p>Cost</p>
+                                    <ul class="list-group">
+                                        <li class="list-group-item" *ngFor="let unlicensedLayer of unlicensedLayers">
+                                            <h6 class="float-start">{{License[licenseControl.value]}} license for
+                                                layer {{unlicensedLayer.layerName}}</h6>
+                                            <h6 class="float-end">{{layerLicenseCost | currency:"GBP":"symbol"}}
+                                            </h6>
+                                        </li>
+                                        <li class="list-group-item">
+                                            <h5 class="float-start">License Total</h5>
+                                            <h5 class="float-end">{{layerLicensesCost | currency:"GBP":"symbol"}}
+                                            </h5>
+                                        </li>
+                                        <li class="list-group-item">
+                                            <h5 class="float-start">Build Total</h5>
+                                            <h5 class="float-end">{{buildCost | currency:"GBP":"symbol"}}</h5>
+                                        </li>
+                                        <li class="list-group-item">
+                                            <h3 class="float-start">Total</h3>
+                                            <h3 class="float-end">{{total | currency:"GBP":"symbol"}}</h3>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="mb-3">
+                                    <button type="button" class="btn btn-primary" (click)="createFreeVideo()"
+                                        [disabled]="isBuilding || isWaitingForCreate" *ngIf="total === 0"><i
+                                            class="bi bi-hammer"></i>
+                                        Create
+                                        Video</button>
+                                    <button type="button" class="btn btn-success" (click)="createPaymentIntent()"
+                                        [disabled]="isBuilding || isWaitingForCreate" *ngIf="total > 0"><i
+                                            class="bi bi-credit-card-fill"></i>
+                                        Checkout</button>
+                                </div>
                             </div>
                         </ng-template>
                     </li>
-                    <li [ngbNavItem]="3" [disabled]="true" [ngbTooltip]="'Only accessable via builder screen'">
-                        <a ngbNavLink><i class="bi bi-credit-card-fill"></i> Builder</a>
+                    <li [ngbNavItem]="4" [disabled]="true" [ngbTooltip]="'Only accessable via builder screen'">
+                        <a ngbNavLink><i class="bi bi-credit-card-fill"></i> Checkout</a>
                         <ng-template ngbNavContent>
-
+                            <ng-container *ngIf="elementOptions?.clientSecret as clientSecret">
+                                <app-builddisplaystatus [file]="file" [isBuilding]="isBuilding" [isUploadingAudio]="isUploadingAudio"></app-builddisplaystatus>
+                                <h3>Checkout</h3>
+                                <p>Please check all details before you pay</p>
+                                <div class="mb-3">
+                                    <p>Cost</p>
+                                    <ul class="list-group">
+                                        <li class="list-group-item" *ngFor="let unlicensedLayer of unlicensedLayers">
+                                            <h6 class="float-start">{{License[licenseControl.value]}} license for
+                                                layer {{unlicensedLayer.layerName}}</h6>
+                                            <h6 class="float-end">{{layerLicenseCost | currency:"GBP":"symbol"}}
+                                            </h6>
+                                        </li>
+                                        <li class="list-group-item">
+                                            <h5 class="float-start">License Total</h5>
+                                            <h5 class="float-end">{{layerLicensesCost | currency:"GBP":"symbol"}}
+                                            </h5>
+                                        </li>
+                                        <li class="list-group-item">
+                                            <h5 class="float-start">Build Total</h5>
+                                            <h5 class="float-end">{{buildCost | currency:"GBP":"symbol"}}</h5>
+                                        </li>
+                                        <li class="list-group-item">
+                                            <h3 class="float-start">Total</h3>
+                                            <h3 class="float-end">{{total | currency:"GBP":"symbol"}}</h3>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="mb-3">
+                                    <ngx-stripe-payment [elementsOptions]="elementOptions" (change)="cardChange($event)"></ngx-stripe-payment>
+                                </div>
+                                <div class="mb-3">
+                                    <button type="button" class="btn btn-success" (click)="pay()"
+                                    [disabled]="isBuilding || isWaitingForCreate || invalidCardDetails" *ngIf="total > 0"><i
+                                        class="bi bi-credit-card-fill"></i>
+                                    Pay</button>
+                                </div>
+                            </ng-container>
                         </ng-template>
                     </li>
                 </ng-container>

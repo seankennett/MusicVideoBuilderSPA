@@ -30,6 +30,8 @@ import { ToastsComponent } from './toasts/toasts.component';
 import { ErrorhandlerInterceptor } from './errorhandler.interceptor';
 import { NgxStripeModule } from 'ngx-stripe';
 import { environment } from 'src/environments/environment';
+import { ConfirmationComponent } from './confirmation/confirmation.component';
+import { BuilddisplaystatusComponent } from './builddisplaystatus/builddisplaystatus.component';
 
 /**
  * Here we pass the configuration parameters to create an MSAL instance.
@@ -88,7 +90,9 @@ export function MSALGuardConfigFactory(): MsalGuardConfiguration {
     VideoplayerComponent,
     NotfoundComponent,
     PageloadingComponent,
-    ToastsComponent
+    ToastsComponent,
+    ConfirmationComponent,
+    BuilddisplaystatusComponent
   ],
   imports: [
     BrowserModule,

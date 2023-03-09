@@ -9,6 +9,7 @@ import { LayerUploadComponent } from './layerupload/layerupload.component';
 import { MyLibraryComponent } from './mylibrary/mylibrary.component';
 import { MusicVideoBuilderComponent } from './musicvideobuilder/musicvideobuilder.component';
 import { NotfoundComponent } from './notfound/notfound.component';
+import { ConfirmationComponent } from './confirmation/confirmation.component';
 
 const routes: Routes = [
   {
@@ -57,6 +58,13 @@ const routes: Routes = [
   {
     path: 'myLibrary',
     component: MyLibraryComponent,
+    canActivate: [
+      MsalGuard
+    ]
+  },
+  {
+    path: 'confirmation',
+    component: ConfirmationComponent,
     canActivate: [
       MsalGuard
     ]

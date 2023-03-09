@@ -1,7 +1,8 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { errorBody } from './errorhandler.interceptor';
+import { Paymentintentrequest } from './paymentintentrequest';
 import { Videoasset } from './videoasset';
 import { Videobuildrequest } from './videobuildrequest';
 
@@ -19,5 +20,12 @@ export class VideoassetsService {
 
   createAudioBlobUri(videoId: number, videoBuildRequest: Videobuildrequest) {
     return this.http.post<string>(this.baseurl + '/' + videoId + '/Assets/CreateAudioBlobUri', videoBuildRequest, {context: errorBody("Problem uploading audio file.")})
-  } 
+  }
+  
+  checkout(videoId: number, paymentIntentRequest: Paymentintentrequest){
+    let headers = new HttpHeaders()
+  .set('Content-Type', 'application/json')
+  .set('Accept', 'application/json');
+    return this.http.post<string>(this.baseurl + '/' + videoId + '/Checkout', paymentIntentRequest, {headers, context: errorBody("Problem creating checkout.")})
+  }
 }
