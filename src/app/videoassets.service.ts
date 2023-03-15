@@ -21,9 +21,13 @@ export class VideoassetsService {
   createAudioBlobUri(videoId: number, videoBuildRequest: Videobuildrequest) {
     return this.http.post<string>(this.baseurl + '/' + videoId + '/Assets/CreateAudioBlobUri', videoBuildRequest, {context: errorBody("Problem uploading audio file.")})
   }
+
+  validateAudioBlob(videoId: number, videoBuildRequest: Videobuildrequest) {
+    return this.http.post(this.baseurl + '/' + videoId + '/Assets/ValidateAudioBlob', videoBuildRequest, {context: errorBody("Audio validation failed.")})
+  }
   
   checkout(videoId: number, paymentIntentRequest: Paymentintentrequest){
-    let headers = new HttpHeaders()
+    let headers = new HttpHeaders() // horrible fudge to enforce json response and not plain/text
   .set('Content-Type', 'application/json')
   .set('Accept', 'application/json');
     return this.http.post<string>(this.baseurl + '/' + videoId + '/Checkout', paymentIntentRequest, {headers, context: errorBody("Problem creating checkout.")})
