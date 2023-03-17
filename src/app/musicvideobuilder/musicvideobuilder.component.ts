@@ -100,6 +100,10 @@ export class MusicVideoBuilderComponent implements OnInit {
     }
   }
 
+  get canLicense(){
+    return this.editorVideo.clips.some(e => e.layers != null);
+  }
+
   License = License;
   licenseList = [License.Personal]
 

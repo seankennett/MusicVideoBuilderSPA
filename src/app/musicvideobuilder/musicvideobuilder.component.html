@@ -368,7 +368,7 @@
                                         </option>
                                     </select>
                                 </div>
-                                <div class="mb-3">
+                                <div class="mb-3" *ngIf="canLicense">
                                     <label for="license" class="form-label">License</label>
                                     <select id="license" formControlName="licenseControl" class="form-control">
                                         <option [ngValue]="license" *ngFor="let license of licenseList">
