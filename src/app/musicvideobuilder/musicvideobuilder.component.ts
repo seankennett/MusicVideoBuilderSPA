@@ -768,7 +768,7 @@ export class MusicVideoBuilderComponent implements OnInit {
     this.stripeService.confirmPayment({
       elements: this.paymentElement.elements,
       confirmParams: {
-        return_url: 'http://localhost:4200/confirmation?resolution=' + videoBuildRequest.resolution
+        return_url: 'http://' + environment.host + '/confirmation?resolution=' + videoBuildRequest.resolution
       },
       redirect: 'always'
     }).subscribe(result => {
