@@ -1,11 +1,6 @@
 $timelineImageWidth: 128px;
 $timelineImageHeight: 72px;
 
-.imageContainer img {
-    position:absolute;
-    top:0;
-}
-
 .imageContainer{
     position:relative;
     overflow:hidden;
@@ -15,7 +10,15 @@ $timelineImageHeight: 72px;
 }
 
 .imageContainer img {
+    position:absolute;
     height:$timelineImageHeight;
+}
+
+.imageContainer .watermark {
+    left: 0px;
+    bottom: 0px;
+    width: $timelineImageWidth;
+    height: auto;
 }
 
 .progress .progress-bar {

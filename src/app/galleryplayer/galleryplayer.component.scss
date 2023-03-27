@@ -11,7 +11,12 @@ $freeImageHeight: 216px;
 
 .imageContainer img {
     position:absolute;
-    top:0;
+}
+
+.imageContainer .watermark {
+    left: 0px;
+    bottom: 0px;
+    z-index: 100;
 }
 
 .progress .progress-bar {

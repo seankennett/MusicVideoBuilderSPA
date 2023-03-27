@@ -5,6 +5,7 @@
                 [src]="storageUrl + '/' + layerloop.layerId + '/sprite.png'"
                 [alt]="layerloop.layerName" [style.z-index]="getClipZIndex(i, isLeft)" [style.left.px]="getClipLeft(video.clips[getClipIndex(isTop, isLeft)])"
                 crossorigin="anonymous"/>
+            <img [src]="storageUrl + '/custom-pages/watermark.png'" crossorigin="anonymous" class="watermark"/>
         </div>            
     </div>
     <h5 class="card-header">{{video.videoName}}.{{Formats[video.format]}}</h5>

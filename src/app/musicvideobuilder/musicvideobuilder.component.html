@@ -222,6 +222,7 @@
                                                             [alt]="layerloop.layerName"
                                                             [style.left.px]="calculateLeft(clipControl.value.startingBeat)"
                                                             [style.z-index]="i" crossorigin="anonymous" />
+                                                        <img [src]="storageUrl + '/custom-pages/watermark.png'" class="watermark" crossorigin="anonymous"/>
                                                     </div>
                                                     <h5 class="card-header">{{calculateClipNameFromClipIndex(i)}}</h5>
                                                     <ul class="list-group list-group-flush">
