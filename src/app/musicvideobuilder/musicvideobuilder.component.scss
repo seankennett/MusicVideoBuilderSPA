@@ -19,6 +19,7 @@ $timelineImageHeight: 72px;
     bottom: 0px;
     width: $timelineImageWidth;
     height: auto;
+    z-index: 1000;
 }
 
 .progress .progress-bar {
