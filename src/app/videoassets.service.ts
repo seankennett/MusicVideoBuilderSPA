@@ -1,4 +1,4 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { errorBody } from './errorhandler.interceptor';
@@ -27,9 +27,6 @@ export class VideoassetsService {
   }
   
   checkout(videoId: number, paymentIntentRequest: Paymentintentrequest){
-    let headers = new HttpHeaders() // horrible fudge to enforce json response and not plain/text
-  .set('Content-Type', 'application/json')
-  .set('Accept', 'application/json');
-    return this.http.post<string>(this.baseurl + '/' + videoId + '/Checkout', paymentIntentRequest, {headers, context: errorBody("Problem creating checkout.")})
+    return this.http.post<string>(this.baseurl + '/' + videoId + '/Checkout', paymentIntentRequest, { context: errorBody("Problem creating checkout.")})
   }
 }
