@@ -7,7 +7,8 @@ import { ClipService } from '../clip.service';
 import { Formats } from '../formats';
 import { Video } from '../video';
 import { VideoService } from '../video.service';
-import { Videoasset } from '../videoasset';
+import { Buildasset } from '../buildasset';
+import { BuildsService } from '../builds.service';
 
 @Component({
   selector: 'app-mylibrary',
@@ -16,29 +17,30 @@ import { Videoasset } from '../videoasset';
 })
 export class MyLibraryComponent implements OnInit {
 
-  constructor(private videoService: VideoService, private clipService: ClipService) { }
+  constructor(private videoService: VideoService, private clipService: ClipService, private buildService: BuildsService) { }
 
-  videoAssets: Videoasset[] = [];
+  buildAssets: Buildasset[] = [];
   videos: Video[] = [];
   dependentClips: { clip: Clip, videos: Video[] }[] = [];
   independentClips: Clip[] = [];
   clips: Clip[] = [];
+  Formats = Formats;
 
   get buildingVideos(){    
-    return this.videos.filter(v => this.videoAssets.some(va => va.videoId === v.videoId && (va.buildStatus == Buildstatus.BuildingPending || va.buildStatus == Buildstatus.PaymentChargePending)));
+    return this.videos.filter(v => this.buildAssets.some(ba => ba.videoId === v.videoId && (ba.buildStatus == Buildstatus.BuildingPending || ba.buildStatus == Buildstatus.PaymentChargePending)));
   }
 
   get notBuildingVideos(){
     return this.videos.filter(v => !this.buildingVideos.some(b => b.videoId === v.videoId));
   }
 
-  get completeVideoAssets(){
-    return this.videoAssets.filter(va => va.buildStatus === Buildstatus.Complete);
+  get completeBuildAssets(){
+    return this.buildAssets.filter(ba => ba.buildStatus === Buildstatus.Complete);
   }
 
   ngOnInit(): void {
-    this.videoService.getAllAssets().subscribe((videoAssets: Videoasset[]) => {
-      this.videoAssets = videoAssets;
+    this.buildService.getAll().subscribe((buildAssets: Buildasset[]) => {
+      this.buildAssets = buildAssets;
       this.videoService.getAll().subscribe((videos: Video[]) => {
         this.videos = videos;
         this.clipService.getAll().subscribe((clips: Clip[]) => {
@@ -99,13 +101,5 @@ export class MyLibraryComponent implements OnInit {
       this.independentClips = this.independentClips.filter(x => x.clipId !== clip.clipId);
       this.loading = false;
     });
-  }
-
-  getVideoName = (videoId: number) =>{
-    var video = this.videos.find(v => v.videoId === videoId);
-    if (video){
-      return video.videoName + '.' + Formats[video.format];
-    }
-    return 'Unknown';
   }
 }

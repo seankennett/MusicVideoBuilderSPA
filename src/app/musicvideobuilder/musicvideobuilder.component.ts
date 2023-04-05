@@ -12,7 +12,6 @@ import { VideoplayerComponent } from '../videoplayer/videoplayer.component';
 import { Resolution } from '../resolution';
 import { UserLayer } from '../userlayer';
 import { guess } from 'web-audio-beat-detector';
-import { VideoassetsService } from '../videoassets.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbNavChangeEvent } from '@ng-bootstrap/ng-bootstrap';
 import { environment } from 'src/environments/environment';
@@ -22,10 +21,11 @@ import { ToastService } from '../toast.service';
 import { License } from '../license';
 import { Layer } from '../layer';
 import { Videobuildrequest } from '../videobuildrequest';
-import { Videoasset } from '../videoasset';
+import { Buildasset } from '../buildasset';
 import { Buildstatus } from '../buildstatus';
 import { StripeCardElementOptions, StripeElementsOptions } from '@stripe/stripe-js';
 import { StripePaymentElementComponent, StripeService } from 'ngx-stripe';
+import { BuildsService } from '../builds.service';
 
 const millisecondsInSecond = 1000;
 const secondsInMinute = 60;
@@ -41,15 +41,15 @@ const byteMultiplier = 1024;
   styleUrls: ['./musicvideobuilder.component.scss']
 })
 export class MusicVideoBuilderComponent implements OnInit {
-  constructor(private formBuilder: FormBuilder, private videoService: VideoService, private clipService: ClipService, private videoAssetService: VideoassetsService,
+  constructor(private formBuilder: FormBuilder, private videoService: VideoService, private clipService: ClipService, private buildService: BuildsService,
     private datePipe: DatePipe, private route: ActivatedRoute, private location: Location, private userLayerService: UserlayerService, private toastService: ToastService, private router: Router, private stripeService: StripeService) { }
 
   ngOnInit(): void {
     this.videoService.getAll().subscribe((videos: Video[]) => {
       this.clipService.getAll().subscribe((clips: Clip[]) => {
         this.userLayerService.getAll().subscribe((userLayers: UserLayer[]) => {
-          this.videoService.getAllAssets().subscribe((videoAssets: Videoasset[]) => {
-            this.videoAssets = videoAssets;
+          this.buildService.getAll().subscribe((buildAssets: Buildasset[]) => {
+            this.buildAssets = buildAssets;
             var id = Number(this.route.firstChild?.snapshot?.params['id']);
             var tab = Number(this.route.firstChild?.snapshot?.queryParams['tab']);
             if (!isNaN(id) && !isNaN(tab)) {
@@ -77,7 +77,7 @@ export class MusicVideoBuilderComponent implements OnInit {
   videos: Video[] = [];
   clips: Clip[] = [];
   userLayers: UserLayer[] = [];
-  videoAssets: Videoasset[] = [];
+  buildAssets: Buildasset[] = [];
 
   Formats = Formats;
   resolutionList = [{
@@ -125,7 +125,7 @@ export class MusicVideoBuilderComponent implements OnInit {
   }
 
   get isBuilding() {
-    return this.videoAssets.some(va => va.videoId === this.videoId && (va.buildStatus === Buildstatus.BuildingPending || va.buildStatus === Buildstatus.PaymentChargePending));
+    return this.buildAssets.some(ba => ba.videoId === this.videoId && (ba.buildStatus === Buildstatus.BuildingPending || ba.buildStatus === Buildstatus.PaymentChargePending));
   }
 
   timelineEditorStart = 1;
@@ -630,7 +630,7 @@ export class MusicVideoBuilderComponent implements OnInit {
     this.isWaitingForCreate = true;
     if (this.file?.name) {
       this.isUploadingAudio = true;
-      this.videoAssetService.createAudioBlobUri(this.videoId, videoBuildRequest)
+      this.buildService.createAudioBlobUri(this.videoId, videoBuildRequest)
         .pipe(catchError((error: HttpErrorResponse) => {
           this.isWaitingForCreate = false;
           this.isUploadingAudio = false;
@@ -640,7 +640,7 @@ export class MusicVideoBuilderComponent implements OnInit {
           var blockBlobClient = new BlockBlobClient(blockBlobSasUrl);
           if (this.file) {
             blockBlobClient.uploadData(this.file).then(uploadResponse => {
-              this.videoAssetService.validateAudioBlob(this.videoId, videoBuildRequest)
+              this.buildService.validateAudioBlob(this.videoId, videoBuildRequest)
                 .pipe(catchError((error: HttpErrorResponse) => {
                   this.isWaitingForCreate = false;
                   this.isUploadingAudio = false;
@@ -664,12 +664,12 @@ export class MusicVideoBuilderComponent implements OnInit {
   }
 
   private freeVideoSuccessCallback = (videoBuildRequest: Videobuildrequest) => {
-    this.videoAssetService.create(this.videoId, videoBuildRequest)
+    this.buildService.create(this.videoId, videoBuildRequest)
       .pipe(catchError((error: HttpErrorResponse) => {
         this.isWaitingForCreate = false;
         return throwError(() => new Error());
       }))
-      .subscribe(videoAsset => {
+      .subscribe(() => {
         this.router.navigateByUrl('/confirmation?resolution=' + videoBuildRequest.resolution);
       });
   }
@@ -681,7 +681,7 @@ export class MusicVideoBuilderComponent implements OnInit {
     var buildId = (<any>crypto).randomUUID();
     var resolution = this.resolutionControl.value;
     var license = this.licenseControl.value;
-    this.videoAssetService.checkout(this.videoId, { buildId, license, resolution, cost: this.total })
+    this.buildService.checkout(this.videoId, { buildId, license, resolution, cost: this.total })
       .pipe(catchError((error: HttpErrorResponse) => {
         this.isWaitingForCreate = false;
         return throwError(() => new Error());
