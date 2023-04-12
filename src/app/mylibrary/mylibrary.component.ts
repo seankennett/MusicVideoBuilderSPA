@@ -9,6 +9,8 @@ import { Video } from '../video';
 import { VideoService } from '../video.service';
 import { Buildasset } from '../buildasset';
 import { BuildsService } from '../builds.service';
+import { License } from '../license';
+import { Resolution } from '../resolution';
 
 @Component({
   selector: 'app-mylibrary',
@@ -25,6 +27,7 @@ export class MyLibraryComponent implements OnInit {
   independentClips: Clip[] = [];
   clips: Clip[] = [];
   Formats = Formats;
+  Licences = License;
 
   get buildingVideos(){    
     return this.videos.filter(v => this.buildAssets.some(ba => ba.videoId === v.videoId && (ba.buildStatus == Buildstatus.BuildingPending || ba.buildStatus == Buildstatus.PaymentChargePending)));
@@ -66,6 +69,17 @@ export class MyLibraryComponent implements OnInit {
   getFormattedDateTime = (date: Date) =>{
     var date = new Date(date);
     return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+  }
+
+  displayResolution = (resolution: Resolution) => {
+    switch (resolution){
+      case Resolution.FourK:
+        return '4K';
+      case Resolution.Hd:
+        return 'HD';
+      default:
+        return 'Free'
+    }
   }
 
   removeVideo = (videoRoute: { video: Video, tab: number }) => {

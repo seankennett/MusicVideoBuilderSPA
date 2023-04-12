@@ -1,5 +1,7 @@
 import { Buildstatus } from "./buildstatus";
 import { Formats } from "./formats";
+import { License } from "./license";
+import { Resolution } from "./resolution";
 
 export interface Buildasset {
     videoId:number,
@@ -7,5 +9,7 @@ export interface Buildasset {
     downloadLink:string,
     videoName:string,
     format:Formats,
-    buildStatus:Buildstatus
+    buildStatus:Buildstatus,
+    license:License,
+    resolution:Resolution
 }
