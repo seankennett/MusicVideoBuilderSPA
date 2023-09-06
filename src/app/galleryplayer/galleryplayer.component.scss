@@ -19,6 +19,10 @@ $freeImageHeight: 216px;
     z-index: 1000;
 }
 
+.imageContainer svg {
+    display: none;
+}
+
 .progress .progress-bar {
     -webkit-transition: none;
     -moz-transition: none;

@@ -12,11 +12,11 @@ import { IPublicClientApplication, PublicClientApplication, InteractionType } fr
 import { MsalGuard, MsalInterceptor, MsalBroadcastService, MsalInterceptorConfiguration, MsalModule, MsalService, MSAL_GUARD_CONFIG, MSAL_INSTANCE, MSAL_INTERCEPTOR_CONFIG, MsalGuardConfiguration, MsalRedirectComponent } from '@azure/msal-angular';
 
 import { msalConfig, loginRequest, protectedResources } from './auth-config';
-import { LayerFinderComponent } from './layerfinder/layerfinder.component';
+import { ContentBrowserComponent } from './contentbrowser/contentbrowser.component';
 import { LayerUploadComponent } from './layerupload/layerupload.component';
 import { LayertypecontrolComponent } from './layertypecontrol/layertypecontrol.component';
 import { GalleryplayerComponent } from './galleryplayer/galleryplayer.component';
-import { ClipBuilderComponent } from './clipcomposer/clipbuilder.component';
+import { ClipBuilderComponent } from './clipbuilder/clipbuilder.component';
 import { MusicVideoBuilderComponent } from './musicvideobuilder/musicvideobuilder.component';
 import { MyLibraryComponent } from './mylibrary/mylibrary.component';
 import { BreadcrumbComponent } from './breadcrumb/breadcrumb.component';
@@ -32,6 +32,7 @@ import { NgxStripeModule } from 'ngx-stripe';
 import { environment } from 'src/environments/environment';
 import { ConfirmationComponent } from './confirmation/confirmation.component';
 import { BuilddisplaystatusComponent } from './builddisplaystatus/builddisplaystatus.component';
+import { CollectionsearchComponent } from './collectionsearch/collectionsearch.component';
 
 /**
  * Here we pass the configuration parameters to create an MSAL instance.
@@ -52,7 +53,7 @@ export function MSALInterceptorConfigFactory(): MsalInterceptorConfiguration {
 
   protectedResourceMap.set(protectedResources.tagsApi.endpoint, protectedResources.tagsApi.scopes);
   protectedResourceMap.set(protectedResources.layerUploadApi.endpoint, protectedResources.layerUploadApi.scopes);
-  protectedResourceMap.set(protectedResources.userLayerApi.endpoint, protectedResources.userLayerApi.scopes);
+  protectedResourceMap.set(protectedResources.userDisplayLayerApi.endpoint, protectedResources.userDisplayLayerApi.scopes);
   protectedResourceMap.set(protectedResources.clipApi.endpoint, protectedResources.clipApi.scopes);
   protectedResourceMap.set(protectedResources.videoApi.endpoint, protectedResources.videoApi.scopes);
 
@@ -77,7 +78,7 @@ export function MSALGuardConfigFactory(): MsalGuardConfiguration {
   declarations: [
     AppComponent,
     HomeComponent,
-    LayerFinderComponent,
+    ContentBrowserComponent,
     LayerUploadComponent,
     LayertypecontrolComponent,
     GalleryplayerComponent,
@@ -92,7 +93,8 @@ export function MSALGuardConfigFactory(): MsalGuardConfiguration {
     PageloadingComponent,
     ToastsComponent,
     ConfirmationComponent,
-    BuilddisplaystatusComponent
+    BuilddisplaystatusComponent,
+    CollectionsearchComponent
   ],
   imports: [
     BrowserModule,

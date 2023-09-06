@@ -11,6 +11,8 @@ import { Buildasset } from '../buildasset';
 import { BuildsService } from '../builds.service';
 import { License } from '../license';
 import { Resolution } from '../resolution';
+import { CollectionService } from '../collection.service';
+import { Collection } from '../collection';
 
 @Component({
   selector: 'app-mylibrary',
@@ -19,26 +21,30 @@ import { Resolution } from '../resolution';
 })
 export class MyLibraryComponent implements OnInit {
 
-  constructor(private videoService: VideoService, private clipService: ClipService, private buildService: BuildsService) { }
+  constructor(private videoService: VideoService, private clipService: ClipService, private buildService: BuildsService, private collectionService: CollectionService) { }
 
   buildAssets: Buildasset[] = [];
   videos: Video[] = [];
   dependentClips: { clip: Clip, videos: Video[] }[] = [];
   independentClips: Clip[] = [];
-  clips: Clip[] = [];
+  collections: Collection[] = [];
   Formats = Formats;
   Licences = License;
 
-  get buildingVideos(){    
+  get buildingVideos() {
     return this.videos.filter(v => this.buildAssets.some(ba => ba.videoId === v.videoId && (ba.buildStatus == Buildstatus.BuildingPending || ba.buildStatus == Buildstatus.PaymentChargePending)));
   }
 
-  get notBuildingVideos(){
+  get notBuildingVideos() {
     return this.videos.filter(v => !this.buildingVideos.some(b => b.videoId === v.videoId));
   }
 
-  get completeBuildAssets(){
+  get completeBuildAssets() {
     return this.buildAssets.filter(ba => ba.buildStatus === Buildstatus.Complete);
+  }
+
+  get displayLayers(){
+    return this.collections.flatMap(c => c.displayLayers);
   }
 
   ngOnInit(): void {
@@ -47,14 +53,16 @@ export class MyLibraryComponent implements OnInit {
       this.videoService.getAll().subscribe((videos: Video[]) => {
         this.videos = videos;
         this.clipService.getAll().subscribe((clips: Clip[]) => {
-          clips.forEach(clip => {
-            var dependentVideos = videos.filter(v => v.clips.some(c => c.clipId === clip.clipId));
-            if (dependentVideos.length > 0) {
-              this.dependentClips.push({ clip: clip, videos: dependentVideos });
-            } else {
-              this.independentClips.push(clip);
-            }
-
+          this.collectionService.getAll().subscribe((collections: Collection[]) => {
+            this.collections = collections;
+            clips.forEach(clip => {
+              var dependentVideos = videos.filter(v => v.clips.some(c => c.clipId === clip.clipId));
+              if (dependentVideos.length > 0) {
+                this.dependentClips.push({ clip: clip, videos: dependentVideos });
+              } else {
+                this.independentClips.push(clip);
+              }              
+            });
             this.pageLoading = false;
           });
         });
@@ -66,13 +74,13 @@ export class MyLibraryComponent implements OnInit {
 
   loading = false;
 
-  getFormattedDateTime = (date: Date) =>{
+  getFormattedDateTime = (date: Date) => {
     var date = new Date(date);
     return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
   }
 
   displayResolution = (resolution: Resolution) => {
-    switch (resolution){
+    switch (resolution) {
       case Resolution.FourK:
         return '4K';
       case Resolution.Hd:

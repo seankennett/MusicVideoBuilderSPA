@@ -1,7 +1,7 @@
 <app-breadcrumb [links]="[{display:'My Library', path:'myLibrary', icon:'collection-fill' }]"></app-breadcrumb>
 <div class="container">
     <h1><i class="bi bi-collection-fill text-primary"></i> My Library</h1>
-    <p class="lead">My Library is the place to go to remove videos, clips and layers.
+    <p class="lead">My Library allows you to see dependencies and to remove videos and clips.
     </p>
     <app-pageloading [pageLoading]="pageLoading"></app-pageloading>
     <ng-container *ngIf="!pageLoading">
@@ -20,7 +20,7 @@
             <div class="mb-3">
                 <div class="row">
                     <div *ngFor="let buildingVideo of buildingVideos; let i = index" class="col-sm mb-3">
-                        <app-galleryvideo [video]="buildingVideo" [showEdit]="false"
+                        <app-galleryvideo [video]="buildingVideo" [showEdit]="false" [displayLayers]="displayLayers"
                             [showRemove]="false"></app-galleryvideo>
                         <div class="list-group text-center">
                             <a class="list-group-item"
@@ -38,7 +38,7 @@
                 <div class="row">
                     <div *ngFor="let notBuildingVideo of notBuildingVideos" class="col-sm mb-3">
                         <app-galleryvideo [video]="notBuildingVideo" [showEdit]="false" [showRemove]="true"
-                            (buttonClickEvent)="removeVideo($event)" [loading]="loading">
+                            (buttonClickEvent)="removeVideo($event)" [loading]="loading" [displayLayers]="displayLayers">
                         </app-galleryvideo>
                     </div>
                 </div>
@@ -52,7 +52,7 @@
                 <div class="row">
                     <div *ngFor="let dependentClip of dependentClips; let i = index" class="col-sm mb-3">
                         <app-galleryplayer [clip]="dependentClip.clip" [showAdd]="false" [showEdit]="false"
-                            [showRemove]="false"></app-galleryplayer>
+                            [showRemove]="false" [collections]="collections"></app-galleryplayer>
                         <div class="list-group text-center">
                             <a *ngFor="let video of dependentClip.videos" class="list-group-item"
                                 [routerLink]="['/musicVideoBuilder', video.videoId]" [queryParams]="{tab: 2}">Go to
@@ -68,7 +68,7 @@
             <div class="mb-3">
                 <div class="row">
                     <div *ngFor="let independentClip of independentClips; let i = index" class="col-sm mb-3">
-                        <app-galleryplayer [clip]="independentClip" [showAdd]="false" [showEdit]="false"
+                        <app-galleryplayer [clip]="independentClip" [showAdd]="false" [showEdit]="false" [collections]="collections"
                             [showRemove]="true" (removeButtonClickClipEvent)="removeClip($event)"></app-galleryplayer>
                     </div>
                 </div>

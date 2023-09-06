@@ -9,6 +9,10 @@ $timelineImageHeight: 72px;
     margin: auto;
 }
 
+.imageContainer svg {
+    display: none;
+}
+
 .imageContainer img {
     position:absolute;
     height:$timelineImageHeight;

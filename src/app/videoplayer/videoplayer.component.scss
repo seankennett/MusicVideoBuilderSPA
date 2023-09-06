@@ -13,6 +13,10 @@ $freeImageHeight: 216px;
     position:absolute;
 }
 
+.imageContainer svg {
+    display:none;
+}
+
 .imageContainer .watermark {
     left: 0px;
     bottom: 0px;

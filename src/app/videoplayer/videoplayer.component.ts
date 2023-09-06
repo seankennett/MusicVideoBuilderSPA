@@ -3,6 +3,10 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { takeWhile, timer } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { Video } from '../video';
+import { Displaylayer } from '../displaylayer';
+import { Clipdisplaylayer } from '../clipdisplaylayer';
+import { Layer } from '../layer';
+import { Clip } from '../clip';
 
 const millisecondsInSecond = 1000;
 const framesPerSecond = 1 / 24;
@@ -27,6 +31,7 @@ export class VideoplayerComponent implements OnInit {
   }
 
   @Input() video!: Video;
+  @Input() displayLayers!: Displaylayer[]
   @Input() file: File | null = null;
 
   get videoDurationSeconds() {
@@ -162,5 +167,33 @@ export class VideoplayerComponent implements OnInit {
 
   setSelectedClipIndex = (index: number) => {
     this.setSelectedIndexEvent.emit(index);
+  }
+
+   // nicked form galleryplayer
+   toColourMatrix = (hexCode: string) => {
+    var rgbArray = hexCode?.match(/[A-Za-z0-9]{2}/g)?.map(v => parseInt(v, 16)) ?? [255, 255, 255];
+    return rgbArray[0] / 255 + " 0 0 0 0    0 " + rgbArray[1] / 255 + " 0 0 0    0 0 " + rgbArray[2] / 255 + " 0 0    0 0 0 1 0";
+  }
+
+  // modified form galleryplayer
+  getLayers = (clipDisplayLayer: Clipdisplaylayer) => {
+    var layers = this.displayLayers.find(x => x.displayLayerId === clipDisplayLayer.displayLayerId)?.layers;
+    clipDisplayLayer.layerClipDisplayLayers.forEach(l => {
+      var matchedLayer = layers?.find(d => d.layerId === l.layerId);
+      if (matchedLayer) {
+        matchedLayer.defaultColour = l.colourOverride;
+      }
+    });
+    return layers;
+  }
+
+  // modified form galleryplayer
+  getColour = (layer: Layer, clip: Clip) => {
+    var overrideLayer = clip.clipDisplayLayers.flatMap(x => x.layerClipDisplayLayers).find(x => x.layerId === layer.layerId);
+    if (overrideLayer) {
+      return overrideLayer.colourOverride
+    }
+
+    return layer.defaultColour;
   }
 }

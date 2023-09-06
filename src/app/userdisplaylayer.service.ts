@@ -2,18 +2,17 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { protectedResources } from './auth-config';
 import { errorBody } from './errorhandler.interceptor';
-import { LayerFinder } from './layerfinder';
+import { UserDisplayLayer } from './userdisplaylayer';
 
 @Injectable({
   providedIn: 'root'
 })
-export class LayerFinderService {
-
-  url = protectedResources.layerFinderApi.endpoint
+export class UserdisplaylayerService {
+  url = protectedResources.userDisplayLayerApi.endpoint
 
   constructor(private http: HttpClient) { }
 
   getAll() {
-    return this.http.get<LayerFinder[]>(this.url, {context: errorBody('Unable to get layers from server. Please refresh to try again.')});
+    return this.http.get<UserDisplayLayer[]>(this.url, {context: errorBody("Unable to get layers from server. Please refresh to try again.")});
   }
 }

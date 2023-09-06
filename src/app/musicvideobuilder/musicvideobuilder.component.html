@@ -18,7 +18,7 @@
                 <div class="row">
                     <div *ngFor="let video of videos; let i = index" class="col-sm mb-3">
                         <app-galleryvideo [video]="video" (buttonClickEvent)="editVideo($event, 100)"
-                            [loading]="editorLoading">
+                            [loading]="editorLoading" [displayLayers]="displayLayers">
                         </app-galleryvideo>
                     </div>
                 </div>
@@ -216,13 +216,30 @@
                                             <div class="col-3 mb-3" *ngIf="showBlock(i)">
                                                 <div class="card text-center">
                                                     <div class="imageContainer"
-                                                        [style.background-color]="clipControl.value.backgroundColour !== null ? '#' + clipControl.value.backgroundColour : 'none'">
-                                                        <img *ngFor="let layerloop of clipControl.value.layers; let i = index"
-                                                            [src]="storageUrl + '/' + layerloop.layerId + '/sprite.png'"
-                                                            [alt]="layerloop.layerName"
-                                                            [style.left.px]="calculateLeft(clipControl.value.startingBeat)"
-                                                            [style.z-index]="i" crossorigin="anonymous" />
-                                                        <img [src]="storageUrl + '/custom-pages/watermark.png'" class="watermark" crossorigin="anonymous"/>
+                                                        [style.background-color]="clipControl.value.backgroundColour !== null ? '#' + clipControl.value.backgroundColour : 'black'">
+                                                        <ng-container
+                                                            *ngFor="let clipDisplayLayer of clipControl.value.clipDisplayLayers;">
+                                                            <ng-container
+                                                                *ngFor="let layerloop of getLayers(clipDisplayLayer); let i = index">
+                                                                <img [src]="storageUrl + '/' + layerloop.layerId + '/sprite.png'"
+                                                                    [alt]="layerloop.layerId"
+                                                                    [style.left.px]="calculateLeft(clipControl.value.startingBeat)"
+                                                                    [style.z-index]="i + (layerloop.isOverlay === true ? 0 : 1)"
+                                                                    [style.mix-blend-mode]="layerloop.isOverlay === true ? 'normal' : 'screen'"
+                                                                    [style.filter]="'url(\'#' + i + '-' + clipControl.value.clipId + layerloop.layerId + '\')'"
+                                                                    crossorigin="anonymous" />
+                                                                <svg xmlns="http://www.w3.org/2000/svg">
+                                                                    <filter
+                                                                        [id]="i + '-' +clipControl.value.clipId + layerloop.layerId">
+                                                                        <feColorMatrix type="matrix"
+                                                                            [attr.values]="toColourMatrix(getColour(layerloop, clipControl.value))">
+                                                                        </feColorMatrix>
+                                                                    </filter>
+                                                                </svg>
+                                                            </ng-container>
+                                                        </ng-container>
+                                                        <img [src]="storageUrl + '/custom-pages/watermark.png'"
+                                                            class="watermark" crossorigin="anonymous" />
                                                     </div>
                                                     <h5 class="card-header">{{calculateClipNameFromClipIndex(i)}}</h5>
                                                     <ul class="list-group list-group-flush">
@@ -300,7 +317,7 @@
                                 <div class="mb-3">
                                     <h3>Final Video Player</h3>
                                     <app-videoplayer [selectedClipIndex]="selectedClipIndex" [video]="editorVideo"
-                                        (setSelectedIndexEvent)="setSelectedClipIndex($event)"
+                                        (setSelectedIndexEvent)="setSelectedClipIndex($event)" [displayLayers]="displayLayers"
                                         [file]="file"></app-videoplayer>
                                 </div>
                             </ng-container>
@@ -317,7 +334,8 @@
                                 <div class="row">
                                     <div *ngFor="let clip of clips; let i = index" class="col-sm mb-3">
                                         <app-galleryplayer [clip]="clip" [bpm]="bpmControl.value"
-                                            (addButtonClickClipEvent)="addClipPickerClip($event)">
+                                            (addButtonClickClipEvent)="addClipPickerClip($event)"
+                                            [collections]="collections">
                                         </app-galleryplayer>
                                     </div>
                                 </div>
@@ -380,15 +398,15 @@
                                 <div class="mb-3">
                                     <p>Cost</p>
                                     <ul class="list-group">
-                                        <li class="list-group-item" *ngFor="let unlicensedLayer of unlicensedLayers">
+                                        <li class="list-group-item" *ngFor="let unlicensedClipDisplayLayer of unlicensedClipDisplayLayers">
                                             <h6 class="float-start">{{License[licenseControl.value]}} license for
-                                                layer {{unlicensedLayer.layerName}}</h6>
+                                                layer {{unlicensedClipDisplayLayer.displayLayerId}}</h6>
                                             <h6 class="float-end">{{layerLicenseCost | currency:"GBP":"symbol"}}
                                             </h6>
                                         </li>
                                         <li class="list-group-item">
                                             <h5 class="float-start">License Total</h5>
-                                            <h5 class="float-end">{{layerLicensesCost | currency:"GBP":"symbol"}}
+                                            <h5 class="float-end">{{clipDisplayLayerLicensesCost | currency:"GBP":"symbol"}}
                                             </h5>
                                         </li>
                                         <li class="list-group-item">
@@ -425,15 +443,15 @@
                                 <div class="mb-3">
                                     <p>Cost</p>
                                     <ul class="list-group">
-                                        <li class="list-group-item" *ngFor="let unlicensedLayer of unlicensedLayers">
+                                        <li class="list-group-item" *ngFor="let unlicensedClipDisplayLayer of unlicensedClipDisplayLayers">
                                             <h6 class="float-start">{{License[licenseControl.value]}} license for
-                                                layer {{unlicensedLayer.layerName}}</h6>
+                                                layer {{unlicensedClipDisplayLayer.displayLayerId}}</h6>
                                             <h6 class="float-end">{{layerLicenseCost | currency:"GBP":"symbol"}}
                                             </h6>
                                         </li>
                                         <li class="list-group-item">
                                             <h5 class="float-start">License Total</h5>
-                                            <h5 class="float-end">{{layerLicensesCost | currency:"GBP":"symbol"}}
+                                            <h5 class="float-end">{{clipDisplayLayerLicensesCost | currency:"GBP":"symbol"}}
                                             </h5>
                                         </li>
                                         <li class="list-group-item">

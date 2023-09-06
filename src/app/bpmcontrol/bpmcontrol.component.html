@@ -2,7 +2,7 @@
     <label for="globalBpm" class="form-label">Video BPM (playback speed)</label>
     <div class="input-group">
         <button type="button" class="btn btn-outline-secondary" (click)="togglePlay()">
-            <i [ngClass]="isPlaying ? 'bi bi-stop-fill' : 'bi bi-play-fill'"></i> all layers</button>
+            <i [ngClass]="isPlaying ? 'bi bi-stop-fill' : 'bi bi-play-fill'"></i> All</button>
         <input type="number" class="form-control" min="90" max="250" step="1" id="globalBpm" [(ngModel)]="bpm"
             required #bpmControl="ngModel" />
         <span class="input-group-text">{{bpm}} beats per minute</span>

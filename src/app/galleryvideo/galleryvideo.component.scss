@@ -22,6 +22,10 @@ $imageHeight: 108px;
     left: 0;
 }
 
+.imageContainer svg {
+    display: none;
+}
+
 .imageContainer .watermark {
     width: $galleryImageWidth;
     height: auto;

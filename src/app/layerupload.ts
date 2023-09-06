@@ -1,4 +1,4 @@
-import { Layertypes } from "./layertypes"
+import { Layertypes } from "./collectiontypes"
 
 export interface Layerupload {
     layerName: string,

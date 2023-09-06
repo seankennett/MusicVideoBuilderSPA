@@ -1,10 +1,10 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { MsalGuard } from '@azure/msal-angular';
-import { ClipBuilderComponent } from './clipcomposer/clipbuilder.component';
+import { ClipBuilderComponent } from './clipbuilder/clipbuilder.component';
 
 import { HomeComponent } from './home/home.component';
-import { LayerFinderComponent } from './layerfinder/layerfinder.component';
+import { ContentBrowserComponent } from './contentbrowser/contentbrowser.component';
 import { LayerUploadComponent } from './layerupload/layerupload.component';
 import { MyLibraryComponent } from './mylibrary/mylibrary.component';
 import { MusicVideoBuilderComponent } from './musicvideobuilder/musicvideobuilder.component';
@@ -13,15 +13,8 @@ import { ConfirmationComponent } from './confirmation/confirmation.component';
 
 const routes: Routes = [
   {
-    path: 'layerFinder',
-    component: LayerFinderComponent
-  },
-  {
-    path: 'layerUpload',
-    component: LayerUploadComponent,
-    canActivate: [
-      MsalGuard
-    ]
+    path: 'contentBrowser',
+    component: ContentBrowserComponent
   },
   {
     path: 'clipBuilder',

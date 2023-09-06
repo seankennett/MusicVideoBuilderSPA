@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { LayerFinderComponent } from './layerfinder.component';
+import { CollectionsearchComponent } from './collectionsearch.component';
 
-describe('LayerfinderComponent', () => {
-  let component: LayerFinderComponent;
-  let fixture: ComponentFixture<LayerFinderComponent>;
+describe('CollectionsearchComponent', () => {
+  let component: CollectionsearchComponent;
+  let fixture: ComponentFixture<CollectionsearchComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ LayerFinderComponent ]
+      declarations: [ CollectionsearchComponent ]
     })
     .compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(LayerFinderComponent);
+    fixture = TestBed.createComponent(CollectionsearchComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

@@ -1,10 +1,9 @@
 import { License } from "./license";
 import { Resolution } from "./resolution";
 
-export interface UserLayer {
+export interface UserDisplayLayer {
     userLayerId: number,
     resolution: Resolution,
     license: License,
-    layerId: string,
-    layerName: string
+    displayLayerId: string
 }

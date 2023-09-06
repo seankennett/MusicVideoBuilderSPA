@@ -68,8 +68,8 @@ export const protectedResources = {
     endpoint: environment.apiEndpoint + "/LayerUpload",
     scopes: ["https://musicvideobuilder.onmicrosoft.com/77a830ed-796d-4bed-be76-a163f5a3ee79/access_as_user"],
   },
-  layerFinderApi: {
-    endpoint: environment.apiEndpoint + "/LayerFinders",
+  collectionApi: {
+    endpoint: environment.apiEndpoint + "/Collections",
     scopes: ["https://musicvideobuilder.onmicrosoft.com/77a830ed-796d-4bed-be76-a163f5a3ee79/access_as_user"],
   },
   clipApi: {
@@ -80,8 +80,8 @@ export const protectedResources = {
     endpoint: environment.apiEndpoint + "/Videos*",
     scopes: ["https://musicvideobuilder.onmicrosoft.com/77a830ed-796d-4bed-be76-a163f5a3ee79/access_as_user"],
   },
-  userLayerApi: {
-    endpoint: environment.apiEndpoint + "/UserLayers",
+  userDisplayLayerApi: {
+    endpoint: environment.apiEndpoint + "/UserDisplayLayers",
     scopes: ["https://musicvideobuilder.onmicrosoft.com/77a830ed-796d-4bed-be76-a163f5a3ee79/access_as_user"],
   },
 }

@@ -10,13 +10,13 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { DatePipe, Location } from '@angular/common';
 import { VideoplayerComponent } from '../videoplayer/videoplayer.component';
 import { Resolution } from '../resolution';
-import { UserLayer } from '../userlayer';
+import { UserDisplayLayer } from '../userdisplaylayer';
 import { guess } from 'web-audio-beat-detector';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbNavChangeEvent } from '@ng-bootstrap/ng-bootstrap';
 import { environment } from 'src/environments/environment';
 import { BlockBlobClient } from '@azure/storage-blob';
-import { UserlayerService } from '../userlayer.service';
+import { UserdisplaylayerService } from '../userdisplaylayer.service';
 import { ToastService } from '../toast.service';
 import { License } from '../license';
 import { Layer } from '../layer';
@@ -26,6 +26,10 @@ import { Buildstatus } from '../buildstatus';
 import { StripeCardElementOptions, StripeElementsOptions } from '@stripe/stripe-js';
 import { StripePaymentElementComponent, StripeService } from 'ngx-stripe';
 import { BuildsService } from '../builds.service';
+import { CollectionService } from '../collection.service';
+import { Collection } from '../collection';
+import { Clipdisplaylayer } from '../clipdisplaylayer';
+import { Displaylayer } from '../displaylayer';
 
 const millisecondsInSecond = 1000;
 const secondsInMinute = 60;
@@ -41,13 +45,14 @@ const byteMultiplier = 1024;
   styleUrls: ['./musicvideobuilder.component.scss']
 })
 export class MusicVideoBuilderComponent implements OnInit {
-  constructor(private formBuilder: FormBuilder, private videoService: VideoService, private clipService: ClipService, private buildService: BuildsService,
-    private datePipe: DatePipe, private route: ActivatedRoute, private location: Location, private userLayerService: UserlayerService, private toastService: ToastService, private router: Router, private stripeService: StripeService) { }
+  constructor(private formBuilder: FormBuilder, private videoService: VideoService, private clipService: ClipService, private buildService: BuildsService, private collectionService: CollectionService,
+    private datePipe: DatePipe, private route: ActivatedRoute, private location: Location, private userDisplayLayerService: UserdisplaylayerService, private toastService: ToastService, private router: Router, private stripeService: StripeService) { }
 
   ngOnInit(): void {
     this.videoService.getAll().subscribe((videos: Video[]) => {
       this.clipService.getAll().subscribe((clips: Clip[]) => {
-        this.userLayerService.getAll().subscribe((userLayers: UserLayer[]) => {
+        this.collectionService.getAll().subscribe((collections: Collection[]) =>{
+        this.userDisplayLayerService.getAll().subscribe((userDisplayLayers: UserDisplayLayer[]) => {
           this.buildService.getAll().subscribe((buildAssets: Buildasset[]) => {
             this.buildAssets = buildAssets;
             var id = Number(this.route.firstChild?.snapshot?.params['id']);
@@ -60,9 +65,11 @@ export class MusicVideoBuilderComponent implements OnInit {
             }
             this.videos = videos;
             this.clips = clips;
-            this.userLayers = userLayers;
+            this.collections = collections;
+            this.userDisplayLayers = userDisplayLayers;
             this.pageLoading = false;
           });
+        });
         });
       });
     });
@@ -76,8 +83,9 @@ export class MusicVideoBuilderComponent implements OnInit {
 
   videos: Video[] = [];
   clips: Clip[] = [];
-  userLayers: UserLayer[] = [];
+  userDisplayLayers: UserDisplayLayer[] = [];
   buildAssets: Buildasset[] = [];
+  collections: Collection[] = [];
 
   Formats = Formats;
   resolutionList = [{
@@ -101,7 +109,7 @@ export class MusicVideoBuilderComponent implements OnInit {
   }
 
   get canLicense(){
-    return this.editorVideo.clips.some(e => e.layers != null);
+    return this.editorVideo.clips.some(e => e.clipDisplayLayers != null);
   }
 
   License = License;
@@ -295,14 +303,14 @@ export class MusicVideoBuilderComponent implements OnInit {
     };
   }
 
-  get unlicensedLayers(): Layer[] {
+  get unlicensedClipDisplayLayers(): Clipdisplaylayer[] {
     return this.getUnlicensedLayers(this.editorVideo, this.resolutionControl.value, this.licenseControl.value);
   }
 
   getUnlicensedLayers = (video: Video, resolution: Resolution, license: License) => {
-    var licensedLayers = this.userLayers.filter(u => u.resolution == resolution && u.license == license);
-    var unlicensedLayers = video.clips.filter(c => c.layers != null).flatMap(c => c.layers).filter(l => !licensedLayers.some(ll => ll.layerId === l.layerId));
-    return [...new Map(unlicensedLayers.map(item => [item.layerId, item])).values()]
+    var licensedLayers = this.userDisplayLayers.filter(u => u.resolution == resolution && u.license == license);
+    var unlicensedLayers = video.clips.filter(c => c.clipDisplayLayers != null).flatMap(c => c.clipDisplayLayers).filter(l => !licensedLayers.some(ll => ll.displayLayerId === l.displayLayerId));
+    return [...new Map(unlicensedLayers.map(item => [item.displayLayerId, item])).values()]
   }
 
   saveVideo = () => {
@@ -461,6 +469,38 @@ export class MusicVideoBuilderComponent implements OnInit {
         this.setTimelineStart(this.clipsFormArray.length);
       }
     }
+  }
+
+  get displayLayers(){
+    return this.collections.flatMap(c => c.displayLayers).filter(d => this.clips.filter(c => c.clipDisplayLayers).flatMap(c => c.clipDisplayLayers).some(cd => cd.displayLayerId === d.displayLayerId));
+  }
+
+  // nicked form galleryplayer
+  toColourMatrix = (hexCode: string) => {
+    var rgbArray = hexCode?.match(/[A-Za-z0-9]{2}/g)?.map(v => parseInt(v, 16)) ?? [255, 255, 255];
+    return rgbArray[0] / 255 + " 0 0 0 0    0 " + rgbArray[1] / 255 + " 0 0 0    0 0 " + rgbArray[2] / 255 + " 0 0    0 0 0 1 0";
+  }
+
+  // modified form galleryplayer
+  getLayers = (clipDisplayLayer: Clipdisplaylayer) => {
+    var layers = this.displayLayers.find(x => x.displayLayerId === clipDisplayLayer.displayLayerId)?.layers;
+    clipDisplayLayer.layerClipDisplayLayers.forEach(l => {
+      var matchedLayer = layers?.find(d => d.layerId === l.layerId);
+      if (matchedLayer) {
+        matchedLayer.defaultColour = l.colourOverride;
+      }
+    });
+    return layers;
+  }
+
+  // modified form galleryplayer
+  getColour = (layer: Layer, clip: Clip) => {
+    var overrideLayer = clip.clipDisplayLayers.flatMap(x => x.layerClipDisplayLayers).find(x => x.layerId === layer.layerId);
+    if (overrideLayer) {
+      return overrideLayer.colourOverride
+    }
+
+    return layer.defaultColour;
   }
 
   calculateLeft = (startingBeat: number) => {
@@ -712,8 +752,8 @@ export class MusicVideoBuilderComponent implements OnInit {
     return layerResolutionCost * this.licenseFactor(this.licenseControl.value);
   }
 
-  get layerLicensesCost() {
-    return this.layerLicenseCost * this.unlicensedLayers.length;
+  get clipDisplayLayerLicensesCost() {
+    return this.layerLicenseCost * this.unlicensedClipDisplayLayers.length;
   }
 
   licenseFactor = (license: License) => {
@@ -732,7 +772,7 @@ export class MusicVideoBuilderComponent implements OnInit {
       return 0;
     }
 
-    return this.buildCost + this.layerLicensesCost;
+    return this.buildCost + this.clipDisplayLayerLicensesCost;
   }
 
   cardOptions: StripeCardElementOptions = {

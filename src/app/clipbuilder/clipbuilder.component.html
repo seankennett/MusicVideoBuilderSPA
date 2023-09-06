@@ -1,0 +1,277 @@
+<app-breadcrumb
+    [links]="[{display:'Content Browser', path:'contentBrowser', icon:'search' }, {display:'Clip Builder', path:'clipBuilder', icon:'stack'}]">
+</app-breadcrumb>
+<div class="container">
+    <h1><i class="bi bi-stack text-primary"></i> Clip Builder</h1>
+    <p class="lead">Clip builder allows you to combine layers to either make a new clip or edit an existing one.</p>
+    <p>Once you create a clip you can then use this to <a [routerLink]="['/musicVideoBuilder']"><i
+                class="bi bi-hammer"></i>build a video</a>. Use the
+        controls below to create or edit your clips.  To remove a clip please visit your <a [routerLink]="['/musicVideoBuilder']"><i
+            class="bi bi-collection-fill"></i> library</a></p>
+    <app-pageloading [pageLoading]="pageLoading"></app-pageloading>
+    <ng-container *ngIf="!pageLoading">
+        <app-bpmcontrol (bpmEvent)="setBpm($event)" (isPlayingEvent)="setIsPlaying($event)"></app-bpmcontrol>
+        <ng-container *ngIf="!showEditor && this.clips.length > 0">
+            <h2>Saved Clips</h2>
+            <div class="mb-3">
+                <div class="row">
+                    <div *ngFor="let clip of clips; let i = index" class="col-sm mb-3">
+                        <app-galleryplayer [clip]="clip" [bpm]="bpm" [isPlaying]="isPlaying" [showEdit]="true"
+                            [showAdd]="false" (editButtonClickClipEvent)="editClip($event)" [collections]="collections"></app-galleryplayer>
+                    </div>
+                </div>
+            </div>
+        </ng-container>
+        <div *ngIf="!showEditor" class="mb-3">
+            <button type="button" class="btn btn-success" (click)="toggleEditor()"><i
+                    class="bi bi-plus-circle-fill"></i>
+                Add new clip</button>
+        </div>
+        <ng-container *ngIf="showEditor">
+            <ngb-alert [type]="'warning'" [dismissible]="false" *ngIf="clipId > 0"><i
+                    class="bi bi-exclamation-triangle-fill"></i> Editing
+                existing clip. Changes here will reflect in existing videos.</ngb-alert>
+            <h2>Clip Details</h2>
+            <form [formGroup]="clipForm" (ngSubmit)="onSubmit()">
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="clipName" class="form-label">Clip Name<span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="clipName" formControlName="clipNameControl" />
+                            <div class="form-text">Try to pick something short. Has to be Alpha Numeric and unique
+                                across your
+                                clips.
+                            </div>
+                            <div class="form-text text-danger"
+                                *ngIf="clipNameControl?.invalid  && (clipNameControl?.dirty || clipNameControl?.touched)">
+                                <div [hidden]="!clipNameControl?.errors?.['required']">
+                                    Clip name is required.
+                                </div>
+                                <div [hidden]="!clipNameControl?.errors?.['maxlength']">
+                                    Clip name max length is 50 characters.
+                                </div>
+                                <div [hidden]="!clipNameControl?.errors?.['pattern']">
+                                    Clip name must be alpha numeric.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="beatLength" class="form-label">Number Of Beats</label>
+                            <select id="beatLength" formControlName="beatLengthControl" class="form-control"
+                                (change)="updateStartingBeat()">
+                                <option [ngValue]="1">
+                                    1
+                                </option>
+                                <option [ngValue]="2">
+                                    2
+                                </option>
+                                <option [ngValue]="3">
+                                    3
+                                </option>
+                                <option [ngValue]="4">
+                                    4
+                                </option>
+                            </select>
+                            <div class="form-text">It is highly recommended you leave this setting at 4 beats.
+                            </div>
+                        </div>
+                        <div class="mb-3" *ngIf="startingBeatOptions.length > 1">
+                            <label for="startingBeat" class="form-label">Starting Beat</label>
+                            <select id="startingBeat" formControlName="startingBeatControl" class="form-control">
+                                <option [ngValue]="startingBeatOption"
+                                    *ngFor="let startingBeatOption of startingBeatOptions">
+                                    {{startingBeatOption}}
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-3"
+                    *ngIf="clipDisplayLayersFormArray.length === 0 && backgroundColour === null && !selectedCollection">
+                    <h2>Background Layer</h2>
+                    <p>You can either choose a solid colour background or search through background collections to
+                        customise.</p>
+                    <ngb-alert [type]="'warning'" [dismissible]="false"><i class="bi bi-exclamation-triangle-fill"></i>
+                        To be able to save your clip you must have a background layer.</ngb-alert>
+                    <h3>Solid Colour</h3>
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label for="backgroundColour" class="form-label">Background Colour</label>
+                                <input type="color" class="form-control" id="backgroundColour"
+                                    formControlName="backgroundColourControl" />
+                            </div>
+                            <div class="mb-3">
+                                <button type="button"
+                                    (click)="addBackgroundColour(backgroundColourControl.value.substring(1))"
+                                    class="btn btn-success">
+                                    <i class="bi bi-plus-circle-fill"></i> Add</button>
+                            </div>
+                        </div>
+                    </div>
+                    <h3>Collections</h3>
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <app-collectionsearch [collections]="collections"
+                                [forcedCollectionType]="Collectiontypes.Background" [showEdit]="true"
+                                (editCollectionEvent)="selectCollection($event)"></app-collectionsearch>
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-3" *ngIf="isAddingClipDisplayLayer === true && !selectedCollection">
+                    <h2>Collections</h2>
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <app-collectionsearch [collections]="collections"
+                                [forcedCollectionType]="Collectiontypes.Foreground" [showEdit]="true"
+                                (editCollectionEvent)="selectCollection($event)"></app-collectionsearch>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-danger" (click)="toggleAddNewClipDisplayLayer()">
+                        <i class="bi bi-dash-circle-fill"></i> Cancel Adding Layer</button>
+                </div>
+                <ng-container *ngIf="selectedCollection" formArrayName="clipDisplayLayersFormArray">
+                    <ng-container
+                        *ngFor="let clipDisplayLayerGroup of clipDisplayLayersFormArray.controls;let i = index"
+                        [formGroupName]="i">
+                        <ng-container *ngIf="i === clipDisplayLayersFormArrayIndex">
+                            <h2>Customise Collection {{selectedCollection.collectionName}}</h2>
+                            <p>Use the controls below to customise your collection.</p>
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <label for="direction" class="form-label">Direction</label>
+                                        <select id="direction" class="form-control" [(ngModel)]="selectedDirection"
+                                            [ngModelOptions]="{standalone: true}"
+                                            (ngModelChange)="directionChange($event)">
+                                            <option
+                                                *ngFor="let selectedCollectionDirectionOption of selectedCollectionDirectionOptions"
+                                                [ngValue]="selectedCollectionDirectionOption">
+                                                {{selectedCollectionDirectionOption.directionName +
+                                                (selectedCollectionDirectionOption.isTransition === true ? '
+                                                (transition)' : '')
+                                                }}
+                                            </option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="sides" class="form-label">Side Number</label>
+                                        <select id="sides" class="form-control" [(ngModel)]="selectedNumberOfSides"
+                                            [ngModelOptions]="{standalone: true}"
+                                            (ngModelChange)="sideNumberChange($event)">
+                                            <option
+                                                *ngFor="let selectedCollectionSideOption of selectedCollectionSideOptions"
+                                                [ngValue]="selectedCollectionSideOption">
+                                                {{selectedCollectionSideOption}}
+                                            </option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3"
+                                        *ngIf="selectedDisplayLayerLinkedDisplayLayerIdOptions && selectedDisplayLayerLinkedDisplayLayerIdOptions.length > 0">
+                                        <label for="sequanceNumber" class="form-label">Sequence Number</label>
+                                        <select id="sequanceNumber" class="form-control"
+                                            [(ngModel)]="selectedDisplayLayerId" [ngModelOptions]="{standalone: true}"
+                                            (ngModelChange)="displayLayerIdChange($event)">
+                                            <option
+                                                *ngFor="let selectedDisplayLayerLinkedDisplayLayerIdOption of selectedDisplayLayerLinkedDisplayLayerIdOptions;let k = index"
+                                                [ngValue]="selectedDisplayLayerLinkedDisplayLayerIdOption">
+                                                {{k + 1}}
+                                            </option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <app-galleryplayer [displayLayer]="convertToNewDisplayLayer(clipDisplayLayerGroup)"
+                                            [bpm]="bpm" [showAdd]="false"></app-galleryplayer>
+                                    </div>
+                                    <ng-container formArrayName="layerClipDisplayLayersFormArray">
+                                        <div class="mb-3"
+                                            *ngFor="let layerClipDisplayLayerGroup of layerClipDisplayLayersFormArray(clipDisplayLayerGroup);let j = index"
+                                            [formGroupName]="j">
+                                            <label [htmlFor]="j" class="form-label">Layer Colour #{{j + 1}}</label>
+                                            <input [id]="j" type="color" class="form-control"
+                                                formControlName="colourOverrideControl" />
+                                        </div>                                        
+                                    </ng-container>
+                                    <div class="mb-3">
+                                        <button type="button" (click)="toggleAddNewClipDisplayLayer()"
+                                            class="btn btn-success" [disabled]="shouldDisableDisplayLayer" [ngbTooltip]="shouldDisableDisplayLayerToolTip">
+                                            <i class="bi bi-plus-circle-fill"></i> Add</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-danger mb-3" (click)="cancelAddingDisplayLayer()">
+                                <i class="bi bi-dash-circle-fill"></i> Cancel Adding Layer</button>
+                        </ng-container>
+                    </ng-container>
+                </ng-container>
+                <ng-container
+                    *ngIf="(clipDisplayLayersFormArray.length > 0 || backgroundColour !== null) && isAddingClipDisplayLayer === false">
+                    <div class="mb-3">
+                        <h2>Clip Layers</h2>
+                        <ol class="list-group list-group-numbered">
+                            <li *ngIf="backgroundColour !== null" class="list-group-item">Solid background
+                                <i class="bi bi-square-fill" [style.color]="'#' + backgroundColour"></i>
+                                <div class="btn-group float-end" role="group">
+                                    <button *ngIf="0 === clipDisplayLayersFormArray.controls.length" type="button"
+                                        class="btn btn-danger ms-1" (click)="removeBackgroundColour()"><i
+                                            class="bi bi-dash-circle-fill"></i>
+                                        Remove</button>
+                                </div>
+                            </li>
+                            <li *ngFor="let clipDisplayLayerFormGroup of clipDisplayLayersFormArray.controls; let i = index"
+                                class="list-group-item">
+                                {{convertFormGroupToCollection(clipDisplayLayerFormGroup)?.collectionName}}
+                                <div class="btn-group float-end" role="group">
+                                    <button
+                                        *ngIf="i > 0 && convertFormGroupToCollection(clipDisplayLayersFormArray.controls[i - 1])?.collectionType === Collectiontypes.Foreground"
+                                        type="button" class="btn btn-secondary ms-1" (click)="moveBack(i)"><i
+                                            class="bi bi-back"></i> Move Back</button>
+                                    <button
+                                        *ngIf="i !== clipDisplayLayersFormArray.controls.length - 1 && convertFormGroupToCollection(clipDisplayLayerFormGroup)?.collectionType === Collectiontypes.Foreground"
+                                        type="button" class="btn btn-secondary ms-1" (click)="moveForward(i)"><i
+                                            class="bi bi-front"></i> Move
+                                        Forward</button>                                    
+                                    <button *ngIf="i === clipDisplayLayersFormArray.controls.length - 1" type="button"
+                                        class="btn btn-danger ms-1" (click)="removeclipDisplayLayer(i)"><i
+                                            class="bi bi-dash-circle-fill"></i>
+                                        Remove</button>
+                                    <button type="button"
+                                        class="btn btn-primary ms-1" (click)="editClipDisplayLayer(i)">
+                                        <i class="bi bi-pencil-square"></i> Edit</button>
+                                </div>
+                            </li>
+                        </ol>
+                        <div class="form-text text-danger" *ngIf="clipDisplayLayersFormArray?.invalid">
+                            <div [hidden]="!clipDisplayLayersFormArray?.errors?.['maxlength']">
+                                You can't have more than 255 layers in a clip.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <span [ngbTooltip]="canAddCollectionTooltip()" placement="right">
+                            <button type="button" class="btn btn-success" (click)="addNewClipDisplayLayer()"
+                                [disabled]="!canAddCollection()">
+                                <i class="bi bi-plus-circle-fill"></i> Add Another Layer</button>
+                        </span>
+                    </div>
+                    <div class="mb-3">
+                        <h2>Final Clip Player</h2>
+                        <app-galleryplayer [clip]="editorClip" [bpm]="bpm" [isPlaying]="isPlaying" [showAdd]="false" [collections]="collections">
+                        </app-galleryplayer>
+                    </div>
+                </ng-container>                
+                <div class="mb-3">
+                    <button type="submit" [disabled]="!clipForm.valid || saving || noClipChanges()"
+                        class="btn btn-primary me-1">Save</button>
+                    <button type="button" class="btn btn-danger" (click)="toggleEditor()"><i
+                            class="bi bi-dash-circle-fill"></i>
+                        Cancel</button>
+                </div>
+            </form>
+        </ng-container>
+        <div class="mb-3">
+            <button type="button" class="btn btn-secondary" [routerLink]="'/musicVideoBuilder'" [disabled]="!hasClip"><i
+                    class="bi bi-hammer"></i> Music Video Builder</button>
+        </div>
+    </ng-container>
+</div>

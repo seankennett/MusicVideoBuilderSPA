@@ -1,43 +1,52 @@
 <div class="card text-center">
     <div class="imageContainer" *ngFor="let isTop of [true, false]">
-        <div *ngFor="let isLeft of [true, false]" [style.left.px]="getContainerLeft(isLeft)" [style.background-color]="video.clips[getClipIndex(isTop, isLeft)].backgroundColour !== null ? '#' + video.clips[getClipIndex(isTop, isLeft)].backgroundColour : 'none'">
-            <img *ngFor="let layerloop of video.clips[getClipIndex(isTop, isLeft)].layers; let i = index"
-                [src]="storageUrl + '/' + layerloop.layerId + '/sprite.png'"
-                [alt]="layerloop.layerName" [style.z-index]="getClipZIndex(i, isLeft)" [style.left.px]="getClipLeft(video.clips[getClipIndex(isTop, isLeft)])"
-                crossorigin="anonymous"/>
-            <img [src]="storageUrl + '/custom-pages/watermark.png'" crossorigin="anonymous" class="watermark"/>
-        </div>            
+        <div *ngFor="let isLeft of [true, false]" [style.left.px]="getContainerLeft(isLeft)"
+            [style.background-color]="video.clips[getClipIndex(isTop, isLeft)].backgroundColour !== null ? '#' + video.clips[getClipIndex(isTop, isLeft)].backgroundColour : 'black'">
+            <ng-container
+                *ngFor="let clipDisplayLayer of video.clips[getClipIndex(isTop, isLeft)].clipDisplayLayers; let i = index">
+                <ng-container *ngFor="let layerloop of getLayers(clipDisplayLayer)">
+                    <img [src]="storageUrl + '/' + layerloop.layerId + '/sprite.png'" [alt]="layerloop.layerId"
+                        [style.z-index]="getClipZIndex(i, isLeft)"
+                        [style.mix-blend-mode]="layerloop.isOverlay === true ? 'normal' : 'screen'"
+                        [style.filter]="'url(\'#' + i + '-' + video.clips[getClipIndex(isTop, isLeft)].clipId + layerloop.layerId + '\')'"                        
+                        [style.left.px]="getClipLeft(video.clips[getClipIndex(isTop, isLeft)])"
+                        crossorigin="anonymous" />
+                        <svg xmlns="http://www.w3.org/2000/svg">
+                            <filter
+                                [id]="i + '-' +video.clips[getClipIndex(isTop, isLeft)].clipId + layerloop.layerId">
+                                <feColorMatrix type="matrix"
+                                    [attr.values]="toColourMatrix(getColour(layerloop, video.clips[getClipIndex(isTop, isLeft)]))">
+                                </feColorMatrix>
+                            </filter>
+                        </svg>
+                </ng-container>
+            </ng-container>
+            <img [src]="storageUrl + '/custom-pages/watermark.png'" crossorigin="anonymous" class="watermark" />
+        </div>
     </div>
     <h5 class="card-header">{{video.videoName}}.{{Formats[video.format]}}</h5>
     <ul class="list-group list-group-flush">
         <li class="list-group-item">BPM: {{video.bpm}}</li>
         <li class="list-group-item" *ngIf="showEdit">
-            <button type="button" (click)="buttonClick(1)" class="btn btn-primary me-1"
-                [disabled]="loading">
-                <i class="bi bi-pencil-square"></i> Edit Details <span
-                    class="spinner-border spinner-border-sm ms-1" role="status" aria-hidden="true"
-                    *ngIf="loading"></span>
-                </button>
-            <button type="button" (click)="buttonClick(2)" class="btn btn-primary me-1"
-                [disabled]="loading">
+            <button type="button" (click)="buttonClick(1)" class="btn btn-primary me-1" [disabled]="loading">
+                <i class="bi bi-pencil-square"></i> Edit Details <span class="spinner-border spinner-border-sm ms-1"
+                    role="status" aria-hidden="true" *ngIf="loading"></span>
+            </button>
+            <button type="button" (click)="buttonClick(2)" class="btn btn-primary me-1" [disabled]="loading">
                 <i class="bi bi-calendar3-week-fill"></i> Edit Timeline <span
                     class="spinner-border spinner-border-sm ms-1" role="status" aria-hidden="true"
                     *ngIf="loading"></span>
-                </button>
-                <button type="button" (click)="buttonClick(3)" class="btn btn-primary me-1"
-                [disabled]="loading">
-                <i class="bi bi-hammer"></i> Build <span
-                    class="spinner-border spinner-border-sm ms-1" role="status" aria-hidden="true"
-                    *ngIf="loading"></span>
-                </button>
+            </button>
+            <button type="button" (click)="buttonClick(3)" class="btn btn-primary me-1" [disabled]="loading">
+                <i class="bi bi-hammer"></i> Build <span class="spinner-border spinner-border-sm ms-1" role="status"
+                    aria-hidden="true" *ngIf="loading"></span>
+            </button>
         </li>
         <li class="list-group-item" *ngIf="showRemove">
-            <button type="button" (click)="buttonClick(1)" class="btn btn-danger"
-                [disabled]="loading">
-                <i class="bi bi-dash-circle-fill"></i> Remove <span
-                    class="spinner-border spinner-border-sm ms-1" role="status" aria-hidden="true"
-                    *ngIf="loading"></span>
-                </button>
+            <button type="button" (click)="buttonClick(1)" class="btn btn-danger" [disabled]="loading">
+                <i class="bi bi-dash-circle-fill"></i> Remove <span class="spinner-border spinner-border-sm ms-1"
+                    role="status" aria-hidden="true" *ngIf="loading"></span>
+            </button>
         </li>
     </ul>
 </div>

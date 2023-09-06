@@ -1,8 +1,11 @@
 import { Component, Input, OnInit, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
-import { Layer } from '../layer';
+import { Collection } from '../collection';
 import { BehaviorSubject, switchMap, takeWhile, timer } from 'rxjs';
 import { Clip } from '../clip';
 import { environment } from 'src/environments/environment';
+import { Displaylayer } from '../displaylayer';
+import { Layer } from '../layer';
+import { Clipdisplaylayer } from '../clipdisplaylayer';
 
 const imageWidth = 384;
 const secondsInMinute = 60;
@@ -17,19 +20,21 @@ const framesPerSecond = 1 / 24;
   styleUrls: ['./galleryplayer.component.scss']
 })
 export class GalleryplayerComponent implements OnInit, OnChanges {
-  @Input() layer!: Layer;
+  @Input() collection!: Collection;
   @Input() clip!: Clip;
-  @Output() addButtonClickLayerEvent = new EventEmitter<Layer>();
+  @Input() collections!: Collection[];
+  @Input() displayLayer!: Displaylayer | undefined;
+  @Output() editButtonClickCollectionEvent = new EventEmitter<Collection>();
   @Output() addButtonClickClipEvent = new EventEmitter<Clip>();
   @Output() editButtonClickClipEvent = new EventEmitter<Clip>();
   @Output() removeButtonClickClipEvent = new EventEmitter<Clip>();
-  @Output() removeButtonClickLayerEvent = new EventEmitter<Layer>();
+  @Output() removeButtonClickCollectionEvent = new EventEmitter<Collection>();
 
   @Input() bpm!: number;
   @Input() isPlaying: boolean = false;
 
-  @Input() disableFunction: (layer: Layer) => boolean = (layer) => { return false }
-  @Input() disableTooltipFunction: (layer: Layer) => string = (layer) => { return '' }
+  @Input() disableFunction: (collection: Collection) => boolean = (collection) => { return false }
+  @Input() disableTooltipFunction: (collection: Collection) => string = (collection) => { return '' }
 
   @Input() showAdd: boolean = true;
   @Input() showEdit: boolean = false;
@@ -41,17 +46,56 @@ export class GalleryplayerComponent implements OnInit, OnChanges {
   localIsPlaying = false;
 
   progress = 0;
-  
+
   storageUrl = environment.storageUrl;
 
   constructor() { }
 
   get playerTitle() {
-    return this.layer?.layerName ?? this.clip?.clipName ?? '';
+    return this.collection?.collectionName ?? this.clip?.clipName ?? '';
   }
 
   private get skipFrames() {
     return ((this.clip?.startingBeat ?? 1) - 1) * frameTotal / 4;
+  }
+
+  get collectionLayers() {
+    return this.collection?.displayLayers.find(d => d.isCollectionDefault)?.layers
+  }
+
+  get displayLayers() {
+    return this.collections?.flatMap(x => x.displayLayers).filter(d => this.clip.clipDisplayLayers.some(c => c.displayLayerId === d.displayLayerId))
+  }
+
+  get sideOptionNumber() {
+    var groupedCollection = this.collection?.displayLayers.reduce((g: { [id: number]: Displaylayer[] }, o: Displaylayer) => {
+      g[o.numberOfSides] = g[o.numberOfSides] || [];
+      g[o.numberOfSides].push(o);
+      return g;
+    }, {}) ?? {};
+    return Object.keys(groupedCollection).length;
+  }
+
+  get colourOptionNumber() {
+    return this.collectionLayers?.filter(l => !l.isOverlay).length;
+  }
+
+  get directionOptionNumber() {
+    var groupedCollection = this.collection?.displayLayers.filter(x => !x.direction.isTransition).reduce((g: { [id: number]: Displaylayer[] }, o: Displaylayer) => {
+      g[o.direction.directionId] = g[o.direction.directionId] || [];
+      g[o.direction.directionId].push(o);
+      return g;
+    }, {}) ?? {};
+    return Object.keys(groupedCollection).length;
+  }
+
+  get directionTransitionOptionNumber() {
+    var groupedCollection = this.collection?.displayLayers.filter(x => x.direction.isTransition).reduce((g: { [id: number]: Displaylayer[] }, o: Displaylayer) => {
+      g[o.direction.directionId] = g[o.direction.directionId] || [];
+      g[o.direction.directionId].push(o);
+      return g;
+    }, {}) ?? {};
+    return Object.keys(groupedCollection).length;
   }
 
   ngOnInit(): void {
@@ -106,17 +150,42 @@ export class GalleryplayerComponent implements OnInit, OnChanges {
     }
   }
 
+  toColourMatrix = (hexCode: string) => {
+    var rgbArray = hexCode?.match(/[A-Za-z0-9]{2}/g)?.map(v => parseInt(v, 16)) ?? [255, 255, 255];
+    return rgbArray[0] / 255 + " 0 0 0 0    0 " + rgbArray[1] / 255 + " 0 0 0    0 0 " + rgbArray[2] / 255 + " 0 0    0 0 0 1 0";
+  }
+
+  getLayers = (clipDisplayLayer: Clipdisplaylayer) => {
+    var layers = <Layer[]>JSON.parse(JSON.stringify(this.displayLayers.find(x => x.displayLayerId === clipDisplayLayer.displayLayerId)?.layers))
+    clipDisplayLayer.layerClipDisplayLayers.forEach(l => {
+      var matchedLayer = layers?.find(d => d.layerId === l.layerId);
+      if (matchedLayer) {
+        matchedLayer.defaultColour = l.colourOverride;
+      }
+    });
+    return layers;
+  }
+
+  getColour = (layer: Layer) => {
+    var overrideLayer = this.clip.clipDisplayLayers.flatMap(x => x.layerClipDisplayLayers).find(x => x.layerId === layer.layerId);
+    if (overrideLayer) {
+      return overrideLayer.colourOverride
+    }
+
+    return layer.defaultColour;
+  }
+
   addButtonClick = () => {
-    this.addButtonClickLayerEvent.emit(this.layer);
     this.addButtonClickClipEvent.emit(this.clip);
   }
 
   removeButtonClick = () => {
     this.removeButtonClickClipEvent.emit(this.clip);
-    this.removeButtonClickLayerEvent.emit(this.layer);
+    this.removeButtonClickCollectionEvent.emit(this.collection);
   }
 
   editButtonClick = () => {
     this.editButtonClickClipEvent.emit(this.clip);
+    this.editButtonClickCollectionEvent.emit(this.collection);
   }
 }

@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { LayerFinderService } from './layerfinder.service';
+import { CollectionService } from './collection.service';
 
-describe('LayerService', () => {
-  let service: LayerFinderService;
+describe('CollectionService', () => {
+  let service: CollectionService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(LayerFinderService);
+    service = TestBed.inject(CollectionService);
   });
 
   it('should be created', () => {
