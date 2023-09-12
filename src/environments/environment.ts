@@ -6,6 +6,7 @@ export const environment = {
   production: false,
   clientId: '63abaa40-64ab-455c-bd8a-35fe76b66bdf',
   apiEndpoint: 'https://localhost:7143/api',
+  publicApiEndpoint: 'http://localhost:7207/api',
   storageUrl: 'https://127.0.0.1:10000/devstoreaccount1',
   stripePublishableKey: 'pk_test_51MdFmjCHVKfyZAQjiKx6LUKwBhRIw3vqZ9mQ25De41M7YDV4onDYNFlbWSiUuCyfz919HjU6RYZyOwpPAzFWrsL3002zKr5Spx',
   host: 'localhost:4200'
