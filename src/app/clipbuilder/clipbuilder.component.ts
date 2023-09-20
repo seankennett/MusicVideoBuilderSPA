@@ -48,7 +48,7 @@ export class ClipBuilderComponent implements OnInit {
   collections: Collection[] = [];
   clipId: number = 0;
 
-  maximumCollections = 9;
+  maximumCollections = 5;
 
   setClipId = (clipId: number) => {
     this.clipId = clipId;
