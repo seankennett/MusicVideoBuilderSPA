@@ -10,7 +10,6 @@ import { Clipdisplaylayer } from '../clipdisplaylayer';
 const imageWidth = 384;
 const secondsInMinute = 60;
 const millisecondsInSecond = 1000;
-const beatsPerLayer = 4;
 const frameTotal = 64;
 const framesPerSecond = 1 / 24;
 
@@ -24,6 +23,8 @@ export class GalleryplayerComponent implements OnInit, OnChanges {
   @Input() clip!: Clip;
   @Input() collections!: Collection[];
   @Input() displayLayer!: Displaylayer | undefined;
+  @Input() beatLength: number = 4;
+  @Input() startingBeat: number = 1;
   @Output() editButtonClickCollectionEvent = new EventEmitter<Collection>();
   @Output() addButtonClickClipEvent = new EventEmitter<Clip>();
   @Output() editButtonClickClipEvent = new EventEmitter<Clip>();
@@ -56,7 +57,7 @@ export class GalleryplayerComponent implements OnInit, OnChanges {
   }
 
   private get skipFrames() {
-    return ((this.clip?.startingBeat ?? 1) - 1) * frameTotal / 4;
+    return ((this.clip?.startingBeat ?? this.startingBeat) - 1) * frameTotal / 4;
   }
 
   get collectionLayers() {
@@ -113,7 +114,8 @@ export class GalleryplayerComponent implements OnInit, OnChanges {
       this.togglePlay();
     }
 
-    if (changes['clip'] && changes['clip'].previousValue && changes['clip'].currentValue && changes['clip'].previousValue.startingBeat !== changes['clip'].currentValue.startingBeat && this.isPlaying === false) {
+    if (((changes['clip'] && changes['clip'].previousValue && changes['clip'].currentValue && changes['clip'].previousValue.startingBeat !== changes['clip'].currentValue.startingBeat) ||
+    (changes['startingBeat'] && changes['startingBeat'].previousValue && changes['startingBeat'].currentValue && changes['startingBeat'].previousValue !== changes['startingBeat'].currentValue)) && this.isPlaying === false) {
       this.leftPosition = -(this.skipFrames * imageWidth);
     }
   }
@@ -131,7 +133,7 @@ export class GalleryplayerComponent implements OnInit, OnChanges {
         var newTime = Date.now();
         var currentTime = (newTime - startTime) / millisecondsInSecond;
 
-        var numberOfBeats = this.clip?.beatLength ?? beatsPerLayer;
+        var numberOfBeats = this.clip?.beatLength ?? this.beatLength;
         var layerDuration = secondsInMinute / this.localBpm.value * numberOfBeats;
         var currentTimeInLayer = currentTime % layerDuration;
 

@@ -88,17 +88,6 @@ export class ClipBuilderComponent implements OnInit {
     }
   }
 
-  //  buildDisplayLayerMap = (index: number, output: Array<Array<Displaylayer>>, input: Array<Displaylayer>) =>{
-  //     if (index < input.length) {
-  //       var currentDisplayLayer = input[index];
-  //       if (currentDisplayLayer.linkedPreviousDisplayLayerId) {
-  //         if (output.flatMap(x => x).some(o => o.displayLayerId === currentDisplayLayer.linkedPreviousDisplayLayerId)){}
-  //       }
-
-  //       this.buildDisplayLayerMap(index + 1, output, input);
-  //     }
-  //  }
-
   get selectedCollectionDirectionOptions() {
     var allDirections = this.selectedCollection?.displayLayers.map(d => d.direction) ?? [];
     return Object.values<Direction>(allDirections.reduce((acc, obj) => ({ ...acc, [obj.directionId]: obj }), {}))

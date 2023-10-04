@@ -181,7 +181,7 @@
                                     </div>
                                     <div class="mb-3">
                                         <app-galleryplayer [displayLayer]="convertToNewDisplayLayer(clipDisplayLayerGroup)"
-                                            [bpm]="bpm" [showAdd]="false"></app-galleryplayer>
+                                            [bpm]="bpm" [showAdd]="false" [startingBeat]="startingBeatControl.value" [beatLength]="beatLengthControl.value"></app-galleryplayer>
                                     </div>
                                     <ng-container formArrayName="layerClipDisplayLayersFormArray">
                                         <div class="mb-3"
