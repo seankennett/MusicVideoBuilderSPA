@@ -374,7 +374,7 @@ export class MusicVideoBuilderComponent implements OnInit {
   }
 
   canAddVideo = () => {
-    return this.clips && this.clips.length > 0;
+    return this.clips && this.clips.length > 0 && this.videos.length < 2;
   }
 
   canAddVideoTooltip = () => {
@@ -382,7 +382,7 @@ export class MusicVideoBuilderComponent implements OnInit {
       return '';
     }
 
-    return 'You must have a minimum of one clip';
+    return 'You must have a minimum of one clip and a maximum of 2 videos';
   }
 
   bpmInvalidTooltip = () => {
