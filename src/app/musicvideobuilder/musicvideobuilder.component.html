@@ -218,19 +218,19 @@
                                                     <div class="imageContainer"
                                                         [style.background-color]="clipControl.value.backgroundColour !== null ? '#' + clipControl.value.backgroundColour : 'black'">
                                                         <ng-container
-                                                            *ngFor="let clipDisplayLayer of clipControl.value.clipDisplayLayers;">
+                                                            *ngFor="let clipDisplayLayer of clipControl.value.clipDisplayLayers; let j = index">
                                                             <ng-container
-                                                                *ngFor="let layerloop of getLayers(clipDisplayLayer); let i = index">
+                                                                *ngFor="let layerloop of getLayers(clipDisplayLayer)">
                                                                 <img [src]="storageUrl + '/' + layerloop.layerId + '/sprite.png'"
                                                                     [alt]="layerloop.layerId"
                                                                     [style.left.px]="calculateLeft(clipControl.value.startingBeat)"
-                                                                    [style.z-index]="i + (layerloop.isOverlay === true ? 0 : 1)"
+                                                                    [style.z-index]="j + (layerloop.isOverlay === true ? 0 : 1)"
                                                                     [style.mix-blend-mode]="layerloop.isOverlay === true ? 'normal' : 'screen'"
-                                                                    [style.filter]="'url(\'#' + i + '-' + clipControl.value.clipId + layerloop.layerId + '\')'"
+                                                                    [style.filter]="'url(\'#' + j + '-' + clipControl.value.clipId + layerloop.layerId + '\')'"
                                                                     crossorigin="anonymous" />
                                                                 <svg xmlns="http://www.w3.org/2000/svg">
                                                                     <filter
-                                                                        [id]="i + '-' +clipControl.value.clipId + layerloop.layerId">
+                                                                        [id]="j + '-' +clipControl.value.clipId + layerloop.layerId">
                                                                         <feColorMatrix type="matrix"
                                                                             [attr.values]="toColourMatrix(getColour(layerloop, clipControl.value))">
                                                                         </feColorMatrix>
