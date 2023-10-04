@@ -184,8 +184,14 @@ export class MusicVideoBuilderComponent implements OnInit {
 
   setQuickTimelineSelection = (index: number) => {
     this.setTimelineStart(index + 1);
-    this.setTimelineEnd(index + 1 + this.clipsPerBlock);
+    this.setTimelineEnd(this.clipsFormArray.length + 1 < index + 1 + this.clipsPerBlock ? this.clipsFormArray.length + 1 : index + 1 + this.clipsPerBlock);
     this.clipsPerBlock = 1;
+  }
+
+  zoomOut = () =>{
+    this.setTimelineStart(1);
+    this.setTimelineEnd(this.clipsFormArray.length + 1);
+    this.clipsPerBlock = this.clipsPerBlock === 1 ? 4 : 16;
   }
 
   isInvalidSelection = (clipsPerBlock: number) => {
