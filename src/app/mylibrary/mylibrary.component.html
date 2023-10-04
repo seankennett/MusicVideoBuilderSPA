@@ -7,7 +7,7 @@
     <ng-container *ngIf="!pageLoading">
         <ng-container *ngIf="this.completeBuildAssets.length > 0">
             <h2>Video Files</h2>
-            <p>Here are your built video files to download.</p>
+            <p>Here are your built video files to download. Note that links will be valid only for 12 hours or until you refresh this page.</p>
             <div class="list-group mb-3">
                 <a *ngFor="let buildAsset of this.completeBuildAssets" [href]="buildAsset.downloadLink"
                     class="list-group-item list-group-item-action"><h5>{{getFormattedDateTime(buildAsset.dateCreated)}} -
