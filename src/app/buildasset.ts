@@ -4,7 +4,7 @@ import { License } from "./license";
 import { Resolution } from "./resolution";
 
 export interface Buildasset {
-    videoId:number,
+    videoId:number | null,
     dateCreated:Date,
     downloadLink:string,
     videoName:string,
