@@ -404,15 +404,15 @@
                                 <div class="mb-3">
                                     <p>Cost</p>
                                     <ul class="list-group">
-                                        <li class="list-group-item" *ngFor="let unlicensedClipDisplayLayer of unlicensedClipDisplayLayers">
+                                        <li class="list-group-item" *ngFor="let unlicensedCollection of unlicensedCollections">
                                             <h6 class="float-start">{{License[licenseControl.value]}} license for
-                                                layer {{unlicensedClipDisplayLayer.displayLayerId}}</h6>
-                                            <h6 class="float-end">{{layerLicenseCost | currency:"GBP":"symbol"}}
+                                                collection: {{unlicensedCollection.collectionName}}</h6>
+                                            <h6 class="float-end">{{collectionLicenseCost | currency:"GBP":"symbol"}}
                                             </h6>
                                         </li>
                                         <li class="list-group-item">
                                             <h5 class="float-start">License Total</h5>
-                                            <h5 class="float-end">{{clipDisplayLayerLicensesCost | currency:"GBP":"symbol"}}
+                                            <h5 class="float-end">{{collectionLicensesCost | currency:"GBP":"symbol"}}
                                             </h5>
                                         </li>
                                         <li class="list-group-item">
@@ -449,15 +449,15 @@
                                 <div class="mb-3">
                                     <p>Cost</p>
                                     <ul class="list-group">
-                                        <li class="list-group-item" *ngFor="let unlicensedClipDisplayLayer of unlicensedClipDisplayLayers">
+                                        <li class="list-group-item" *ngFor="let unlicensedCollection of unlicensedCollections">
                                             <h6 class="float-start">{{License[licenseControl.value]}} license for
-                                                layer {{unlicensedClipDisplayLayer.displayLayerId}}</h6>
-                                            <h6 class="float-end">{{layerLicenseCost | currency:"GBP":"symbol"}}
+                                                collection: {{unlicensedCollection.collectionName}}</h6>
+                                            <h6 class="float-end">{{collectionLicenseCost | currency:"GBP":"symbol"}}
                                             </h6>
                                         </li>
                                         <li class="list-group-item">
                                             <h5 class="float-start">License Total</h5>
-                                            <h5 class="float-end">{{clipDisplayLayerLicensesCost | currency:"GBP":"symbol"}}
+                                            <h5 class="float-end">{{collectionLicensesCost | currency:"GBP":"symbol"}}
                                             </h5>
                                         </li>
                                         <li class="list-group-item">

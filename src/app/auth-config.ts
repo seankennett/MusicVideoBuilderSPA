@@ -80,8 +80,8 @@ export const protectedResources = {
     endpoint: environment.apiEndpoint + "/Videos*",
     scopes: ["https://musicvideobuilder.onmicrosoft.com/77a830ed-796d-4bed-be76-a163f5a3ee79/access_as_user"],
   },
-  userDisplayLayerApi: {
-    endpoint: environment.apiEndpoint + "/UserDisplayLayers",
+  userCollectionApi: {
+    endpoint: environment.apiEndpoint + "/UserCollections",
     scopes: ["https://musicvideobuilder.onmicrosoft.com/77a830ed-796d-4bed-be76-a163f5a3ee79/access_as_user"],
   },
 }

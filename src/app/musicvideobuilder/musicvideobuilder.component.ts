@@ -10,13 +10,13 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { DatePipe, Location } from '@angular/common';
 import { VideoplayerComponent } from '../videoplayer/videoplayer.component';
 import { Resolution } from '../resolution';
-import { UserDisplayLayer } from '../userdisplaylayer';
+import { UserCollection } from '../usercollection';
 import { guess } from 'web-audio-beat-detector';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbNavChangeEvent } from '@ng-bootstrap/ng-bootstrap';
 import { environment } from 'src/environments/environment';
 import { BlockBlobClient } from '@azure/storage-blob';
-import { UserdisplaylayerService } from '../userdisplaylayer.service';
+import { UserCollectionService } from '../usercollection.service';
 import { ToastService } from '../toast.service';
 import { License } from '../license';
 import { Layer } from '../layer';
@@ -46,13 +46,13 @@ const byteMultiplier = 1024;
 })
 export class MusicVideoBuilderComponent implements OnInit {
   constructor(private formBuilder: FormBuilder, private videoService: VideoService, private clipService: ClipService, private buildService: BuildsService, private collectionService: CollectionService,
-    private datePipe: DatePipe, private route: ActivatedRoute, private location: Location, private userDisplayLayerService: UserdisplaylayerService, private toastService: ToastService, private router: Router, private stripeService: StripeService) { }
+    private datePipe: DatePipe, private route: ActivatedRoute, private location: Location, private userCollectionService: UserCollectionService, private toastService: ToastService, private router: Router, private stripeService: StripeService) { }
 
   ngOnInit(): void {
     this.videoService.getAll().subscribe((videos: Video[]) => {
       this.clipService.getAll().subscribe((clips: Clip[]) => {
         this.collectionService.getAll().subscribe((collections: Collection[]) =>{
-        this.userDisplayLayerService.getAll().subscribe((userDisplayLayers: UserDisplayLayer[]) => {
+        this.userCollectionService.getAll().subscribe((userCollections: UserCollection[]) => {
           this.buildService.getAll().subscribe((buildAssets: Buildasset[]) => {
             this.buildAssets = buildAssets;
             var id = Number(this.route.firstChild?.snapshot?.params['id']);
@@ -66,7 +66,7 @@ export class MusicVideoBuilderComponent implements OnInit {
             this.videos = videos;
             this.clips = clips;
             this.collections = collections;
-            this.userDisplayLayers = userDisplayLayers;
+            this.userCollections = userCollections;
             this.pageLoading = false;
           });
         });
@@ -83,7 +83,7 @@ export class MusicVideoBuilderComponent implements OnInit {
 
   videos: Video[] = [];
   clips: Clip[] = [];
-  userDisplayLayers: UserDisplayLayer[] = [];
+  userCollections: UserCollection[] = [];
   buildAssets: Buildasset[] = [];
   collections: Collection[] = [];
 
@@ -309,14 +309,16 @@ export class MusicVideoBuilderComponent implements OnInit {
     };
   }
 
-  get unlicensedClipDisplayLayers(): Clipdisplaylayer[] {
-    return this.getUnlicensedLayers(this.editorVideo, this.resolutionControl.value, this.licenseControl.value);
+  get unlicensedCollections(): Collection[] {
+    return this.getUnlicensedCollections(this.editorVideo, this.resolutionControl.value, this.licenseControl.value);
   }
 
-  getUnlicensedLayers = (video: Video, resolution: Resolution, license: License) => {
-    var licensedLayers = this.userDisplayLayers.filter(u => u.resolution == resolution && u.license == license);
-    var unlicensedLayers = video.clips.filter(c => c.clipDisplayLayers != null).flatMap(c => c.clipDisplayLayers).filter(l => !licensedLayers.some(ll => ll.displayLayerId === l.displayLayerId));
-    return [...new Map(unlicensedLayers.map(item => [item.displayLayerId, item])).values()]
+  getUnlicensedCollections = (video: Video, resolution: Resolution, license: License) => {
+    var licensedCollections = this.userCollections.filter(u => u.resolution == resolution && u.license == license);
+    var allVideoDisplayLayerIds = video.clips.filter(c => c.clipDisplayLayers != null).flatMap(c => c.clipDisplayLayers).map(c => c.displayLayerId).filter((value, index, self) => self.indexOf(value) === index);
+    var videoCollections = this.collections.filter(c => c.displayLayers.some(d => allVideoDisplayLayerIds.includes(d.displayLayerId)));
+    var unlicensedCollections = videoCollections.filter(l => !licensedCollections.some(lc => lc.collectionId === l.collectionId));
+    return [...new Map(unlicensedCollections.map(item => [item.collectionId, item])).values()]
   }
 
   saveVideo = () => {
@@ -744,22 +746,22 @@ export class MusicVideoBuilderComponent implements OnInit {
     return (this.resolutionControl.value - 1) * 5;
   }
 
-  get layerLicenseCost() {
-    var layerResolutionCost = 0;
+  get collectionLicenseCost() {
+    var collectionResolutionCost = 0;
     switch (this.resolutionControl.value) {
       case Resolution.Hd:
-        layerResolutionCost = 25;
+        collectionResolutionCost = 25;
         break;
       case Resolution.FourK:
-        layerResolutionCost = 50;
+        collectionResolutionCost = 50;
         break;
     }
 
-    return layerResolutionCost * this.licenseFactor(this.licenseControl.value);
+    return collectionResolutionCost * this.licenseFactor(this.licenseControl.value);
   }
 
-  get clipDisplayLayerLicensesCost() {
-    return this.layerLicenseCost * this.unlicensedClipDisplayLayers.length;
+  get collectionLicensesCost() {
+    return this.collectionLicenseCost * this.unlicensedCollections.length;
   }
 
   licenseFactor = (license: License) => {
@@ -778,7 +780,7 @@ export class MusicVideoBuilderComponent implements OnInit {
       return 0;
     }
 
-    return this.buildCost + this.clipDisplayLayerLicensesCost;
+    return this.buildCost + this.collectionLicensesCost;
   }
 
   cardOptions: StripeCardElementOptions = {
