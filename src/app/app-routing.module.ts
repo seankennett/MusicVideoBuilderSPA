@@ -5,7 +5,6 @@ import { ClipBuilderComponent } from './clipbuilder/clipbuilder.component';
 
 import { HomeComponent } from './home/home.component';
 import { ContentBrowserComponent } from './contentbrowser/contentbrowser.component';
-import { LayerUploadComponent } from './layerupload/layerupload.component';
 import { MyLibraryComponent } from './mylibrary/mylibrary.component';
 import { MusicVideoBuilderComponent } from './musicvideobuilder/musicvideobuilder.component';
 import { NotfoundComponent } from './notfound/notfound.component';

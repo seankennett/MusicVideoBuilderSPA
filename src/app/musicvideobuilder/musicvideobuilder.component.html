@@ -141,7 +141,10 @@
                             </div>
                             <div class="mb-3">
                                 <button type="button" [disabled]="!videoForm.valid || saving || noVideoEditorChanges()"
-                                    class="btn btn-primary me-1" (click)="saveVideo()">Save</button>
+                                    class="btn btn-primary me-1" (click)="saveVideo()">
+                                    <i class="bi bi-floppy-fill"></i> Save
+                                    <span class="spinner-border spinner-border-sm ms-1" role="status" aria-hidden="true" *ngIf="saving"></span>
+                                </button>
                                 <span [ngbTooltip]="bpmInvalidTooltip()">
                                     <button type="button" [disabled]="disableTimelineTab()"
                                         class="btn btn-secondary me-1" (click)="setTabId(2)"><i
@@ -351,7 +354,10 @@
                             </div>
                             <div class="mb-3">
                                 <button type="button" [disabled]="!videoForm.valid || saving || noVideoEditorChanges()"
-                                    class="btn btn-primary me-1" (click)="saveVideo()">Save</button>
+                                    class="btn btn-primary me-1" (click)="saveVideo()">
+                                    <i class="bi bi-floppy-fill"></i> Save
+                                    <span class="spinner-border spinner-border-sm ms-1" role="status" aria-hidden="true" *ngIf="saving"></span>
+                                </button>
                                 <button type="button" class="btn btn-secondary me-1" (click)="setTabId(1)"><i
                                         class="bi bi-pencil-square"></i> Go to
                                     details</button>
@@ -427,14 +433,18 @@
                                 </div>
                                 <div class="mb-3">
                                     <button type="button" class="btn btn-primary" (click)="createFreeVideo()"
-                                        [disabled]="isBuilding || isWaitingForCreate" *ngIf="total === 0"><i
-                                            class="bi bi-hammer"></i>
+                                        [disabled]="isBuilding || isWaitingForCreate" *ngIf="total === 0">
+                                        <i class="bi bi-hammer ms-1"></i>
                                         Create
-                                        Video</button>
+                                        Video
+                                        <span class="spinner-border spinner-border-sm ms-1" role="status" aria-hidden="true" *ngIf="isWaitingForCreate"></span>
+                                    </button>
                                     <button type="button" class="btn btn-success" (click)="createPaymentIntent()"
-                                        [disabled]="isBuilding || isWaitingForCreate" *ngIf="total > 0"><i
-                                            class="bi bi-credit-card-fill"></i>
-                                        Checkout</button>
+                                        [disabled]="isBuilding || isWaitingForCreate" *ngIf="total > 0">
+                                        <i class="bi bi-credit-card-fill ms-1"></i>
+                                            Checkout
+                                            <span class="spinner-border spinner-border-sm ms-1" role="status" aria-hidden="true" *ngIf="isWaitingForCreate"></span>
+                                        </button>
                                 </div>
                             </div>
                         </ng-template>
@@ -475,9 +485,11 @@
                                 </div>
                                 <div class="mb-3">
                                     <button type="button" class="btn btn-success" (click)="pay()"
-                                    [disabled]="isBuilding || isWaitingForCreate || invalidCardDetails" *ngIf="total > 0"><i
-                                        class="bi bi-credit-card-fill"></i>
-                                    Pay</button>
+                                    [disabled]="isBuilding || isWaitingForCreate || invalidCardDetails" *ngIf="total > 0">
+                                    <i class="bi bi-credit-card-fill" ms-1></i>
+                                        Pay
+                                        <span class="spinner-border spinner-border-sm ms-1" role="status" aria-hidden="true" *ngIf="isWaitingForCreate"></span>
+                                    </button>
                                 </div>
                             </ng-container>
                         </ng-template>

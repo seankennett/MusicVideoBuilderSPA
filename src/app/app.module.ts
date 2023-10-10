@@ -13,7 +13,6 @@ import { MsalGuard, MsalInterceptor, MsalBroadcastService, MsalInterceptorConfig
 
 import { msalConfig, loginRequest, protectedResources } from './auth-config';
 import { ContentBrowserComponent } from './contentbrowser/contentbrowser.component';
-import { LayerUploadComponent } from './layerupload/layerupload.component';
 import { LayertypecontrolComponent } from './layertypecontrol/layertypecontrol.component';
 import { GalleryplayerComponent } from './galleryplayer/galleryplayer.component';
 import { ClipBuilderComponent } from './clipbuilder/clipbuilder.component';
@@ -52,7 +51,6 @@ export function MSALInterceptorConfigFactory(): MsalInterceptorConfiguration {
   const protectedResourceMap = new Map<string, Array<string>>();
 
   protectedResourceMap.set(protectedResources.tagsApi.endpoint, protectedResources.tagsApi.scopes);
-  protectedResourceMap.set(protectedResources.layerUploadApi.endpoint, protectedResources.layerUploadApi.scopes);
   protectedResourceMap.set(protectedResources.userCollectionApi.endpoint, protectedResources.userCollectionApi.scopes);
   protectedResourceMap.set(protectedResources.clipApi.endpoint, protectedResources.clipApi.scopes);
   protectedResourceMap.set(protectedResources.videoApi.endpoint, protectedResources.videoApi.scopes);
@@ -79,7 +77,6 @@ export function MSALGuardConfigFactory(): MsalGuardConfiguration {
     AppComponent,
     HomeComponent,
     ContentBrowserComponent,
-    LayerUploadComponent,
     LayertypecontrolComponent,
     GalleryplayerComponent,
     ClipBuilderComponent,

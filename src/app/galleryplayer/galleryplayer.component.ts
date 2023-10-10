@@ -33,9 +33,7 @@ export class GalleryplayerComponent implements OnInit, OnChanges {
 
   @Input() bpm!: number;
   @Input() isPlaying: boolean = false;
-
-  @Input() disableFunction: (collection: Collection) => boolean = (collection) => { return false }
-  @Input() disableTooltipFunction: (collection: Collection) => string = (collection) => { return '' }
+  @Input() loading: boolean = false;
 
   @Input() showAdd: boolean = true;
   @Input() showEdit: boolean = false;
