@@ -51,25 +51,25 @@ export class MusicVideoBuilderComponent implements OnInit {
   ngOnInit(): void {
     this.videoService.getAll().subscribe((videos: Video[]) => {
       this.clipService.getAll().subscribe((clips: Clip[]) => {
-        this.collectionService.getAll().subscribe((collections: Collection[]) =>{
-        this.userCollectionService.getAll().subscribe((userCollections: UserCollection[]) => {
-          this.buildService.getAll().subscribe((buildAssets: Buildasset[]) => {
-            this.buildAssets = buildAssets;
-            var id = Number(this.route.firstChild?.snapshot?.params['id']);
-            var tab = Number(this.route.firstChild?.snapshot?.queryParams['tab']);
-            if (!isNaN(id) && !isNaN(tab)) {
-              var video = videos.find(x => x.videoId === id);
-              if (video) {
-                this.editVideo({ video: video, tab: tab }, 0);
+        this.collectionService.getAll().subscribe((collections: Collection[]) => {
+          this.userCollectionService.getAll().subscribe((userCollections: UserCollection[]) => {
+            this.buildService.getAll().subscribe((buildAssets: Buildasset[]) => {
+              this.buildAssets = buildAssets;
+              var id = Number(this.route.firstChild?.snapshot?.params['id']);
+              var tab = Number(this.route.firstChild?.snapshot?.queryParams['tab']);
+              if (!isNaN(id) && !isNaN(tab)) {
+                var video = videos.find(x => x.videoId === id);
+                if (video) {
+                  this.editVideo({ video: video, tab: tab }, 0);
+                }
               }
-            }
-            this.videos = videos;
-            this.clips = clips;
-            this.collections = collections;
-            this.userCollections = userCollections;
-            this.pageLoading = false;
+              this.videos = videos;
+              this.clips = clips;
+              this.collections = collections;
+              this.userCollections = userCollections;
+              this.pageLoading = false;
+            });
           });
-        });
         });
       });
     });
@@ -108,7 +108,7 @@ export class MusicVideoBuilderComponent implements OnInit {
     }
   }
 
-  get canLicense(){
+  get canLicense() {
     return this.editorVideo.clips.some(e => e.clipDisplayLayers != null);
   }
 
@@ -188,7 +188,7 @@ export class MusicVideoBuilderComponent implements OnInit {
     this.clipsPerBlock = 1;
   }
 
-  zoomOut = () =>{
+  zoomOut = () => {
     this.setTimelineStart(1);
     this.setTimelineEnd(this.clipsFormArray.length + 1);
     this.clipsPerBlock = this.clipsPerBlock === 1 ? 4 : 16;
@@ -240,6 +240,7 @@ export class MusicVideoBuilderComponent implements OnInit {
   saving = false;
   activeTabId = 1;
   selectedClipIndex = 0;
+  selectedClipEditIndex = 0;
 
   isPlaying = false;
 
@@ -365,9 +366,10 @@ export class MusicVideoBuilderComponent implements OnInit {
     this.showEditor = !this.showEditor;
   }
 
-  toggleClipPicker = () => {
+  toggleClipPicker = (index: number) => {
     this.stop();
     this.showClipPicker = !this.showClipPicker;
+    this.selectedClipEditIndex = index;
   }
 
   setSelectedClipIndex = (index: number) => {
@@ -421,11 +423,17 @@ export class MusicVideoBuilderComponent implements OnInit {
   }
 
   addClipPickerClip = (clip: Clip) => {
-    var isTimelineAtEnd = this.timelineEditorEndFinalIndex === this.clipsFormArray.length;
     this.showClipPicker = false;
-    this.clipsFormArray.push(this.formBuilder.control(clip));
-    if (isTimelineAtEnd === true) {
-      this.setTimelineEnd(this.clipsFormArray.length + 1)
+    if (this.selectedClipEditIndex === this.clipsFormArray.length) {
+      var isTimelineAtEnd = this.timelineEditorEndFinalIndex === this.clipsFormArray.length;
+      this.clipsFormArray.push(this.formBuilder.control(clip));
+      if (isTimelineAtEnd === true) {
+        this.setTimelineEnd(this.clipsFormArray.length + 1)
+      }
+    }
+    else {
+      var existingControl = this.clipsFormArray.controls[this.selectedClipEditIndex];
+      existingControl.patchValue(clip);
     }
   }
 
@@ -479,7 +487,7 @@ export class MusicVideoBuilderComponent implements OnInit {
     }
   }
 
-  get displayLayers(){
+  get displayLayers() {
     return this.collections.flatMap(c => c.displayLayers).filter(d => this.clips.filter(c => c.clipDisplayLayers).flatMap(c => c.clipDisplayLayers).some(cd => cd.displayLayerId === d.displayLayerId));
   }
 
