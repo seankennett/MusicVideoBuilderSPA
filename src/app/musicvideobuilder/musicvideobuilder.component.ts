@@ -241,6 +241,7 @@ export class MusicVideoBuilderComponent implements OnInit {
   activeTabId = 1;
   selectedClipIndex = 0;
   selectedClipEditIndex = 0;
+  isAdding = false;
 
   isPlaying = false;
 
@@ -370,6 +371,12 @@ export class MusicVideoBuilderComponent implements OnInit {
     this.stop();
     this.showClipPicker = !this.showClipPicker;
     this.selectedClipEditIndex = index;
+    this.isAdding = this.selectedClipEditIndex === this.clipsFormArray.length;
+  }
+
+  toggleAddClipPicker = (index: number) => {
+    this.toggleClipPicker(index + 1);
+    this.isAdding = true;
   }
 
   setSelectedClipIndex = (index: number) => {
@@ -424,16 +431,19 @@ export class MusicVideoBuilderComponent implements OnInit {
 
   addClipPickerClip = (clip: Clip) => {
     this.showClipPicker = false;
+    var isTimelineAtEnd = this.timelineEditorEndFinalIndex === this.clipsFormArray.length;
     if (this.selectedClipEditIndex === this.clipsFormArray.length) {
-      var isTimelineAtEnd = this.timelineEditorEndFinalIndex === this.clipsFormArray.length;
       this.clipsFormArray.push(this.formBuilder.control(clip));
-      if (isTimelineAtEnd === true) {
-        this.setTimelineEnd(this.clipsFormArray.length + 1)
-      }
-    }
-    else {
+    } else if (this.isAdding === true) {
+      var newClipControl = this.formBuilder.control(clip);
+      this.clipsFormArray.insert(this.selectedClipEditIndex, newClipControl);
+    } else {
       var existingControl = this.clipsFormArray.controls[this.selectedClipEditIndex];
       existingControl.patchValue(clip);
+    }
+
+    if (isTimelineAtEnd === true) {
+      this.setTimelineEnd(this.clipsFormArray.length + 1)
     }
   }
 

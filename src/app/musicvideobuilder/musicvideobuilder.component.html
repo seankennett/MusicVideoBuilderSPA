@@ -280,6 +280,12 @@
                                                                     (click)="toggleClipPicker(i)">
                                                                     <i class="bi bi-arrow-repeat"></i></button>
                                                             </span>
+                                                            <span [ngbTooltip]="'Add new clip after this clip'"
+                                                            *ngIf="clipsPerBlock === 1">
+                                                                <button type="button" class="btn btn-success me-1"
+                                                                    (click)="toggleAddClipPicker(i)">
+                                                                    <i class="bi bi-node-plus-fill"></i></button>
+                                                            </span>
                                                         </li>
                                                         <li class="list-group-item">
                                                             <span [ngbTooltip]="'Start player from here.'">
