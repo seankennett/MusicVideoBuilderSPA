@@ -375,9 +375,19 @@ export class ClipBuilderComponent implements OnInit {
   }
 
   editClip = (clip: Clip) => {
-    this.toggleEditor();
+    this.setClipBase(clip);
     this.setClipId(clip.clipId);
     this.clipNameControl.setValue(clip.clipName);
+    this.unchangedClip = { ...this.editorClip };
+  }
+
+  cloneClip = (clip: Clip) =>{
+    this.setClipBase(clip);
+    this.unchangedClip = { ...this.editorClip };
+  }
+
+  private setClipBase = (clip: Clip) =>{
+    this.toggleEditor();
     if (clip.backgroundColour !== null) {
       this.addBackgroundColour(clip.backgroundColour);
     }
@@ -389,8 +399,6 @@ export class ClipBuilderComponent implements OnInit {
         this.addClipDisplayLayer(cl);
       });
     }
-
-    this.unchangedClip = { ...this.editorClip };
   }
 
   get shouldDisableDisplayLayer() {

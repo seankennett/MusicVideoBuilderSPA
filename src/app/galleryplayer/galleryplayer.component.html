@@ -71,16 +71,15 @@
           [style.width.%]="progress"></div>
       </div>
     </li>
-    <li class="list-group-item text-center" placement="top"
-      *ngIf="showAdd || showEdit || showRemove">
-      <button type="button" [disabled]="loading" (click)="addButtonClick()" class="btn btn-success"
-        *ngIf="showAdd">
+    <li class="list-group-item text-center" placement="top" *ngIf="showAdd || showEdit || showRemove">
+      <button type="button" [disabled]="loading" (click)="addButtonClick()" class="btn btn-success" *ngIf="showAdd">
         <i class="bi bi-plus-circle-fill"></i> Add</button>
-      <button type="button" [disabled]="loading" (click)="editButtonClick()" class="btn btn-primary"
-        *ngIf="showEdit">
+      <button type="button" [disabled]="loading" (click)="editButtonClick()" class="btn btn-primary" *ngIf="showEdit">
         <i class="bi bi-pencil-square"></i> Edit</button>
-      <button type="button" [disabled]="loading" (click)="removeButtonClick()"
-        class="btn btn-danger" *ngIf="showRemove">
+      <button type="button" [disabled]="loading" (click)="cloneButtonClick()" class="btn btn-success ms-1" *ngIf="showClone">
+        <i class="bi bi-files"></i> Clone</button>
+      <button type="button" [disabled]="loading" (click)="removeButtonClick()" class="btn btn-danger"
+        *ngIf="showRemove">
         <i class="bi bi-dash-circle-fill"></i> Remove
         <span class="spinner-border spinner-border-sm ms-1" role="status" aria-hidden="true" *ngIf="loading"></span>
       </button>

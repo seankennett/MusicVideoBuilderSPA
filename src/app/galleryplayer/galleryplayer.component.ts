@@ -29,6 +29,7 @@ export class GalleryplayerComponent implements OnInit, OnChanges {
   @Output() addButtonClickClipEvent = new EventEmitter<Clip>();
   @Output() editButtonClickClipEvent = new EventEmitter<Clip>();
   @Output() removeButtonClickClipEvent = new EventEmitter<Clip>();
+  @Output() cloneButtonClickClipEvent = new EventEmitter<Clip>();
   @Output() removeButtonClickCollectionEvent = new EventEmitter<Collection>();
 
   @Input() bpm!: number;
@@ -38,6 +39,7 @@ export class GalleryplayerComponent implements OnInit, OnChanges {
   @Input() showAdd: boolean = true;
   @Input() showEdit: boolean = false;
   @Input() showRemove: boolean = false;
+  @Input() showClone: boolean = false;
 
   leftPosition: number = 0;
 
@@ -187,5 +189,9 @@ export class GalleryplayerComponent implements OnInit, OnChanges {
   editButtonClick = () => {
     this.editButtonClickClipEvent.emit(this.clip);
     this.editButtonClickCollectionEvent.emit(this.collection);
+  }
+
+  cloneButtonClick = () => {
+    this.cloneButtonClickClipEvent.emit(this.clip);
   }
 }
