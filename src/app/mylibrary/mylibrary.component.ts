@@ -32,7 +32,7 @@ export class MyLibraryComponent implements OnInit {
   Licences = License;
 
   get buildingVideos() {
-    return this.videos.filter(v => this.buildAssets.some(ba => ba.videoId === v.videoId && (ba.buildStatus == Buildstatus.BuildingPending || ba.buildStatus == Buildstatus.PaymentChargePending)));
+    return this.videos.filter(v => this.incompleteBuildAssets.some(ba => ba.videoId === v.videoId));
   }
 
   get notBuildingVideos() {
@@ -41,6 +41,10 @@ export class MyLibraryComponent implements OnInit {
 
   get completeBuildAssets() {
     return this.buildAssets.filter(ba => ba.buildStatus === Buildstatus.Complete);
+  }
+
+  get incompleteBuildAssets() {
+    return this.buildAssets.filter(ba => ba.buildStatus == Buildstatus.BuildingPending || ba.buildStatus == Buildstatus.PaymentChargePending);
   }
 
   get displayLayers(){

@@ -14,6 +14,19 @@
                     {{buildAsset.videoName}}.{{Formats[buildAsset.format]}} - Resolution: {{displayResolution(buildAsset.resolution)}} - Licence: {{Licences[buildAsset.license]}}<i class="bi bi-download text-primary float-end"></i></h5></a>
             </div>
         </ng-container>
+        <ng-container *ngIf="this.incompleteBuildAssets.length > 0">
+            <h2>Building Video Files</h2>
+            <p>Here are your currently building video files.</p>
+            <div class="list-group mb-3">
+                <ng-container *ngFor="let incompleteBuildAsset of this.incompleteBuildAssets">
+                <div class="list-group-item list-group-item-action">
+                    <h5>{{getFormattedDateTime(incompleteBuildAsset.dateCreated)}} -
+                    {{incompleteBuildAsset.videoName}}.{{Formats[incompleteBuildAsset.format]}} - Resolution: {{displayResolution(incompleteBuildAsset.resolution)}} - Licence: {{Licences[incompleteBuildAsset.license]}}
+                    </h5>
+            </div>
+        </ng-container>
+            </div>
+        </ng-container>
         <ng-container *ngIf="this.buildingVideos.length > 0">
             <h2>Building Videos</h2>
             <p>These videos are currently building.  You have to wait for the build to complete before you build the same video again or delete.</p>
