@@ -311,17 +311,26 @@ export class MusicVideoBuilderComponent implements OnInit {
     };
   }
 
-  get unlicensedCollections(): Collection[] {
-    return this.getUnlicensedCollections(this.editorVideo, this.resolutionControl.value, this.licenseControl.value);
+  get videoCollections(): Collection[]{
+    var allVideoDisplayLayerIds = this.editorVideo.clips.filter(c => c.clipDisplayLayers != null).flatMap(c => c.clipDisplayLayers).map(c => c.displayLayerId).filter((value, index, self) => self.indexOf(value) === index);
+    return this.collections.filter(c => c.displayLayers.some(d => allVideoDisplayLayerIds.includes(d.displayLayerId)));
   }
 
-  getUnlicensedCollections = (video: Video, resolution: Resolution, license: License) => {
-    var licensedCollections = this.userCollections.filter(u => u.resolution == resolution && u.license == license);
-    var allVideoDisplayLayerIds = video.clips.filter(c => c.clipDisplayLayers != null).flatMap(c => c.clipDisplayLayers).map(c => c.displayLayerId).filter((value, index, self) => self.indexOf(value) === index);
-    var videoCollections = this.collections.filter(c => c.displayLayers.some(d => allVideoDisplayLayerIds.includes(d.displayLayerId)));
-    var unlicensedCollections = videoCollections.filter(l => !licensedCollections.some(lc => lc.collectionId === l.collectionId));
-    return [...new Map(unlicensedCollections.map(item => [item.collectionId, item])).values()]
+  private get licensedUserCollections():UserCollection[]{
+    return this.userCollections.filter(u => u.resolution == this.resolutionControl.value && u.license == this.licenseControl.value);
   }
+
+  get licensedCollections(): Collection[]{
+    return this.videoCollections.filter(v => this.licensedUserCollections.some(l => l.collectionId === v.collectionId));
+  }
+
+  private get unlicensedCollections(): Collection[]{
+    return this.videoCollections.filter(v => !this.licensedUserCollections.some(l => l.collectionId === v.collectionId));
+  }
+
+  getCollectionLicenseCost = (videoCollection: Collection) =>{
+    return this.licensedCollections.some(l => l.collectionId === videoCollection.collectionId) ? 0 : this.collectionLicenseCost
+  } 
 
   saveVideo = () => {
     this.saving = true;

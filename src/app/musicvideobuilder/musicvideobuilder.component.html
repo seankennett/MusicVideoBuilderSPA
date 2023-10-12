@@ -425,10 +425,10 @@
                                 <div class="mb-3">
                                     <p>Cost</p>
                                     <ul class="list-group">
-                                        <li class="list-group-item" *ngFor="let unlicensedCollection of unlicensedCollections">
+                                        <li class="list-group-item" *ngFor="let videoCollection of videoCollections">
                                             <h6 class="float-start">{{License[licenseControl.value]}} license for
-                                                collection: {{unlicensedCollection.collectionName}}</h6>
-                                            <h6 class="float-end">{{collectionLicenseCost | currency:"GBP":"symbol"}}
+                                                collection: {{videoCollection.collectionName}}</h6>
+                                            <h6 class="float-end">{{ getCollectionLicenseCost(videoCollection) | currency:"GBP":"symbol"}}
                                             </h6>
                                         </li>
                                         <li class="list-group-item">
@@ -474,10 +474,10 @@
                                 <div class="mb-3">
                                     <p>Cost</p>
                                     <ul class="list-group">
-                                        <li class="list-group-item" *ngFor="let unlicensedCollection of unlicensedCollections">
+                                        <li class="list-group-item" *ngFor="let videoCollection of videoCollections">
                                             <h6 class="float-start">{{License[licenseControl.value]}} license for
-                                                collection: {{unlicensedCollection.collectionName}}</h6>
-                                            <h6 class="float-end">{{collectionLicenseCost | currency:"GBP":"symbol"}}
+                                                collection: {{videoCollection.collectionName}}</h6>
+                                            <h6 class="float-end">{{ getCollectionLicenseCost(videoCollection) | currency:"GBP":"symbol"}}
                                             </h6>
                                         </li>
                                         <li class="list-group-item">
