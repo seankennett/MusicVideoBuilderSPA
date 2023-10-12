@@ -90,13 +90,13 @@ export class MusicVideoBuilderComponent implements OnInit {
   Formats = Formats;
   resolutionList = [{
     displayName: 'Free (384x216)',
-    userLayerStatus: Resolution.Free
+    resolution: Resolution.Free
   }, {
     displayName: 'HD (1920x1080)',
-    userLayerStatus: Resolution.Hd
+    resolution: Resolution.Hd
   }, {
     displayName: '4K (3840x2160)',
-    userLayerStatus: Resolution.FourK
+    resolution: Resolution.FourK
   }];
 
   resolutionChange = () => {
@@ -767,6 +767,10 @@ export class MusicVideoBuilderComponent implements OnInit {
         this.paymentBuildId = buildId;
         this.setTabId(4);
       });
+  }
+
+  displayResolution = (resolution: Resolution) =>{
+    return this.resolutionList.find(r => r.resolution === resolution)?.displayName
   }
 
   get buildCost() {

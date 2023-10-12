@@ -408,7 +408,7 @@
                                     <label for="resolution" class="form-label">Resolution</label>
                                     <select id="resolution" formControlName="resolutionControl" class="form-control"
                                         (change)="resolutionChange()">
-                                        <option [ngValue]="resolution.userLayerStatus"
+                                        <option [ngValue]="resolution.resolution"
                                             *ngFor="let resolution of resolutionList">
                                             {{resolution.displayName}}
                                         </option>
@@ -426,7 +426,7 @@
                                     <p>Cost</p>
                                     <ul class="list-group">
                                         <li class="list-group-item" *ngFor="let videoCollection of videoCollections">
-                                            <h6 class="float-start">{{License[licenseControl.value]}} license for
+                                            <h6 class="float-start">{{License[licenseControl.value]}} {{displayResolution(resolutionControl.value)}} license for
                                                 collection: {{videoCollection.collectionName}}</h6>
                                             <h6 class="float-end">{{ getCollectionLicenseCost(videoCollection) | currency:"GBP":"symbol"}}
                                             </h6>
