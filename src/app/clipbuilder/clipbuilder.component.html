@@ -183,6 +183,12 @@
                                         <app-galleryplayer [displayLayer]="convertToNewDisplayLayer(clipDisplayLayerGroup)"
                                             [bpm]="bpm" [showAdd]="false" [startingBeat]="startingBeatControl.value" [beatLength]="beatLengthControl.value"></app-galleryplayer>
                                     </div>
+                                    <div class="form-check mb-3">
+                                        <input class="form-check-input" type="checkbox" formControlName="reverseControl" id="reverse">
+                                        <label class="form-check-label" for="reverse">
+                                          Reverse
+                                        </label>
+                                      </div>
                                     <ng-container formArrayName="layerClipDisplayLayersFormArray">
                                         <div class="mb-3"
                                             *ngFor="let layerClipDisplayLayerGroup of layerClipDisplayLayersFormArray(clipDisplayLayerGroup);let j = index"

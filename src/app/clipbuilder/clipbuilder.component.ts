@@ -139,9 +139,20 @@ export class ClipBuilderComponent implements OnInit {
 
   selectCollection = (collection: Collection) => {
     var selectedDisplayLayer = collection.displayLayers.find(d => d.isCollectionDefault === true);
-    this.setupCollectionEditor(collection, selectedDisplayLayer)
+    var layerClipDisplayLayersFormArray = this.formBuilder.array([]);
+    selectedDisplayLayer?.layers.filter(l => l.isOverlay !== true).forEach(l => {
+      var group = this.formBuilder.group({
+        layerIdControl: this.formBuilder.control(l.layerId),
+        colourOverrideControl: this.formBuilder.control('#' + l.defaultColour)
+      });
+      layerClipDisplayLayersFormArray.push(group);
+    });
+    var clipDisplayLayerControl = this.formBuilder.group({
+      displayLayerIdControl: this.formBuilder.control(selectedDisplayLayer?.displayLayerId),
+      reverseControl: this.formBuilder.control(false),
+      layerClipDisplayLayersFormArray: layerClipDisplayLayersFormArray
+    });
 
-    var clipDisplayLayerControl = this.convertDisplayLayerToControl(selectedDisplayLayer);
     this.clipDisplayLayersFormArray.push(clipDisplayLayerControl);
     this.clipDisplayLayersFormArrayIndex = this.clipDisplayLayersFormArray.length - 1;
   }
@@ -155,22 +166,6 @@ export class ClipBuilderComponent implements OnInit {
     this.selectedDirection = this.selectedCollectionDirectionOptions.find(x => x.directionId === selectedDisplayLayer?.direction.directionId);
     this.selectedNumberOfSides = selectedDisplayLayer?.numberOfSides;
     this.selectedDisplayLayerId = selectedDisplayLayer?.displayLayerId;
-  }
-
-  convertDisplayLayerToControl = (displayLayer: Displaylayer | undefined) => {
-    var layerClipDisplayLayersFormArray = this.formBuilder.array([]);
-    displayLayer?.layers.filter(l => l.isOverlay !== true).forEach(l => {
-      var group = this.formBuilder.group({
-        layerIdControl: this.formBuilder.control(l.layerId),
-        colourOverrideControl: this.formBuilder.control('#' + l.defaultColour)
-      });
-      layerClipDisplayLayersFormArray.push(group);
-    });
-    var clipDisplayLayerControl = this.formBuilder.group({
-      displayLayerIdControl: this.formBuilder.control(displayLayer?.displayLayerId),
-      layerClipDisplayLayersFormArray: layerClipDisplayLayersFormArray
-    });
-    return clipDisplayLayerControl;
   }
 
   layerClipDisplayLayersFormArray = (clipDisplayLayerGroup: AbstractControl) => {
@@ -250,7 +245,7 @@ export class ClipBuilderComponent implements OnInit {
     this.startingBeatControl.reset(1);
     this.clipDisplayLayersFormArray.clear();
     this.selectedCollection = null;
-    this.undoDisplayLayer = undefined;
+    this.undoClipDisplayLayerFormGroup = undefined;
     this.isAddingClipDisplayLayer = false;
     this.showExistingClipWarning = true;
     this.showEditor = !this.showEditor;
@@ -262,13 +257,13 @@ export class ClipBuilderComponent implements OnInit {
   }
 
   addNewClipDisplayLayer = () =>{
-    this.undoDisplayLayer = undefined;
+    this.undoClipDisplayLayerFormGroup = undefined;
     this.toggleAddNewClipDisplayLayer();
   }
 
   cancelAddingDisplayLayer = () => {    
-    if (this.undoDisplayLayer) {
-      this.clipDisplayLayersFormArray.controls[this.clipDisplayLayersFormArrayIndex] = this.convertDisplayLayerToControl(this.undoDisplayLayer);
+    if (this.undoClipDisplayLayerFormGroup) {
+      this.clipDisplayLayersFormArray.controls[this.clipDisplayLayersFormArrayIndex] = this.undoClipDisplayLayerFormGroup;
     } else {
       this.clipDisplayLayersFormArray.removeAt(this.clipDisplayLayersFormArrayIndex);
     }
@@ -287,6 +282,7 @@ export class ClipBuilderComponent implements OnInit {
     });
     var group = this.formBuilder.group({
       displayLayerIdControl: this.formBuilder.control(selectedClipDisplayLayer.displayLayerId),
+      reverseControl: this.formBuilder.control(selectedClipDisplayLayer.reverse),
       layerClipDisplayLayersFormArray: layerClipDisplayLayersFormArray
     });
     this.clipDisplayLayersFormArray.push(group);
@@ -322,6 +318,7 @@ export class ClipBuilderComponent implements OnInit {
       clipDisplayLayers: this.clipDisplayLayersFormArray.controls.map((formGroup) => {
         var clipDisplayLayer = <Clipdisplaylayer>{
           displayLayerId: formGroup.get('displayLayerIdControl')?.value,
+          reverse: formGroup.get('reverseControl')?.value,
           layerClipDisplayLayers: []
         }
 
@@ -362,12 +359,12 @@ export class ClipBuilderComponent implements OnInit {
     });;
   }
 
-  undoDisplayLayer: Displaylayer | undefined = undefined;
+  undoClipDisplayLayerFormGroup: AbstractControl | undefined = undefined;
 
   editClipDisplayLayer = (index: number) => {
     this.clipDisplayLayersFormArrayIndex = index;
     var clipDisplayLayerFormGroup = this.clipDisplayLayersFormArray.controls[index];
-    this.undoDisplayLayer = this.convertToNewDisplayLayer(clipDisplayLayerFormGroup);
+    this.undoClipDisplayLayerFormGroup = clipDisplayLayerFormGroup;
     var displayLayerId = clipDisplayLayerFormGroup.get('displayLayerIdControl')?.value;
     var collection = this.collections.find(c => c.displayLayers.some(d => d.displayLayerId === displayLayerId));
     var displayLayer = collection?.displayLayers.find(d => d.displayLayerId === displayLayerId);
