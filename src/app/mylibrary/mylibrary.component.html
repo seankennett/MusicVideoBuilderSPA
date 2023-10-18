@@ -34,7 +34,7 @@
                 <div class="row">
                     <div *ngFor="let buildingVideo of buildingVideos; let i = index" class="col-sm mb-3">
                         <app-galleryvideo [video]="buildingVideo" [showEdit]="false" [displayLayers]="displayLayers"
-                            [showRemove]="false"></app-galleryvideo>
+                            [showRemove]="false" [clips]="clips"></app-galleryvideo>
                         <div class="list-group text-center">
                             <a class="list-group-item"
                                 [routerLink]="['/musicVideoBuilder', buildingVideo.videoId]" [queryParams]="{tab: 2}">Go to
@@ -50,7 +50,7 @@
             <div class="mb-3">
                 <div class="row">
                     <div *ngFor="let notBuildingVideo of notBuildingVideos" class="col-sm mb-3">
-                        <app-galleryvideo [video]="notBuildingVideo" [showEdit]="false" [showRemove]="true"
+                        <app-galleryvideo [video]="notBuildingVideo" [showEdit]="false" [showRemove]="true" [clips]="clips"
                             (buttonClickEvent)="removeVideo($event)" [loading]="loading" [displayLayers]="displayLayers">
                         </app-galleryvideo>
                     </div>

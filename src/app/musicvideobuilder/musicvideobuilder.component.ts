@@ -109,7 +109,7 @@ export class MusicVideoBuilderComponent implements OnInit {
   }
 
   get canLicense() {
-    return this.editorVideo.clips.some(e => e.clipDisplayLayers != null);
+    return this.editorVideoClipsFull.some(e => e.clipDisplayLayers != null);
   }
 
   License = License;
@@ -272,16 +272,16 @@ export class MusicVideoBuilderComponent implements OnInit {
       this.formatControl.setValue(videoRoute.video.format);
       this.videoDelayMillisecondsControl.setValue(videoRoute.video.videoDelayMilliseconds);
 
-      if (videoRoute.video.clips.length > 32) {
+      if (videoRoute.video.videoClips.length > 32) {
         this.clipsPerBlock = 16;
       }
-      else if (videoRoute.video.clips.length > 8) {
+      else if (videoRoute.video.videoClips.length > 8) {
         this.clipsPerBlock = 4;
       }
 
-      this.setTimelineEnd(videoRoute.video.clips.length + 1);
+      this.setTimelineEnd(videoRoute.video.videoClips.length + 1);
 
-      videoRoute.video.clips.forEach(cl => {
+      videoRoute.video.videoClips.forEach(cl => {
         var clip = this.clips.find(clip => clip.clipId === cl.clipId);
         if (clip) {
           this.clipsFormArray.push(this.formBuilder.control(clip));
@@ -305,14 +305,18 @@ export class MusicVideoBuilderComponent implements OnInit {
       videoDelayMilliseconds: this.videoDelayMillisecondsControl.value,
       videoId: this.videoId,
       videoName: this.videoNameControl.value,
-      clips: this.clipsFormArray.controls.map((control) => {
+      videoClips: this.clipsFormArray.controls.map((control) => {
         return control.value;
       })
     };
   }
 
+  get editorVideoClipsFull(): Clip[] {
+    return this.editorVideo.videoClips.map(vc => this.clips.find(c => c.clipId == vc.clipId) ?? <Clip>{});
+  }
+
   get videoCollections(): Collection[]{
-    var allVideoDisplayLayerIds = this.editorVideo.clips.filter(c => c.clipDisplayLayers != null).flatMap(c => c.clipDisplayLayers).map(c => c.displayLayerId).filter((value, index, self) => self.indexOf(value) === index);
+    var allVideoDisplayLayerIds = this.editorVideoClipsFull.filter(c => c.clipDisplayLayers != null).flatMap(c => c.clipDisplayLayers).map(c => c.displayLayerId).filter((value, index, self) => self.indexOf(value) === index);
     return this.collections.filter(c => c.displayLayers.some(d => allVideoDisplayLayerIds.includes(d.displayLayerId)));
   }
 

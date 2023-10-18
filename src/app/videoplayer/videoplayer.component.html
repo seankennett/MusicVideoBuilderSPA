@@ -1,7 +1,7 @@
 <div class="mb-3">
     <div class="card text-center">
-        <div class="imageContainer" [style.background-color]="video.clips[playingClipIndex].backgroundColour !== null ? '#' + video.clips[playingClipIndex].backgroundColour : 'black'">
-            <ng-container *ngFor="let clipDisplayLayer of video.clips[playingClipIndex].clipDisplayLayers; let i = index">
+        <div class="imageContainer" [style.background-color]="clips[playingClipIndex].backgroundColour !== null ? '#' + clips[playingClipIndex].backgroundColour : 'black'">
+            <ng-container *ngFor="let clipDisplayLayer of clips[playingClipIndex].clipDisplayLayers; let i = index">
                 <ng-container *ngFor="let layerloop of getLayers(clipDisplayLayer)">
             <img 
                 [src]="storageUrl + '/' + layerloop.layerId + '/sprite.png'"
@@ -9,13 +9,13 @@
                 [style.left.px]="leftPosition" 
                 [style.z-index]="i + (layerloop.isOverlay === true ? 0 : 1)"
                 [style.mix-blend-mode]="layerloop.isOverlay === true ? 'normal' : 'screen'"
-                [style.filter]="'url(\'#' + i + '-' + video.clips[playingClipIndex].clipId + layerloop.layerId + '\')'"
+                [style.filter]="'url(\'#' + i + '-' + clips[playingClipIndex].clipId + layerloop.layerId + '\')'"
                 crossorigin="anonymous"/>
                 <svg xmlns="http://www.w3.org/2000/svg">
                     <filter
-                        [id]="i + '-' +video.clips[playingClipIndex].clipId + layerloop.layerId">
+                        [id]="i + '-' + clips[playingClipIndex].clipId + layerloop.layerId">
                         <feColorMatrix type="matrix"
-                            [attr.values]="toColourMatrix(getColour(layerloop, video.clips[playingClipIndex]))">
+                            [attr.values]="toColourMatrix(getColour(layerloop, clips[playingClipIndex]))">
                         </feColorMatrix>
                     </filter>
                 </svg>

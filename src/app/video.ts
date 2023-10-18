@@ -1,10 +1,11 @@
 import { Clip } from "./clip";
 import { Formats } from "./formats";
+import { Videoclip } from "./videoclip";
 
 export interface Video {
     videoId: number,
     videoName: string,
-    clips: Array<Clip>,
+    videoClips: Array<Videoclip>,
     bpm: number,
     format: Formats,
     videoDelayMilliseconds: number

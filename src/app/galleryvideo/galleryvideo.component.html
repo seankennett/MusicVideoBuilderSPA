@@ -1,21 +1,21 @@
 <div class="card text-center">
     <div class="imageContainer" *ngFor="let isTop of [true, false]">
         <div *ngFor="let isLeft of [true, false]" [style.left.px]="getContainerLeft(isLeft)"
-            [style.background-color]="video.clips[getClipIndex(isTop, isLeft)].backgroundColour !== null ? '#' + video.clips[getClipIndex(isTop, isLeft)].backgroundColour : 'black'">
+            [style.background-color]="getClip(video.videoClips[getClipIndex(isTop, isLeft)]).backgroundColour !== null ? '#' + getClip(video.videoClips[getClipIndex(isTop, isLeft)]).backgroundColour : 'black'">
             <ng-container
-                *ngFor="let clipDisplayLayer of video.clips[getClipIndex(isTop, isLeft)].clipDisplayLayers; let i = index">
+                *ngFor="let clipDisplayLayer of getClip(video.videoClips[getClipIndex(isTop, isLeft)]).clipDisplayLayers; let i = index">
                 <ng-container *ngFor="let layerloop of getLayers(clipDisplayLayer)">
                     <img [src]="storageUrl + '/' + layerloop.layerId + '/sprite.png'" [alt]="layerloop.layerId"
                         [style.z-index]="getClipZIndex(i, isLeft)"
                         [style.mix-blend-mode]="layerloop.isOverlay === true ? 'normal' : 'screen'"
-                        [style.filter]="'url(\'#' + i + '-' + video.clips[getClipIndex(isTop, isLeft)].clipId + layerloop.layerId + '\')'"                        
-                        [style.left.px]="getClipLeft(video.clips[getClipIndex(isTop, isLeft)])"
+                        [style.filter]="'url(\'#' + i + '-' + getClip(video.videoClips[getClipIndex(isTop, isLeft)]).clipId + layerloop.layerId + '\')'"                        
+                        [style.left.px]="getClipLeft(getClip(video.videoClips[getClipIndex(isTop, isLeft)]))"
                         crossorigin="anonymous" />
                         <svg xmlns="http://www.w3.org/2000/svg">
                             <filter
-                                [id]="i + '-' +video.clips[getClipIndex(isTop, isLeft)].clipId + layerloop.layerId">
+                                [id]="i + '-' + getClip(video.videoClips[getClipIndex(isTop, isLeft)]).clipId + layerloop.layerId">
                                 <feColorMatrix type="matrix"
-                                    [attr.values]="toColourMatrix(getColour(layerloop, video.clips[getClipIndex(isTop, isLeft)]))">
+                                    [attr.values]="toColourMatrix(getColour(layerloop, getClip(video.videoClips[getClipIndex(isTop, isLeft)])))">
                                 </feColorMatrix>
                             </filter>
                         </svg>

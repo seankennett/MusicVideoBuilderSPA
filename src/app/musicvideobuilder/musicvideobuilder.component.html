@@ -18,7 +18,7 @@
                 <div class="row">
                     <div *ngFor="let video of videos; let i = index" class="col-sm mb-3">
                         <app-galleryvideo [video]="video" (buttonClickEvent)="editVideo($event, 100)"
-                            [loading]="editorLoading" [displayLayers]="displayLayers">
+                            [loading]="editorLoading" [displayLayers]="displayLayers" [clips]="clips">
                         </app-galleryvideo>
                     </div>
                 </div>
@@ -340,7 +340,7 @@
                                 </div>
                                 <div class="mb-3">
                                     <h3>Final Video Player</h3>
-                                    <app-videoplayer [selectedClipIndex]="selectedClipIndex" [video]="editorVideo"
+                                    <app-videoplayer [selectedClipIndex]="selectedClipIndex" [video]="editorVideo" [clips]="editorVideoClipsFull"
                                         (setSelectedIndexEvent)="setSelectedClipIndex($event)" [displayLayers]="displayLayers"
                                         [file]="file"></app-videoplayer>
                                 </div>

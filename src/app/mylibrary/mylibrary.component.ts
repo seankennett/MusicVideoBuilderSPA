@@ -51,6 +51,10 @@ export class MyLibraryComponent implements OnInit {
     return this.collections.flatMap(c => c.displayLayers);
   }
 
+  get clips(){
+    return this.independentClips.concat(this.dependentClips.map(d => d.clip))
+  }
+
   ngOnInit(): void {
     this.buildService.getAll().subscribe((buildAssets: Buildasset[]) => {
       this.buildAssets = buildAssets;
@@ -60,7 +64,7 @@ export class MyLibraryComponent implements OnInit {
           this.collectionService.getAll().subscribe((collections: Collection[]) => {
             this.collections = collections;
             clips.forEach(clip => {
-              var dependentVideos = videos.filter(v => v.clips.some(c => c.clipId === clip.clipId));
+              var dependentVideos = videos.filter(v => v.videoClips.some(c => c.clipId === clip.clipId));
               if (dependentVideos.length > 0) {
                 this.dependentClips.push({ clip: clip, videos: dependentVideos });
               } else {

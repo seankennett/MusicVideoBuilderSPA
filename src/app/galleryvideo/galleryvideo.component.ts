@@ -6,6 +6,7 @@ import { Video } from '../video';
 import { Displaylayer } from '../displaylayer';
 import { Clipdisplaylayer } from '../clipdisplaylayer';
 import { Layer } from '../layer';
+import { Videoclip } from '../videoclip';
 
 const imageWidth = 192;
 const byteSize = 256;
@@ -18,6 +19,7 @@ const framesPerBeat = 16;
 export class GalleryvideoComponent implements OnInit {
 
   @Input() video!: Video
+  @Input() clips!: Clip[]
   @Input() displayLayers!: Displaylayer[]
   @Input() loading = false;
   @Input() showEdit = true;
@@ -40,11 +42,11 @@ export class GalleryvideoComponent implements OnInit {
   getClipIndex = (isTop: boolean, isLeft: boolean) => {
     var index = 0;
     if (isTop === false){
-      index = Math.floor(this.video.clips.length / 2)
+      index = Math.floor(this.video.videoClips.length / 2)
     }
 
     if (isLeft === false){
-      index = index + Math.floor(this.video.clips.length / 4)
+      index = index + Math.floor(this.video.videoClips.length / 4)
     }
     
     return index;
@@ -88,6 +90,10 @@ export class GalleryvideoComponent implements OnInit {
     }
 
     return layer.defaultColour;
+  }
+
+  getClip = (videoClip: Videoclip) =>{
+    return this.clips.find(x => x.clipId === videoClip.clipId) ?? <Clip>{};
   }
 
 }
