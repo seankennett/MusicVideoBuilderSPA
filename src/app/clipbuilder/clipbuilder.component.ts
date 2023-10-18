@@ -139,6 +139,7 @@ export class ClipBuilderComponent implements OnInit {
 
   selectCollection = (collection: Collection) => {
     var selectedDisplayLayer = collection.displayLayers.find(d => d.isCollectionDefault === true);
+    this.setupCollectionEditor(collection, selectedDisplayLayer);
     var layerClipDisplayLayersFormArray = this.formBuilder.array([]);
     selectedDisplayLayer?.layers.filter(l => l.isOverlay !== true).forEach(l => {
       var group = this.formBuilder.group({
