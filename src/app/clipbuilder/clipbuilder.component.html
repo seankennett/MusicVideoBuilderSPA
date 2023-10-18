@@ -180,8 +180,8 @@
                                         </select>
                                     </div>
                                     <div class="mb-3">
-                                        <app-galleryplayer [displayLayer]="convertToNewDisplayLayer(clipDisplayLayerGroup)"
-                                            [bpm]="bpm" [showAdd]="false" [startingBeat]="startingBeatControl.value" [beatLength]="beatLengthControl.value"></app-galleryplayer>
+                                        <app-galleryplayer [clip]="selectedCollectionClip" [collections]="collections"
+                                            [bpm]="bpm" [showAdd]="false"></app-galleryplayer>
                                     </div>
                                     <div class="form-check mb-3">
                                         <input class="form-check-input" type="checkbox" formControlName="reverseControl" id="reverse">

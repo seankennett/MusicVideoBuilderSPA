@@ -33,21 +33,6 @@
         </svg>
       </ng-container>
     </ng-container>
-    <ng-container *ngIf="displayLayer">
-      <ng-container *ngFor="let layerloop of displayLayer.layers">
-        <img [src]="storageUrl + '/' + layerloop.layerId + '/sprite.png'" [alt]="layerloop.layerId"
-          [style.left.px]="leftPosition" [style.z-index]="layerloop.isOverlay === true ? 0 : 1"
-          [style.mix-blend-mode]="layerloop.isOverlay === true ? 'normal' : 'screen'" crossorigin="anonymous"
-          [style.filter]="'url(\'#' + layerloop.layerId + '\')'" />
-        <svg xmlns="
-        http://www.w3.org/2000/svg">
-          <filter [id]="layerloop.layerId">
-            <feColorMatrix type="matrix" [attr.values]="toColourMatrix(layerloop.defaultColour)">
-            </feColorMatrix>
-          </filter>
-        </svg>
-      </ng-container>
-    </ng-container>
     <img [src]="storageUrl + '/custom-pages/watermark.png'" class="watermark" crossorigin="anonymous" />
   </div>
   <div class="card-header text-center" *ngIf="playerTitle !== ''">

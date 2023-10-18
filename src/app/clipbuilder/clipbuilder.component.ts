@@ -339,6 +339,17 @@ export class ClipBuilderComponent implements OnInit {
     };
   }
 
+  get selectedCollectionClip():Clip{
+    return <Clip>{
+      clipId: this.editorClip.clipId,
+      backgroundColour: this.editorClip.backgroundColour,
+      beatLength: this.editorClip.beatLength,
+      clipName: this.editorClip.clipName,
+      startingBeat: this.editorClip.startingBeat,
+      clipDisplayLayers: [this.editorClip.clipDisplayLayers[this.clipDisplayLayersFormArrayIndex]]
+    }
+  }
+
   onSubmit = () => {
     this.saving = true;
 
