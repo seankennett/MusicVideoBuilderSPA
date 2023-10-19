@@ -271,8 +271,15 @@
                                                             
                                                             <span [ngbTooltip]="'Add clone after current'">
                                                                 <button type="button" class="btn btn-success me-1"
-                                                                    (click)="copyClip(i)">
+                                                                    (click)="copyClip(i, false)">
                                                                     <i class="bi bi-files"></i></button>
+                                                            </span>
+                                                            <span [ngbTooltip]="'Add clone to end of timeline'">
+                                                                <button type="button" class="btn btn-success me-1"
+                                                                    (click)="copyClip(i, true)">
+                                                                    <i class="bi bi-files"></i>
+                                                                    <i class="bi bi-skip-end-fill"></i>
+                                                                </button>
                                                             </span>
                                                             <span [ngbTooltip]="'Swap this clip'"
                                                             *ngIf="clipsPerBlock === 1">

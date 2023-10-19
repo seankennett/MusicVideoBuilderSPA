@@ -284,7 +284,7 @@ export class MusicVideoBuilderComponent implements OnInit {
       this.setTimelineEnd(videoRoute.video.videoClips.length + 1);
 
       videoRoute.video.videoClips.forEach(vc => {
-          this.videoClipsFormArray.push(this.formBuilder.control(vc));
+        this.videoClipsFormArray.push(this.formBuilder.control(vc));
       });
 
       this.unchangedVideo = { ...this.editorVideo };
@@ -314,26 +314,26 @@ export class MusicVideoBuilderComponent implements OnInit {
     return this.editorVideo.videoClips.map(vc => this.clips.find(c => c.clipId == vc.clipId) ?? <Clip>{});
   }
 
-  get videoCollections(): Collection[]{
+  get videoCollections(): Collection[] {
     var allVideoDisplayLayerIds = this.editorVideoClipsFull.filter(c => c.clipDisplayLayers != null).flatMap(c => c.clipDisplayLayers).map(c => c.displayLayerId).filter((value, index, self) => self.indexOf(value) === index);
     return this.collections.filter(c => c.displayLayers.some(d => allVideoDisplayLayerIds.includes(d.displayLayerId)));
   }
 
-  private get licensedUserCollections():UserCollection[]{
+  private get licensedUserCollections(): UserCollection[] {
     return this.userCollections.filter(u => u.resolution == this.resolutionControl.value && u.license == this.licenseControl.value);
   }
 
-  get licensedCollections(): Collection[]{
+  get licensedCollections(): Collection[] {
     return this.videoCollections.filter(v => this.licensedUserCollections.some(l => l.collectionId === v.collectionId));
   }
 
-  private get unlicensedCollections(): Collection[]{
+  private get unlicensedCollections(): Collection[] {
     return this.videoCollections.filter(v => !this.licensedUserCollections.some(l => l.collectionId === v.collectionId));
   }
 
-  getCollectionLicenseCost = (videoCollection: Collection) =>{
+  getCollectionLicenseCost = (videoCollection: Collection) => {
     return this.licensedCollections.some(l => l.collectionId === videoCollection.collectionId) ? 0 : this.collectionLicenseCost
-  } 
+  }
 
   saveVideo = () => {
     this.saving = true;
@@ -462,16 +462,21 @@ export class MusicVideoBuilderComponent implements OnInit {
     }
   }
 
-  copyClip = (index: number) => {
+  copyClip = (index: number, isAddToEnd: boolean) => {
     var isTimelineAtEnd = this.timelineEditorEndFinalIndex === this.videoClipsFormArray.length;
     var endOfBlockIndex = index + this.clipsPerBlock;
     if (endOfBlockIndex > this.videoClipsFormArray.length) {
       endOfBlockIndex = this.videoClipsFormArray.length;
     }
 
+    var insertIndex = endOfBlockIndex;
+    if (isAddToEnd === true) {
+      insertIndex = this.videoClipsFormArray.length;
+    }
+
     for (var i = endOfBlockIndex - 1; i >= index; i--) {
       var videoClipControl = this.videoClipsFormArray.controls[i];
-      this.videoClipsFormArray.insert(endOfBlockIndex, this.formBuilder.control(videoClipControl.value));
+      this.videoClipsFormArray.insert(insertIndex, this.formBuilder.control(videoClipControl.value));
     }
 
     this.stop();
@@ -544,13 +549,13 @@ export class MusicVideoBuilderComponent implements OnInit {
     return layer.defaultColour;
   }
 
-  getClip = (videoClip: Videoclip) =>{
+  getClip = (videoClip: Videoclip) => {
     return this.clips.find(c => c.clipId === videoClip.clipId) ?? <Clip>{};
   }
 
   calculateLeft = (clip: Clip, clipDisplayLayer: Clipdisplaylayer) => {
     var left = -(clip.startingBeat - 1) * frameTotal / 4 * timelineImageWidth
-    if (clipDisplayLayer.reverse === true){
+    if (clipDisplayLayer.reverse === true) {
       // minus one as we start on frame 0 going to frame 63
       return left - ((clip.beatLength) * framesPerBeat - 1) * timelineImageWidth
     }
@@ -565,7 +570,7 @@ export class MusicVideoBuilderComponent implements OnInit {
     var beatLengthToIndex = this.videoClipsFormArray.controls.slice(0, index).map(c => {
       var videoClip = c.value as Videoclip
       return this.clips.find(c => c.clipId == videoClip.clipId)?.beatLength ?? 0;
-    });   
+    });
 
     var beatsBefore = beatLengthToIndex.reduce((accumulator, current) => accumulator + current, 0);
     var beatStart = beatsBefore + 1;
@@ -591,7 +596,7 @@ export class MusicVideoBuilderComponent implements OnInit {
     var timesToIndex = this.videoClipsFormArray.controls.slice(0, index).map(c => {
       var videoClip = c.value as Videoclip
       return (this.clips.find(c => c.clipId == videoClip.clipId)?.beatLength ?? 0) * beatTimeMilliseconds;
-    }); 
+    });
     var startTimeMilliseconds = videoDelay + timesToIndex.reduce((accumulator, current) => accumulator + current, 0);
     var startDate = new Date(0, 0, 0);
     startDate.setMilliseconds(startTimeMilliseconds);
@@ -795,7 +800,7 @@ export class MusicVideoBuilderComponent implements OnInit {
       });
   }
 
-  displayResolution = (resolution: Resolution) =>{
+  displayResolution = (resolution: Resolution) => {
     return this.resolutionList.find(r => r.resolution === resolution)?.displayName
   }
 
@@ -896,24 +901,24 @@ export class MusicVideoBuilderComponent implements OnInit {
 }
 
 const maximumVideoLengthMinutes = 15
-export function videoLengthValidator(getClips: (() => Clip[])) : ValidatorFn{
-  return (control: AbstractControl): ValidationErrors | null =>{
-  var formGroup = control as FormGroup;
-  var bpmControl = formGroup.get('bpmControl');
-  if (!bpmControl || bpmControl.invalid) {
-    return { noBpm: true };
-  }
+export function videoLengthValidator(getClips: (() => Clip[])): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    var formGroup = control as FormGroup;
+    var bpmControl = formGroup.get('bpmControl');
+    if (!bpmControl || bpmControl.invalid) {
+      return { noBpm: true };
+    }
 
-  var videoClipsFormArray = formGroup.get('videoClipsFormArray') as FormArray;
-  if (!videoClipsFormArray || videoClipsFormArray.invalid) {
-    return { noClips: true };
-  }
+    var videoClipsFormArray = formGroup.get('videoClipsFormArray') as FormArray;
+    if (!videoClipsFormArray || videoClipsFormArray.invalid) {
+      return { noClips: true };
+    }
 
-  var totalAllowedBeats = maximumVideoLengthMinutes * bpmControl.value;
-  if (totalAllowedBeats < videoClipsFormArray.controls.map(vc => getClips().find(c => c.clipId === vc.value.clipId)?.beatLength ?? 0).reduce((a, c) => a + c, 0)) {
-    return { videoTooLong: maximumVideoLengthMinutes }
-  }
+    var totalAllowedBeats = maximumVideoLengthMinutes * bpmControl.value;
+    if (totalAllowedBeats < videoClipsFormArray.controls.map(vc => getClips().find(c => c.clipId === vc.value.clipId)?.beatLength ?? 0).reduce((a, c) => a + c, 0)) {
+      return { videoTooLong: maximumVideoLengthMinutes }
+    }
 
-  return null;
+    return null;
   }
 }
