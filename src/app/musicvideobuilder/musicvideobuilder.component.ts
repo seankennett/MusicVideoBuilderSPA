@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { FormArray, FormBuilder, FormGroup, ValidationErrors, Validators } from '@angular/forms';
+import { AbstractControl, FormArray, FormBuilder, FormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { ClipService } from '../clip.service';
 import { Formats } from '../formats';
 import { Video } from '../video';
@@ -30,6 +30,7 @@ import { CollectionService } from '../collection.service';
 import { Collection } from '../collection';
 import { Clipdisplaylayer } from '../clipdisplaylayer';
 import { Displaylayer } from '../displaylayer';
+import { Videoclip } from '../videoclip';
 
 const millisecondsInSecond = 1000;
 const secondsInMinute = 60;
@@ -184,18 +185,18 @@ export class MusicVideoBuilderComponent implements OnInit {
 
   setQuickTimelineSelection = (index: number) => {
     this.setTimelineStart(index + 1);
-    this.setTimelineEnd(this.clipsFormArray.length + 1 < index + 1 + this.clipsPerBlock ? this.clipsFormArray.length + 1 : index + 1 + this.clipsPerBlock);
+    this.setTimelineEnd(this.videoClipsFormArray.length + 1 < index + 1 + this.clipsPerBlock ? this.videoClipsFormArray.length + 1 : index + 1 + this.clipsPerBlock);
     this.clipsPerBlock = 1;
   }
 
   zoomOut = () => {
     this.setTimelineStart(1);
-    this.setTimelineEnd(this.clipsFormArray.length + 1);
+    this.setTimelineEnd(this.videoClipsFormArray.length + 1);
     this.clipsPerBlock = this.clipsPerBlock === 1 ? 4 : 16;
   }
 
   isInvalidSelection = (clipsPerBlock: number) => {
-    return this.timelineEditorEndFinalIndex !== this.clipsFormArray.length && (this.timelineEditorEndFinal - this.timelineEditorStartFinal) % clipsPerBlock !== 0;
+    return this.timelineEditorEndFinalIndex !== this.videoClipsFormArray.length && (this.timelineEditorEndFinal - this.timelineEditorStartFinal) % clipsPerBlock !== 0;
   }
 
   getAlertText = (clipsPerBlock: number) => {
@@ -215,7 +216,7 @@ export class MusicVideoBuilderComponent implements OnInit {
   videoDelayMillisecondsControl = this.formBuilder.control(null, [Validators.max(2147483647), Validators.pattern("[0-9]+")]);
   formatControl = this.formBuilder.control(1, [Validators.required]);
 
-  clipsFormArray = this.formBuilder.array([], [Validators.required, Validators.maxLength(32767)]);
+  videoClipsFormArray = this.formBuilder.array([], [Validators.required, Validators.maxLength(32767)]);
 
 
   videoForm = this.formBuilder.group({
@@ -223,8 +224,8 @@ export class MusicVideoBuilderComponent implements OnInit {
     bpmControl: this.bpmControl,
     formatControl: this.formatControl,
     videoDelayMillisecondsControl: this.videoDelayMillisecondsControl,
-    clipsFormArray: this.clipsFormArray
-  }, { validators: videoLengthValidator })
+    videoClipsFormArray: this.videoClipsFormArray
+  }, { validators: videoLengthValidator(() => this.clips) })
 
   resolutionControl = this.formBuilder.control(Resolution.Free, [Validators.required]);
   licenseControl = this.formBuilder.control(License.Personal, [Validators.required]);
@@ -281,11 +282,8 @@ export class MusicVideoBuilderComponent implements OnInit {
 
       this.setTimelineEnd(videoRoute.video.videoClips.length + 1);
 
-      videoRoute.video.videoClips.forEach(cl => {
-        var clip = this.clips.find(clip => clip.clipId === cl.clipId);
-        if (clip) {
-          this.clipsFormArray.push(this.formBuilder.control(clip));
-        }
+      videoRoute.video.videoClips.forEach(vc => {
+          this.videoClipsFormArray.push(this.formBuilder.control(vc));
       });
 
       this.unchangedVideo = { ...this.editorVideo };
@@ -305,7 +303,7 @@ export class MusicVideoBuilderComponent implements OnInit {
       videoDelayMilliseconds: this.videoDelayMillisecondsControl.value,
       videoId: this.videoId,
       videoName: this.videoNameControl.value,
-      videoClips: this.clipsFormArray.controls.map((control) => {
+      videoClips: this.videoClipsFormArray.controls.map((control) => {
         return control.value;
       })
     };
@@ -366,7 +364,7 @@ export class MusicVideoBuilderComponent implements OnInit {
     this.formatControl.setValue(1);
     this.clipsPerBlock = 1;
     this.videoDelayMillisecondsControl.reset();
-    this.clipsFormArray.clear();
+    this.videoClipsFormArray.clear();
     this.setTimelineStart(1);
     this.setTimelineEnd(2);
     this.stop();
@@ -384,7 +382,7 @@ export class MusicVideoBuilderComponent implements OnInit {
     this.stop();
     this.showClipPicker = !this.showClipPicker;
     this.selectedClipEditIndex = index;
-    this.isAdding = this.selectedClipEditIndex === this.clipsFormArray.length;
+    this.isAdding = this.selectedClipEditIndex === this.videoClipsFormArray.length;
   }
 
   toggleAddClipPicker = (index: number) => {
@@ -421,9 +419,9 @@ export class MusicVideoBuilderComponent implements OnInit {
   moveBack = (index: number) => {
     this.stop();
     for (var i = index; i < index + this.clipsPerBlock; i++) {
-      var clipControl = this.clipsFormArray.controls[i];
-      this.clipsFormArray.controls[i] = this.clipsFormArray.controls[i - this.clipsPerBlock];
-      this.clipsFormArray.controls[i - this.clipsPerBlock] = clipControl;
+      var videoClipControl = this.videoClipsFormArray.controls[i];
+      this.videoClipsFormArray.controls[i] = this.videoClipsFormArray.controls[i - this.clipsPerBlock];
+      this.videoClipsFormArray.controls[i - this.clipsPerBlock] = videoClipControl;
       if (i === this.selectedClipIndex) {
         this.setSelectedClipIndex(i - this.clipsPerBlock);
       }
@@ -433,9 +431,9 @@ export class MusicVideoBuilderComponent implements OnInit {
   moveForward = (index: number) => {
     this.stop();
     for (var i = index; i < index + this.clipsPerBlock; i++) {
-      var clipControl = this.clipsFormArray.controls[i];
-      this.clipsFormArray.controls[i] = this.clipsFormArray.controls[i + this.clipsPerBlock];
-      this.clipsFormArray.controls[i + this.clipsPerBlock] = clipControl;
+      var videoClipControl = this.videoClipsFormArray.controls[i];
+      this.videoClipsFormArray.controls[i] = this.videoClipsFormArray.controls[i + this.clipsPerBlock];
+      this.videoClipsFormArray.controls[i + this.clipsPerBlock] = videoClipControl;
       if (i === this.selectedClipIndex) {
         this.setSelectedClipIndex(i + this.clipsPerBlock);
       }
@@ -443,46 +441,49 @@ export class MusicVideoBuilderComponent implements OnInit {
   }
 
   addClipPickerClip = (clip: Clip) => {
+    var videoClip = <Videoclip>{
+      clipId: clip.clipId
+    }
     this.showClipPicker = false;
-    var isTimelineAtEnd = this.timelineEditorEndFinalIndex === this.clipsFormArray.length;
-    if (this.selectedClipEditIndex === this.clipsFormArray.length) {
-      this.clipsFormArray.push(this.formBuilder.control(clip));
+    var isTimelineAtEnd = this.timelineEditorEndFinalIndex === this.videoClipsFormArray.length;
+    if (this.selectedClipEditIndex === this.videoClipsFormArray.length) {
+      this.videoClipsFormArray.push(this.formBuilder.control(videoClip));
     } else if (this.isAdding === true) {
-      var newClipControl = this.formBuilder.control(clip);
-      this.clipsFormArray.insert(this.selectedClipEditIndex, newClipControl);
+      var newControl = this.formBuilder.control(videoClip);
+      this.videoClipsFormArray.insert(this.selectedClipEditIndex, newControl);
     } else {
-      var existingControl = this.clipsFormArray.controls[this.selectedClipEditIndex];
-      existingControl.patchValue(clip);
+      var existingControl = this.videoClipsFormArray.controls[this.selectedClipEditIndex];
+      existingControl.patchValue(videoClip);
     }
 
     if (isTimelineAtEnd === true) {
-      this.setTimelineEnd(this.clipsFormArray.length + 1)
+      this.setTimelineEnd(this.videoClipsFormArray.length + 1)
     }
   }
 
   copyClip = (index: number) => {
-    var isTimelineAtEnd = this.timelineEditorEndFinalIndex === this.clipsFormArray.length;
+    var isTimelineAtEnd = this.timelineEditorEndFinalIndex === this.videoClipsFormArray.length;
     var endOfBlockIndex = index + this.clipsPerBlock;
-    if (endOfBlockIndex > this.clipsFormArray.length) {
-      endOfBlockIndex = this.clipsFormArray.length;
+    if (endOfBlockIndex > this.videoClipsFormArray.length) {
+      endOfBlockIndex = this.videoClipsFormArray.length;
     }
 
     for (var i = endOfBlockIndex - 1; i >= index; i--) {
-      var clipControl = this.clipsFormArray.controls[i];
-      this.clipsFormArray.insert(endOfBlockIndex, this.formBuilder.control(clipControl.value));
+      var videoClipControl = this.videoClipsFormArray.controls[i];
+      this.videoClipsFormArray.insert(endOfBlockIndex, this.formBuilder.control(videoClipControl.value));
     }
 
     this.stop();
 
     if (isTimelineAtEnd === true) {
-      this.setTimelineEnd(this.clipsFormArray.length + 1)
+      this.setTimelineEnd(this.videoClipsFormArray.length + 1)
     }
   }
 
   removeClip = (index: number) => {
     var endOfBlockIndex = index + this.clipsPerBlock;
-    if (endOfBlockIndex > this.clipsFormArray.length) {
-      endOfBlockIndex = this.clipsFormArray.length;
+    if (endOfBlockIndex > this.videoClipsFormArray.length) {
+      endOfBlockIndex = this.videoClipsFormArray.length;
     }
 
     for (var i = endOfBlockIndex - 1; i >= index; i--) {
@@ -491,21 +492,21 @@ export class MusicVideoBuilderComponent implements OnInit {
       } else if (i < this.selectedClipIndex) {
         this.setSelectedClipIndex(this.selectedClipIndex - 1);
       }
-      this.clipsFormArray.removeAt(i);
+      this.videoClipsFormArray.removeAt(i);
     }
 
     this.stop();
 
-    if (this.clipsFormArray.length === 0) {
+    if (this.videoClipsFormArray.length === 0) {
       this.setTimelineEnd(2);
       this.setTimelineStart(1);
     } else {
-      if (this.timelineEditorEndFinalIndex > this.clipsFormArray.length) {
-        this.setTimelineEnd(this.clipsFormArray.length + 1);
+      if (this.timelineEditorEndFinalIndex > this.videoClipsFormArray.length) {
+        this.setTimelineEnd(this.videoClipsFormArray.length + 1);
       }
 
-      if (this.timelineEditorStartFinalIndex >= this.clipsFormArray.length) {
-        this.setTimelineStart(this.clipsFormArray.length);
+      if (this.timelineEditorStartFinalIndex >= this.videoClipsFormArray.length) {
+        this.setTimelineStart(this.videoClipsFormArray.length);
       }
     }
   }
@@ -533,8 +534,8 @@ export class MusicVideoBuilderComponent implements OnInit {
   }
 
   // modified form galleryplayer
-  getColour = (layer: Layer, clip: Clip) => {
-    var overrideLayer = clip.clipDisplayLayers.flatMap(x => x.layerClipDisplayLayers).find(x => x.layerId === layer.layerId);
+  getColour = (layer: Layer, clipDisplayLayer: Clipdisplaylayer) => {
+    var overrideLayer = clipDisplayLayer.layerClipDisplayLayers.find(x => x.layerId === layer.layerId);
     if (overrideLayer) {
       return overrideLayer.colourOverride
     }
@@ -542,26 +543,36 @@ export class MusicVideoBuilderComponent implements OnInit {
     return layer.defaultColour;
   }
 
+  getClip = (videoClip: Videoclip) =>{
+    return this.clips.find(c => c.clipId === videoClip.clipId) ?? <Clip>{};
+  }
+
   calculateLeft = (startingBeat: number) => {
     return -(startingBeat - 1) * frameTotal / 4 * timelineImageWidth;
   }
 
   calculateBeatRangeFromClipIndex = (index: number) => {
-    if (this.clipsFormArray.controls.length === 0) {
+    if (this.videoClipsFormArray.controls.length === 0) {
       return '';
     }
 
-    var beatsBefore = this.clipsFormArray.controls.slice(0, index).map(c => (c.value as Clip).beatLength).reduce((accumulator, current) => accumulator + current, 0);
+    var beatLengthToIndex = this.videoClipsFormArray.controls.slice(0, index).map(c => {
+      var videoClip = c.value as Videoclip
+      return this.clips.find(c => c.clipId == videoClip.clipId)?.beatLength ?? 0;
+    });   
+
+    var beatsBefore = beatLengthToIndex.reduce((accumulator, current) => accumulator + current, 0);
     var beatStart = beatsBefore + 1;
 
     var endOfBlockIndex = index + this.clipsPerBlock;
-    if (endOfBlockIndex > this.clipsFormArray.length) {
-      endOfBlockIndex = this.clipsFormArray.length;
+    if (endOfBlockIndex > this.videoClipsFormArray.length) {
+      endOfBlockIndex = this.videoClipsFormArray.length;
     }
 
     var beatEnd = beatsBefore;
     for (var i = endOfBlockIndex - 1; i >= index; i--) {
-      beatEnd += (this.clipsFormArray.controls[i].value as Clip).beatLength;
+      var videoClip = this.videoClipsFormArray.controls[i].value as Videoclip
+      beatEnd += this.clips.find(c => c.clipId === videoClip.clipId)?.beatLength ?? 0;
     }
 
     return beatStart + ' to ' + beatEnd;
@@ -571,18 +582,23 @@ export class MusicVideoBuilderComponent implements OnInit {
     var videoDelay = (this.videoDelayMillisecondsControl.value ?? 0);
 
     var beatTimeMilliseconds = secondsInMinute * millisecondsInSecond / this.bpmControl.value;
-    var startTimeMilliseconds = videoDelay + this.clipsFormArray.controls.slice(0, index).map(c => beatTimeMilliseconds * (c.value as Clip).beatLength).reduce((accumulator, current) => accumulator + current, 0);
+    var timesToIndex = this.videoClipsFormArray.controls.slice(0, index).map(c => {
+      var videoClip = c.value as Videoclip
+      return (this.clips.find(c => c.clipId == videoClip.clipId)?.beatLength ?? 0) * beatTimeMilliseconds;
+    }); 
+    var startTimeMilliseconds = videoDelay + timesToIndex.reduce((accumulator, current) => accumulator + current, 0);
     var startDate = new Date(0, 0, 0);
     startDate.setMilliseconds(startTimeMilliseconds);
 
     var endOfBlockIndex = index + this.clipsPerBlock;
-    if (endOfBlockIndex > this.clipsFormArray.length) {
-      endOfBlockIndex = this.clipsFormArray.length;
+    if (endOfBlockIndex > this.videoClipsFormArray.length) {
+      endOfBlockIndex = this.videoClipsFormArray.length;
     }
 
     var endTimeMilliseconds = startTimeMilliseconds;
     for (var i = endOfBlockIndex - 1; i >= index; i--) {
-      endTimeMilliseconds += (this.clipsFormArray.controls[i].value as Clip).beatLength * beatTimeMilliseconds;
+      var videoClip = this.videoClipsFormArray.controls[i].value as Videoclip
+      endTimeMilliseconds += (this.clips.find(c => c.clipId === videoClip.clipId)?.beatLength ?? 0) * beatTimeMilliseconds;
     }
 
     var endDate = new Date(0, 0, 0);
@@ -603,9 +619,9 @@ export class MusicVideoBuilderComponent implements OnInit {
   calculateClipNameFromClipIndex = (index: number) => {
     var clipNameArray = [];
     for (var i = index; i < index + this.clipsPerBlock; i++) {
-      var clipControl = this.clipsFormArray.controls[i];
-      if (clipControl !== undefined) {
-        clipNameArray.push(clipControl.value.clipName);
+      var videoClipControl = this.videoClipsFormArray.controls[i];
+      if (videoClipControl !== undefined) {
+        clipNameArray.push(this.getClip(videoClipControl.value).clipName);
       }
     }
 
@@ -618,8 +634,8 @@ export class MusicVideoBuilderComponent implements OnInit {
     } else if (playingClipIndex >= index && playingClipIndex < index + this.clipsPerBlock) {
       var clipsPastIndex = playingClipIndex - index;
       var clipsInBlock = this.clipsPerBlock
-      if (index + this.clipsPerBlock > this.clipsFormArray.length) {
-        clipsInBlock = this.clipsFormArray.length - index;
+      if (index + this.clipsPerBlock > this.videoClipsFormArray.length) {
+        clipsInBlock = this.videoClipsFormArray.length - index;
       }
       var weigthedPercentage = percentageOfPlayingClipDuration / clipsInBlock;
 
@@ -874,21 +890,24 @@ export class MusicVideoBuilderComponent implements OnInit {
 }
 
 const maximumVideoLengthMinutes = 15
-export function videoLengthValidator(formGroup: FormGroup): ValidationErrors | null {
+export function videoLengthValidator(getClips: (() => Clip[])) : ValidatorFn{
+  return (control: AbstractControl): ValidationErrors | null =>{
+  var formGroup = control as FormGroup;
   var bpmControl = formGroup.get('bpmControl');
   if (!bpmControl || bpmControl.invalid) {
     return { noBpm: true };
   }
 
-  var clipsFormArray = formGroup.get('clipsFormArray') as FormArray;
-  if (!clipsFormArray || clipsFormArray.invalid) {
+  var videoClipsFormArray = formGroup.get('videoClipsFormArray') as FormArray;
+  if (!videoClipsFormArray || videoClipsFormArray.invalid) {
     return { noClips: true };
   }
 
   var totalAllowedBeats = maximumVideoLengthMinutes * bpmControl.value;
-  if (totalAllowedBeats < clipsFormArray.controls.map(c => c.value.beatLength as number).reduce((a, c) => a + c, 0)) {
+  if (totalAllowedBeats < videoClipsFormArray.controls.map(vc => getClips().find(c => c.clipId === vc.value.clipId)?.beatLength ?? 0).reduce((a, c) => a + c, 0)) {
     return { videoTooLong: maximumVideoLengthMinutes }
   }
 
   return null;
+  }
 }

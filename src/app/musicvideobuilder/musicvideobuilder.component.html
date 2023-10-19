@@ -12,7 +12,7 @@
         controls below to create or edit your videos</p>
     <app-pageloading [pageLoading]="pageLoading"></app-pageloading>
     <ng-container *ngIf="!pageLoading">
-        <ng-container *ngIf="!showEditor && this.videos.length > 0">
+        <ng-container *ngIf="!showEditor && this.videos.length > 0">            
             <h2>Saved Videos</h2>
             <div class="mb-3">
                 <div class="row">
@@ -167,7 +167,7 @@
                         (hidden)="stop()">
                         <a ngbNavLink><i class="bi bi-calendar3-week-fill"></i> Timeline</a>
                         <ng-template ngbNavContent>
-                            <ng-container *ngIf="showEditor && !showClipPicker && clipsFormArray.length > 0">
+                            <ng-container *ngIf="showEditor && !showClipPicker && videoClipsFormArray.length > 0">
                                 <h3>Timeline View Options</h3>
                                 <div class="mb-3">
                                     <label for="clipsPerBlock" class="form-label">Number of clips per timeline
@@ -191,7 +191,7 @@
                                         clip #
                                         {{timelineEditorStart}}</label>
                                     <input type="range" class="form-range" id="timelineEditorStart" min="1"
-                                        [max]="clipsFormArray.length" [(ngModel)]="timelineEditorStart"
+                                        [max]="videoClipsFormArray.length" [(ngModel)]="timelineEditorStart"
                                         [ngModelOptions]="{standalone: true}" (change)="timelineStartChange($event)">
                                 </div>
                                 <div class="mb-3">
@@ -200,7 +200,7 @@
                                         #
                                         {{timelineEditorEnd}}</label>
                                     <input type="range" class="form-range" id="timelineEditorEnd" min="2"
-                                        [max]="clipsFormArray.length + 1" [(ngModel)]="timelineEditorEnd"
+                                        [max]="videoClipsFormArray.length + 1" [(ngModel)]="timelineEditorEnd"
                                         [ngModelOptions]="{standalone: true}" (change)="timelineEndChange($event)">
                                 </div>
                                 <div class="mb-3" *ngIf="isInvalidSelection(4)">
@@ -211,31 +211,31 @@
                                     <ngb-alert [type]="'warning'" [dismissible]="false"><i
                                             class="bi bi-exclamation-triangle-fill"></i>{{getAlertText(16)}}</ngb-alert>
                                 </div>
-                                <div class="mb-3" *ngIf="this.clipsFormArray.length > 0">
+                                <div class="mb-3" *ngIf="this.videoClipsFormArray.length > 0">
                                     <h3>Timeline Blocks</h3>
                                     <div class="row">
                                         <ng-container
-                                            *ngFor="let clipControl of this.clipsFormArray.controls; let i = index; let last = last">
+                                            *ngFor="let videoClipControl of this.videoClipsFormArray.controls; let i = index; let last = last">
                                             <div class="col-3 mb-3" *ngIf="showBlock(i)">
                                                 <div class="card text-center">
                                                     <div class="imageContainer"
-                                                        [style.background-color]="clipControl.value.backgroundColour !== null ? '#' + clipControl.value.backgroundColour : 'black'">
+                                                        [style.background-color]="getClip(videoClipControl.value).backgroundColour !== null ? '#' + getClip(videoClipControl.value).backgroundColour : 'black'">
                                                         <ng-container
-                                                            *ngFor="let clipDisplayLayer of clipControl.value.clipDisplayLayers; let j = index">
+                                                            *ngFor="let clipDisplayLayer of getClip(videoClipControl.value).clipDisplayLayers; let j = index">
                                                             <ng-container
                                                                 *ngFor="let layerloop of getLayers(clipDisplayLayer)">
                                                                 <img [src]="storageUrl + '/' + layerloop.layerId + '/sprite.png'"
                                                                     [alt]="layerloop.layerId"
-                                                                    [style.left.px]="calculateLeft(clipControl.value.startingBeat)"
+                                                                    [style.left.px]="calculateLeft(getClip(videoClipControl.value).startingBeat)"
                                                                     [style.z-index]="j + (layerloop.isOverlay === true ? 0 : 1)"
                                                                     [style.mix-blend-mode]="layerloop.isOverlay === true ? 'normal' : 'screen'"
-                                                                    [style.filter]="'url(\'#' + j + '-' + clipControl.value.clipId + layerloop.layerId + '\')'"
+                                                                    [style.filter]="'url(\'#' + j + '-' + getClip(videoClipControl.value).clipId + layerloop.layerId + '\')'"
                                                                     crossorigin="anonymous" />
                                                                 <svg xmlns="http://www.w3.org/2000/svg">
                                                                     <filter
-                                                                        [id]="j + '-' +clipControl.value.clipId + layerloop.layerId">
+                                                                        [id]="j + '-' +videoClipControl.value.clipId + layerloop.layerId">
                                                                         <feColorMatrix type="matrix"
-                                                                            [attr.values]="toColourMatrix(getColour(layerloop, clipControl.value))">
+                                                                            [attr.values]="toColourMatrix(getColour(layerloop, clipDisplayLayer))">
                                                                         </feColorMatrix>
                                                                     </filter>
                                                                 </svg>
@@ -248,7 +248,7 @@
                                                     <ul class="list-group list-group-flush">
                                                         <li class="list-group-item">
                                                             <span [ngbTooltip]="'Move back'"
-                                                            *ngIf="i > 0 && i + clipsPerBlock <= clipsFormArray.length">
+                                                            *ngIf="i > 0 && i + clipsPerBlock <= videoClipsFormArray.length">
                                                             <button type="button" class="btn btn-secondary me-1"
                                                                 (click)="moveBack(i)">
                                                                 <i
@@ -260,7 +260,7 @@
                                                                 <i class="bi bi-dash-circle-fill"></i></button>
                                                         </span>
                                                         <span [ngbTooltip]="'Move forward'"
-                                                                *ngIf="i + 2 * clipsPerBlock <= clipsFormArray.length">
+                                                                *ngIf="i + 2 * clipsPerBlock <= videoClipsFormArray.length">
                                                                 <button type="button" class="btn btn-secondary"
                                                                     (click)="moveForward(i)">
                                                                     <i
@@ -301,7 +301,7 @@
                                                                     <i class="bi bi-zoom-in"></i></button>
                                                             </span>
                                                             <span [ngbTooltip]="'Zoom out.'"
-                                                                *ngIf="clipsPerBlock < 16 && clipsFormArray.length > (clipsPerBlock === 1 ? 4 : 16)">
+                                                                *ngIf="clipsPerBlock < 16 && videoClipsFormArray.length > (clipsPerBlock === 1 ? 4 : 16)">
                                                                 <button type="button" class="btn btn-secondary me-1"
                                                                     (click)="zoomOut()">
                                                                     <i class="bi bi-zoom-out"></i></button>
@@ -326,15 +326,15 @@
                                                 </div>
                                             </div>
                                         </ng-container>
-                                        <div class="form-text text-danger" *ngIf="clipsFormArray?.invalid">
-                                            <div [hidden]="!clipsFormArray?.errors?.['maxlength']">
+                                        <div class="form-text text-danger" *ngIf="videoClipsFormArray?.invalid">
+                                            <div [hidden]="!videoClipsFormArray?.errors?.['maxlength']">
                                                 You can't have more than 32767 clips in a video.
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="mb-3">
-                                    <button type="button" (click)="toggleClipPicker(this.clipsFormArray.controls.length)" class="btn btn-success">
+                                    <button type="button" (click)="toggleClipPicker(this.videoClipsFormArray.controls.length)" class="btn btn-success">
                                         <i class="bi bi-plus-circle-fill"></i> Pick clip to add to end of
                                         timeline</button>
                                 </div>
@@ -345,9 +345,9 @@
                                         [file]="file"></app-videoplayer>
                                 </div>
                             </ng-container>
-                            <div class="mb-3" *ngIf="showClipPicker || clipsFormArray.length === 0">
+                            <div class="mb-3" *ngIf="showClipPicker || videoClipsFormArray.length === 0">
                                 <h3>Pick A Clip</h3>
-                                <ngb-alert [type]="'warning'" [dismissible]="false" *ngIf="clipsFormArray.length === 0">
+                                <ngb-alert [type]="'warning'" [dismissible]="false" *ngIf="videoClipsFormArray.length === 0">
                                     <i class="bi bi-exclamation-triangle-fill"></i> To be able to save your video you
                                     must
                                     have at least one clip in your timeline.
@@ -364,7 +364,7 @@
                                     </div>
                                 </div>
                                 <button type="button" class="btn btn-danger" (click)="toggleClipPicker(0)"
-                                    *ngIf="clipsFormArray.length > 0"><i class="bi bi-dash-circle-fill"></i>
+                                    *ngIf="videoClipsFormArray.length > 0"><i class="bi bi-dash-circle-fill"></i>
                                     Cancel</button>
                             </div>
                             <div class="mb-3">
