@@ -6,7 +6,7 @@
             <img 
                 [src]="storageUrl + '/' + layerloop.layerId + '/sprite.png'"
                 [alt]="layerloop.layerId" 
-                [style.left.px]="leftPosition" 
+                [style.left.px]="getLeftPosition(leftPosition, clipDisplayLayer)" 
                 [style.z-index]="i + (layerloop.isOverlay === true ? 0 : 1)"
                 [style.mix-blend-mode]="layerloop.isOverlay === true ? 'normal' : 'screen'"
                 [style.filter]="'url(\'#' + i + '-' + clips[playingClipIndex].clipId + layerloop.layerId + '\')'"

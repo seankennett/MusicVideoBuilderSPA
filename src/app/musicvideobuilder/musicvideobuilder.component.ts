@@ -37,6 +37,7 @@ const secondsInMinute = 60;
 
 const timelineImageWidth = 128;
 const frameTotal = 64;
+const framesPerBeat = 16;
 
 const byteMultiplier = 1024;
 
@@ -547,8 +548,13 @@ export class MusicVideoBuilderComponent implements OnInit {
     return this.clips.find(c => c.clipId === videoClip.clipId) ?? <Clip>{};
   }
 
-  calculateLeft = (startingBeat: number) => {
-    return -(startingBeat - 1) * frameTotal / 4 * timelineImageWidth;
+  calculateLeft = (clip: Clip, clipDisplayLayer: Clipdisplaylayer) => {
+    var left = -(clip.startingBeat - 1) * frameTotal / 4 * timelineImageWidth
+    if (clipDisplayLayer.reverse === true){
+      // minus one as we start on frame 0 going to frame 63
+      return left - ((clip.beatLength) * framesPerBeat - 1) * timelineImageWidth
+    }
+    return left;
   }
 
   calculateBeatRangeFromClipIndex = (index: number) => {

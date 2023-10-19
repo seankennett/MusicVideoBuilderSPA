@@ -226,7 +226,7 @@
                                                                 *ngFor="let layerloop of getLayers(clipDisplayLayer)">
                                                                 <img [src]="storageUrl + '/' + layerloop.layerId + '/sprite.png'"
                                                                     [alt]="layerloop.layerId"
-                                                                    [style.left.px]="calculateLeft(getClip(videoClipControl.value).startingBeat)"
+                                                                    [style.left.px]="calculateLeft(getClip(videoClipControl.value), clipDisplayLayer)"
                                                                     [style.z-index]="j + (layerloop.isOverlay === true ? 0 : 1)"
                                                                     [style.mix-blend-mode]="layerloop.isOverlay === true ? 'normal' : 'screen'"
                                                                     [style.filter]="'url(\'#' + j + '-' + getClip(videoClipControl.value).clipId + layerloop.layerId + '\')'"

@@ -54,14 +54,27 @@ export class VideoplayerComponent implements OnInit {
     return 0;
   }
 
+  private get skipFrames(){
+    return (this.clips[this.playingClipIndex].startingBeat - 1) * frameTotal / 4;
+  }
+
+  private get numberOfFrames(){
+    return (this.clips[this.playingClipIndex].beatLength * frameTotal / 4) - 1;
+  }
+
   get leftPosition() {
-    var clip = this.clips[this.playingClipIndex];
-    var frameInClipNumber = Math.round(clip.beatLength * frameTotal / 4 * this.percentageOfPlayingClipDuration) + (this.clips[this.playingClipIndex].startingBeat - 1) * frameTotal / 4;
-    if (frameInClipNumber >= frameTotal) {
-      frameInClipNumber = frameTotal - 1;
-    }
+    var frameInClipNumber = Math.round(this.numberOfFrames * this.percentageOfPlayingClipDuration) + this.skipFrames
 
     return -(frameInClipNumber) * imageWidth;
+  }
+
+  getLeftPosition = (leftPosition:number, clipDisplayLayer:Clipdisplaylayer) =>{
+    if (clipDisplayLayer.reverse === true){
+      var endLeftPosition = -(this.numberOfFrames + this.skipFrames) * imageWidth;      
+      return endLeftPosition - leftPosition;
+    }
+
+    return leftPosition;
   }
 
   get playingClipIndex() {
