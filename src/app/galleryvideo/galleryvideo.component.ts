@@ -56,8 +56,14 @@ export class GalleryvideoComponent implements OnInit {
     return isLeft === false ? imageWidth : 0;
   }
 
-  getClipLeft = (clip: Clip) =>{
-    return -(clip.startingBeat - 1) * framesPerBeat * imageWidth;
+  getClipLeft = (clip: Clip, clipDisplayLayer: Clipdisplaylayer) => {
+    var leftPosition = -(clip.startingBeat - 1) * framesPerBeat * imageWidth
+    if (clipDisplayLayer.reverse === true){
+      // minus one as we start on frame 0 going to frame 63
+      return leftPosition - ((clip.beatLength) * framesPerBeat - 1) * imageWidth
+    }
+
+    return leftPosition;
   }
 
   getClipZIndex = (i: number, isLeft: boolean) => {

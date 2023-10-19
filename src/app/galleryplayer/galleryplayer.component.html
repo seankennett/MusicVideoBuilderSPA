@@ -5,7 +5,7 @@
       <ng-container *ngFor="let clipDisplayLayer of clip.clipDisplayLayers; let i = index">
         <ng-container *ngFor="let layerloop of getLayers(clipDisplayLayer)">
           <img [src]="storageUrl + '/' + layerloop.layerId + '/sprite.png'" [alt]="layerloop.layerId"
-            [style.left.px]="leftPosition" [style.z-index]="i + (layerloop.isOverlay === true ? 0 : 1)"
+            [style.left.px]="getLeftPosition(clipDisplayLayer.reverse)" [style.z-index]="i + (layerloop.isOverlay === true ? 0 : 1)"
             [style.mix-blend-mode]="layerloop.isOverlay === true ? 'normal' : 'screen'" crossorigin="anonymous"
             [style.filter]="'url(\'#' + clip.clipId + layerloop.layerId + '\')'" />
           <svg xmlns="

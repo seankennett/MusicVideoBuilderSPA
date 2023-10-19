@@ -59,6 +59,11 @@ export class GalleryplayerComponent implements OnInit, OnChanges {
     return ((this.clip?.startingBeat ?? defaultStartingBeat) - 1) * frameTotal / 4;
   }
 
+  private get endLeftPosition() {
+    // frame number will run from 0 to 63 so need the extra minus 1
+    return -((this.clip.beatLength * frameTotal / 4) - 1 + this.skipFrames) * imageWidth;
+  }
+
   get collectionLayers() {
     return this.collection?.displayLayers.find(d => d.isCollectionDefault)?.layers
   }
@@ -138,17 +143,23 @@ export class GalleryplayerComponent implements OnInit, OnChanges {
 
         var percentageOfLayerDuration = currentTimeInLayer / layerDuration;
 
-        var numberOfFrames = numberOfBeats * frameTotal / 4
+        // as it starts on a frame it runs from frame 0 to frame 63
+        var numberOfFrames = (numberOfBeats * frameTotal / 4) - 1;
 
         var frameInLayerNumber = Math.round((numberOfFrames) * percentageOfLayerDuration) + this.skipFrames;
-        if (frameInLayerNumber >= frameTotal) {
-          frameInLayerNumber = frameTotal - 1;
-        }
 
         this.leftPosition = -(frameInLayerNumber) * imageWidth;
         this.progress = percentageOfLayerDuration * 100;
       });
     }
+  }
+
+  getLeftPosition = (isReverse: boolean) =>{
+    if (isReverse === true){
+      return this.endLeftPosition - this.leftPosition;
+    }
+    
+    return this.leftPosition;
   }
 
   toColourMatrix = (hexCode: string) => {

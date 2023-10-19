@@ -9,7 +9,7 @@
                         [style.z-index]="getClipZIndex(i, isLeft)"
                         [style.mix-blend-mode]="layerloop.isOverlay === true ? 'normal' : 'screen'"
                         [style.filter]="'url(\'#' + i + '-' + getClip(video.videoClips[getClipIndex(isTop, isLeft)]).clipId + layerloop.layerId + '\')'"                        
-                        [style.left.px]="getClipLeft(getClip(video.videoClips[getClipIndex(isTop, isLeft)]))"
+                        [style.left.px]="getClipLeft(getClip(video.videoClips[getClipIndex(isTop, isLeft)]), clipDisplayLayer)"
                         crossorigin="anonymous" />
                         <svg xmlns="http://www.w3.org/2000/svg">
                             <filter
