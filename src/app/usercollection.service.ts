@@ -13,6 +13,6 @@ export class UserCollectionService {
   constructor(private http: HttpClient) { }
 
   getAll() {
-    return this.http.get<UserCollection[]>(this.url, {context: errorBody("Unable to get layers from server. Please refresh to try again.")});
+    return this.http.get<UserCollection[]>(this.url, {context: errorBody("Unable to get user's collections from server. Please refresh to try again.")});
   }
 }

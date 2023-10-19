@@ -14,6 +14,6 @@ export class CollectionService {
   constructor(private http: HttpClient) { }
 
   getAll() {
-    return this.http.get<Collection[]>(this.url, {context: errorBody('Unable to get layers from server. Please refresh to try again.')});
+    return this.http.get<Collection[]>(this.url, {context: errorBody('Unable to get collections from server. Please refresh to try again.')});
   }
 }

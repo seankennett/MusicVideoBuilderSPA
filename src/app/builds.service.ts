@@ -32,7 +32,7 @@ export class BuildsService {
   }
 
   getAll() {
-    return this.http.get<Buildasset[]>(this.baseurl + '/Builds', {context: errorBody("Unable to get user's video assets from server. Please refresh to try again.")})
+    return this.http.get<Buildasset[]>(this.baseurl + '/Builds', {context: errorBody("Unable to get user's files from server. Please refresh to try again.")})
   }
 
 }
