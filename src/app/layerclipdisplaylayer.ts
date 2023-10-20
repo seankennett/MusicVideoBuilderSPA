@@ -1,4 +1,4 @@
 export interface Layerclipdisplaylayer {
     layerId: string
-    colourOverride: string
+    colour: string
 }

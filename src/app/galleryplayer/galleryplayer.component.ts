@@ -65,7 +65,7 @@ export class GalleryplayerComponent implements OnInit, OnChanges {
   }
 
   get collectionLayers() {
-    return this.collection?.displayLayers.find(d => d.isCollectionDefault)?.layers
+    return this.collection?.displayLayers.find(d => d.displayLayerId === this.collection.collectionDisplayLayer.displayLayerId)?.layers
   }
 
   get displayLayers() {
@@ -168,23 +168,15 @@ export class GalleryplayerComponent implements OnInit, OnChanges {
   }
 
   getLayers = (clipDisplayLayer: Clipdisplaylayer) => {
-    var layers = <Layer[]>JSON.parse(JSON.stringify(this.displayLayers.find(x => x.displayLayerId === clipDisplayLayer.displayLayerId)?.layers))
-    clipDisplayLayer.layerClipDisplayLayers.forEach(l => {
-      var matchedLayer = layers?.find(d => d.layerId === l.layerId);
-      if (matchedLayer) {
-        matchedLayer.defaultColour = l.colourOverride;
-      }
-    });
-    return layers;
+    return this.displayLayers.find(x => x.displayLayerId === clipDisplayLayer.displayLayerId)?.layers;
   }
 
   getColour = (layer: Layer) => {
-    var overrideLayer = this.clip.clipDisplayLayers.flatMap(x => x.layerClipDisplayLayers).find(x => x.layerId === layer.layerId);
-    if (overrideLayer) {
-      return overrideLayer.colourOverride
-    }
+    return this.clip.clipDisplayLayers.flatMap(x => x.layerClipDisplayLayers).find(x => x.layerId === layer.layerId)?.colour ?? "";
+  }
 
-    return layer.defaultColour;
+  getDefaultColour = (layerId: string) =>{
+    return this.collection.collectionDisplayLayer.layerCollectionDisplayLayers.find(l => l.layerId === layerId)?.colour ?? "";
   }
 
   addButtonClick = () => {

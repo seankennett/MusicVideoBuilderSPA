@@ -3,7 +3,6 @@ import { Layer } from "./layer"
 
 export interface Displaylayer {
     displayLayerId:string
-    isCollectionDefault:boolean
     direction: Direction
     numberOfSides:number
     linkedPreviousDisplayLayerId:string

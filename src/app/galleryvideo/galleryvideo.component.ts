@@ -78,24 +78,12 @@ export class GalleryvideoComponent implements OnInit {
 
   // modified form galleryplayer
   getLayers = (clipDisplayLayer: Clipdisplaylayer) => {
-    var layers = this.displayLayers.find(x => x.displayLayerId === clipDisplayLayer.displayLayerId)?.layers;
-    clipDisplayLayer.layerClipDisplayLayers.forEach(l => {
-      var matchedLayer = layers?.find(d => d.layerId === l.layerId);
-      if (matchedLayer) {
-        matchedLayer.defaultColour = l.colourOverride;
-      }
-    });
-    return layers;
+    return this.displayLayers.find(x => x.displayLayerId === clipDisplayLayer.displayLayerId)?.layers;
   }
 
   // modified form galleryplayer
   getColour = (layer: Layer, clip: Clip) => {
-    var overrideLayer = clip.clipDisplayLayers.flatMap(x => x.layerClipDisplayLayers).find(x => x.layerId === layer.layerId);
-    if (overrideLayer) {
-      return overrideLayer.colourOverride
-    }
-
-    return layer.defaultColour;
+    return clip.clipDisplayLayers.flatMap(x => x.layerClipDisplayLayers).find(x => x.layerId === layer.layerId)?.colour ?? "";
   }
 
   getClip = (videoClip: Videoclip) =>{

@@ -138,13 +138,14 @@ export class ClipBuilderComponent implements OnInit {
   clipDisplayLayersFormArrayIndex: number = -1
 
   selectCollection = (collection: Collection) => {
-    var selectedDisplayLayer = collection.displayLayers.find(d => d.isCollectionDefault === true);
+    var selectedDisplayLayer = collection.displayLayers.find(d => d.displayLayerId === collection.collectionDisplayLayer.displayLayerId);
     this.setupCollectionEditor(collection, selectedDisplayLayer);
     var layerClipDisplayLayersFormArray = this.formBuilder.array([]);
     selectedDisplayLayer?.layers.filter(l => l.isOverlay !== true).forEach(l => {
+      var colour = collection.collectionDisplayLayer.layerCollectionDisplayLayers.find(lc => l.layerId == lc.layerId);
       var group = this.formBuilder.group({
         layerIdControl: this.formBuilder.control(l.layerId),
-        colourOverrideControl: this.formBuilder.control('#' + l.defaultColour)
+        colourControl: this.formBuilder.control('#' + colour?.colour)
       });
       layerClipDisplayLayersFormArray.push(group);
     });
@@ -172,26 +173,6 @@ export class ClipBuilderComponent implements OnInit {
   layerClipDisplayLayersFormArray = (clipDisplayLayerGroup: AbstractControl) => {
     var group = <FormGroup>clipDisplayLayerGroup
     return (<FormArray>group?.get('layerClipDisplayLayersFormArray')).controls
-  }
-
-  convertToNewDisplayLayer = (clipDisplayLayerGroup: AbstractControl) => {
-    var displayLayerId = clipDisplayLayerGroup.get('displayLayerIdControl')?.value;
-    var displayLayerSelected = this.selectedCollection?.displayLayers.find(d => d.displayLayerId === displayLayerId)
-    if (!displayLayerSelected){
-      displayLayerSelected = this.collections.flatMap(c => c.displayLayers).find(d => d.displayLayerId === displayLayerId)
-    }
-    var displayLayer = <Displaylayer>JSON.parse(JSON.stringify(displayLayerSelected));
-    var layerClipDisplayLayerControls = this.layerClipDisplayLayersFormArray(clipDisplayLayerGroup);
-    layerClipDisplayLayerControls.forEach(formGroup => {
-      if (displayLayer.layers) {
-        var matchedLayerClipDisplayLayer = displayLayer?.layers.find(l => l.layerId === formGroup.get('layerIdControl')?.value);
-        if (matchedLayerClipDisplayLayer) {
-          matchedLayerClipDisplayLayer.defaultColour = formGroup.get('colourOverrideControl')?.value.slice(1)
-        }
-      }
-    });
-
-    return displayLayer;
   }
 
   convertFormGroupToCollection = (clipDisplayLayerFormGroup: AbstractControl) => {
@@ -264,7 +245,7 @@ export class ClipBuilderComponent implements OnInit {
 
   cancelAddingDisplayLayer = () => {    
     if (this.undoClipDisplayLayerFormGroup) {
-      this.clipDisplayLayersFormArray.controls[this.clipDisplayLayersFormArrayIndex] = this.undoClipDisplayLayerFormGroup;
+      this.clipDisplayLayersFormArray.controls[this.clipDisplayLayersFormArrayIndex] = this.convertClipDisplayLayerToFormGroup(this.undoClipDisplayLayerFormGroup);
     } else {
       this.clipDisplayLayersFormArray.removeAt(this.clipDisplayLayersFormArrayIndex);
     }
@@ -272,21 +253,25 @@ export class ClipBuilderComponent implements OnInit {
   }
 
   addClipDisplayLayer = (selectedClipDisplayLayer: Clipdisplaylayer) => {
+    var group = this.convertClipDisplayLayerToFormGroup(selectedClipDisplayLayer);
+    this.clipDisplayLayersFormArray.push(group);
+  }
+
+  convertClipDisplayLayerToFormGroup = (clipDisplayLayer: Clipdisplaylayer) =>{
     var layerClipDisplayLayersFormArray = this.formBuilder.array([]);
 
-    selectedClipDisplayLayer.layerClipDisplayLayers.forEach(l => {
+    clipDisplayLayer.layerClipDisplayLayers.forEach(l => {
       var group = this.formBuilder.group({
         layerIdControl: this.formBuilder.control(l.layerId),
-        colourOverrideControl: this.formBuilder.control('#' + l.colourOverride)
+        colourControl: this.formBuilder.control('#' + l.colour)
       });
       layerClipDisplayLayersFormArray.push(group);
     });
-    var group = this.formBuilder.group({
-      displayLayerIdControl: this.formBuilder.control(selectedClipDisplayLayer.displayLayerId),
-      reverseControl: this.formBuilder.control(selectedClipDisplayLayer.reverse),
+    return this.formBuilder.group({
+      displayLayerIdControl: this.formBuilder.control(clipDisplayLayer.displayLayerId),
+      reverseControl: this.formBuilder.control(clipDisplayLayer.reverse),
       layerClipDisplayLayersFormArray: layerClipDisplayLayersFormArray
     });
-    this.clipDisplayLayersFormArray.push(group);
   }
 
   removeclipDisplayLayer = (index: number) => {
@@ -325,7 +310,7 @@ export class ClipBuilderComponent implements OnInit {
 
         this.layerClipDisplayLayersFormArray(formGroup).forEach(fg => {
           var layerClipDisplayLayer = <Layerclipdisplaylayer>{
-            colourOverride: fg.get('colourOverrideControl')?.value.slice(1),
+            colour: fg.get('colourControl')?.value.slice(1),
             layerId: fg.get('layerIdControl')?.value
           }
           clipDisplayLayer.layerClipDisplayLayers.push(layerClipDisplayLayer);
@@ -371,15 +356,14 @@ export class ClipBuilderComponent implements OnInit {
     });;
   }
 
-  undoClipDisplayLayerFormGroup: AbstractControl | undefined = undefined;
+  undoClipDisplayLayerFormGroup: Clipdisplaylayer | undefined = undefined;
 
   editClipDisplayLayer = (index: number) => {
     this.clipDisplayLayersFormArrayIndex = index;
-    var clipDisplayLayerFormGroup = this.clipDisplayLayersFormArray.controls[index];
-    this.undoClipDisplayLayerFormGroup = clipDisplayLayerFormGroup;
-    var displayLayerId = clipDisplayLayerFormGroup.get('displayLayerIdControl')?.value;
-    var collection = this.collections.find(c => c.displayLayers.some(d => d.displayLayerId === displayLayerId));
-    var displayLayer = collection?.displayLayers.find(d => d.displayLayerId === displayLayerId);
+    var clipDisplayLayer = this.editorClip.clipDisplayLayers[index];
+    this.undoClipDisplayLayerFormGroup = JSON.parse(JSON.stringify(clipDisplayLayer));
+    var collection = this.collections.find(c => c.displayLayers.some(d => d.displayLayerId === clipDisplayLayer.displayLayerId));
+    var displayLayer = collection?.displayLayers.find(d => d.displayLayerId === clipDisplayLayer.displayLayerId);
     this.setupCollectionEditor(collection, displayLayer);
   }
 

@@ -27,7 +27,7 @@
         <svg xmlns="
         http://www.w3.org/2000/svg">
           <filter [id]="layerloop.layerId">
-            <feColorMatrix type="matrix" [attr.values]="toColourMatrix(layerloop.defaultColour)">
+            <feColorMatrix type="matrix" [attr.values]="toColourMatrix(getDefaultColour(layerloop.layerId))">
             </feColorMatrix>
           </filter>
         </svg>
