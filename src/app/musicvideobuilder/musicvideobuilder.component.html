@@ -259,6 +259,12 @@
                                                                 (click)="removeClip(i)">
                                                                 <i class="bi bi-dash-circle-fill"></i></button>
                                                         </span>
+                                                        <span [ngbTooltip]="'Swap this clip'"
+                                                            *ngIf="clipsPerBlock === 1">
+                                                                <button type="button" class="btn btn-primary me-1"
+                                                                    (click)="toggleClipPicker(i)">
+                                                                    <i class="bi bi-arrow-repeat"></i></button>
+                                                            </span>
                                                         <span [ngbTooltip]="'Move forward'"
                                                                 *ngIf="i + 2 * clipsPerBlock <= videoClipsFormArray.length">
                                                                 <button type="button" class="btn btn-secondary"
@@ -267,8 +273,7 @@
                                                                         class="bi bi-arrow-right-circle-fill"></i></button>
                                                             </span>
                                                         </li>
-                                                        <li class="list-group-item">
-                                                            
+                                                        <li class="list-group-item">                                                            
                                                             <span [ngbTooltip]="'Add clone after current'">
                                                                 <button type="button" class="btn btn-success me-1"
                                                                     (click)="copyClip(i, false)">
@@ -280,16 +285,17 @@
                                                                     <i class="bi bi-files"></i>
                                                                     <i class="bi bi-skip-end-fill"></i>
                                                                 </button>
+                                                            </span>                                                                                                                  
+                                                        </li>
+                                                        <li class="list-group-item">
+                                                            <span [ngbTooltip]="'Add new clip to end of timeline'">
+                                                            <button type="button" (click)="toggleClipPicker(this.videoClipsFormArray.controls.length)" class="btn btn-success">
+                                                                <i class="bi bi-plus-circle-fill"></i>
+                                                                <i class="bi bi-skip-end-fill"></i>
+                                                            </button> 
                                                             </span>
-                                                            <span [ngbTooltip]="'Swap this clip'"
-                                                            *ngIf="clipsPerBlock === 1">
-                                                                <button type="button" class="btn btn-primary me-1"
-                                                                    (click)="toggleClipPicker(i)">
-                                                                    <i class="bi bi-arrow-repeat"></i></button>
-                                                            </span>
-                                                            <span [ngbTooltip]="'Add new clip after this clip'"
-                                                            *ngIf="clipsPerBlock === 1">
-                                                                <button type="button" class="btn btn-success me-1"
+                                                            <span [ngbTooltip]="'Add new clip after this clip'" *ngIf="clipsPerBlock === 1">
+                                                                <button type="button" class="btn btn-success ms-1"
                                                                     (click)="toggleAddClipPicker(i)">
                                                                     <i class="bi bi-node-plus-fill"></i></button>
                                                             </span>
@@ -342,7 +348,8 @@
                                 </div>
                                 <div class="mb-3">
                                     <button type="button" (click)="toggleClipPicker(this.videoClipsFormArray.controls.length)" class="btn btn-success">
-                                        <i class="bi bi-plus-circle-fill"></i> Pick clip to add to end of
+                                        <i class="bi bi-plus-circle-fill"></i>
+                                        <i class="bi bi-skip-end-fill"></i> Pick clip to add to end of
                                         timeline</button>
                                 </div>
                                 <div class="mb-3">
