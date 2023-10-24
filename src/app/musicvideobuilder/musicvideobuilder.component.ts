@@ -5,7 +5,7 @@ import { Formats } from '../formats';
 import { Video } from '../video';
 import { Clip } from '../clip';
 import { VideoService } from '../video.service';
-import { catchError, throwError, timer, forkJoin } from 'rxjs';
+import { catchError, throwError, timer } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 import { DatePipe, Location } from '@angular/common';
 import { VideoplayerComponent } from '../videoplayer/videoplayer.component';
@@ -19,7 +19,6 @@ import { BlockBlobClient } from '@azure/storage-blob';
 import { UserCollectionService } from '../usercollection.service';
 import { ToastService } from '../toast.service';
 import { License } from '../license';
-import { Layer } from '../layer';
 import { Videobuildrequest } from '../videobuildrequest';
 import { Buildasset } from '../buildasset';
 import { Buildstatus } from '../buildstatus';
@@ -28,17 +27,12 @@ import { StripePaymentElementComponent, StripeService } from 'ngx-stripe';
 import { BuildsService } from '../builds.service';
 import { CollectionService } from '../collection.service';
 import { Collection } from '../collection';
-import { Clipdisplaylayer } from '../clipdisplaylayer';
-import { Displaylayer } from '../displaylayer';
 import { Videoclip } from '../videoclip';
 
 const millisecondsInSecond = 1000;
 const secondsInMinute = 60;
 
-const timelineImageWidth = 128;
 const frameTotal = 64;
-const framesPerBeat = 16;
-
 const byteMultiplier = 1024;
 
 @Component({
@@ -78,7 +72,8 @@ export class MusicVideoBuilderComponent implements OnInit {
   }
 
   storageUrl = environment.storageUrl;
-
+  timelineImageWidth = 128;
+  timelineImageHeight = 72;
   pageLoading = true;
 
   @ViewChild(VideoplayerComponent) videoplayer!: VideoplayerComponent;
@@ -521,33 +516,12 @@ export class MusicVideoBuilderComponent implements OnInit {
     return this.collections.flatMap(c => c.displayLayers).filter(d => this.clips.filter(c => c.clipDisplayLayers).flatMap(c => c.clipDisplayLayers).some(cd => cd.displayLayerId === d.displayLayerId));
   }
 
-  // nicked form galleryplayer
-  toColourMatrix = (hexCode: string) => {
-    var rgbArray = hexCode?.match(/[A-Za-z0-9]{2}/g)?.map(v => parseInt(v, 16)) ?? [255, 255, 255];
-    return rgbArray[0] / 255 + " 0 0 0 0    0 " + rgbArray[1] / 255 + " 0 0 0    0 0 " + rgbArray[2] / 255 + " 0 0    0 0 0 1 0";
-  }
-
-  // modified form galleryplayer
-  getLayers = (clipDisplayLayer: Clipdisplaylayer) => {
-    return this.displayLayers.find(x => x.displayLayerId === clipDisplayLayer.displayLayerId)?.layers;
-  }
-
-  // modified form galleryplayer
-  getColour = (layer: Layer, clipDisplayLayer: Clipdisplaylayer) => {
-    return clipDisplayLayer.layerClipDisplayLayers.find(x => x.layerId === layer.layerId)?.colour ?? "";
-  }
-
   getClip = (videoClip: Videoclip) => {
     return this.clips.find(c => c.clipId === videoClip.clipId) ?? <Clip>{};
   }
 
-  calculateLeft = (clip: Clip, clipDisplayLayer: Clipdisplaylayer) => {
-    var left = -(clip.startingBeat - 1) * frameTotal / 4 * timelineImageWidth
-    if (clipDisplayLayer.reverse === true) {
-      // minus one as we start on frame 0 going to frame 63
-      return left - ((clip.beatLength) * framesPerBeat - 1) * timelineImageWidth
-    }
-    return left;
+  getLeft = (clip: Clip) => {
+    return -(clip.startingBeat - 1) * frameTotal / 4 * this.timelineImageWidth;
   }
 
   calculateBeatRangeFromClipIndex = (index: number) => {

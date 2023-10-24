@@ -1,28 +1,16 @@
 <div class="card text-center">
-    <div class="imageContainer" *ngFor="let isTop of [true, false]">
-        <div *ngFor="let isLeft of [true, false]" [style.left.px]="getContainerLeft(isLeft)"
-            [style.background-color]="getClip(video.videoClips[getClipIndex(isTop, isLeft)]).backgroundColour !== null ? '#' + getClip(video.videoClips[getClipIndex(isTop, isLeft)]).backgroundColour : 'black'">
-            <ng-container
-                *ngFor="let clipDisplayLayer of getClip(video.videoClips[getClipIndex(isTop, isLeft)]).clipDisplayLayers; let i = index">
-                <ng-container *ngFor="let layerloop of getLayers(clipDisplayLayer)">
-                    <img [src]="storageUrl + '/' + layerloop.layerId + '/sprite.png'" [alt]="layerloop.layerId"
-                        [style.z-index]="getClipZIndex(i, isLeft)"
-                        [style.mix-blend-mode]="layerloop.isOverlay === true ? 'normal' : 'screen'"
-                        [style.filter]="'url(\'#' + i + '-' + getClip(video.videoClips[getClipIndex(isTop, isLeft)]).clipId + layerloop.layerId + '\')'"                        
-                        [style.left.px]="getClipLeft(getClip(video.videoClips[getClipIndex(isTop, isLeft)]), clipDisplayLayer)"
-                        crossorigin="anonymous" />
-                        <svg xmlns="http://www.w3.org/2000/svg">
-                            <filter
-                                [id]="i + '-' + getClip(video.videoClips[getClipIndex(isTop, isLeft)]).clipId + layerloop.layerId">
-                                <feColorMatrix type="matrix"
-                                    [attr.values]="toColourMatrix(getColour(layerloop, getClip(video.videoClips[getClipIndex(isTop, isLeft)])))">
-                                </feColorMatrix>
-                            </filter>
-                        </svg>
-                </ng-container>
+    <div class="galleryContainer">
+        <ng-container *ngFor="let isTop of [true, false]">
+            <ng-container *ngFor="let isLeft of [true, false]">
+                <div class="galleryItem" [style.left.px]="getContainerLeft(isLeft)" [style.top.px]="getContainerTop(isTop)">
+                    <app-display [clip]="getClip(video.videoClips[getClipIndex(isTop, isLeft)])"
+                        [collections]="collections"
+                        [leftPosition]="getClipLeft(getClip(video.videoClips[getClipIndex(isTop, isLeft)]))"
+                        [width]="imageWidth" [height]="imageHeight">
+                    </app-display>
+                </div>
             </ng-container>
-            <img [src]="storageUrl + '/custom-pages/watermark.png'" crossorigin="anonymous" class="watermark" />
-        </div>
+        </ng-container>
     </div>
     <h5 class="card-header">{{video.videoName}}.{{Formats[video.format]}}</h5>
     <ul class="list-group list-group-flush">
@@ -47,6 +35,11 @@
                 <i class="bi bi-dash-circle-fill"></i> Remove <span class="spinner-border spinner-border-sm ms-1"
                     role="status" aria-hidden="true" *ngIf="loading"></span>
             </button>
+        </li>
+        <li class="list-group-item" *ngIf="isBuilding">
+            <a class="list-group-item" [routerLink]="['/musicVideoBuilder', video.videoId]" [queryParams]="{tab: 2}">Go
+                to
+                {{video.videoName}} video timeline</a>
         </li>
     </ul>
 </div>

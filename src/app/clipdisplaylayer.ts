@@ -4,4 +4,6 @@ export interface Clipdisplaylayer {
     displayLayerId: string
     layerClipDisplayLayers: Layerclipdisplaylayer[]
     reverse: boolean
+    flipHorizontal: boolean
+    flipVertical: boolean
 }

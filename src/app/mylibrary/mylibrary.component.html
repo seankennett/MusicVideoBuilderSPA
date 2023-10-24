@@ -33,13 +33,8 @@
             <div class="mb-3">
                 <div class="row">
                     <div *ngFor="let buildingVideo of buildingVideos; let i = index" class="col-sm mb-3">
-                        <app-galleryvideo [video]="buildingVideo" [showEdit]="false" [displayLayers]="displayLayers"
-                            [showRemove]="false" [clips]="clips"></app-galleryvideo>
-                        <div class="list-group text-center">
-                            <a class="list-group-item"
-                                [routerLink]="['/musicVideoBuilder', buildingVideo.videoId]" [queryParams]="{tab: 2}">Go to
-                                {{buildingVideo.videoName}} video timeline</a>
-                        </div>
+                        <app-galleryvideo [video]="buildingVideo" [showEdit]="false" [collections]="collections"
+                            [showRemove]="false" [clips]="clips" [isBuilding]="true"></app-galleryvideo>
                     </div>
                 </div>
             </div>
@@ -51,7 +46,7 @@
                 <div class="row">
                     <div *ngFor="let notBuildingVideo of notBuildingVideos" class="col-sm mb-3">
                         <app-galleryvideo [video]="notBuildingVideo" [showEdit]="false" [showRemove]="true" [clips]="clips"
-                            (buttonClickEvent)="removeVideo($event)" [loading]="loading" [displayLayers]="displayLayers">
+                            (buttonClickEvent)="removeVideo($event)" [loading]="loading" [collections]="collections">
                         </app-galleryvideo>
                     </div>
                 </div>
@@ -65,12 +60,7 @@
                 <div class="row">
                     <div *ngFor="let dependentClip of dependentClips; let i = index" class="col-sm mb-3">
                         <app-galleryplayer [clip]="dependentClip.clip" [showAdd]="false" [showEdit]="false"
-                            [showRemove]="false" [collections]="collections"></app-galleryplayer>
-                        <div class="list-group text-center">
-                            <a *ngFor="let video of dependentClip.videos" class="list-group-item"
-                                [routerLink]="['/musicVideoBuilder', video.videoId]" [queryParams]="{tab: 2}">Go to
-                                {{video.videoName}} video timeline</a>
-                        </div>
+                            [showRemove]="false" [collections]="collections" [dependentVideos]="dependentClip.videos"></app-galleryplayer>
                     </div>
                 </div>
             </div>

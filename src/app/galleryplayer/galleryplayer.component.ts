@@ -6,6 +6,7 @@ import { environment } from 'src/environments/environment';
 import { Displaylayer } from '../displaylayer';
 import { Layer } from '../layer';
 import { Clipdisplaylayer } from '../clipdisplaylayer';
+import { Video } from '../video';
 
 const imageWidth = 384;
 const secondsInMinute = 60;
@@ -24,6 +25,7 @@ export class GalleryplayerComponent implements OnInit, OnChanges {
   @Input() collection!: Collection;
   @Input() clip!: Clip;
   @Input() collections!: Collection[];
+  @Input() dependentVideos!: Video[];
   @Output() editButtonClickCollectionEvent = new EventEmitter<Collection>();
   @Output() addButtonClickClipEvent = new EventEmitter<Clip>();
   @Output() editButtonClickClipEvent = new EventEmitter<Clip>();
@@ -47,8 +49,6 @@ export class GalleryplayerComponent implements OnInit, OnChanges {
 
   progress = 0;
 
-  storageUrl = environment.storageUrl;
-
   constructor() { }
 
   get playerTitle() {
@@ -59,17 +59,8 @@ export class GalleryplayerComponent implements OnInit, OnChanges {
     return ((this.clip?.startingBeat ?? defaultStartingBeat) - 1) * frameTotal / 4;
   }
 
-  private get endLeftPosition() {
-    // frame number will run from 0 to 63 so need the extra minus 1
-    return -((this.clip.beatLength * frameTotal / 4) - 1 + this.skipFrames) * imageWidth;
-  }
-
   get collectionLayers() {
     return this.collection?.displayLayers.find(d => d.displayLayerId === this.collection.collectionDisplayLayer.displayLayerId)?.layers
-  }
-
-  get displayLayers() {
-    return this.collections?.flatMap(x => x.displayLayers).filter(d => this.clip.clipDisplayLayers.some(c => c.displayLayerId === d.displayLayerId))
   }
 
   get sideOptionNumber() {
@@ -152,31 +143,6 @@ export class GalleryplayerComponent implements OnInit, OnChanges {
         this.progress = percentageOfLayerDuration * 100;
       });
     }
-  }
-
-  getLeftPosition = (isReverse: boolean) =>{
-    if (isReverse === true){
-      return this.endLeftPosition - this.leftPosition;
-    }
-    
-    return this.leftPosition;
-  }
-
-  toColourMatrix = (hexCode: string) => {
-    var rgbArray = hexCode?.match(/[A-Za-z0-9]{2}/g)?.map(v => parseInt(v, 16)) ?? [255, 255, 255];
-    return rgbArray[0] / 255 + " 0 0 0 0    0 " + rgbArray[1] / 255 + " 0 0 0    0 0 " + rgbArray[2] / 255 + " 0 0    0 0 0 1 0";
-  }
-
-  getLayers = (clipDisplayLayer: Clipdisplaylayer) => {
-    return this.displayLayers.find(x => x.displayLayerId === clipDisplayLayer.displayLayerId)?.layers;
-  }
-
-  getColour = (layer: Layer) => {
-    return this.clip.clipDisplayLayers.flatMap(x => x.layerClipDisplayLayers).find(x => x.layerId === layer.layerId)?.colour ?? "";
-  }
-
-  getDefaultColour = (layerId: string) =>{
-    return this.collection.collectionDisplayLayer.layerCollectionDisplayLayers.find(l => l.layerId === layerId)?.colour ?? "";
   }
 
   addButtonClick = () => {

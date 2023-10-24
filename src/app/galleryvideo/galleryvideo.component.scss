@@ -1,34 +1,12 @@
-$freeImageWidth: 384px;
-$galleryImageWidth: 192px;
-$imageHeight: 108px;
-
-.imageContainer{
+.galleryContainer{
     position:relative;
-    width:$freeImageWidth;
-    height:$imageHeight;
+    width:384px;
+    height:216px;
     margin: auto;
 }
 
-.imageContainer div {
-    position:absolute;
-    height:$imageHeight;
-    width: $galleryImageWidth;
-    overflow:hidden;
-}
-
-.imageContainer img {
-    position:absolute;
-    height:$imageHeight;
-    left: 0;
-}
-
-.imageContainer svg {
-    display: none;
-}
-
-.imageContainer .watermark {
-    width: $galleryImageWidth;
-    height: auto;
-    bottom: 0px;
-    z-index: 1000;
+.galleryItem{
+    position: absolute;
+    height: 108px;
+    width:  192px;
 }

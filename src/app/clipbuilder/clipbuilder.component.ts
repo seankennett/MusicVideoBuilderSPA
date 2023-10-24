@@ -152,6 +152,8 @@ export class ClipBuilderComponent implements OnInit {
     var clipDisplayLayerControl = this.formBuilder.group({
       displayLayerIdControl: this.formBuilder.control(selectedDisplayLayer?.displayLayerId),
       reverseControl: this.formBuilder.control(false),
+      flipHorizontalControl: this.formBuilder.control(false),
+      flipVerticalControl: this.formBuilder.control(false),
       layerClipDisplayLayersFormArray: layerClipDisplayLayersFormArray
     });
 
@@ -270,6 +272,8 @@ export class ClipBuilderComponent implements OnInit {
     return this.formBuilder.group({
       displayLayerIdControl: this.formBuilder.control(clipDisplayLayer.displayLayerId),
       reverseControl: this.formBuilder.control(clipDisplayLayer.reverse),
+      flipHorizontalControl: this.formBuilder.control(clipDisplayLayer.flipHorizontal),
+      flipVerticalControl: this.formBuilder.control(clipDisplayLayer.flipVertical),
       layerClipDisplayLayersFormArray: layerClipDisplayLayersFormArray
     });
   }
@@ -305,6 +309,8 @@ export class ClipBuilderComponent implements OnInit {
         var clipDisplayLayer = <Clipdisplaylayer>{
           displayLayerId: formGroup.get('displayLayerIdControl')?.value,
           reverse: formGroup.get('reverseControl')?.value,
+          flipHorizontal: formGroup.get('flipHorizontalControl')?.value,
+          flipVertical: formGroup.get('flipVerticalControl')?.value,
           layerClipDisplayLayers: []
         }
 

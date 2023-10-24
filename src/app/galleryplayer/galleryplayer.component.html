@@ -1,44 +1,18 @@
 <div class="card">
-  <div class="imageContainer"
-    [style.background-color]="clip && clip.backgroundColour !== null ? '#' + clip.backgroundColour : 'black'">
-    <ng-container *ngIf="clip && clip.clipDisplayLayers?.length ?? 0 > 0">
-      <ng-container *ngFor="let clipDisplayLayer of clip.clipDisplayLayers; let i = index">
-        <ng-container *ngFor="let layerloop of getLayers(clipDisplayLayer)">
-          <img [src]="storageUrl + '/' + layerloop.layerId + '/sprite.png'" [alt]="layerloop.layerId"
-            [style.left.px]="getLeftPosition(clipDisplayLayer.reverse)" [style.z-index]="i + (layerloop.isOverlay === true ? 0 : 1)"
-            [style.mix-blend-mode]="layerloop.isOverlay === true ? 'normal' : 'screen'" crossorigin="anonymous"
-            [style.filter]="'url(\'#' + clip.clipId + layerloop.layerId + '\')'" />
-          <svg xmlns="
-            http://www.w3.org/2000/svg">
-            <filter [id]="clip.clipId + layerloop.layerId">
-              <feColorMatrix type="matrix" [attr.values]="toColourMatrix(getColour(layerloop))">
-              </feColorMatrix>
-            </filter>
-          </svg>
-        </ng-container>
-      </ng-container>
-    </ng-container>
-    <ng-container *ngIf="collection">
-      <ng-container *ngFor="let layerloop of collectionLayers">
-        <img [src]="storageUrl + '/' + layerloop.layerId + '/sprite.png'" [alt]="layerloop.layerId"
-          [style.left.px]="leftPosition" [style.z-index]="layerloop.isOverlay === true ? 0 : 1"
-          [style.mix-blend-mode]="layerloop.isOverlay === true ? 'normal' : 'screen'" crossorigin="anonymous"
-          [style.filter]="'url(\'#' + layerloop.layerId + '\')'" />
-        <svg xmlns="
-        http://www.w3.org/2000/svg">
-          <filter [id]="layerloop.layerId">
-            <feColorMatrix type="matrix" [attr.values]="toColourMatrix(getDefaultColour(layerloop.layerId))">
-            </feColorMatrix>
-          </filter>
-        </svg>
-      </ng-container>
-    </ng-container>
-    <img [src]="storageUrl + '/custom-pages/watermark.png'" class="watermark" crossorigin="anonymous" />
-  </div>
+  <app-display [clip]="clip" [collection]="collection" [collections]="collections" [leftPosition]="leftPosition">
+  </app-display>
   <div class="card-header text-center" *ngIf="playerTitle !== ''">
     <h5 class="card-title">{{ playerTitle }}</h5>
   </div>
   <ul class="list-group list-group-flush">
+    <li class="list-group-item text-center"><button type="button" class="btn btn-outline-secondary"
+        (click)="togglePlay()"><i [ngClass]="localIsPlaying ? 'bi bi-stop-fill' : 'bi bi-play-fill'"></i></button></li>
+    <li class="list-group-item text-center">
+      <div class="progress">
+        <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
+          [style.width.%]="progress"></div>
+      </div>
+    </li>
     <li *ngIf="collection" class="list-group-item"><span
         class="badge rounded-pill bg-primary">{{sideOptionNumber}}</span> Side options</li>
     <li *ngIf="collection" class="list-group-item"><span
@@ -48,20 +22,13 @@
     <li *ngIf="collection" class="list-group-item"><span
         class="badge rounded-pill bg-primary">{{directionTransitionOptionNumber}}</span> Direction transition options
     </li>
-    <li class="list-group-item text-center"><button type="button" class="btn btn-outline-secondary"
-        (click)="togglePlay()"><i [ngClass]="localIsPlaying ? 'bi bi-stop-fill' : 'bi bi-play-fill'"></i></button></li>
-    <li class="list-group-item text-center">
-      <div class="progress">
-        <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
-          [style.width.%]="progress"></div>
-      </div>
-    </li>
     <li class="list-group-item text-center" placement="top" *ngIf="showAdd || showEdit || showRemove">
       <button type="button" [disabled]="loading" (click)="addButtonClick()" class="btn btn-success" *ngIf="showAdd">
         <i class="bi bi-plus-circle-fill"></i> Add</button>
       <button type="button" [disabled]="loading" (click)="editButtonClick()" class="btn btn-primary" *ngIf="showEdit">
         <i class="bi bi-pencil-square"></i> Edit</button>
-      <button type="button" [disabled]="loading" (click)="cloneButtonClick()" class="btn btn-success ms-1" *ngIf="showClone">
+      <button type="button" [disabled]="loading" (click)="cloneButtonClick()" class="btn btn-success ms-1"
+        *ngIf="showClone">
         <i class="bi bi-files"></i> Clone</button>
       <button type="button" [disabled]="loading" (click)="removeButtonClick()" class="btn btn-danger"
         *ngIf="showRemove">
@@ -69,5 +36,11 @@
         <span class="spinner-border spinner-border-sm ms-1" role="status" aria-hidden="true" *ngIf="loading"></span>
       </button>
     </li>
+    <ng-container *ngIf="dependentVideos">
+    <li *ngFor="let video of dependentVideos" class="list-group-item text-center">
+      <a  [routerLink]="['/musicVideoBuilder', video.videoId]" [queryParams]="{tab: 2}">Go to
+                                {{video.videoName}} video timeline</a>
+    </li>
+  </ng-container>
   </ul>
 </div>

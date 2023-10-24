@@ -1,28 +1,7 @@
 <div class="mb-3">
     <div class="card text-center">
-        <div class="imageContainer" [style.background-color]="clips[playingClipIndex].backgroundColour !== null ? '#' + clips[playingClipIndex].backgroundColour : 'black'">
-            <ng-container *ngFor="let clipDisplayLayer of clips[playingClipIndex].clipDisplayLayers; let i = index">
-                <ng-container *ngFor="let layerloop of getLayers(clipDisplayLayer)">
-            <img 
-                [src]="storageUrl + '/' + layerloop.layerId + '/sprite.png'"
-                [alt]="layerloop.layerId" 
-                [style.left.px]="getLeftPosition(leftPosition, clipDisplayLayer)" 
-                [style.z-index]="i + (layerloop.isOverlay === true ? 0 : 1)"
-                [style.mix-blend-mode]="layerloop.isOverlay === true ? 'normal' : 'screen'"
-                [style.filter]="'url(\'#' + i + '-' + clips[playingClipIndex].clipId + layerloop.layerId + '\')'"
-                crossorigin="anonymous"/>
-                <svg xmlns="http://www.w3.org/2000/svg">
-                    <filter
-                        [id]="i + '-' + clips[playingClipIndex].clipId + layerloop.layerId">
-                        <feColorMatrix type="matrix"
-                            [attr.values]="toColourMatrix(getColour(layerloop, clips[playingClipIndex]))">
-                        </feColorMatrix>
-                    </filter>
-                </svg>
-            </ng-container>
-            </ng-container>
-            <img [src]="storageUrl + '/custom-pages/watermark.png'" class="watermark" crossorigin="anonymous"/>
-        </div>
+        <app-display [clip]="clips[playingClipIndex]" [collections]="collections" [leftPosition]="leftPosition">            
+        </app-display>
         <ul class="list-group list-group-flush">
             <li class="list-group-item">
                 <span [ngbTooltip]="'Set player to start.'">

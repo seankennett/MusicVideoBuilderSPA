@@ -1,0 +1,36 @@
+<div class="imageContainer" [style.width.px]="width" [style.height.px]="height"
+    [style.background-color]="clip && clip.backgroundColour !== null ? '#' + clip.backgroundColour : 'black'">
+    <ng-container *ngIf="clip && clip.clipDisplayLayers?.length ?? 0 > 0">
+      <ng-container *ngFor="let clipDisplayLayer of clip.clipDisplayLayers; let i = index">
+        <ng-container *ngFor="let layerloop of getLayers(clipDisplayLayer)">
+          <img [src]="storageUrl + '/' + layerloop.layerId + '/sprite.png'" [alt]="layerloop.layerId" [style.height.px]="height"
+            [style.left.px]="getLeftPosition(clipDisplayLayer)" [style.z-index]="i + (layerloop.isOverlay === true ? 0 : 1)"
+            [style.mix-blend-mode]="layerloop.isOverlay === true ? 'normal' : 'screen'" crossorigin="anonymous"
+            [style.filter]="'url(\'#' + clip.clipId + layerloop.layerId + '\')'" [style.transform]="scale(clipDisplayLayer)" />
+          <svg xmlns="
+            http://www.w3.org/2000/svg">
+            <filter [id]="clip.clipId + layerloop.layerId">
+              <feColorMatrix type="matrix" [attr.values]="toColourMatrix(getColour(layerloop))">
+              </feColorMatrix>
+            </filter>
+          </svg>
+        </ng-container>
+      </ng-container>
+    </ng-container>
+    <ng-container *ngIf="collection">
+      <ng-container *ngFor="let layerloop of collectionLayers">
+        <img [src]="storageUrl + '/' + layerloop.layerId + '/sprite.png'" [alt]="layerloop.layerId"
+          [style.left.px]="leftPosition" [style.z-index]="layerloop.isOverlay === true ? 0 : 1"
+          [style.mix-blend-mode]="layerloop.isOverlay === true ? 'normal' : 'screen'" crossorigin="anonymous"
+          [style.filter]="'url(\'#' + layerloop.layerId + '\')'" [style.height.px]="height"/>
+        <svg xmlns="
+        http://www.w3.org/2000/svg">
+          <filter [id]="layerloop.layerId">
+            <feColorMatrix type="matrix" [attr.values]="toColourMatrix(getDefaultColour(layerloop.layerId))">
+            </feColorMatrix>
+          </filter>
+        </svg>
+      </ng-container>
+    </ng-container>
+    <img [src]="storageUrl + '/custom-pages/watermark.png'" class="watermark" crossorigin="anonymous" [style.width.px]="width"/>
+  </div>

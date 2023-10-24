@@ -32,6 +32,7 @@ import { environment } from 'src/environments/environment';
 import { ConfirmationComponent } from './confirmation/confirmation.component';
 import { BuilddisplaystatusComponent } from './builddisplaystatus/builddisplaystatus.component';
 import { CollectionsearchComponent } from './collectionsearch/collectionsearch.component';
+import { DisplayComponent } from './display/display.component';
 
 /**
  * Here we pass the configuration parameters to create an MSAL instance.
@@ -91,7 +92,8 @@ export function MSALGuardConfigFactory(): MsalGuardConfiguration {
     ToastsComponent,
     ConfirmationComponent,
     BuilddisplaystatusComponent,
-    CollectionsearchComponent
+    CollectionsearchComponent,
+    DisplayComponent
   ],
   imports: [
     BrowserModule,

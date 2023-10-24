@@ -1,15 +1,10 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { environment } from 'src/environments/environment';
 import { Clip } from '../clip';
 import { Formats } from '../formats';
 import { Video } from '../video';
-import { Displaylayer } from '../displaylayer';
-import { Clipdisplaylayer } from '../clipdisplaylayer';
-import { Layer } from '../layer';
 import { Videoclip } from '../videoclip';
+import { Collection } from '../collection';
 
-const imageWidth = 192;
-const byteSize = 256;
 const framesPerBeat = 16;
 @Component({
   selector: 'app-galleryvideo',
@@ -19,16 +14,18 @@ const framesPerBeat = 16;
 export class GalleryvideoComponent implements OnInit {
 
   @Input() video!: Video
+  @Input() isBuilding = false
   @Input() clips!: Clip[]
-  @Input() displayLayers!: Displaylayer[]
+  @Input() collections!: Collection[]
   @Input() loading = false;
   @Input() showEdit = true;
   @Input() showRemove = false;
 
   @Output() buttonClickEvent = new EventEmitter<{video: Video, tab: number}>();
 
+  imageWidth = 192;
+  imageHeight = 108;
   Formats = Formats;
-  storageUrl = environment.storageUrl;
   
   constructor() { }
 
@@ -53,37 +50,15 @@ export class GalleryvideoComponent implements OnInit {
   }
 
   getContainerLeft = (isLeft: boolean) => {
-    return isLeft === false ? imageWidth : 0;
+    return isLeft === false ? this.imageWidth : 0;
   }
 
-  getClipLeft = (clip: Clip, clipDisplayLayer: Clipdisplaylayer) => {
-    var leftPosition = -(clip.startingBeat - 1) * framesPerBeat * imageWidth
-    if (clipDisplayLayer.reverse === true){
-      // minus one as we start on frame 0 going to frame 63
-      return leftPosition - ((clip.beatLength) * framesPerBeat - 1) * imageWidth
-    }
-
-    return leftPosition;
+  getContainerTop = (isTop: boolean) =>{
+    return isTop === false ? this.imageHeight: 0;
   }
 
-  getClipZIndex = (i: number, isLeft: boolean) => {
-    return isLeft === false ? i + byteSize : i;
-  }
-
-  // nicked form galleryplayer
-  toColourMatrix = (hexCode: string) => {
-    var rgbArray = hexCode?.match(/[A-Za-z0-9]{2}/g)?.map(v => parseInt(v, 16)) ?? [255, 255, 255];
-    return rgbArray[0] / 255 + " 0 0 0 0    0 " + rgbArray[1] / 255 + " 0 0 0    0 0 " + rgbArray[2] / 255 + " 0 0    0 0 0 1 0";
-  }
-
-  // modified form galleryplayer
-  getLayers = (clipDisplayLayer: Clipdisplaylayer) => {
-    return this.displayLayers.find(x => x.displayLayerId === clipDisplayLayer.displayLayerId)?.layers;
-  }
-
-  // modified form galleryplayer
-  getColour = (layer: Layer, clip: Clip) => {
-    return clip.clipDisplayLayers.flatMap(x => x.layerClipDisplayLayers).find(x => x.layerId === layer.layerId)?.colour ?? "";
+  getClipLeft = (clip: Clip) => {
+    return -(clip.startingBeat - 1) * framesPerBeat * this.imageWidth
   }
 
   getClip = (videoClip: Videoclip) =>{

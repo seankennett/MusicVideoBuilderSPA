@@ -1,0 +1,19 @@
+.imageContainer{
+    position:relative;
+    overflow:hidden;
+    margin: auto;
+}
+
+.imageContainer img {
+    position:absolute;
+}
+
+.imageContainer .watermark {
+    left: 0px;
+    bottom: 0px;
+    z-index: 1000;
+}
+
+.imageContainer svg {
+    display: none;
+}

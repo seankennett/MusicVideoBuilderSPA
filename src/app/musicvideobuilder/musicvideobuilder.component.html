@@ -18,7 +18,7 @@
                 <div class="row">
                     <div *ngFor="let video of videos; let i = index" class="col-sm mb-3">
                         <app-galleryvideo [video]="video" (buttonClickEvent)="editVideo($event, 100)"
-                            [loading]="editorLoading" [displayLayers]="displayLayers" [clips]="clips">
+                            [loading]="editorLoading" [collections]="collections" [clips]="clips">
                         </app-galleryvideo>
                     </div>
                 </div>
@@ -218,32 +218,8 @@
                                             *ngFor="let videoClipControl of this.videoClipsFormArray.controls; let i = index; let last = last">
                                             <div class="col-3 mb-3" *ngIf="showBlock(i)">
                                                 <div class="card text-center">
-                                                    <div class="imageContainer"
-                                                        [style.background-color]="getClip(videoClipControl.value).backgroundColour !== null ? '#' + getClip(videoClipControl.value).backgroundColour : 'black'">
-                                                        <ng-container
-                                                            *ngFor="let clipDisplayLayer of getClip(videoClipControl.value).clipDisplayLayers; let j = index">
-                                                            <ng-container
-                                                                *ngFor="let layerloop of getLayers(clipDisplayLayer)">
-                                                                <img [src]="storageUrl + '/' + layerloop.layerId + '/sprite.png'"
-                                                                    [alt]="layerloop.layerId"
-                                                                    [style.left.px]="calculateLeft(getClip(videoClipControl.value), clipDisplayLayer)"
-                                                                    [style.z-index]="j + (layerloop.isOverlay === true ? 0 : 1)"
-                                                                    [style.mix-blend-mode]="layerloop.isOverlay === true ? 'normal' : 'screen'"
-                                                                    [style.filter]="'url(\'#' + j + '-' + getClip(videoClipControl.value).clipId + layerloop.layerId + '\')'"
-                                                                    crossorigin="anonymous" />
-                                                                <svg xmlns="http://www.w3.org/2000/svg">
-                                                                    <filter
-                                                                        [id]="j + '-' +videoClipControl.value.clipId + layerloop.layerId">
-                                                                        <feColorMatrix type="matrix"
-                                                                            [attr.values]="toColourMatrix(getColour(layerloop, clipDisplayLayer))">
-                                                                        </feColorMatrix>
-                                                                    </filter>
-                                                                </svg>
-                                                            </ng-container>
-                                                        </ng-container>
-                                                        <img [src]="storageUrl + '/custom-pages/watermark.png'"
-                                                            class="watermark" crossorigin="anonymous" />
-                                                    </div>
+                                                    <app-display [clip]="getClip(videoClipControl.value)" [collections]="collections" [leftPosition]="getLeft(getClip(videoClipControl.value))" [width]="timelineImageWidth" [height]="timelineImageHeight">                                                        
+                                                    </app-display>                                                    
                                                     <h5 class="card-header">{{calculateClipNameFromClipIndex(i)}}</h5>
                                                     <ul class="list-group list-group-flush">
                                                         <li class="list-group-item">
@@ -355,7 +331,7 @@
                                 <div class="mb-3">
                                     <h3>Final Video Player</h3>
                                     <app-videoplayer [selectedClipIndex]="selectedClipIndex" [video]="editorVideo" [clips]="editorVideoClipsFull"
-                                        (setSelectedIndexEvent)="setSelectedClipIndex($event)" [displayLayers]="displayLayers"
+                                        (setSelectedIndexEvent)="setSelectedClipIndex($event)" [collections]="collections"
                                         [file]="file"></app-videoplayer>
                                 </div>
                             </ng-container>

@@ -6,8 +6,8 @@
     <p class="lead">Clip builder allows you to combine layers to either make a new clip or edit an existing one.</p>
     <p>Once you create a clip you can then use this to <a [routerLink]="['/musicVideoBuilder']"><i
                 class="bi bi-hammer"></i>build a video</a>. Use the
-        controls below to create or edit your clips.  To remove a clip please visit your <a [routerLink]="['/musicVideoBuilder']"><i
-            class="bi bi-collection-fill"></i> library</a></p>
+        controls below to create or edit your clips. To remove a clip please visit your <a
+            [routerLink]="['/musicVideoBuilder']"><i class="bi bi-collection-fill"></i> library</a></p>
     <app-pageloading [pageLoading]="pageLoading"></app-pageloading>
     <ng-container *ngIf="!pageLoading">
         <app-bpmcontrol (bpmEvent)="setBpm($event)" (isPlayingEvent)="setIsPlaying($event)"></app-bpmcontrol>
@@ -17,7 +17,8 @@
                 <div class="row">
                     <div *ngFor="let clip of clips; let i = index" class="col-sm mb-3">
                         <app-galleryplayer [clip]="clip" [bpm]="bpm" [isPlaying]="isPlaying" [showEdit]="true"
-                            [showAdd]="false" (editButtonClickClipEvent)="editClip($event)" [collections]="collections" [showClone]="true" (cloneButtonClickClipEvent)="cloneClip($event)"></app-galleryplayer>
+                            [showAdd]="false" (editButtonClickClipEvent)="editClip($event)" [collections]="collections"
+                            [showClone]="true" (cloneButtonClickClipEvent)="cloneClip($event)"></app-galleryplayer>
                     </div>
                 </div>
             </div>
@@ -183,12 +184,27 @@
                                         <app-galleryplayer [clip]="selectedCollectionClip" [collections]="collections"
                                             [bpm]="bpm" [showAdd]="false"></app-galleryplayer>
                                     </div>
-                                    <div class="form-check mb-3">
-                                        <input class="form-check-input" type="checkbox" formControlName="reverseControl" id="reverse">
+                                    <div class="form-check form-check-inline mb-3">
+                                        <input class="form-check-input" type="checkbox" formControlName="reverseControl"
+                                            id="reverse">
                                         <label class="form-check-label" for="reverse">
-                                          Reverse
+                                            Reverse
                                         </label>
-                                      </div>
+                                    </div>
+                                    <div class="form-check form-check-inline mb-3">
+                                        <input class="form-check-input" type="checkbox" formControlName="flipHorizontalControl"
+                                            id="flipHorizontal">
+                                        <label class="form-check-label" for="flipHorizontal">
+                                            Flip Horizontal
+                                        </label>
+                                    </div>
+                                    <div class="form-check form-check-inline mb-3">
+                                        <input class="form-check-input" type="checkbox" formControlName="flipVerticalControl"
+                                            id="flipVertical">
+                                        <label class="form-check-label" for="flipVertical">
+                                            Flip Vertical
+                                        </label>
+                                    </div>
                                     <ng-container formArrayName="layerClipDisplayLayersFormArray">
                                         <div class="mb-3"
                                             *ngFor="let layerClipDisplayLayerGroup of layerClipDisplayLayersFormArray(clipDisplayLayerGroup);let j = index"
@@ -196,11 +212,12 @@
                                             <label [htmlFor]="j" class="form-label">Layer Colour #{{j + 1}}</label>
                                             <input [id]="j" type="color" class="form-control"
                                                 formControlName="colourControl" />
-                                        </div>                                        
+                                        </div>
                                     </ng-container>
                                     <div class="mb-3">
                                         <button type="button" (click)="toggleAddNewClipDisplayLayer()"
-                                            class="btn btn-success" [disabled]="shouldDisableDisplayLayer" [ngbTooltip]="shouldDisableDisplayLayerToolTip">
+                                            class="btn btn-success" [disabled]="shouldDisableDisplayLayer"
+                                            [ngbTooltip]="shouldDisableDisplayLayerToolTip">
                                             <i class="bi bi-plus-circle-fill"></i> Add</button>
                                     </div>
                                 </div>
@@ -236,13 +253,13 @@
                                         *ngIf="i !== clipDisplayLayersFormArray.controls.length - 1 && convertFormGroupToCollection(clipDisplayLayerFormGroup)?.collectionType === Collectiontypes.Foreground"
                                         type="button" class="btn btn-secondary ms-1" (click)="moveForward(i)"><i
                                             class="bi bi-front"></i> Move
-                                        Forward</button>                                    
+                                        Forward</button>
                                     <button *ngIf="i === clipDisplayLayersFormArray.controls.length - 1" type="button"
                                         class="btn btn-danger ms-1" (click)="removeclipDisplayLayer(i)"><i
                                             class="bi bi-dash-circle-fill"></i>
                                         Remove</button>
-                                    <button type="button"
-                                        class="btn btn-primary ms-1" (click)="editClipDisplayLayer(i)">
+                                    <button type="button" class="btn btn-primary ms-1"
+                                        (click)="editClipDisplayLayer(i)">
                                         <i class="bi bi-pencil-square"></i> Edit</button>
                                 </div>
                             </li>
@@ -262,15 +279,17 @@
                     </div>
                     <div class="mb-3">
                         <h2>Final Clip Player</h2>
-                        <app-galleryplayer [clip]="editorClip" [bpm]="bpm" [isPlaying]="isPlaying" [showAdd]="false" [collections]="collections">
+                        <app-galleryplayer [clip]="editorClip" [bpm]="bpm" [isPlaying]="isPlaying" [showAdd]="false"
+                            [collections]="collections">
                         </app-galleryplayer>
                     </div>
-                </ng-container>                
+                </ng-container>
                 <div class="mb-3">
                     <button type="submit" [disabled]="!clipForm.valid || saving || noClipChanges()"
                         class="btn btn-primary me-1"><i class="bi bi-floppy-fill"></i>
-                         Save
-                        <span class="spinner-border spinner-border-sm ms-1" role="status" aria-hidden="true" *ngIf="saving"></span>
+                        Save
+                        <span class="spinner-border spinner-border-sm ms-1" role="status" aria-hidden="true"
+                            *ngIf="saving"></span>
                     </button>
                     <button type="button" class="btn btn-danger" (click)="toggleEditor()"><i
                             class="bi bi-dash-circle-fill"></i>

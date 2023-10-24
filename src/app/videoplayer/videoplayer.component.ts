@@ -3,10 +3,10 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { takeWhile, timer } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { Video } from '../video';
-import { Displaylayer } from '../displaylayer';
 import { Clipdisplaylayer } from '../clipdisplaylayer';
 import { Layer } from '../layer';
 import { Clip } from '../clip';
+import { Collection } from '../collection';
 
 const millisecondsInSecond = 1000;
 const framesPerSecond = 1 / 24;
@@ -23,8 +23,6 @@ export class VideoplayerComponent implements OnInit {
 
   @Input() selectedClipIndex = 0;
 
-  storageUrl = environment.storageUrl;
-  
   audioPlayer = new Audio();
   get hasAudioFile() {
     return this.audioPlayer.src?.length > 0;
@@ -32,7 +30,7 @@ export class VideoplayerComponent implements OnInit {
 
   @Input() video!: Video;
   @Input() clips!: Clip[];
-  @Input() displayLayers!: Displaylayer[]
+  @Input() collections!: Collection[]
   @Input() file: File | null = null;
 
   get videoDurationSeconds() {
@@ -66,15 +64,6 @@ export class VideoplayerComponent implements OnInit {
     var frameInClipNumber = Math.round(this.numberOfFrames * this.percentageOfPlayingClipDuration) + this.skipFrames
 
     return -(frameInClipNumber) * imageWidth;
-  }
-
-  getLeftPosition = (leftPosition:number, clipDisplayLayer:Clipdisplaylayer) =>{
-    if (clipDisplayLayer.reverse === true){
-      var endLeftPosition = -(this.numberOfFrames + this.skipFrames) * imageWidth;      
-      return endLeftPosition - leftPosition;
-    }
-
-    return leftPosition;
   }
 
   get playingClipIndex() {
@@ -152,18 +141,18 @@ export class VideoplayerComponent implements OnInit {
       timer(0, framesPerSecond * millisecondsInSecond).pipe(
         takeWhile(() => this.isPlaying)
       ).subscribe(() => {
-        var _currentTimeSeconds = 0;
+        var currentTimeSeconds = 0;
         if (this.hasAudioFile) {
-          _currentTimeSeconds = this.audioPlayer.currentTime - (this.video.videoDelayMilliseconds ?? 0) / millisecondsInSecond;
+          currentTimeSeconds = this.audioPlayer.currentTime - (this.video.videoDelayMilliseconds ?? 0) / millisecondsInSecond;
         } else {
           var newTime = Date.now();
-          _currentTimeSeconds = (newTime - startTime) / millisecondsInSecond;
+          currentTimeSeconds = (newTime - startTime) / millisecondsInSecond;
         }
 
-        if (_currentTimeSeconds >= this.videoDurationSeconds) {
+        if (currentTimeSeconds >= this.videoDurationSeconds) {
           this.stop();
         } else {
-          this._currentTimeSeconds = _currentTimeSeconds;
+          this._currentTimeSeconds = currentTimeSeconds;
         }
       });
     } else {
@@ -181,21 +170,5 @@ export class VideoplayerComponent implements OnInit {
 
   setSelectedClipIndex = (index: number) => {
     this.setSelectedIndexEvent.emit(index);
-  }
-
-   // nicked form galleryplayer
-   toColourMatrix = (hexCode: string) => {
-    var rgbArray = hexCode?.match(/[A-Za-z0-9]{2}/g)?.map(v => parseInt(v, 16)) ?? [255, 255, 255];
-    return rgbArray[0] / 255 + " 0 0 0 0    0 " + rgbArray[1] / 255 + " 0 0 0    0 0 " + rgbArray[2] / 255 + " 0 0    0 0 0 1 0";
-  }
-
-  // modified form galleryplayer
-  getLayers = (clipDisplayLayer: Clipdisplaylayer) => {
-    return this.displayLayers.find(x => x.displayLayerId === clipDisplayLayer.displayLayerId)?.layers;
-  }
-
-  // modified form galleryplayer
-  getColour = (layer: Layer, clip: Clip) => {
-    return clip.clipDisplayLayers.flatMap(x => x.layerClipDisplayLayers).find(x => x.layerId === layer.layerId)?.colour ?? "";
   }
 }

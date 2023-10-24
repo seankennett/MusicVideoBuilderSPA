@@ -47,10 +47,6 @@ export class MyLibraryComponent implements OnInit {
     return this.buildAssets.filter(ba => ba.buildStatus == Buildstatus.BuildingPending || ba.buildStatus == Buildstatus.PaymentChargePending);
   }
 
-  get displayLayers(){
-    return this.collections.flatMap(c => c.displayLayers);
-  }
-
   get clips(){
     return this.independentClips.concat(this.dependentClips.map(d => d.clip))
   }
