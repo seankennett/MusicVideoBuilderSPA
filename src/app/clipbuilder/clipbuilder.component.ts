@@ -13,6 +13,7 @@ import { Collectiontypes } from '../collectiontypes';
 import { Direction } from '../direction';
 import { Clipdisplaylayer } from '../clipdisplaylayer';
 import { Layerclipdisplaylayer } from '../layerclipdisplaylayer';
+import { Fadetypes } from '../fadetypes';
 
 const beatsPerLayer = 4;
 
@@ -56,6 +57,40 @@ export class ClipBuilderComponent implements OnInit {
       this.location.replaceState('/clipBuilder/');
     } else {
       this.location.replaceState('/clipBuilder/' + clipId);
+    }
+  }
+
+  FadeTypes = Fadetypes
+  fadeTypeList: Fadetypes[] = [
+    Fadetypes.In,
+    Fadetypes.Out
+  ]
+
+  setFadeColourControl = (fadeTypeControl: AbstractControl | null, colourControl: AbstractControl | null, enableLayerColourTransitionControl: AbstractControl | null) => {
+    if (this.selectedCollection?.collectionType === Collectiontypes.Background && colourControl && fadeTypeControl) {
+      if (fadeTypeControl.value === null) {
+        colourControl.setValue(null);
+      } else if (colourControl.value === null) {
+        colourControl.setValue('#000000');
+      }
+    }
+
+    if (fadeTypeControl) {
+      if (fadeTypeControl.value !== null && enableLayerColourTransitionControl) {
+        enableLayerColourTransitionControl.setValue(false);
+      }
+      this.layerClipDisplayLayersFormArray(this.clipDisplayLayersFormArray.controls[this.clipDisplayLayersFormArrayIndex]).forEach(l => {
+        l.get('endColourControl')?.setValue(null);
+      });
+    }
+  }
+
+  enableLayerColourTransitionsChange = (enableLayerColourTransitionControl: AbstractControl | null) => {
+    if (enableLayerColourTransitionControl) {
+      this.layerClipDisplayLayersFormArray(this.clipDisplayLayersFormArray.controls[this.clipDisplayLayersFormArrayIndex]).forEach(l => {
+        var colour = enableLayerColourTransitionControl.value === true ? l.get('colourControl')?.value : null;
+        l.get('endColourControl')?.setValue(colour);
+      });
     }
   }
 
@@ -154,6 +189,10 @@ export class ClipBuilderComponent implements OnInit {
       reverseControl: this.formBuilder.control(false),
       flipHorizontalControl: this.formBuilder.control(false),
       flipVerticalControl: this.formBuilder.control(false),
+      colourControl: this.formBuilder.control(null),
+      endColourControl: this.formBuilder.control(null),
+      fadeTypeControl: this.formBuilder.control(null),
+      enableLayerColourTransitionControl: this.formBuilder.control(false),
       layerClipDisplayLayersFormArray: layerClipDisplayLayersFormArray
     });
 
@@ -240,12 +279,12 @@ export class ClipBuilderComponent implements OnInit {
     this.selectedCollection = null;
   }
 
-  addNewClipDisplayLayer = () =>{
+  addNewClipDisplayLayer = () => {
     this.undoClipDisplayLayerFormGroup = undefined;
     this.toggleAddNewClipDisplayLayer();
   }
 
-  cancelAddingDisplayLayer = () => {    
+  cancelAddingDisplayLayer = () => {
     if (this.undoClipDisplayLayerFormGroup) {
       this.clipDisplayLayersFormArray.controls[this.clipDisplayLayersFormArrayIndex] = this.convertClipDisplayLayerToFormGroup(this.undoClipDisplayLayerFormGroup);
     } else {
@@ -259,13 +298,20 @@ export class ClipBuilderComponent implements OnInit {
     this.clipDisplayLayersFormArray.push(group);
   }
 
-  convertClipDisplayLayerToFormGroup = (clipDisplayLayer: Clipdisplaylayer) =>{
+  convertClipDisplayLayerToFormGroup = (clipDisplayLayer: Clipdisplaylayer) => {
     var layerClipDisplayLayersFormArray = this.formBuilder.array([]);
 
+    var enableLayerColourTransition = false;
     clipDisplayLayer.layerClipDisplayLayers.forEach(l => {
+      var endColour = null;
+      if (l.endColour !== null) {
+        enableLayerColourTransition = true;
+        endColour = '#' + l.endColour;
+      }
       var group = this.formBuilder.group({
         layerIdControl: this.formBuilder.control(l.layerId),
-        colourControl: this.formBuilder.control('#' + l.colour)
+        colourControl: this.formBuilder.control('#' + l.colour),
+        endColourControl: this.formBuilder.control(endColour)
       });
       layerClipDisplayLayersFormArray.push(group);
     });
@@ -274,6 +320,9 @@ export class ClipBuilderComponent implements OnInit {
       reverseControl: this.formBuilder.control(clipDisplayLayer.reverse),
       flipHorizontalControl: this.formBuilder.control(clipDisplayLayer.flipHorizontal),
       flipVerticalControl: this.formBuilder.control(clipDisplayLayer.flipVertical),
+      colourControl: this.formBuilder.control(clipDisplayLayer.colour === null ? null : '#' + clipDisplayLayer.colour),
+      fadeTypeControl: this.formBuilder.control(clipDisplayLayer.fadeType),
+      enableLayerColourTransitionControl: this.formBuilder.control(enableLayerColourTransition),
       layerClipDisplayLayersFormArray: layerClipDisplayLayersFormArray
     });
   }
@@ -311,12 +360,15 @@ export class ClipBuilderComponent implements OnInit {
           reverse: formGroup.get('reverseControl')?.value,
           flipHorizontal: formGroup.get('flipHorizontalControl')?.value,
           flipVertical: formGroup.get('flipVerticalControl')?.value,
+          colour: formGroup.get('colourControl')?.value?.slice(1) ?? null,
+          fadeType: formGroup.get('fadeTypeControl')?.value,
           layerClipDisplayLayers: []
         }
 
         this.layerClipDisplayLayersFormArray(formGroup).forEach(fg => {
           var layerClipDisplayLayer = <Layerclipdisplaylayer>{
             colour: fg.get('colourControl')?.value.slice(1),
+            endColour: fg.get('endColourControl')?.value?.slice(1) ?? null,
             layerId: fg.get('layerIdControl')?.value
           }
           clipDisplayLayer.layerClipDisplayLayers.push(layerClipDisplayLayer);
@@ -330,7 +382,7 @@ export class ClipBuilderComponent implements OnInit {
     };
   }
 
-  get selectedCollectionClip():Clip{
+  get selectedCollectionClip(): Clip {
     return <Clip>{
       clipId: this.editorClip.clipId,
       backgroundColour: this.editorClip.backgroundColour,
@@ -380,12 +432,12 @@ export class ClipBuilderComponent implements OnInit {
     this.unchangedClip = { ...this.editorClip };
   }
 
-  cloneClip = (clip: Clip) =>{
+  cloneClip = (clip: Clip) => {
     this.setClipBase(clip);
     this.unchangedClip = { ...this.editorClip };
   }
 
-  private setClipBase = (clip: Clip) =>{
+  private setClipBase = (clip: Clip) => {
     this.toggleEditor();
     if (clip.backgroundColour !== null) {
       this.addBackgroundColour(clip.backgroundColour);

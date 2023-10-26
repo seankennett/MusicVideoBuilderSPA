@@ -4,14 +4,13 @@
     margin: auto;
 }
 
-.imageContainer img {
+.imageContainer img,  .imageContainer div {
     position:absolute;
 }
 
 .imageContainer .watermark {
     left: 0px;
     bottom: 0px;
-    z-index: 1000;
 }
 
 .imageContainer svg {

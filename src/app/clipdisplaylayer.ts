@@ -1,3 +1,4 @@
+import { Fadetypes } from "./fadetypes"
 import { Layerclipdisplaylayer } from "./layerclipdisplaylayer"
 
 export interface Clipdisplaylayer {
@@ -6,4 +7,6 @@ export interface Clipdisplaylayer {
     reverse: boolean
     flipHorizontal: boolean
     flipVertical: boolean
+    fadeType: Fadetypes | null
+    colour: string | null
 }

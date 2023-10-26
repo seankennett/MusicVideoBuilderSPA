@@ -4,29 +4,30 @@
       <ng-container *ngFor="let clipDisplayLayer of clip.clipDisplayLayers; let i = index">
         <ng-container *ngFor="let layerloop of getLayers(clipDisplayLayer)">
           <img [src]="storageUrl + '/' + layerloop.layerId + '/sprite.png'" [alt]="layerloop.layerId" [style.height.px]="height"
-            [style.left.px]="getLeftPosition(clipDisplayLayer)" [style.z-index]="i + (layerloop.isOverlay === true ? 0 : 1)"
+            [style.left.px]="getLeftPosition(clipDisplayLayer)" [style.opacity]="getLayerFadeOpacity(layerloop.isOverlay, clipDisplayLayer)"
             [style.mix-blend-mode]="layerloop.isOverlay === true ? 'normal' : 'screen'" crossorigin="anonymous"
-            [style.filter]="'url(\'#' + clip.clipId + layerloop.layerId + '\')'" [style.transform]="scale(clipDisplayLayer)" />
+            [style.filter]="'url(\'#' + uniqueComponentId + '-' + clip.clipId + '-'  + layerloop.layerId + '\')'" [style.transform]="scale(clipDisplayLayer)" />
           <svg xmlns="
             http://www.w3.org/2000/svg">
-            <filter [id]="clip.clipId + layerloop.layerId">
-              <feColorMatrix type="matrix" [attr.values]="toColourMatrix(getColour(layerloop))">
+            <filter [id]="uniqueComponentId + '-' + clip.clipId + '-'  + layerloop.layerId">
+              <feColorMatrix type="matrix" [attr.values]="toColourMatrix(layerloop, clipDisplayLayer)">
               </feColorMatrix>
             </filter>
           </svg>
         </ng-container>
+        <div *ngIf="clipDisplayLayer.colour" [style.background-color]="'#' + clipDisplayLayer.colour" [style.width.px]="width" [style.height.px]="height" [style.opacity]="getBackgroundFadeOpacity(clipDisplayLayer.fadeType)"></div>
       </ng-container>
     </ng-container>
     <ng-container *ngIf="collection">
       <ng-container *ngFor="let layerloop of collectionLayers">
         <img [src]="storageUrl + '/' + layerloop.layerId + '/sprite.png'" [alt]="layerloop.layerId"
-          [style.left.px]="leftPosition" [style.z-index]="layerloop.isOverlay === true ? 0 : 1"
+          [style.left.px]="leftPosition"
           [style.mix-blend-mode]="layerloop.isOverlay === true ? 'normal' : 'screen'" crossorigin="anonymous"
           [style.filter]="'url(\'#' + layerloop.layerId + '\')'" [style.height.px]="height"/>
         <svg xmlns="
         http://www.w3.org/2000/svg">
           <filter [id]="layerloop.layerId">
-            <feColorMatrix type="matrix" [attr.values]="toColourMatrix(getDefaultColour(layerloop.layerId))">
+            <feColorMatrix type="matrix" [attr.values]="toColourMatrix(layerloop, null)">
             </feColorMatrix>
           </filter>
         </svg>

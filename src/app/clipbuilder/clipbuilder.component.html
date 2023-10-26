@@ -184,6 +184,22 @@
                                         <app-galleryplayer [clip]="selectedCollectionClip" [collections]="collections"
                                             [bpm]="bpm" [showAdd]="false"></app-galleryplayer>
                                     </div>
+                                    <div class="mb-3">
+                                        <label for="fadeType" class="form-label">Fade Type</label>
+                                        <select id="fadeType" class="form-control" formControlName="fadeTypeControl"
+                                            (change)="setFadeColourControl(clipDisplayLayerGroup.get('fadeTypeControl'), clipDisplayLayerGroup.get('colourControl'), clipDisplayLayerGroup.get('enableLayerColourTransitionControl'))">
+                                            <option [ngValue]="null">None</option>
+                                            <option *ngFor="let fadeType of fadeTypeList" [ngValue]="fadeType">
+                                                {{FadeTypes[fadeType]}}
+                                            </option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3"
+                                        *ngIf="clipDisplayLayerGroup.get('fadeTypeControl')?.value !== null && selectedCollection.collectionType === Collectiontypes.Background">
+                                        <label for="colour" class="form-label">Fade Colour</label>
+                                        <input id="colour" type="color" class="form-control"
+                                            formControlName="colourControl" />
+                                    </div>
                                     <div class="form-check form-check-inline mb-3">
                                         <input class="form-check-input" type="checkbox" formControlName="reverseControl"
                                             id="reverse">
@@ -192,27 +208,48 @@
                                         </label>
                                     </div>
                                     <div class="form-check form-check-inline mb-3">
-                                        <input class="form-check-input" type="checkbox" formControlName="flipHorizontalControl"
-                                            id="flipHorizontal">
+                                        <input class="form-check-input" type="checkbox"
+                                            formControlName="flipHorizontalControl" id="flipHorizontal">
                                         <label class="form-check-label" for="flipHorizontal">
                                             Flip Horizontal
                                         </label>
                                     </div>
                                     <div class="form-check form-check-inline mb-3">
-                                        <input class="form-check-input" type="checkbox" formControlName="flipVerticalControl"
-                                            id="flipVertical">
+                                        <input class="form-check-input" type="checkbox"
+                                            formControlName="flipVerticalControl" id="flipVertical">
                                         <label class="form-check-label" for="flipVertical">
                                             Flip Vertical
                                         </label>
                                     </div>
+                                    <div class="form-check form-check-inline mb-3"
+                                        *ngIf="clipDisplayLayerGroup.get('fadeTypeControl')?.value === null">
+                                        <input class="form-check-input" type="checkbox"
+                                            formControlName="enableLayerColourTransitionControl"
+                                            (change)="enableLayerColourTransitionsChange(clipDisplayLayerGroup.get('enableLayerColourTransitionControl'))"
+                                            id="enableLayerColourTransitions">
+                                        <label class="form-check-label" for="enableLayerColourTransitions">
+                                            Enable Layer Colour Transitions
+                                        </label>
+                                    </div>
                                     <ng-container formArrayName="layerClipDisplayLayersFormArray">
-                                        <div class="mb-3"
-                                            *ngFor="let layerClipDisplayLayerGroup of layerClipDisplayLayersFormArray(clipDisplayLayerGroup);let j = index"
-                                            [formGroupName]="j">
-                                            <label [htmlFor]="j" class="form-label">Layer Colour #{{j + 1}}</label>
-                                            <input [id]="j" type="color" class="form-control"
-                                                formControlName="colourControl" />
-                                        </div>
+                                        <ng-container
+                                            *ngFor="let layerClipDisplayLayerGroup of layerClipDisplayLayersFormArray(clipDisplayLayerGroup);let j = index">
+                                            <ng-container [formGroupName]="j">
+                                                <div class="mb-3">
+                                                    <label [htmlFor]="j + 'colour'" class="form-label">Layer Colour #{{j
+                                                        + 1}}</label>
+                                                    <input [id]="j + 'colour'" type="color" class="form-control"
+                                                        formControlName="colourControl" />
+                                                </div>
+                                                <div class="mb-3"
+                                                    *ngIf="clipDisplayLayerGroup.get('fadeTypeControl')?.value === null && clipDisplayLayerGroup.get('enableLayerColourTransitionControl')?.value === true">
+                                                    <label [htmlFor]="j + 'endColour'" class="form-label">Layer End
+                                                        Colour #{{j + 1}}</label>
+                                                    <input [id]="j + 'endColour'" type="color" class="form-control"
+                                                        formControlName="endColourControl" />
+                                                </div>
+                                            </ng-container>
+                                        </ng-container>
                                     </ng-container>
                                     <div class="mb-3">
                                         <button type="button" (click)="toggleAddNewClipDisplayLayer()"
