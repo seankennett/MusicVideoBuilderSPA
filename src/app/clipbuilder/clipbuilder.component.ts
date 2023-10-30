@@ -434,6 +434,7 @@ export class ClipBuilderComponent implements OnInit {
 
   cloneClip = (clip: Clip) => {
     this.setClipBase(clip);
+    this.clipNameControl.setValue(clip.clipName + '-copy');
     this.unchangedClip = { ...this.editorClip };
   }
 
