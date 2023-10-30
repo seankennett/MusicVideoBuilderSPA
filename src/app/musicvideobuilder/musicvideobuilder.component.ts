@@ -207,7 +207,7 @@ export class MusicVideoBuilderComponent implements OnInit {
     return index % this.clipsPerBlock === this.timelineEditorStartFinalIndex % this.clipsPerBlock;
   }
 
-  videoNameControl = this.formBuilder.control('', [Validators.required, Validators.maxLength(50), Validators.pattern("[A-z0-9]+")]);
+  videoNameControl = this.formBuilder.control('', [Validators.required, Validators.maxLength(50), Validators.pattern("[A-z0-9_-]+")]);
   bpmControl = this.formBuilder.control(null, [Validators.required, Validators.max(250), Validators.min(90)]);
   videoDelayMillisecondsControl = this.formBuilder.control(null, [Validators.max(2147483647), Validators.pattern("[0-9]+")]);
   formatControl = this.formBuilder.control(1, [Validators.required]);
@@ -522,6 +522,21 @@ export class MusicVideoBuilderComponent implements OnInit {
 
   getLeft = (clip: Clip) => {
     return -(clip.startingBeat - 1) * frameTotal / 4 * this.timelineImageWidth;
+  }
+
+  calculateClipNumber = (index: number) => {
+    var start = index + 1;
+    if (this.clipsPerBlock > 1){
+      var end = index + this.clipsPerBlock;
+      if (end >= this.videoClipsFormArray.length){
+        if (end - this.videoClipsFormArray.length === this.clipsPerBlock - 1){
+          return start;
+        }
+        end = this.videoClipsFormArray.length;
+      }
+      return start + ' - ' + end;
+    }
+    return start;
   }
 
   calculateBeatRangeFromClipIndex = (index: number) => {

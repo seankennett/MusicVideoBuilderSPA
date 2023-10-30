@@ -75,7 +75,7 @@
                                         class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="videoName"
                                     formControlName="videoNameControl" />
-                                <div class="form-text">Try to pick something short. Has to be Alpha Numeric and unique
+                                <div class="form-text">Try to pick something short. Has to be Alpha Numeric, hypthens and underscores allowed and unique
                                     across your
                                     videos.
                                 </div>
@@ -88,7 +88,7 @@
                                         Video name max length is 50 characters.
                                     </div>
                                     <div [hidden]="!videoNameControl?.errors?.['pattern']">
-                                        Video name must be alpha numeric.
+                                        Video name must be alpha numeric, hypthens and underscores granted.
                                     </div>
                                 </div>
                             </div>
@@ -298,6 +298,9 @@
                                                         </li>
                                                         <li class="list-group-item">
                                                             Beat #: {{calculateBeatRangeFromClipIndex(i)}}
+                                                        </li>
+                                                        <li class="list-group-item">
+                                                            Clip #: {{calculateClipNumber(i)}}
                                                         </li>
                                                         <li class="list-group-item">
                                                             Time: {{displayTimeLineTimeRangeFromClipIndex(i) }}

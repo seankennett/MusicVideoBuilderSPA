@@ -39,7 +39,7 @@
                         <div class="mb-3">
                             <label for="clipName" class="form-label">Clip Name<span class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="clipName" formControlName="clipNameControl" />
-                            <div class="form-text">Try to pick something short. Has to be Alpha Numeric and unique
+                            <div class="form-text">Try to pick something short. Has to be Alpha Numeric, hypthens and underscores granted, and unique
                                 across your
                                 clips.
                             </div>
@@ -52,7 +52,7 @@
                                     Clip name max length is 50 characters.
                                 </div>
                                 <div [hidden]="!clipNameControl?.errors?.['pattern']">
-                                    Clip name must be alpha numeric.
+                                    Clip name must be alpha numeric, hypthens and underscores granted.
                                 </div>
                             </div>
                         </div>
