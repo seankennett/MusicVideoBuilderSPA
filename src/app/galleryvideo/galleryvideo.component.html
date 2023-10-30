@@ -37,7 +37,7 @@
             </button>
         </li>
         <li class="list-group-item" *ngIf="isBuilding">
-            <a class="list-group-item" [routerLink]="['/musicVideoBuilder', video.videoId]" [queryParams]="{tab: 2}">Go
+            <a [routerLink]="['/musicVideoBuilder', video.videoId]" [queryParams]="{tab: 2}">Go
                 to
                 {{video.videoName}} video timeline</a>
         </li>

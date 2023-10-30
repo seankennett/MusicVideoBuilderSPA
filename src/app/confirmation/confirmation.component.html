@@ -3,7 +3,7 @@
 </app-breadcrumb>
 <div class="container" *ngIf="resolution !== null && resolution > 1">
     <h1><i class="bi bi-check-circle-fill text-success"></i> Payment confirmed</h1>
-    <p class="lead">Your payment is on hold and will be charged once your video has been created.  You will be emailed a link to your video when it is built. 
+    <p class="lead">Your payment is on hold and will be charged once your video has been created.  You will be emailed a link to your video when it is built. Alternatively keep checking the <a [routerLink]="['/myLibrary']" ><i class="text-primary bi bi-collection-fill"></i> My Library</a> page 
     </p>
 </div>
 <div class="container" *ngIf="resolution === 1">
