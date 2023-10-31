@@ -231,6 +231,8 @@ export class ClipBuilderComponent implements OnInit {
 
   clipNameControl = this.formBuilder.control('', [Validators.required, Validators.maxLength(50), Validators.pattern("[A-z0-9_-]+")]);
   backgroundColourControl = this.formBuilder.control('#000000');
+  endBackgroundColourToggleControl = this.formBuilder.control(false);
+  endBackgroundColourControl = this.formBuilder.control(null);
   clipDisplayLayersFormArray = this.formBuilder.array([], [Validators.maxLength(this.maximumCollections)]);
   beatLengthControl = this.formBuilder.control(4, [Validators.required, Validators.max(4), Validators.min(1)]);
   startingBeatControl = this.formBuilder.control(1, [Validators.required, Validators.max(4), Validators.min(1)]);
@@ -239,6 +241,8 @@ export class ClipBuilderComponent implements OnInit {
     clipNameControl: this.clipNameControl,
     clipDisplayLayersFormArray: this.clipDisplayLayersFormArray,
     backgroundColourControl: this.backgroundColourControl,
+    endBackgroundColourToggleControl: this.endBackgroundColourToggleControl,
+    endBackgroundColourControl: this.endBackgroundColourControl,
     beatLengthControl: this.beatLengthControl,
     startingBeatControl: this.startingBeatControl,
   }, { validator: this.clipFormValidator.bind(this) });
@@ -263,7 +267,10 @@ export class ClipBuilderComponent implements OnInit {
     this.setClipId(0);
     this.clipNameControl.reset();
     this.backgroundColourControl.reset('#000000');
+    this.endBackgroundColourControl.reset(null);
+    this.endBackgroundColourToggleControl.reset(false);
     this.backgroundColour = null;
+    this.endBackgroundColour = null;
     this.beatLengthControl.reset(4);
     this.startingBeatControl.reset(1);
     this.clipDisplayLayersFormArray.clear();
@@ -377,6 +384,7 @@ export class ClipBuilderComponent implements OnInit {
         return clipDisplayLayer;
       }),
       backgroundColour: this.backgroundColour,
+      endBackgroundColour: this.endBackgroundColour,
       beatLength: this.beatLengthControl.value,
       startingBeat: this.startingBeatControl.value,
     };
@@ -386,6 +394,7 @@ export class ClipBuilderComponent implements OnInit {
     return <Clip>{
       clipId: this.editorClip.clipId,
       backgroundColour: this.editorClip.backgroundColour,
+      endBackgroundColour: this.editorClip.endBackgroundColour,
       beatLength: this.editorClip.beatLength,
       clipName: this.editorClip.clipName,
       startingBeat: this.editorClip.startingBeat,
@@ -441,7 +450,7 @@ export class ClipBuilderComponent implements OnInit {
   private setClipBase = (clip: Clip) => {
     this.toggleEditor();
     if (clip.backgroundColour !== null) {
-      this.addBackgroundColour(clip.backgroundColour);
+      this.addBackgroundColour(clip.backgroundColour, clip.endBackgroundColour);
     }
     this.beatLengthControl.setValue(clip.beatLength);
     this.startingBeatControl.setValue(clip.startingBeat);
@@ -484,16 +493,31 @@ export class ClipBuilderComponent implements OnInit {
   }
 
   backgroundColour: string | null = null;
+  endBackgroundColour: string | null = null;
 
-  addBackgroundColour = (backgroundColour: string) => {
+  addBackgroundColour = (backgroundColour: string, endBackgroundColour: string | null) => {
     this.backgroundColour = backgroundColour;
+    this.endBackgroundColour = endBackgroundColour;
     this.isAddingClipDisplayLayer = false;
     this.clipForm.updateValueAndValidity({ onlySelf: true });
   }
 
   removeBackgroundColour = () => {
     this.backgroundColour = null;
+    this.endBackgroundColour = null;
     this.backgroundColourControl.reset('#000000');
+    this.endBackgroundColourControl.reset(null);
+    this.endBackgroundColourToggleControl.reset(false);
+  }
+
+  endBackgroundColourChange = (endBackgroundColourControl: AbstractControl | null) =>{
+    if (endBackgroundColourControl && endBackgroundColourControl.value === true){
+      this.endBackgroundColour = '000000';
+      this.endBackgroundColourControl.setValue('#000000');
+    }else{
+      this.endBackgroundColour = null;
+      this.endBackgroundColourControl.reset(null);
+    }
   }
 
   bpm: number = 0;

@@ -27,6 +27,7 @@ export class DisplayComponent implements OnInit {
   uniqueComponentId: number = 0;
 
   storageUrl = environment.storageUrl;
+  fadeOut = Fadetypes.Out;
 
   constructor() { }
 
