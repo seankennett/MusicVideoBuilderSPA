@@ -510,8 +510,8 @@ export class ClipBuilderComponent implements OnInit {
     this.endBackgroundColourToggleControl.reset(false);
   }
 
-  endBackgroundColourChange = (endBackgroundColourControl: AbstractControl | null) =>{
-    if (endBackgroundColourControl && endBackgroundColourControl.value === true){
+  endBackgroundColourChange = (endBackgroundColourToggleControl: AbstractControl | null) =>{
+    if (endBackgroundColourToggleControl && endBackgroundColourToggleControl.value === true){
       this.endBackgroundColour = '000000';
       this.endBackgroundColourControl.setValue('#000000');
     }else{
