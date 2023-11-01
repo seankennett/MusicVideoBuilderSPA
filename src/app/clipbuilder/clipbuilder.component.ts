@@ -14,6 +14,7 @@ import { Direction } from '../direction';
 import { Clipdisplaylayer } from '../clipdisplaylayer';
 import { Layerclipdisplaylayer } from '../layerclipdisplaylayer';
 import { Fadetypes } from '../fadetypes';
+import { Clipbuildereditorstates } from '../clipbuildereditorstates';
 
 const beatsPerLayer = 4;
 
@@ -44,6 +45,7 @@ export class ClipBuilderComponent implements OnInit {
   }
 
   pageLoading = true;
+  editorState: Clipbuildereditorstates = Clipbuildereditorstates.BackgroundColourOrBackgroundSelectCollection
 
   clips: Clip[] = [];
   collections: Collection[] = [];
@@ -65,6 +67,8 @@ export class ClipBuilderComponent implements OnInit {
     Fadetypes.In,
     Fadetypes.Out
   ]
+
+  Clipbuildereditorstates = Clipbuildereditorstates
 
   setFadeColourControl = (fadeTypeControl: AbstractControl | null, colourControl: AbstractControl | null, enableLayerColourTransitionControl: AbstractControl | null) => {
     if (this.selectedCollection?.collectionType === Collectiontypes.Background && colourControl && fadeTypeControl) {
@@ -196,6 +200,11 @@ export class ClipBuilderComponent implements OnInit {
       layerClipDisplayLayersFormArray: layerClipDisplayLayersFormArray
     });
 
+    if (collection.collectionType === Collectiontypes.Background){
+      this.backgroundColourControl.reset(null);
+      this.endBackgroundColourControl.reset(null);
+    }
+
     this.clipDisplayLayersFormArray.push(clipDisplayLayerControl);
     this.clipDisplayLayersFormArrayIndex = this.clipDisplayLayersFormArray.length - 1;
   }
@@ -204,11 +213,11 @@ export class ClipBuilderComponent implements OnInit {
     if (collection) {
       this.selectedCollection = collection;
     }
-    this.isAddingClipDisplayLayer = true;
 
     this.selectedDirection = this.selectedCollectionDirectionOptions.find(x => x.directionId === selectedDisplayLayer?.direction.directionId);
     this.selectedNumberOfSides = selectedDisplayLayer?.numberOfSides;
     this.selectedDisplayLayerId = selectedDisplayLayer?.displayLayerId;
+    this.editorState = Clipbuildereditorstates.ClipDisplayLayerEditor;
   }
 
   layerClipDisplayLayersFormArray = (clipDisplayLayerGroup: AbstractControl) => {
@@ -230,7 +239,7 @@ export class ClipBuilderComponent implements OnInit {
   }
 
   clipNameControl = this.formBuilder.control('', [Validators.required, Validators.maxLength(50), Validators.pattern("[A-z0-9_-]+")]);
-  backgroundColourControl = this.formBuilder.control('#000000');
+  backgroundColourControl = this.formBuilder.control(null);
   endBackgroundColourToggleControl = this.formBuilder.control(false);
   endBackgroundColourControl = this.formBuilder.control(null);
   clipDisplayLayersFormArray = this.formBuilder.array([], [Validators.maxLength(this.maximumCollections)]);
@@ -248,7 +257,7 @@ export class ClipBuilderComponent implements OnInit {
   }, { validator: this.clipFormValidator.bind(this) });
 
   clipFormValidator(form: FormGroup): ValidationErrors | null {
-    if (this.backgroundColour === null && (form.get('clipDisplayLayersFormArray') as FormArray).length === 0) {
+    if (form.get('backgroundColourControl')?.value === null && (form.get('clipDisplayLayersFormArray') as FormArray).length === 0) {
       return { noLayers: true };
     }
 
@@ -261,43 +270,68 @@ export class ClipBuilderComponent implements OnInit {
 
   showEditor = false;
   showExistingClipWarning = true;
-  isAddingClipDisplayLayer = false;
 
-  toggleEditor = () => {
+  clearEditor = () => {
     this.setClipId(0);
     this.clipNameControl.reset();
-    this.backgroundColourControl.reset('#000000');
+    this.backgroundColourControl.reset(null);
     this.endBackgroundColourControl.reset(null);
     this.endBackgroundColourToggleControl.reset(false);
-    this.backgroundColour = null;
-    this.endBackgroundColour = null;
     this.beatLengthControl.reset(4);
     this.startingBeatControl.reset(1);
     this.clipDisplayLayersFormArray.clear();
     this.selectedCollection = null;
-    this.undoClipDisplayLayerFormGroup = undefined;
-    this.isAddingClipDisplayLayer = false;
+    this.undoClipDisplayLayer = undefined;
+    this.undoBackgroundColour = undefined;
     this.showExistingClipWarning = true;
-    this.showEditor = !this.showEditor;
+  }
+
+  cancelEditor = () =>{
+    this.clearEditor();
+    this.showEditor = false;
+  }
+
+  addNewClip = () => {
+    this.clearEditor();
+    this.backgroundColourControl.setValue('#000000');
+    this.showEditor = true;
+    this.editorState = Clipbuildereditorstates.BackgroundColourOrBackgroundSelectCollection;
   }
 
   toggleAddNewClipDisplayLayer = () => {
-    this.isAddingClipDisplayLayer = !this.isAddingClipDisplayLayer;
+    this.editorState = Clipbuildereditorstates.ClipList;
     this.selectedCollection = null;
   }
 
-  addNewClipDisplayLayer = () => {
-    this.undoClipDisplayLayerFormGroup = undefined;
-    this.toggleAddNewClipDisplayLayer();
+  addNewForegroundClipDisplayLayer = () => {
+    this.undoClipDisplayLayer = undefined;
+    this.editorState = Clipbuildereditorstates.ForegroundSelectCollection;
+    this.selectedCollection = null;
   }
 
   cancelAddingDisplayLayer = () => {
-    if (this.undoClipDisplayLayerFormGroup) {
-      this.clipDisplayLayersFormArray.controls[this.clipDisplayLayersFormArrayIndex] = this.convertClipDisplayLayerToFormGroup(this.undoClipDisplayLayerFormGroup);
+    var editorState = Clipbuildereditorstates.ClipList;
+    if (this.undoClipDisplayLayer) {
+      this.clipDisplayLayersFormArray.controls[this.clipDisplayLayersFormArrayIndex] = this.convertClipDisplayLayerToFormGroup(this.undoClipDisplayLayer);
     } else {
       this.clipDisplayLayersFormArray.removeAt(this.clipDisplayLayersFormArrayIndex);
+      if (this.selectedCollection?.collectionType === Collectiontypes.Background) {
+        editorState = Clipbuildereditorstates.BackgroundColourOrBackgroundSelectCollection;
+        this.backgroundColourControl.reset('#000000');
+      }
     }
-    this.toggleAddNewClipDisplayLayer();
+
+    this.editorState = editorState;
+    this.selectedCollection = null;
+  }
+
+  cancelEditingBackground = () =>{
+    if (this.undoBackgroundColour){
+      this.backgroundColourControl.setValue(this.undoBackgroundColour.backgroundColour !== null ? '#' + this.undoBackgroundColour.backgroundColour:null)
+      this.endBackgroundColourControl.setValue(this.undoBackgroundColour.endBackgroundColour !== null ? '#' + this.undoBackgroundColour.endBackgroundColour:null)
+      this.undoBackgroundColour = undefined;
+    }
+    this.editorState = Clipbuildereditorstates.ClipList;
   }
 
   addClipDisplayLayer = (selectedClipDisplayLayer: Clipdisplaylayer) => {
@@ -336,6 +370,9 @@ export class ClipBuilderComponent implements OnInit {
 
   removeclipDisplayLayer = (index: number) => {
     this.clipDisplayLayersFormArray.removeAt(index);
+    if (index === 0 && this.clipDisplayLayersFormArray.length === 0 && this.backgroundColourControl.value === null){
+      this.removeBackgroundColour();
+    }
   }
 
   moveBack = (index: number) => {
@@ -383,8 +420,8 @@ export class ClipBuilderComponent implements OnInit {
 
         return clipDisplayLayer;
       }),
-      backgroundColour: this.backgroundColour,
-      endBackgroundColour: this.endBackgroundColour,
+      backgroundColour: this.backgroundColourControl.value?.slice(1) ?? null,
+      endBackgroundColour: this.endBackgroundColourControl.value?.slice(1) ?? null,
       beatLength: this.beatLengthControl.value,
       startingBeat: this.startingBeatControl.value,
     };
@@ -418,17 +455,19 @@ export class ClipBuilderComponent implements OnInit {
         let index = this.clips.findIndex(clip => clip.clipId === this.clipId);
         this.clips[index] = clip;
       }
-      this.toggleEditor();
+      this.clearEditor();
+      this.showEditor = false;
 
     });;
   }
 
-  undoClipDisplayLayerFormGroup: Clipdisplaylayer | undefined = undefined;
+  undoClipDisplayLayer: Clipdisplaylayer | undefined = undefined;
+  undoBackgroundColour: {backgroundColour:string | null, endBackgroundColour: string | null} | undefined = undefined;
 
   editClipDisplayLayer = (index: number) => {
     this.clipDisplayLayersFormArrayIndex = index;
     var clipDisplayLayer = this.editorClip.clipDisplayLayers[index];
-    this.undoClipDisplayLayerFormGroup = JSON.parse(JSON.stringify(clipDisplayLayer));
+    this.undoClipDisplayLayer = JSON.parse(JSON.stringify(clipDisplayLayer));
     var collection = this.collections.find(c => c.displayLayers.some(d => d.displayLayerId === clipDisplayLayer.displayLayerId));
     var displayLayer = collection?.displayLayers.find(d => d.displayLayerId === clipDisplayLayer.displayLayerId);
     this.setupCollectionEditor(collection, displayLayer);
@@ -439,19 +478,23 @@ export class ClipBuilderComponent implements OnInit {
     this.setClipId(clip.clipId);
     this.clipNameControl.setValue(clip.clipName);
     this.unchangedClip = { ...this.editorClip };
+    this.editorState = Clipbuildereditorstates.ClipList;
+    this.showEditor = true;
   }
 
   cloneClip = (clip: Clip) => {
     this.setClipBase(clip);
     this.clipNameControl.setValue(clip.clipName + '-copy');
     this.unchangedClip = { ...this.editorClip };
+    this.editorState = Clipbuildereditorstates.ClipList;
+    this.showEditor = true;
   }
 
   private setClipBase = (clip: Clip) => {
-    this.toggleEditor();
-    if (clip.backgroundColour !== null) {
-      this.addBackgroundColour(clip.backgroundColour, clip.endBackgroundColour);
-    }
+    this.clearEditor();
+    this.backgroundColourControl.setValue(clip.backgroundColour !== null ? '#' + clip.backgroundColour:null)
+    this.endBackgroundColourControl.setValue(clip.endBackgroundColour !== null ? '#' + clip.endBackgroundColour:null)
+    this.endBackgroundColourToggleControl.setValue(clip.endBackgroundColour !== null)
     this.beatLengthControl.setValue(clip.beatLength);
     this.startingBeatControl.setValue(clip.startingBeat);
 
@@ -494,30 +537,26 @@ export class ClipBuilderComponent implements OnInit {
     return '';
   }
 
-  backgroundColour: string | null = null;
-  endBackgroundColour: string | null = null;
+  addBackgroundColour = () => {
+    this.editorState = Clipbuildereditorstates.ClipList
+  }
 
-  addBackgroundColour = (backgroundColour: string, endBackgroundColour: string | null) => {
-    this.backgroundColour = backgroundColour;
-    this.endBackgroundColour = endBackgroundColour;
-    this.isAddingClipDisplayLayer = false;
-    this.clipForm.updateValueAndValidity({ onlySelf: true });
+  editBackgroundColour = () => {
+    this.undoBackgroundColour = {backgroundColour: this.editorClip.backgroundColour, endBackgroundColour: this.editorClip.endBackgroundColour}
+    this.editorState = Clipbuildereditorstates.BackgroundColourEditor
   }
 
   removeBackgroundColour = () => {
-    this.backgroundColour = null;
-    this.endBackgroundColour = null;
     this.backgroundColourControl.reset('#000000');
     this.endBackgroundColourControl.reset(null);
     this.endBackgroundColourToggleControl.reset(false);
+    this.editorState = Clipbuildereditorstates.BackgroundColourOrBackgroundSelectCollection;
   }
 
   endBackgroundColourChange = (endBackgroundColourToggleControl: AbstractControl | null) =>{
     if (endBackgroundColourToggleControl && endBackgroundColourToggleControl.value === true){
-      this.endBackgroundColour = '000000';
       this.endBackgroundColourControl.setValue('#000000');
     }else{
-      this.endBackgroundColour = null;
       this.endBackgroundColourControl.reset(null);
     }
   }
