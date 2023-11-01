@@ -13,34 +13,46 @@
           [style.width.%]="progress"></div>
       </div>
     </li>
-    <li *ngIf="collection" class="list-group-item"><span
-        class="badge rounded-pill bg-primary">{{sideOptionNumber}}</span> Side options</li>
-    <li *ngIf="collection" class="list-group-item"><span
-        class="badge rounded-pill bg-primary">{{colourOptionNumber}}</span> Unlimited colour options</li>
-    <li *ngIf="collection" class="list-group-item"><span
-        class="badge rounded-pill bg-primary">{{directionOptionNumber}}</span> Direction options</li>
-    <li *ngIf="collection" class="list-group-item"><span
-        class="badge rounded-pill bg-primary">{{directionTransitionOptionNumber}}</span> Direction transition options
-    </li>
-    <li class="list-group-item text-center" placement="top" *ngIf="showAdd || showEdit || showRemove">
-      <button type="button" [disabled]="loading" (click)="addButtonClick()" class="btn btn-success" *ngIf="showAdd">
+    <ng-container *ngIf="collection">
+      <li class="list-group-item"><span class="badge rounded-pill bg-primary">{{sideOptionNumber}}</span> Side options
+      </li>
+      <li class="list-group-item"><span class="badge rounded-pill bg-primary">{{colourOptionNumber}}</span> Unlimited
+        colour options</li>
+      <li class="list-group-item"><span class="badge rounded-pill bg-primary">{{directionOptionNumber}}</span> Direction
+        options</li>
+      <li class="list-group-item"><span class="badge rounded-pill bg-primary">{{directionTransitionOptionNumber}}</span>
+        Direction transition options
+      </li>
+      <li class="list-group-item" *ngIf="showEditColour === true">
+        <div>
+          Edit colours:
+        </div>
+        <div class="mb-3">
+          <input class="form-control" *ngFor="let layer of layerCollectionEditableDisplayLayers"
+            [(ngModel)]="layer.colour" [ngModelOptions]="{standalone: true}" type="color"
+            (ngModelChange)="updateDefaultColorLayer(layer)" />
+        </div>
+      </li>
+    </ng-container>
+    <li class="list-group-item text-center" placement="top" *ngIf="showAdd === true || showEdit === true|| showRemove === true">
+      <button type="button" [disabled]="loading" (click)="addButtonClick()" class="btn btn-success" *ngIf="showAdd === true">
         <i class="bi bi-plus-circle-fill"></i> Add</button>
-      <button type="button" [disabled]="loading" (click)="editButtonClick()" class="btn btn-primary" *ngIf="showEdit">
+      <button type="button" [disabled]="loading" (click)="editButtonClick()" class="btn btn-primary" *ngIf="showEdit === true">
         <i class="bi bi-pencil-square"></i> Edit</button>
       <button type="button" [disabled]="loading" (click)="cloneButtonClick()" class="btn btn-success ms-1"
-        *ngIf="showClone">
+        *ngIf="showClone === true">
         <i class="bi bi-files"></i> Clone</button>
       <button type="button" [disabled]="loading" (click)="removeButtonClick()" class="btn btn-danger"
-        *ngIf="showRemove">
+        *ngIf="showRemove === true">
         <i class="bi bi-dash-circle-fill"></i> Remove
         <span class="spinner-border spinner-border-sm ms-1" role="status" aria-hidden="true" *ngIf="loading"></span>
       </button>
     </li>
     <ng-container *ngIf="dependentVideos">
-    <li *ngFor="let video of dependentVideos" class="list-group-item text-center">
-      <a  [routerLink]="['/musicVideoBuilder', video.videoId]" [queryParams]="{tab: 2}">Go to
-                                {{video.videoName}} video timeline</a>
-    </li>
-  </ng-container>
+      <li *ngFor="let video of dependentVideos" class="list-group-item text-center">
+        <a [routerLink]="['/musicVideoBuilder', video.videoId]" [queryParams]="{tab: 2}">Go to
+          {{video.videoName}} video timeline</a>
+      </li>
+    </ng-container>
   </ul>
 </div>

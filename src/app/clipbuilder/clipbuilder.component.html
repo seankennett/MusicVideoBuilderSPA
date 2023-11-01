@@ -39,7 +39,8 @@
                         <div class="mb-3">
                             <label for="clipName" class="form-label">Clip Name<span class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="clipName" formControlName="clipNameControl" />
-                            <div class="form-text">Try to pick something short. Has to be Alpha Numeric, hypthens and underscores granted, and unique
+                            <div class="form-text">Try to pick something short. Has to be Alpha Numeric, hypthens and
+                                underscores granted, and unique
                                 across your
                                 clips.
                             </div>
@@ -103,8 +104,9 @@
                                     formControlName="backgroundColourControl" />
                             </div>
                             <div class="form-check form-check-inline mb-3">
-                                <input class="form-check-input" type="checkbox" formControlName="endBackgroundColourToggleControl"
-                                    id="endBackgroundColourToggle" (change)="endBackgroundColourChange(endBackgroundColourToggleControl)">
+                                <input class="form-check-input" type="checkbox"
+                                    formControlName="endBackgroundColourToggleControl" id="endBackgroundColourToggle"
+                                    (change)="endBackgroundColourChange(endBackgroundColourToggleControl)">
                                 <label class="form-check-label" for="endBackgroundColourToggle">
                                     Enable Colour Transition
                                 </label>
@@ -112,7 +114,7 @@
                             <div class="mb-3" *ngIf="endBackgroundColourToggleControl.value === true">
                                 <label for="endBackgroundColour" class="form-label">End Background Colour</label>
                                 <input type="color" class="form-control" id="endBackgroundColour"
-                                    formControlName="endBackgroundColourControl" />      
+                                    formControlName="endBackgroundColourControl" />
                             </div>
                             <div class="mb-3">
                                 <button type="button"
@@ -264,10 +266,11 @@
                                         </ng-container>
                                     </ng-container>
                                     <div class="mb-3">
-                                        <button type="button" (click)="toggleAddNewClipDisplayLayer()"
-                                            class="btn btn-success" [disabled]="shouldDisableDisplayLayer"
-                                            [ngbTooltip]="shouldDisableDisplayLayerToolTip">
-                                            <i class="bi bi-plus-circle-fill"></i> Add</button>
+                                        <span [ngbTooltip]="shouldDisableDisplayLayerToolTip">
+                                            <button type="button" (click)="toggleAddNewClipDisplayLayer()"
+                                                class="btn btn-success" [disabled]="shouldDisableDisplayLayer">
+                                                <i class="bi bi-plus-circle-fill"></i> Add</button>
+                                        </span>
                                     </div>
                                 </div>
                             </div>
@@ -283,7 +286,8 @@
                         <ol class="list-group list-group-numbered">
                             <li *ngIf="backgroundColour !== null" class="list-group-item">Colour background
                                 <i class="bi bi-square-fill" [style.color]="'#' + backgroundColour"></i>
-                                <i *ngIf="endBackgroundColour !== null" class="bi bi-square-fill ms-1" [style.color]="'#' + endBackgroundColour"></i>
+                                <i *ngIf="endBackgroundColour !== null" class="bi bi-square-fill ms-1"
+                                    [style.color]="'#' + endBackgroundColour"></i>
                                 <div class="btn-group float-end" role="group">
                                     <button *ngIf="0 === clipDisplayLayersFormArray.controls.length" type="button"
                                         class="btn btn-danger ms-1" (click)="removeBackgroundColour()"><i

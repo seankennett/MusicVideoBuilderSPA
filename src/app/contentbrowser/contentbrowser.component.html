@@ -6,7 +6,7 @@
             clip</a>. You can then use your clips to <a [routerLink]="['/musicVideoBuilder']"><i class="bi bi-hammer"></i>build a video</a>.</p>
     <app-pageloading [pageLoading]="pageLoading"></app-pageloading>
     <ng-container  *ngIf="!pageLoading">
-        <app-collectionsearch [collections]="collections"></app-collectionsearch>
+        <app-collectionsearch [collections]="collections" [showEditColour]="true"></app-collectionsearch>
         <div class="mb-3">
             <button type="button" class="btn btn-secondary" [routerLink]="'/clipBuilder'"><i class="bi bi-stack"></i> Clip Builder</button>
         </div>

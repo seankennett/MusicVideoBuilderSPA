@@ -463,13 +463,15 @@ export class ClipBuilderComponent implements OnInit {
   }
 
   get shouldDisableDisplayLayer() {
-    var allIds = this.editorClip.clipDisplayLayers.map(c => c.displayLayerId);
-    var uniqueCount = new Set(allIds).size;
-    return allIds.length !== uniqueCount;
+    var keys = this.editorClip.clipDisplayLayers.map(v => v.flipHorizontal + '-' + v.flipVertical + '-' + v.reverse + '-' + v.displayLayerId + '-' + v.fadeType);
+    var uniqueKeys = keys.filter(function(item, pos){
+      return keys.indexOf(item)== pos; 
+    });
+    return uniqueKeys.length !== this.editorClip.clipDisplayLayers.length;
   }
 
   get shouldDisableDisplayLayerToolTip() {
-    return this.shouldDisableDisplayLayer === true ? 'Already in use' : ''
+    return this.shouldDisableDisplayLayer === true ? 'Previous layer has same settings so will be hidden' : ''
   }
 
   canAddCollection = () => {

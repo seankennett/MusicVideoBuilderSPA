@@ -2,11 +2,9 @@ import { Component, Input, OnInit, Output, EventEmitter, OnChanges, SimpleChange
 import { Collection } from '../collection';
 import { BehaviorSubject, switchMap, takeWhile, timer } from 'rxjs';
 import { Clip } from '../clip';
-import { environment } from 'src/environments/environment';
 import { Displaylayer } from '../displaylayer';
-import { Layer } from '../layer';
-import { Clipdisplaylayer } from '../clipdisplaylayer';
 import { Video } from '../video';
+import { Layercollectiondisplaylayer } from '../layercollectiondisplaylayer';
 
 const imageWidth = 384;
 const secondsInMinute = 60;
@@ -41,6 +39,9 @@ export class GalleryplayerComponent implements OnInit, OnChanges {
   @Input() showEdit: boolean = false;
   @Input() showRemove: boolean = false;
   @Input() showClone: boolean = false;
+  @Input() showEditColour: boolean = false;
+
+  layerCollectionEditableDisplayLayers: Layercollectiondisplaylayer[] = [];
 
   leftPosition: number = 0;
 
@@ -100,6 +101,11 @@ export class GalleryplayerComponent implements OnInit, OnChanges {
     }
 
     this.leftPosition = -(this.skipFrames * imageWidth);
+    if (this.collection){
+    this.layerCollectionEditableDisplayLayers = this.collection.collectionDisplayLayer.layerCollectionDisplayLayers.filter(l => 
+      this.collectionLayers?.some(c => c.isOverlay === false && l.layerId === c.layerId))
+      .map(l => <Layercollectiondisplaylayer>{ colour: '#' + l.colour, layerId: l.layerId});
+    }
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -142,6 +148,13 @@ export class GalleryplayerComponent implements OnInit, OnChanges {
         this.leftPosition = -(frameInLayerNumber) * imageWidth;
         this.progress = percentageOfLayerDuration * 100;
       });
+    }
+  }
+
+  updateDefaultColorLayer = (layer: Layercollectiondisplaylayer) => {
+    var layercollectiondisplaylayer = this.collection.collectionDisplayLayer.layerCollectionDisplayLayers.find(l => l.layerId === layer.layerId);
+    if (layercollectiondisplaylayer){
+      layercollectiondisplaylayer.colour = layer.colour.substring(1);
     }
   }
 

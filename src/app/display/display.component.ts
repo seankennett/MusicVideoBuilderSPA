@@ -121,13 +121,7 @@ export class DisplayComponent implements OnInit {
     var r = this.calculateColour(startRgbArray, endRgbArray, 0);
     var g = this.calculateColour(startRgbArray, endRgbArray, 1);
     var b = this.calculateColour(startRgbArray, endRgbArray, 2);
-
-    if (layer.layerId === "339f9a95-16fa-42c0-9279-3b21f6065074" && this.leftPositionPercent > 0.95){
-      console.log(r);
-      console.log(g);
-      console.log(b);
-    }
-
+    
     return r + " 0 0 0 0    0 " + g + " 0 0 0    0 0 " + b + " 0 0    0 0 0 1 0";
   }
 

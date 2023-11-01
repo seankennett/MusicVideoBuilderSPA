@@ -39,7 +39,7 @@
     <div class="row">
         <div *ngFor="let collection of popularCollections; let i = index" class="col-sm mb-3">
             <app-galleryplayer [collection]="collection" [bpm]="bpm" [isPlaying]="isPlaying" [showAdd]="false" [showEdit]="showEdit"
-            (editButtonClickCollectionEvent)="editCollection($event)">
+            (editButtonClickCollectionEvent)="editCollection($event)" [showEditColour]="showEditColour">
             </app-galleryplayer>
         </div>
     </div>

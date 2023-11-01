@@ -13,6 +13,7 @@ export class CollectionsearchComponent implements OnInit {
   @Input() collections!:Collection[]
   @Input() forcedCollectionType : Collectiontypes | null = null
   @Input() showEdit:boolean = false
+  @Input() showEditColour:boolean = false
 
   @Output() editCollectionEvent = new EventEmitter<Collection>();
 
