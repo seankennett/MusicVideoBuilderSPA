@@ -87,7 +87,6 @@
                         </div>
                     </div>
                 </div>
-                {{editorClip | json}}
                 <div class="mb-3"
                     *ngIf="editorState === Clipbuildereditorstates.BackgroundColourOrBackgroundSelectCollection">
                     <h2>Background Layer</h2>
@@ -109,12 +108,13 @@
                             <div class="mb-3 row">
                                 <div class="col-6 text-center">
                                     <app-colourpicker [control]="backgroundColourControl" [id]="'backgroundColour'"
-                                        [tooltip]="'Background Colour'"></app-colourpicker>
+                                        [tooltip]="'Background Colour'" [colourChoices]="colourChoices"></app-colourpicker>
                                 </div>
                                 <div class="col-6 text-center" *ngIf="endBackgroundColourToggleControl.value === true">
                                     <app-colourpicker [control]="endBackgroundColourControl"
                                         [id]="'endBackgroundColour'"
-                                        [tooltip]="'Transition End Background Colour'"></app-colourpicker>
+                                        [tooltip]="'Transition End Background Colour'"
+                                        [colourChoices]="colourChoices"></app-colourpicker>
                                 </div>
                             </div>
                             <div class="mb-3">
@@ -145,11 +145,11 @@
                         <div class="mb-3 row">
                             <div class="col-6 text-center">
                                 <app-colourpicker [control]="backgroundColourControl" [id]="'backgroundColour'"
-                                    [tooltip]="'Background Colour'"></app-colourpicker>
+                                    [tooltip]="'Background Colour'" [colourChoices]="colourChoices"></app-colourpicker>
                             </div>
                             <div class="col-6 text-center" *ngIf="endBackgroundColourToggleControl.value === true">
                                 <app-colourpicker [control]="endBackgroundColourControl" [id]="'endBackgroundColour'"
-                                    [tooltip]="'Transition End Background Colour'"></app-colourpicker>
+                                    [tooltip]="'Transition End Background Colour'" [colourChoices]="colourChoices"></app-colourpicker>
                             </div>
                         </div>
                         <div class="mb-3">
@@ -239,7 +239,7 @@
                                         <div class="col-6">
                                             <app-colourpicker
                                                 [control]="convertToFormControl(clipDisplayLayerGroup.get('colourControl'))"
-                                                [id]="'colour'" [tooltip]="'Fade Colour'"></app-colourpicker>
+                                                [id]="'colour'" [tooltip]="'Fade Colour'" [colourChoices]="colourChoices"></app-colourpicker>
                                         </div>
                                     </div>
                                     <div class="form-check form-check-inline mb-3">
@@ -282,14 +282,14 @@
                                                     <div class="col-6">
                                                         <app-colourpicker
                                                             [control]="convertToFormControl(layerClipDisplayLayerGroup.get('colourControl'))"
-                                                            [id]="j + 'colour'"
+                                                            [id]="j + 'colour'" [colourChoices]="colourChoices"
                                                             [tooltip]="'Layer Colour #' + (j+1)"></app-colourpicker>
                                                     </div>
                                                     <div class="col-6"
                                                         *ngIf="clipDisplayLayerGroup.get('fadeTypeControl')?.value === null && clipDisplayLayerGroup.get('enableLayerColourTransitionControl')?.value === true">
                                                         <app-colourpicker
                                                             [control]="convertToFormControl(layerClipDisplayLayerGroup.get('endColourControl'))"
-                                                            [id]="j + 'endColour'"
+                                                            [id]="j + 'endColour'" [colourChoices]="colourChoices"
                                                             [tooltip]="'Layer End Colour #' + (j+1)"></app-colourpicker>
                                                     </div>
                                                 </div>

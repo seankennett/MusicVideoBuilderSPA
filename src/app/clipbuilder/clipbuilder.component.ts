@@ -200,7 +200,7 @@ export class ClipBuilderComponent implements OnInit {
       layerClipDisplayLayersFormArray: layerClipDisplayLayersFormArray
     });
 
-    if (collection.collectionType === Collectiontypes.Background){
+    if (collection.collectionType === Collectiontypes.Background) {
       this.backgroundColourControl.reset(null);
       this.endBackgroundColourControl.reset(null);
     }
@@ -286,7 +286,7 @@ export class ClipBuilderComponent implements OnInit {
     this.showExistingClipWarning = true;
   }
 
-  cancelEditor = () =>{
+  cancelEditor = () => {
     this.clearEditor();
     this.showEditor = false;
   }
@@ -325,10 +325,10 @@ export class ClipBuilderComponent implements OnInit {
     this.selectedCollection = null;
   }
 
-  cancelEditingBackground = () =>{
-    if (this.undoBackgroundColour){
-      this.backgroundColourControl.setValue(this.undoBackgroundColour.backgroundColour !== null ? '#' + this.undoBackgroundColour.backgroundColour:null)
-      this.endBackgroundColourControl.setValue(this.undoBackgroundColour.endBackgroundColour !== null ? '#' + this.undoBackgroundColour.endBackgroundColour:null)
+  cancelEditingBackground = () => {
+    if (this.undoBackgroundColour) {
+      this.backgroundColourControl.setValue(this.undoBackgroundColour.backgroundColour !== null ? '#' + this.undoBackgroundColour.backgroundColour : null)
+      this.endBackgroundColourControl.setValue(this.undoBackgroundColour.endBackgroundColour !== null ? '#' + this.undoBackgroundColour.endBackgroundColour : null)
       this.undoBackgroundColour = undefined;
     }
     this.editorState = Clipbuildereditorstates.ClipList;
@@ -368,13 +368,13 @@ export class ClipBuilderComponent implements OnInit {
     });
   }
 
-  convertToFormControl = (abstractControl: AbstractControl | null) =>{
+  convertToFormControl = (abstractControl: AbstractControl | null) => {
     return abstractControl as FormControl
   }
 
   removeclipDisplayLayer = (index: number) => {
     this.clipDisplayLayersFormArray.removeAt(index);
-    if (index === 0 && this.clipDisplayLayersFormArray.length === 0 && this.backgroundColourControl.value === null){
+    if (index === 0 && this.clipDisplayLayersFormArray.length === 0 && this.backgroundColourControl.value === null) {
       this.removeBackgroundColour();
     }
   }
@@ -466,7 +466,7 @@ export class ClipBuilderComponent implements OnInit {
   }
 
   undoClipDisplayLayer: Clipdisplaylayer | undefined = undefined;
-  undoBackgroundColour: {backgroundColour:string | null, endBackgroundColour: string | null} | undefined = undefined;
+  undoBackgroundColour: { backgroundColour: string | null, endBackgroundColour: string | null } | undefined = undefined;
 
   editClipDisplayLayer = (index: number) => {
     this.clipDisplayLayersFormArrayIndex = index;
@@ -496,8 +496,8 @@ export class ClipBuilderComponent implements OnInit {
 
   private setClipBase = (clip: Clip) => {
     this.clearEditor();
-    this.backgroundColourControl.setValue(clip.backgroundColour !== null ? '#' + clip.backgroundColour:null)
-    this.endBackgroundColourControl.setValue(clip.endBackgroundColour !== null ? '#' + clip.endBackgroundColour:null)
+    this.backgroundColourControl.setValue(clip.backgroundColour !== null ? '#' + clip.backgroundColour : null)
+    this.endBackgroundColourControl.setValue(clip.endBackgroundColour !== null ? '#' + clip.endBackgroundColour : null)
     this.endBackgroundColourToggleControl.setValue(clip.endBackgroundColour !== null)
     this.beatLengthControl.setValue(clip.beatLength);
     this.startingBeatControl.setValue(clip.startingBeat);
@@ -511,8 +511,8 @@ export class ClipBuilderComponent implements OnInit {
 
   get shouldDisableDisplayLayer() {
     var keys = this.editorClip.clipDisplayLayers.map(v => v.flipHorizontal + '-' + v.flipVertical + '-' + v.reverse + '-' + v.displayLayerId + '-' + v.fadeType);
-    var uniqueKeys = keys.filter(function(item, pos){
-      return keys.indexOf(item)== pos; 
+    var uniqueKeys = keys.filter(function (item, pos) {
+      return keys.indexOf(item) == pos;
     });
     return uniqueKeys.length !== this.editorClip.clipDisplayLayers.length;
   }
@@ -546,7 +546,7 @@ export class ClipBuilderComponent implements OnInit {
   }
 
   editBackgroundColour = () => {
-    this.undoBackgroundColour = {backgroundColour: this.editorClip.backgroundColour, endBackgroundColour: this.editorClip.endBackgroundColour}
+    this.undoBackgroundColour = { backgroundColour: this.editorClip.backgroundColour, endBackgroundColour: this.editorClip.endBackgroundColour }
     this.editorState = Clipbuildereditorstates.BackgroundColourEditor
   }
 
@@ -557,10 +557,10 @@ export class ClipBuilderComponent implements OnInit {
     this.editorState = Clipbuildereditorstates.BackgroundColourOrBackgroundSelectCollection;
   }
 
-  endBackgroundColourChange = (endBackgroundColourToggleControl: AbstractControl | null) =>{
-    if (endBackgroundColourToggleControl && endBackgroundColourToggleControl.value === true){
+  endBackgroundColourChange = (endBackgroundColourToggleControl: AbstractControl | null) => {
+    if (endBackgroundColourToggleControl && endBackgroundColourToggleControl.value === true) {
       this.endBackgroundColourControl.setValue('#000000');
-    }else{
+    } else {
       this.endBackgroundColourControl.reset(null);
     }
   }
@@ -588,5 +588,64 @@ export class ClipBuilderComponent implements OnInit {
     if (this.clipForm.hasError('invalidBeatSettings') === true) {
       this.startingBeatControl.setValue(1);
     }
+  }
+
+  get colourChoices() {
+    var colourChoices: string[] = [];
+    this.clips.forEach(c => {
+      if (c.backgroundColour !== null && colourChoices.indexOf('#' + c.backgroundColour) === -1) {
+        colourChoices.push('#' + c.backgroundColour)
+      }
+      if (c.endBackgroundColour !== null && colourChoices.indexOf('#' + c.endBackgroundColour) === -1) {
+        colourChoices.push('#' + c.endBackgroundColour)
+      }
+      if (c.clipDisplayLayers) {
+        c.clipDisplayLayers.forEach(d => {
+          if (d.colour !== null && colourChoices.indexOf('#' + d.colour) === -1) {
+            colourChoices.push('#' + d.colour)
+          }
+
+          d.layerClipDisplayLayers.forEach(l => {
+            if (l.colour !== null && colourChoices.indexOf('#' + l.colour) === -1) {
+              colourChoices.push('#' + l.colour)
+            }
+            if (l.endColour !== null && colourChoices.indexOf('#' + l.endColour) === -1) {
+              colourChoices.push('#' + l.endColour)
+            }
+          });
+        });
+      }
+    });
+    return colourChoices.sort((a: string, b: string) => {
+      return this.extractHueFromHex(a) - this.extractHueFromHex(b);
+    });
+  }
+
+  extractHueFromHex = (hex: string) => {
+    var rgbArray = hex.match(/[A-Za-z0-9]{2}/g)?.map(v => parseInt(v, 16)) ?? [255, 255, 255];
+    var r = rgbArray[0];
+    var g = rgbArray[1];
+    var b = rgbArray[2];
+
+    r /= 255, g /= 255, b /= 255;
+    var max = Math.max(r, g, b), min = Math.min(r, g, b);
+    var h, s, l = (max + min) / 2;
+
+    if(max == min){
+        h = s = 0; // achromatic
+    }else{
+        var d = max - min;
+        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+        switch(max){
+            case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+            case g: h = (b - r) / d + 2; break;
+            case b: h = (r - g) / d + 4; break;
+        }
+        if (h){
+          h /= 6;
+        }
+    }
+
+    return h ?? 0;
   }
 }

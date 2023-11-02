@@ -2,4 +2,8 @@
     <span class="input-group-text" [ngbTooltip]="tooltip"><label [for]="id"><i
                 class="bi bi-eyedropper text-primary"></i></label></span>
     <input type="color" class="form-control form-control-color" [id]="id" [formControl]="control" />
+    <select class="form-select" (change)="updateControl($event)" *ngIf="colourChoices && colourChoices.length > 0">
+        <option selected value="">Saved colours</option>
+        <option *ngFor="let colourChoice of colourChoices" [value]="colourChoice" [style.background-color]="colourChoice">{{displayRGB(colourChoice)}}</option>
+      </select>
 </div>
