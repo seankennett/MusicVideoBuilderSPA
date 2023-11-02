@@ -24,20 +24,26 @@
         Direction transition options
       </li>
       <li class="list-group-item" *ngIf="showEditColour === true">
-        <div>
-          Edit colours:
-        </div>
-        <div class="mb-3">
-          <input class="form-control" *ngFor="let layer of layerCollectionEditableDisplayLayers"
-            [(ngModel)]="layer.colour" [ngModelOptions]="{standalone: true}" type="color"
-            (ngModelChange)="updateDefaultColorLayer(layer)" />
+        <div class="row">
+          <div class="col text-center" *ngFor="let layer of layerCollectionEditableDisplayLayers; let i = index">
+            <div class="input-group">
+              <span class="input-group-text" [ngbTooltip]="'Layer #' + (i + 1) + ' Colour'"><label
+                  [for]="'picker' + layer.layerId"><i class="bi bi-eyedropper text-primary"></i></label></span>
+              <input class="form-control form-control-color" [(ngModel)]="layer.colour"
+                [ngModelOptions]="{standalone: true}" type="color" (ngModelChange)="updateDefaultColorLayer(layer)"
+                [id]="'picker' + layer.layerId" />
+            </div>
+          </div>
         </div>
       </li>
     </ng-container>
-    <li class="list-group-item text-center" placement="top" *ngIf="showAdd === true || showEdit === true|| showRemove === true">
-      <button type="button" [disabled]="loading" (click)="addButtonClick()" class="btn btn-success" *ngIf="showAdd === true">
+    <li class="list-group-item text-center" placement="top"
+      *ngIf="showAdd === true || showEdit === true|| showRemove === true">
+      <button type="button" [disabled]="loading" (click)="addButtonClick()" class="btn btn-success"
+        *ngIf="showAdd === true">
         <i class="bi bi-plus-circle-fill"></i> Add</button>
-      <button type="button" [disabled]="loading" (click)="editButtonClick()" class="btn btn-primary" *ngIf="showEdit === true">
+      <button type="button" [disabled]="loading" (click)="editButtonClick()" class="btn btn-primary"
+        *ngIf="showEdit === true">
         <i class="bi bi-pencil-square"></i> Edit</button>
       <button type="button" [disabled]="loading" (click)="cloneButtonClick()" class="btn btn-success ms-1"
         *ngIf="showClone === true">

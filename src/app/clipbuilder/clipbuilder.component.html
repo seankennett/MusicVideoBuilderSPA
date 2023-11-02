@@ -98,11 +98,6 @@
                     <h3>Colour</h3>
                     <div class="card mb-3">
                         <div class="card-body">
-                            <div class="mb-3">
-                                <label for="backgroundColour" class="form-label">Background Colour</label>
-                                <input type="color" class="form-control" id="backgroundColour"
-                                    formControlName="backgroundColourControl" />
-                            </div>
                             <div class="form-check form-check-inline mb-3">
                                 <input class="form-check-input" type="checkbox"
                                     formControlName="endBackgroundColourToggleControl" id="endBackgroundColourToggle"
@@ -111,10 +106,16 @@
                                     Enable Colour Transition
                                 </label>
                             </div>
-                            <div class="mb-3" *ngIf="endBackgroundColourToggleControl.value === true">
-                                <label for="endBackgroundColour" class="form-label">End Background Colour</label>
-                                <input type="color" class="form-control" id="endBackgroundColour"
-                                    formControlName="endBackgroundColourControl" />
+                            <div class="mb-3 row">
+                                <div class="col-6 text-center">
+                                    <app-colourpicker [control]="backgroundColourControl" [id]="'backgroundColour'"
+                                        [tooltip]="'Background Colour'"></app-colourpicker>
+                                </div>
+                                <div class="col-6 text-center" *ngIf="endBackgroundColourToggleControl.value === true">
+                                    <app-colourpicker [control]="endBackgroundColourControl"
+                                        [id]="'endBackgroundColour'"
+                                        [tooltip]="'Transition End Background Colour'"></app-colourpicker>
+                                </div>
                             </div>
                             <div class="mb-3">
                                 <button type="button" (click)="addBackgroundColour()" class="btn btn-success">
@@ -133,11 +134,6 @@
                 </div>
                 <div class="card mb-3" *ngIf="editorState === Clipbuildereditorstates.BackgroundColourEditor">
                     <div class="card-body">
-                        <div class="mb-3">
-                            <label for="backgroundColour" class="form-label">Background Colour</label>
-                            <input type="color" class="form-control" id="backgroundColour"
-                                formControlName="backgroundColourControl" />
-                        </div>
                         <div class="form-check form-check-inline mb-3">
                             <input class="form-check-input" type="checkbox"
                                 formControlName="endBackgroundColourToggleControl" id="endBackgroundColourToggle"
@@ -146,16 +142,19 @@
                                 Enable Colour Transition
                             </label>
                         </div>
-                        <div class="mb-3" *ngIf="endBackgroundColourToggleControl.value === true">
-                            <label for="endBackgroundColour" class="form-label">End Background Colour</label>
-                            <input type="color" class="form-control" id="endBackgroundColour"
-                                formControlName="endBackgroundColourControl" />
+                        <div class="mb-3 row">
+                            <div class="col-6 text-center">
+                                <app-colourpicker [control]="backgroundColourControl" [id]="'backgroundColour'"
+                                    [tooltip]="'Background Colour'"></app-colourpicker>
+                            </div>
+                            <div class="col-6 text-center" *ngIf="endBackgroundColourToggleControl.value === true">
+                                <app-colourpicker [control]="endBackgroundColourControl" [id]="'endBackgroundColour'"
+                                    [tooltip]="'Transition End Background Colour'"></app-colourpicker>
+                            </div>
                         </div>
                         <div class="mb-3">
                             <button type="button" (click)="addBackgroundColour()" class="btn btn-success">
                                 <i class="bi bi-plus-circle-fill"></i> Add</button>
-                            <button type="button" class="btn btn-danger ms-1" (click)="cancelEditingBackground()">
-                                <i class="bi bi-dash-circle-fill"></i> Cancel Background Edit</button>
                         </div>
                     </div>
                 </div>
@@ -235,11 +234,13 @@
                                             </option>
                                         </select>
                                     </div>
-                                    <div class="mb-3"
+                                    <div class="mb-3 row"
                                         *ngIf="clipDisplayLayerGroup.get('fadeTypeControl')?.value !== null && selectedCollection?.collectionType === Collectiontypes.Background">
-                                        <label for="colour" class="form-label">Fade Colour</label>
-                                        <input id="colour" type="color" class="form-control"
-                                            formControlName="colourControl" />
+                                        <div class="col-6">
+                                            <app-colourpicker
+                                                [control]="convertToFormControl(clipDisplayLayerGroup.get('colourControl'))"
+                                                [id]="'colour'" [tooltip]="'Fade Colour'"></app-colourpicker>
+                                        </div>
                                     </div>
                                     <div class="form-check form-check-inline mb-3">
                                         <input class="form-check-input" type="checkbox" formControlName="reverseControl"
@@ -276,18 +277,21 @@
                                         <ng-container
                                             *ngFor="let layerClipDisplayLayerGroup of layerClipDisplayLayersFormArray(clipDisplayLayerGroup);let j = index">
                                             <ng-container [formGroupName]="j">
-                                                <div class="mb-3">
-                                                    <label [htmlFor]="j + 'colour'" class="form-label">Layer Colour #{{j
-                                                        + 1}}</label>
-                                                    <input [id]="j + 'colour'" type="color" class="form-control"
-                                                        formControlName="colourControl" />
-                                                </div>
-                                                <div class="mb-3"
-                                                    *ngIf="clipDisplayLayerGroup.get('fadeTypeControl')?.value === null && clipDisplayLayerGroup.get('enableLayerColourTransitionControl')?.value === true">
-                                                    <label [htmlFor]="j + 'endColour'" class="form-label">Layer End
-                                                        Colour #{{j + 1}}</label>
-                                                    <input [id]="j + 'endColour'" type="color" class="form-control"
-                                                        formControlName="endColourControl" />
+                                                <div class="row mb-3">
+                                                    <label for="fadeType" class="form-label">Layer #{{j+1}}</label>
+                                                    <div class="col-6">
+                                                        <app-colourpicker
+                                                            [control]="convertToFormControl(layerClipDisplayLayerGroup.get('colourControl'))"
+                                                            [id]="j + 'colour'"
+                                                            [tooltip]="'Layer Colour #' + (j+1)"></app-colourpicker>
+                                                    </div>
+                                                    <div class="col-6"
+                                                        *ngIf="clipDisplayLayerGroup.get('fadeTypeControl')?.value === null && clipDisplayLayerGroup.get('enableLayerColourTransitionControl')?.value === true">
+                                                        <app-colourpicker
+                                                            [control]="convertToFormControl(layerClipDisplayLayerGroup.get('endColourControl'))"
+                                                            [id]="j + 'endColour'"
+                                                            [tooltip]="'Layer End Colour #' + (j+1)"></app-colourpicker>
+                                                    </div>
                                                 </div>
                                             </ng-container>
                                         </ng-container>

@@ -1,7 +1,7 @@
 import { Location } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
-import { AbstractControl, FormArray, FormBuilder, FormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
+import { AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
 import { Clip } from '../clip';
@@ -366,6 +366,10 @@ export class ClipBuilderComponent implements OnInit {
       enableLayerColourTransitionControl: this.formBuilder.control(enableLayerColourTransition),
       layerClipDisplayLayersFormArray: layerClipDisplayLayersFormArray
     });
+  }
+
+  convertToFormControl = (abstractControl: AbstractControl | null) =>{
+    return abstractControl as FormControl
   }
 
   removeclipDisplayLayer = (index: number) => {
