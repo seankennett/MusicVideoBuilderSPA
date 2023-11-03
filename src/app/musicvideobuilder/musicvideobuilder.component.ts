@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { AbstractControl, FormArray, FormBuilder, FormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { ClipService } from '../clip.service';
 import { Formats } from '../formats';
@@ -28,6 +28,7 @@ import { BuildsService } from '../builds.service';
 import { CollectionService } from '../collection.service';
 import { Collection } from '../collection';
 import { Videoclip } from '../videoclip';
+import { AudiofileService } from '../audiofile.service';
 
 const millisecondsInSecond = 1000;
 const secondsInMinute = 60;
@@ -42,7 +43,8 @@ const byteMultiplier = 1024;
 })
 export class MusicVideoBuilderComponent implements OnInit {
   constructor(private formBuilder: FormBuilder, private videoService: VideoService, private clipService: ClipService, private buildService: BuildsService, private collectionService: CollectionService,
-    private datePipe: DatePipe, private route: ActivatedRoute, private location: Location, private userCollectionService: UserCollectionService, private toastService: ToastService, private router: Router, private stripeService: StripeService) { }
+    private datePipe: DatePipe, private route: ActivatedRoute, private location: Location, private userCollectionService: UserCollectionService, private toastService: ToastService, private router: Router,
+    private stripeService: StripeService, public audioFileService: AudiofileService) { }
 
   ngOnInit(): void {
     this.videoService.getAll().subscribe((videos: Video[]) => {
@@ -63,6 +65,7 @@ export class MusicVideoBuilderComponent implements OnInit {
               this.clips = clips;
               this.collections = collections;
               this.userCollections = userCollections;
+
               this.pageLoading = false;
             });
           });
@@ -77,6 +80,14 @@ export class MusicVideoBuilderComponent implements OnInit {
   pageLoading = true;
 
   @ViewChild(VideoplayerComponent) videoplayer!: VideoplayerComponent;
+  @ViewChild('audioFile') set content(content: ElementRef) {
+    if (content?.nativeElement?.files.length === 0 && this.audioFileService.file) {
+      console.log('file exists');
+      const dataTransfer = new DataTransfer();
+      dataTransfer.items.add(this.audioFileService.file);
+      content.nativeElement.files = dataTransfer.files;
+    }
+  }
 
   videos: Video[] = [];
   clips: Clip[] = [];
@@ -370,7 +381,6 @@ export class MusicVideoBuilderComponent implements OnInit {
 
     this.activeTabId = 1;
     this.showClipPicker = false;
-    this.file = null;
     this.showEditor = !this.showEditor;
   }
 
@@ -526,10 +536,10 @@ export class MusicVideoBuilderComponent implements OnInit {
 
   calculateClipNumber = (index: number) => {
     var start = index + 1;
-    if (this.clipsPerBlock > 1){
+    if (this.clipsPerBlock > 1) {
       var end = index + this.clipsPerBlock;
-      if (end >= this.videoClipsFormArray.length){
-        if (end - this.videoClipsFormArray.length === this.clipsPerBlock - 1){
+      if (end >= this.videoClipsFormArray.length) {
+        if (end - this.videoClipsFormArray.length === this.clipsPerBlock - 1) {
           return start;
         }
         end = this.videoClipsFormArray.length;
@@ -655,8 +665,6 @@ export class MusicVideoBuilderComponent implements OnInit {
     }
   }
 
-  file: File | null = null;
-
   guessedBpm: number | null = null;
   guessedVideoDelay: number | null = null;
   guessingBpm = false;
@@ -671,9 +679,9 @@ export class MusicVideoBuilderComponent implements OnInit {
 
     if (uploadedFiles && uploadedFiles.length === 1) {
       if ((Math.round((uploadedFiles[0].size / byteMultiplier / byteMultiplier) * 100 + Number.EPSILON) / 100) < this.maximumAudioFileSizeMB && uploadedFiles[0].name.endsWith('.mp3')) {
-        this.file = uploadedFiles[0];
+        this.audioFileService.file = uploadedFiles[0];
         this.guessingBpm = true;
-        this.file.arrayBuffer().then(arrayBuffer => {
+        this.audioFileService.file.arrayBuffer().then(arrayBuffer => {
           const audioContext = new AudioContext();
           audioContext.decodeAudioData(arrayBuffer).then(audioBuffer => {
             guess(audioBuffer).then(({ bpm, offset }) => {
@@ -689,11 +697,11 @@ export class MusicVideoBuilderComponent implements OnInit {
       }
       else {
         this.toastService.show('Invalid audio file.  It must be an mp3 and under 40MB.', this.router.url);
-        this.file = null;
+        this.audioFileService.file = null;
         event.target.value = null;
       }
     } else {
-      this.file = null;
+      this.audioFileService.file = null;
       event.target.value = null;
     }
   }
@@ -711,7 +719,7 @@ export class MusicVideoBuilderComponent implements OnInit {
 
   private uploadAudio = (videoBuildRequest: Videobuildrequest, successAction: (videoBuildRequest: Videobuildrequest) => void) => {
     this.isWaitingForCreate = true;
-    if (this.file?.name) {
+    if (this.audioFileService.file?.name) {
       this.isUploadingAudio = true;
       this.buildService.createAudioBlobUri(this.videoId, videoBuildRequest)
         .pipe(catchError((error: HttpErrorResponse) => {
@@ -721,8 +729,8 @@ export class MusicVideoBuilderComponent implements OnInit {
         }))
         .subscribe(blockBlobSasUrl => {
           var blockBlobClient = new BlockBlobClient(blockBlobSasUrl);
-          if (this.file) {
-            blockBlobClient.uploadData(this.file).then(uploadResponse => {
+          if (this.audioFileService.file) {
+            blockBlobClient.uploadData(this.audioFileService.file).then(uploadResponse => {
               this.buildService.validateAudioBlob(this.videoId, videoBuildRequest)
                 .pipe(catchError((error: HttpErrorResponse) => {
                   this.isWaitingForCreate = false;

@@ -40,7 +40,7 @@
             <div class="mb-3">
                 <label for="audioFile" class="form-label">Audio File Selector</label>
                 <input class="form-control" type="file" id="audioFile" accept=".mp3" (change)="onFileUpload($event)"
-                    [disabled]="isWaitingForCreate" />
+                    [disabled]="isWaitingForCreate" #audioFile/>
                 <div class="form-text">
                     40 MB maximum file size. This is to add audio when you play your video in the final video player in
                     the timeline
@@ -335,7 +335,7 @@
                                     <h3>Final Video Player</h3>
                                     <app-videoplayer [selectedClipIndex]="selectedClipIndex" [video]="editorVideo" [clips]="editorVideoClipsFull"
                                         (setSelectedIndexEvent)="setSelectedClipIndex($event)" [collections]="collections"
-                                        [file]="file"></app-videoplayer>
+                                        [file]="audioFileService.file"></app-videoplayer>
                                 </div>
                             </ng-container>
                             <div class="mb-3" *ngIf="showClipPicker || videoClipsFormArray.length === 0">
@@ -388,7 +388,7 @@
                         [ngbTooltip]="noVideoEditorChangesTooltip()">
                         <a ngbNavLink><i class="bi bi-hammer"></i> Builder</a>
                         <ng-template ngbNavContent>
-                            <app-builddisplaystatus [file]="file" [isBuilding]="isBuilding" [isUploadingAudio]="isUploadingAudio"></app-builddisplaystatus>
+                            <app-builddisplaystatus [file]="audioFileService.file" [isBuilding]="isBuilding" [isUploadingAudio]="isUploadingAudio"></app-builddisplaystatus>
                             <div>
                                 <h3>Build Video</h3>
                                 <div class="mb-3">
@@ -461,7 +461,7 @@
                         <a ngbNavLink><i class="bi bi-credit-card-fill"></i> Checkout</a>
                         <ng-template ngbNavContent>
                             <ng-container *ngIf="elementOptions?.clientSecret as clientSecret">
-                                <app-builddisplaystatus [file]="file" [isBuilding]="isBuilding" [isUploadingAudio]="isUploadingAudio"></app-builddisplaystatus>
+                                <app-builddisplaystatus [file]="audioFileService.file" [isBuilding]="isBuilding" [isUploadingAudio]="isUploadingAudio"></app-builddisplaystatus>
                                 <h3>Checkout</h3>
                                 <p>Please check all details before you pay</p>
                                 <div class="mb-3">
