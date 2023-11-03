@@ -37,8 +37,13 @@
                     <div class="card-body">
                         <div class="mb-3">
                             <label for="clipName" class="form-label">Clip Name<span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="clipName" formControlName="clipNameControl" />
-                            <div class="form-text">Try to pick something short. Has to be Alpha Numeric, hypthens and
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="clipName"
+                                    formControlName="clipNameControl" />
+                                <button type="button" class="btn btn-outline-secondary" (click)="autoGenerateName()">
+                                        <i [ngClass]="isPlaying ? 'bi bi-stop-fill' : 'bi bi-play-fill'"></i> Generate</button>
+                            </div>
+                            <div class="form-text">Highly recommended to create your own. It has to be Alpha Numeric, hypthens and
                                 underscores granted, and unique
                                 across your
                                 clips.
@@ -108,12 +113,12 @@
                             <div class="mb-3 row">
                                 <div class="col-6 text-center">
                                     <app-colourpicker [control]="backgroundColourControl" [id]="'backgroundColour'"
-                                        [tooltip]="'Background Colour'" [colourChoices]="colourChoices"></app-colourpicker>
+                                        [tooltip]="'Background Colour'"
+                                        [colourChoices]="colourChoices"></app-colourpicker>
                                 </div>
                                 <div class="col-6 text-center" *ngIf="endBackgroundColourToggleControl.value === true">
                                     <app-colourpicker [control]="endBackgroundColourControl"
-                                        [id]="'endBackgroundColour'"
-                                        [tooltip]="'Transition End Background Colour'"
+                                        [id]="'endBackgroundColour'" [tooltip]="'Transition End Background Colour'"
                                         [colourChoices]="colourChoices"></app-colourpicker>
                                 </div>
                             </div>
@@ -149,7 +154,8 @@
                             </div>
                             <div class="col-6 text-center" *ngIf="endBackgroundColourToggleControl.value === true">
                                 <app-colourpicker [control]="endBackgroundColourControl" [id]="'endBackgroundColour'"
-                                    [tooltip]="'Transition End Background Colour'" [colourChoices]="colourChoices"></app-colourpicker>
+                                    [tooltip]="'Transition End Background Colour'"
+                                    [colourChoices]="colourChoices"></app-colourpicker>
                             </div>
                         </div>
                         <div class="mb-3">
@@ -239,7 +245,8 @@
                                         <div class="col-6">
                                             <app-colourpicker
                                                 [control]="convertToFormControl(clipDisplayLayerGroup.get('colourControl'))"
-                                                [id]="'colour'" [tooltip]="'Fade Colour'" [colourChoices]="colourChoices"></app-colourpicker>
+                                                [id]="'colour'" [tooltip]="'Fade Colour'"
+                                                [colourChoices]="colourChoices"></app-colourpicker>
                                         </div>
                                     </div>
                                     <div class="form-check form-check-inline mb-3">
@@ -275,7 +282,7 @@
                                     </div>
                                     <ng-container formArrayName="layerClipDisplayLayersFormArray">
                                         <ng-container
-                                            *ngFor="let layerClipDisplayLayerGroup of layerClipDisplayLayersFormArray(clipDisplayLayerGroup);let j = index">
+                                            *ngFor="let layerClipDisplayLayerGroup of getLayerClipDisplayLayersFormGroups(clipDisplayLayerGroup);let j = index">
                                             <ng-container [formGroupName]="j">
                                                 <div class="row mb-3">
                                                     <label for="fadeType" class="form-label">Layer #{{j+1}}</label>

@@ -83,7 +83,7 @@ export class ClipBuilderComponent implements OnInit {
       if (fadeTypeControl.value !== null && enableLayerColourTransitionControl) {
         enableLayerColourTransitionControl.setValue(false);
       }
-      this.layerClipDisplayLayersFormArray(this.clipDisplayLayersFormArray.controls[this.clipDisplayLayersFormArrayIndex]).forEach(l => {
+      this.getLayerClipDisplayLayersFormGroups(this.clipDisplayLayersFormArray.controls[this.clipDisplayLayersFormArrayIndex]).forEach(l => {
         l.get('endColourControl')?.setValue(null);
       });
     }
@@ -91,7 +91,7 @@ export class ClipBuilderComponent implements OnInit {
 
   enableLayerColourTransitionsChange = (enableLayerColourTransitionControl: AbstractControl | null) => {
     if (enableLayerColourTransitionControl) {
-      this.layerClipDisplayLayersFormArray(this.clipDisplayLayersFormArray.controls[this.clipDisplayLayersFormArrayIndex]).forEach(l => {
+      this.getLayerClipDisplayLayersFormGroups(this.clipDisplayLayersFormArray.controls[this.clipDisplayLayersFormArrayIndex]).forEach(l => {
         var colour = enableLayerColourTransitionControl.value === true ? l.get('colourControl')?.value : null;
         l.get('endColourControl')?.setValue(colour);
       });
@@ -168,7 +168,7 @@ export class ClipBuilderComponent implements OnInit {
     var clipDisplayLayerFormGroup = this.clipDisplayLayersFormArray.controls[this.clipDisplayLayersFormArrayIndex];
     clipDisplayLayerFormGroup.get('displayLayerIdControl')?.setValue(selectedDisplayLayer?.displayLayerId);
 
-    var layerClipDisplayLayersFormArray = this.layerClipDisplayLayersFormArray(clipDisplayLayerFormGroup);
+    var layerClipDisplayLayersFormArray = this.getLayerClipDisplayLayersFormGroups(clipDisplayLayerFormGroup);
     for (var i = 0; i < layerClipDisplayLayersFormArray.length; i++) {
       layerClipDisplayLayersFormArray[i].get('layerIdControl')?.setValue(selectedDisplayLayer?.layers.filter(l => l.isOverlay !== true)[i].layerId);
     }
@@ -220,7 +220,7 @@ export class ClipBuilderComponent implements OnInit {
     this.editorState = Clipbuildereditorstates.ClipDisplayLayerEditor;
   }
 
-  layerClipDisplayLayersFormArray = (clipDisplayLayerGroup: AbstractControl) => {
+  getLayerClipDisplayLayersFormGroups = (clipDisplayLayerGroup: AbstractControl) => {
     var group = <FormGroup>clipDisplayLayerGroup
     return (<FormArray>group?.get('layerClipDisplayLayersFormArray')).controls
   }
@@ -413,7 +413,7 @@ export class ClipBuilderComponent implements OnInit {
           layerClipDisplayLayers: []
         }
 
-        this.layerClipDisplayLayersFormArray(formGroup).forEach(fg => {
+        this.getLayerClipDisplayLayersFormGroups(formGroup).forEach(fg => {
           var layerClipDisplayLayer = <Layerclipdisplaylayer>{
             colour: fg.get('colourControl')?.value.slice(1),
             endColour: fg.get('endColourControl')?.value?.slice(1) ?? null,
@@ -647,5 +647,10 @@ export class ClipBuilderComponent implements OnInit {
     }
 
     return h ?? 0;
+  }
+
+  autoGenerateName = () =>{
+    var guid = (<any>crypto).randomUUID();
+    this.clipNameControl.setValue(guid);
   }
 }
