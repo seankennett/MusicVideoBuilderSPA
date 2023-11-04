@@ -140,7 +140,7 @@
                                 </div>
                             </div>
                             <div class="mb-3">
-                                <button type="button" [disabled]="!videoForm.valid || saving || noVideoEditorChanges()"
+                                <button type="button" [disabled]="unableToSave"
                                     class="btn btn-primary me-1" (click)="saveVideo()">
                                     <i class="bi bi-floppy-fill"></i> Save
                                     <span class="spinner-border spinner-border-sm ms-1" role="status" aria-hidden="true" *ngIf="saving"></span>

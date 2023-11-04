@@ -13,7 +13,7 @@ import { Resolution } from '../resolution';
 import { UserCollection } from '../usercollection';
 import { guess } from 'web-audio-beat-detector';
 import { ActivatedRoute, Router } from '@angular/router';
-import { NgbNavChangeEvent } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal, NgbNavChangeEvent } from '@ng-bootstrap/ng-bootstrap';
 import { environment } from 'src/environments/environment';
 import { BlockBlobClient } from '@azure/storage-blob';
 import { UserCollectionService } from '../usercollection.service';
@@ -29,6 +29,7 @@ import { CollectionService } from '../collection.service';
 import { Collection } from '../collection';
 import { Videoclip } from '../videoclip';
 import { AudiofileService } from '../audiofile.service';
+import { AudiomodalComponent } from '../audiomodal/audiomodal.component';
 
 const millisecondsInSecond = 1000;
 const secondsInMinute = 60;
@@ -44,7 +45,7 @@ const byteMultiplier = 1024;
 export class MusicVideoBuilderComponent implements OnInit {
   constructor(private formBuilder: FormBuilder, private videoService: VideoService, private clipService: ClipService, private buildService: BuildsService, private collectionService: CollectionService,
     private datePipe: DatePipe, private route: ActivatedRoute, private location: Location, private userCollectionService: UserCollectionService, private toastService: ToastService, private router: Router,
-    private stripeService: StripeService, public audioFileService: AudiofileService) { }
+    private stripeService: StripeService, public audioFileService: AudiofileService, private modalService: NgbModal) { }
 
   ngOnInit(): void {
     this.videoService.getAll().subscribe((videos: Video[]) => {
@@ -301,6 +302,10 @@ export class MusicVideoBuilderComponent implements OnInit {
 
   noVideoEditorChanges = () => {
     return JSON.stringify(this.editorVideo) === JSON.stringify(this.unchangedVideo);
+  }
+
+  get unableToSave() {
+    return !this.videoForm.valid || this.saving || this.noVideoEditorChanges();
   }
 
   get editorVideo(): Video {
@@ -712,9 +717,15 @@ export class MusicVideoBuilderComponent implements OnInit {
   createFreeVideo = () => {
     var resolution = Resolution.Free;
     var buildId = (<any>crypto).randomUUID();
-
     let videoBuildRequest: Videobuildrequest = { resolution, buildId };
-    this.uploadAudio(videoBuildRequest, this.freeVideoSuccessCallback);
+
+    if (this.audioFileService.file !== null) {
+      this.uploadAudio(videoBuildRequest, this.freeVideoSuccessCallback);
+    } else {
+      this.modalService.open(AudiomodalComponent, { centered: true }).closed.subscribe(x => {
+        this.uploadAudio(videoBuildRequest, this.freeVideoSuccessCallback);
+      });
+    }
   }
 
   private uploadAudio = (videoBuildRequest: Videobuildrequest, successAction: (videoBuildRequest: Videobuildrequest) => void) => {
@@ -856,7 +867,13 @@ export class MusicVideoBuilderComponent implements OnInit {
 
   pay = () => {
     let videoBuildRequest: Videobuildrequest = { resolution: this.resolutionControl.value, buildId: this.paymentBuildId };
-    this.uploadAudio(videoBuildRequest, this.payVideoSuccessCallback);
+    if (this.audioFileService.file !== null) {
+      this.uploadAudio(videoBuildRequest, this.payVideoSuccessCallback);
+    } else {
+      this.modalService.open(AudiomodalComponent, { centered: true }).closed.subscribe(x => {
+        this.uploadAudio(videoBuildRequest, this.payVideoSuccessCallback);
+      });
+    }
   }
 
   private payVideoSuccessCallback = (videoBuildRequest: Videobuildrequest) => {

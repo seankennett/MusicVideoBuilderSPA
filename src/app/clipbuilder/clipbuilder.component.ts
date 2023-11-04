@@ -398,6 +398,10 @@ export class ClipBuilderComponent implements OnInit {
     return JSON.stringify(this.unchangedClip) === JSON.stringify(this.editorClip);
   }
 
+  get unableToSave(){
+    return !this.clipForm.valid || this.saving || this.noClipChanges() || this.editorState !== Clipbuildereditorstates.ClipList
+  } 
+
   get editorClip(): Clip {
     return <Clip>{
       clipId: this.clipId,

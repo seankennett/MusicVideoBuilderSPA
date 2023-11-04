@@ -34,6 +34,8 @@ import { BuilddisplaystatusComponent } from './builddisplaystatus/builddisplayst
 import { CollectionsearchComponent } from './collectionsearch/collectionsearch.component';
 import { DisplayComponent } from './display/display.component';
 import { ColourpickerComponent } from './colourpicker/colourpicker.component';
+import { ConfirmationmodalComponent } from './confirmationmodal/confirmationmodal.component';
+import { AudiomodalComponent } from './audiomodal/audiomodal.component';
 
 /**
  * Here we pass the configuration parameters to create an MSAL instance.
@@ -95,7 +97,9 @@ export function MSALGuardConfigFactory(): MsalGuardConfiguration {
     BuilddisplaystatusComponent,
     CollectionsearchComponent,
     DisplayComponent,
-    ColourpickerComponent
+    ColourpickerComponent,
+    ConfirmationmodalComponent,
+    AudiomodalComponent
   ],
   imports: [
     BrowserModule,

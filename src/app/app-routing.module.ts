@@ -9,6 +9,7 @@ import { MyLibraryComponent } from './mylibrary/mylibrary.component';
 import { MusicVideoBuilderComponent } from './musicvideobuilder/musicvideobuilder.component';
 import { NotfoundComponent } from './notfound/notfound.component';
 import { ConfirmationComponent } from './confirmation/confirmation.component';
+import { ConfirmationgaurdGuard } from './confirmationgaurd.guard';
 
 const routes: Routes = [
   {
@@ -20,6 +21,9 @@ const routes: Routes = [
     component: ClipBuilderComponent,
     canActivate: [
       MsalGuard
+    ],
+    canDeactivate:[
+      ConfirmationgaurdGuard
     ],
     children: [
       {
@@ -36,6 +40,9 @@ const routes: Routes = [
     component: MusicVideoBuilderComponent,
     canActivate: [
       MsalGuard
+    ],
+    canDeactivate:[
+      ConfirmationgaurdGuard
     ],
     children: [
       {
