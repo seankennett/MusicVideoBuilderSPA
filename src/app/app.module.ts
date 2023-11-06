@@ -37,6 +37,7 @@ import { ColourpickerComponent } from './colourpicker/colourpicker.component';
 import { ConfirmationmodalComponent } from './confirmationmodal/confirmationmodal.component';
 import { AudiomodalComponent } from './audiomodal/audiomodal.component';
 import { ClipinfoComponent } from './clipinfo/clipinfo.component';
+import { TransitioninfoComponent } from './transitioninfo/transitioninfo.component';
 
 /**
  * Here we pass the configuration parameters to create an MSAL instance.
@@ -101,7 +102,8 @@ export function MSALGuardConfigFactory(): MsalGuardConfiguration {
     ColourpickerComponent,
     ConfirmationmodalComponent,
     AudiomodalComponent,
-    ClipinfoComponent
+    ClipinfoComponent,
+    TransitioninfoComponent
   ],
   imports: [
     BrowserModule,

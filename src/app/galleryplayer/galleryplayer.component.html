@@ -2,7 +2,8 @@
   <app-display [clip]="clip" [collection]="collection" [collections]="collections" [leftPosition]="leftPosition">
   </app-display>
   <div class="card-header text-center" *ngIf="playerTitle !== ''">
-    <h5 class="card-title">{{ playerTitle }} <a *ngIf="clip" (click)="showClipInfo()" [routerLink]="[]"><i class="bi bi-info-circle-fill text-primary"></i></a></h5>
+    <h5 class="card-title">{{ playerTitle }} <a *ngIf="showClipInfoButton && clip" (click)="showClipInfo()" [routerLink]="[]"><i
+          class="bi bi-info-circle-fill text-primary"></i></a></h5>
   </div>
   <ul class="list-group list-group-flush">
     <li class="list-group-item text-center"><button type="button" class="btn btn-outline-secondary"
@@ -18,11 +19,6 @@
       </li>
       <li class="list-group-item"><span class="badge rounded-pill bg-primary">{{colourOptionNumber}}</span> Unlimited
         colour options</li>
-      <li class="list-group-item"><span class="badge rounded-pill bg-primary">{{directionOptionNumber}}</span> Direction
-        options</li>
-      <li class="list-group-item"><span class="badge rounded-pill bg-primary">{{directionTransitionOptionNumber}}</span>
-        Direction transition options
-      </li>
       <li class="list-group-item" *ngIf="showEditColour === true">
         <div class="row">
           <div class="col text-center" *ngFor="let layer of layerCollectionEditableDisplayLayers; let i = index">
@@ -35,6 +31,14 @@
             </div>
           </div>
         </div>
+      </li>
+      <li class="list-group-item"><span class="badge rounded-pill bg-primary">{{directionOptionNumber}}</span> Direction
+        options</li>
+      <li class="list-group-item"><span class="badge rounded-pill bg-primary">{{directionTransitionOptionNumber}}</span>
+        Direction transition options
+      </li>
+      <li class="list-group-item">
+        Plus our standard extras <a (click)="showTransitions()" [routerLink]="[]"><i class="bi bi-info-circle-fill text-primary"></i></a>
       </li>
     </ng-container>
     <li class="list-group-item text-center" placement="top"

@@ -7,6 +7,7 @@ import { Video } from '../video';
 import { Layercollectiondisplaylayer } from '../layercollectiondisplaylayer';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ClipinfoComponent } from '../clipinfo/clipinfo.component';
+import { TransitioninfoComponent } from '../transitioninfo/transitioninfo.component';
 
 const imageWidth = 384;
 const secondsInMinute = 60;
@@ -42,6 +43,7 @@ export class GalleryplayerComponent implements OnInit, OnChanges {
   @Input() showRemove: boolean = false;
   @Input() showClone: boolean = false;
   @Input() showEditColour: boolean = false;
+  @Input() showClipInfoButton: boolean = true;
 
   layerCollectionEditableDisplayLayers: Layercollectiondisplaylayer[] = [];
 
@@ -167,6 +169,10 @@ export class GalleryplayerComponent implements OnInit, OnChanges {
   showClipInfo = () => {
     let modal = this.modalService.open(ClipinfoComponent, { size: 'xl'});
     modal.componentInstance.clip = this.clip;
+  }
+
+  showTransitions = () =>{
+    this.modalService.open(TransitioninfoComponent);
   }
 
   removeButtonClick = () => {
