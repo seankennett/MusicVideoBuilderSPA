@@ -186,7 +186,8 @@ export class ClipBuilderComponent implements OnInit {
       var colour = collection.collectionDisplayLayer.layerCollectionDisplayLayers.find(lc => l.layerId == lc.layerId);
       var group = this.formBuilder.group({
         layerIdControl: this.formBuilder.control(l.layerId),
-        colourControl: this.formBuilder.control('#' + colour?.colour)
+        colourControl: this.formBuilder.control('#' + colour?.colour),
+        endColourControl: this.formBuilder.control(null)
       });
       layerClipDisplayLayersFormArray.push(group);
     });
