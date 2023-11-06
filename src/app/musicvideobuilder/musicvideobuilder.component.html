@@ -415,8 +415,6 @@
                         [ngbTooltip]="noVideoEditorChangesTooltip()">
                         <a ngbNavLink><i class="bi bi-hammer"></i> Builder</a>
                         <ng-template ngbNavContent>
-                            <app-builddisplaystatus [file]="audioFileService.file" [isBuilding]="isBuilding"
-                                [isUploadingAudio]="isUploadingAudio"></app-builddisplaystatus>
                             <div>
                                 <h3>Build Video</h3>
                                 <div class="mb-3">
@@ -472,6 +470,8 @@
                                     </ul>
                                 </div>
                                 <div class="mb-3">
+                                    <app-builddisplaystatus [file]="audioFileService.file" [isBuilding]="isBuilding"
+                                        [isUploadingAudio]="isUploadingAudio"></app-builddisplaystatus>
                                     <button type="button" class="btn btn-primary" (click)="createFreeVideo()"
                                         [disabled]="isBuilding || isWaitingForCreate" *ngIf="total === 0">
                                         <i class="bi bi-hammer ms-1"></i>
@@ -495,8 +495,6 @@
                         <a ngbNavLink><i class="bi bi-credit-card-fill"></i> Checkout</a>
                         <ng-template ngbNavContent>
                             <ng-container *ngIf="elementOptions?.clientSecret as clientSecret">
-                                <app-builddisplaystatus [file]="audioFileService.file" [isBuilding]="isBuilding"
-                                    [isUploadingAudio]="isUploadingAudio"></app-builddisplaystatus>
                                 <h3>Checkout</h3>
                                 <p>Please check all details before you pay</p>
                                 <div class="mb-3">
@@ -529,6 +527,8 @@
                                         (change)="cardChange($event)"></ngx-stripe-payment>
                                 </div>
                                 <div class="mb-3">
+                                    <app-builddisplaystatus [file]="audioFileService.file" [isBuilding]="isBuilding"
+                                        [isUploadingAudio]="isUploadingAudio"></app-builddisplaystatus>
                                     <button type="button" class="btn btn-success" (click)="pay()"
                                         [disabled]="isBuilding || isWaitingForCreate || invalidCardDetails"
                                         *ngIf="total > 0">
