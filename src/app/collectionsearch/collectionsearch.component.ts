@@ -83,8 +83,8 @@ export class CollectionsearchComponent implements OnInit {
     }
   }
 
-  removeSelectedTag = (tag: string) => {
-    this.selectedCollectionNames = this.selectedCollectionNames.filter(t => t !== tag);
+  removeSelectedCollectionName = (collectionName: string) => {
+    this.selectedCollectionNames = this.selectedCollectionNames.filter(t => t !== collectionName);
   }
 
   setBpm = (bpm: number) => {

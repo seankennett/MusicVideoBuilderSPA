@@ -1,45 +1,49 @@
 <h3>Collections Search Controls</h3>
-<div class="mb-3" *ngIf="!forcedCollectionType">
-    <label for="collectionType" class="form-label">Collection Types</label>
-    <select id="collectionType" [(ngModel)]="collectionType" class="form-control">
-        <option [ngValue]="lt" *ngFor="let lt of collectionTypeList">
-            {{Collectiontypes[lt]}}
-        </option>
-    </select>
-</div>
-<div class="mb-3">
-    <label for="tagSearch" class="form-label">Search Collections</label>
-    <input type="text" class="form-control" id="tagSearch" [ngbTypeahead]="search" [inputFormatter]="formatter"
-        [resultFormatter]="formatter" [editable]="false" (selectItem)="selectItem($event)"
-        [(ngModel)]="typeAheadValue" />
-    <div class="form-text">Type and use the select list to search for collections.</div>
-    <ng-container *ngFor="let selectedCollectionName of selectedCollectionNames">
-        <button type="button" class="btn btn-outline-danger me-1" (click)="removeSelectedTag(selectedCollectionName)">
-            <i class="bi bi-x-circle-fill"></i> {{selectedCollectionName}}
-        </button>
-    </ng-container>
+<div class="row">
+    <div class="mb-3 col">
+        <label for="collectionSearch" class="form-label">Search Collections</label>
+        <input type="text" class="form-control" id="collectionSearch" [ngbTypeahead]="search"
+            [inputFormatter]="formatter" [resultFormatter]="formatter" [editable]="false"
+            (selectItem)="selectItem($event)" [(ngModel)]="typeAheadValue" />
+        <div class="form-text">Type and use the select list to search for collections.</div>
+        <ng-container *ngFor="let selectedCollectionName of selectedCollectionNames">
+            <button type="button" class="btn btn-outline-danger me-1"
+                (click)="removeSelectedCollectionName(selectedCollectionName)">
+                <i class="bi bi-x-circle-fill"></i> {{selectedCollectionName}}
+            </button>
+        </ng-container>
+    </div>
+    <div class="mb-3 col">
+        <label for="collectionType" class="form-label">Collection Types</label>
+        <select id="collectionType" [(ngModel)]="collectionType" class="form-control"
+            [disabled]="forcedCollectionType !== null">
+            <option [ngValue]="lt" *ngFor="let lt of collectionTypeList">
+                {{Collectiontypes[lt]}}
+            </option>
+        </select>
+    </div>    
 </div>
 <ng-container *ngIf="selectedCollections.length > 0">
-    <h3>Collections Search</h3>
+    <h3>Collections Search Results</h3>
     <app-bpmcontrol (bpmEvent)="setBpm($event)" (isPlayingEvent)="setIsPlaying($event)"></app-bpmcontrol>
     <div class="row">
         <div *ngFor="let collection of selectedCollections; let i = index" class="col-sm mb-3">
-            <app-galleryplayer [collection]="collection" [bpm]="bpm" [isPlaying]="isPlaying" [showAdd]="false" [showEdit]="showEdit"
-            (editButtonClickCollectionEvent)="editCollection($event)">
+            <app-galleryplayer [collection]="collection" [bpm]="bpm" [isPlaying]="isPlaying" [showAdd]="false"
+                [showEdit]="showEdit" (editButtonClickCollectionEvent)="editCollection($event)">
             </app-galleryplayer>
         </div>
     </div>
 </ng-container>
 <ng-container *ngIf="selectedCollections.length === 0">
-    <p>Search parameters resulting in no results so will show popular collections for selected collection type.</p>
     <h3>Popular Collections</h3>
-    <p>Seeing as you have not selected any names using the Collection Search Controls, here are the most popular
-        collections with our users.</p>
+    <p>Seeing as you have not selected any names using the Search Collections control, here are the most popular
+        collections with our users with the selected collection type.</p>
     <app-bpmcontrol (bpmEvent)="setBpm($event)" (isPlayingEvent)="setIsPlaying($event)"></app-bpmcontrol>
     <div class="row">
         <div *ngFor="let collection of popularCollections; let i = index" class="col-sm mb-3">
-            <app-galleryplayer [collection]="collection" [bpm]="bpm" [isPlaying]="isPlaying" [showAdd]="false" [showEdit]="showEdit"
-            (editButtonClickCollectionEvent)="editCollection($event)" [showEditColour]="showEditColour">
+            <app-galleryplayer [collection]="collection" [bpm]="bpm" [isPlaying]="isPlaying" [showAdd]="false"
+                [showEdit]="showEdit" (editButtonClickCollectionEvent)="editCollection($event)"
+                [showEditColour]="showEditColour">
             </app-galleryplayer>
         </div>
     </div>

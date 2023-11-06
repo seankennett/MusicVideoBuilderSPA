@@ -34,16 +34,17 @@
             <h2>Clip Details</h2>
             <form [formGroup]="clipForm" (ngSubmit)="onSubmit()">
                 <div class="card mb-3">
-                    <div class="card-body">
+                    <div class="card-body row">
                         <div class="mb-3">
                             <label for="clipName" class="form-label">Clip Name<span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <input type="text" class="form-control" id="clipName"
                                     formControlName="clipNameControl" />
                                 <button type="button" class="btn btn-outline-secondary" (click)="autoGenerateName()">
-                                        <i [ngClass]="isPlaying ? 'bi bi-stop-fill' : 'bi bi-play-fill'"></i> Generate</button>
+                                    <i class="bi bi-robot"></i> Generate</button>
                             </div>
-                            <div class="form-text">Highly recommended to create your own. It has to be Alpha Numeric, hypthens and
+                            <div class="form-text">Highly recommended to create your own. It has to be Alpha Numeric,
+                                hypthens and
                                 underscores granted, and unique
                                 across your
                                 clips.
@@ -61,34 +62,36 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="mb-3">
-                            <label for="beatLength" class="form-label">Number Of Beats</label>
-                            <select id="beatLength" formControlName="beatLengthControl" class="form-control"
-                                (change)="updateStartingBeat()">
-                                <option [ngValue]="1">
-                                    1
-                                </option>
-                                <option [ngValue]="2">
-                                    2
-                                </option>
-                                <option [ngValue]="3">
-                                    3
-                                </option>
-                                <option [ngValue]="4">
-                                    4
-                                </option>
-                            </select>
-                            <div class="form-text">It is highly recommended you leave this setting at 4 beats.
+                        <div class="row">
+                            <div class="mb-3 col-6">
+                                <label for="beatLength" class="form-label"># Of Beats</label>
+                                <select id="beatLength" formControlName="beatLengthControl" class="form-control"
+                                    (change)="updateStartingBeat()">
+                                    <option [ngValue]="1">
+                                        1
+                                    </option>
+                                    <option [ngValue]="2">
+                                        2
+                                    </option>
+                                    <option [ngValue]="3">
+                                        3
+                                    </option>
+                                    <option [ngValue]="4">
+                                        4
+                                    </option>
+                                </select>
+                                <div class="form-text">It is highly recommended you leave this setting at 4 beats.
+                                </div>
                             </div>
-                        </div>
-                        <div class="mb-3" *ngIf="startingBeatOptions.length > 1">
-                            <label for="startingBeat" class="form-label">Starting Beat</label>
-                            <select id="startingBeat" formControlName="startingBeatControl" class="form-control">
-                                <option [ngValue]="startingBeatOption"
-                                    *ngFor="let startingBeatOption of startingBeatOptions">
-                                    {{startingBeatOption}}
-                                </option>
-                            </select>
+                            <div class="mb-3 col-6" *ngIf="startingBeatOptions.length > 1">
+                                <label for="startingBeat" class="form-label">Starting Beat</label>
+                                <select id="startingBeat" formControlName="startingBeatControl" class="form-control">
+                                    <option [ngValue]="startingBeatOption"
+                                        *ngFor="let startingBeatOption of startingBeatOptions">
+                                        {{startingBeatOption}}
+                                    </option>
+                                </select>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -186,63 +189,67 @@
                             <p>Use the controls below to customise your collection.</p>
                             <div class="card mb-3">
                                 <div class="card-body">
-                                    <div class="mb-3">
-                                        <label for="direction" class="form-label">Direction</label>
-                                        <select id="direction" class="form-control" [(ngModel)]="selectedDirection"
-                                            [ngModelOptions]="{standalone: true}"
-                                            (ngModelChange)="directionChange($event)">
-                                            <option
-                                                *ngFor="let selectedCollectionDirectionOption of selectedCollectionDirectionOptions"
-                                                [ngValue]="selectedCollectionDirectionOption">
-                                                {{selectedCollectionDirectionOption.directionName +
-                                                (selectedCollectionDirectionOption.isTransition === true ? '
-                                                (transition)' : '')
-                                                }}
-                                            </option>
-                                        </select>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="sides" class="form-label">Side Number</label>
-                                        <select id="sides" class="form-control" [(ngModel)]="selectedNumberOfSides"
-                                            [ngModelOptions]="{standalone: true}"
-                                            (ngModelChange)="sideNumberChange($event)">
-                                            <option
-                                                *ngFor="let selectedCollectionSideOption of selectedCollectionSideOptions"
-                                                [ngValue]="selectedCollectionSideOption">
-                                                {{selectedCollectionSideOption}}
-                                            </option>
-                                        </select>
-                                    </div>
-                                    <div class="mb-3"
-                                        *ngIf="selectedDisplayLayerLinkedDisplayLayerIdOptions && selectedDisplayLayerLinkedDisplayLayerIdOptions.length > 0">
-                                        <label for="sequanceNumber" class="form-label">Sequence Number</label>
-                                        <select id="sequanceNumber" class="form-control"
-                                            [(ngModel)]="selectedDisplayLayerId" [ngModelOptions]="{standalone: true}"
-                                            (ngModelChange)="displayLayerIdChange($event)">
-                                            <option
-                                                *ngFor="let selectedDisplayLayerLinkedDisplayLayerIdOption of selectedDisplayLayerLinkedDisplayLayerIdOptions;let k = index"
-                                                [ngValue]="selectedDisplayLayerLinkedDisplayLayerIdOption">
-                                                {{k + 1}}
-                                            </option>
-                                        </select>
+                                    <div class="row">
+                                        <div class="mb-3 col">
+                                            <label for="direction" class="form-label">Direction</label>
+                                            <select id="direction" class="form-control" [(ngModel)]="selectedDirection"
+                                                [ngModelOptions]="{standalone: true}"
+                                                (ngModelChange)="directionChange($event)">
+                                                <option
+                                                    *ngFor="let selectedCollectionDirectionOption of selectedCollectionDirectionOptions"
+                                                    [ngValue]="selectedCollectionDirectionOption">
+                                                    {{selectedCollectionDirectionOption.directionName +
+                                                    (selectedCollectionDirectionOption.isTransition === true ? '
+                                                    (transition)' : '')
+                                                    }}
+                                                </option>
+                                            </select>
+                                        </div>
+                                        <div class="mb-3 col">
+                                            <label for="sides" class="form-label">Side #</label>
+                                            <select id="sides" class="form-control" [(ngModel)]="selectedNumberOfSides"
+                                                [ngModelOptions]="{standalone: true}"
+                                                (ngModelChange)="sideNumberChange($event)">
+                                                <option
+                                                    *ngFor="let selectedCollectionSideOption of selectedCollectionSideOptions"
+                                                    [ngValue]="selectedCollectionSideOption">
+                                                    {{selectedCollectionSideOption}}
+                                                </option>
+                                            </select>
+                                        </div>
+                                        <div class="mb-3 col"
+                                            *ngIf="selectedDisplayLayerLinkedDisplayLayerIdOptions && selectedDisplayLayerLinkedDisplayLayerIdOptions.length > 0">
+                                            <label for="sequanceNumber" class="form-label">Sequence #</label>
+                                            <select id="sequanceNumber" class="form-control"
+                                                [(ngModel)]="selectedDisplayLayerId"
+                                                [ngModelOptions]="{standalone: true}"
+                                                (ngModelChange)="displayLayerIdChange($event)">
+                                                <option
+                                                    *ngFor="let selectedDisplayLayerLinkedDisplayLayerIdOption of selectedDisplayLayerLinkedDisplayLayerIdOptions;let k = index"
+                                                    [ngValue]="selectedDisplayLayerLinkedDisplayLayerIdOption">
+                                                    {{k + 1}}
+                                                </option>
+                                            </select>
+                                        </div>
                                     </div>
                                     <div class="mb-3">
                                         <app-galleryplayer [clip]="selectedCollectionClip" [collections]="collections"
-                                            [bpm]="bpm" [showAdd]="false" [showClipInfoButton]="false"></app-galleryplayer>
+                                            [bpm]="bpm" [showAdd]="false"
+                                            [showClipInfoButton]="false"></app-galleryplayer>
                                     </div>
-                                    <div class="mb-3">
-                                        <label for="fadeType" class="form-label">Fade Type</label>
-                                        <select id="fadeType" class="form-control" formControlName="fadeTypeControl"
-                                            (change)="setFadeColourControl(clipDisplayLayerGroup.get('fadeTypeControl'), clipDisplayLayerGroup.get('colourControl'), clipDisplayLayerGroup.get('enableLayerColourTransitionControl'))">
-                                            <option [ngValue]="null">None</option>
-                                            <option *ngFor="let fadeType of fadeTypeList" [ngValue]="fadeType">
-                                                {{FadeTypes[fadeType]}}
-                                            </option>
-                                        </select>
-                                    </div>
-                                    <div class="mb-3 row"
-                                        *ngIf="clipDisplayLayerGroup.get('fadeTypeControl')?.value !== null && selectedCollection?.collectionType === Collectiontypes.Background">
-                                        <div class="col-6">
+                                    <div class="row">
+                                        <div class="mb-3 col-6">
+                                            <label for="fadeType" class="form-label">Fade Type</label>
+                                            <select id="fadeType" class="form-control" formControlName="fadeTypeControl"
+                                                (change)="setFadeColourControl(clipDisplayLayerGroup.get('fadeTypeControl'), clipDisplayLayerGroup.get('colourControl'), clipDisplayLayerGroup.get('enableLayerColourTransitionControl'))">
+                                                <option [ngValue]="null">None</option>
+                                                <option *ngFor="let fadeType of fadeTypeList" [ngValue]="fadeType">
+                                                    {{FadeTypes[fadeType]}}
+                                                </option>
+                                            </select>
+                                        </div>
+                                        <div class="mb-3 col-6" *ngIf="clipDisplayLayerGroup.get('fadeTypeControl')?.value !== null && selectedCollection?.collectionType === Collectiontypes.Background">
+                                            <label for="colour" class="form-label">Fade Colour</label>
                                             <app-colourpicker
                                                 [control]="convertToFormControl(clipDisplayLayerGroup.get('colourControl'))"
                                                 [id]="'colour'" [tooltip]="'Fade Colour'"
@@ -319,13 +326,14 @@
                 </ng-container>
                 <ng-container *ngIf="editorState === Clipbuildereditorstates.ClipList">
                     <div class="mb-3">
-                        <h2>Clip Layers <a (click)="showClipInfo()" [routerLink]="[]"><i class="bi bi-info-circle-fill text-primary"></i></a></h2>                        
+                        <h2>Clip Layers <a (click)="showClipInfo()" [routerLink]="[]"><i
+                                    class="bi bi-info-circle-fill text-primary"></i></a></h2>
                         <ol class="list-group list-group-numbered">
                             <li *ngIf="editorClip.backgroundColour !== null" class="list-group-item">Colour background
                                 <i class="bi bi-square-fill" [style.color]="backgroundColourControl.value"></i>
                                 <i *ngIf="editorClip.endBackgroundColour !== null" class="bi bi-square-fill ms-1"
                                     [style.color]="endBackgroundColourControl.value"></i>
-                                <div class="btn-group float-end" role="group">
+                                <div class="float-end">
                                     <button *ngIf="0 === clipDisplayLayersFormArray.controls.length" type="button"
                                         class="btn btn-danger ms-1" (click)="removeBackgroundColour()"><i
                                             class="bi bi-dash-circle-fill"></i>
@@ -337,7 +345,7 @@
                             <li *ngFor="let clipDisplayLayerFormGroup of clipDisplayLayersFormArray.controls; let i = index"
                                 class="list-group-item">
                                 {{convertFormGroupToCollection(clipDisplayLayerFormGroup)?.collectionName}}
-                                <div class="btn-group float-end" role="group">
+                                <div class="float-end">
                                     <button
                                         *ngIf="i > 0 && convertFormGroupToCollection(clipDisplayLayersFormArray.controls[i - 1])?.collectionType === Collectiontypes.Foreground"
                                         type="button" class="btn btn-secondary ms-1" (click)="moveBack(i)"><i
@@ -347,8 +355,9 @@
                                         type="button" class="btn btn-secondary ms-1" (click)="moveForward(i)"><i
                                             class="bi bi-front"></i> Move
                                         Forward</button>
-                                    <button *ngIf="i === clipDisplayLayersFormArray.controls.length - 1" type="button"
-                                        class="btn btn-danger ms-1" (click)="removeclipDisplayLayer(i)"><i
+                                    <button
+                                        *ngIf="i === clipDisplayLayersFormArray.controls.length - 1 || convertFormGroupToCollection(clipDisplayLayersFormArray.controls[i])?.collectionType === Collectiontypes.Foreground"
+                                        type="button" class="btn btn-danger ms-1" (click)="removeclipDisplayLayer(i)"><i
                                             class="bi bi-dash-circle-fill"></i>
                                         Remove</button>
                                     <button type="button" class="btn btn-primary ms-1"
@@ -378,9 +387,8 @@
                     </div>
                 </ng-container>
                 <div class="mb-3">
-                    <button type="submit"
-                        [disabled]="unableToSave"
-                        class="btn btn-primary me-1"><i class="bi bi-floppy-fill"></i>
+                    <button type="submit" [disabled]="unableToSave" class="btn btn-primary me-1"><i
+                            class="bi bi-floppy-fill"></i>
                         Save
                         <span class="spinner-border spinner-border-sm ms-1" role="status" aria-hidden="true"
                             *ngIf="saving"></span>

@@ -70,73 +70,80 @@
                         <a ngbNavLink><i class="bi bi-pencil-square"></i> Details</a>
                         <ng-template ngbNavContent>
                             <h3>Video Details</h3>
-                            <div class="mb-3">
-                                <label for="videoName" class="form-label">Video Name<span
-                                        class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="videoName"
-                                    formControlName="videoNameControl" />
-                                <div class="form-text">Try to pick something short. Has to be Alpha Numeric, hypthens
-                                    and underscores allowed and unique
-                                    across your
-                                    videos.
+                            <div class="row">
+                                <div class="mb-3 col">
+                                    <label for="videoName" class="form-label">Video Name<span
+                                            class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="videoName"
+                                        formControlName="videoNameControl" />
+                                    <div class="form-text">Try to pick something short. Has to be Alpha Numeric,
+                                        hypthens
+                                        and underscores allowed and unique
+                                        across your
+                                        videos.
+                                    </div>
+                                    <div class="form-text text-danger"
+                                        *ngIf="videoNameControl?.invalid  && (videoNameControl?.dirty || videoNameControl?.touched)">
+                                        <div [hidden]="!videoNameControl?.errors?.['required']">
+                                            Video name is required.
+                                        </div>
+                                        <div [hidden]="!videoNameControl?.errors?.['maxlength']">
+                                            Video name max length is 50 characters.
+                                        </div>
+                                        <div [hidden]="!videoNameControl?.errors?.['pattern']">
+                                            Video name must be alpha numeric, hypthens and underscores granted.
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="form-text text-danger"
-                                    *ngIf="videoNameControl?.invalid  && (videoNameControl?.dirty || videoNameControl?.touched)">
-                                    <div [hidden]="!videoNameControl?.errors?.['required']">
-                                        Video name is required.
+                                <div class="mb-3 col">
+                                    <label for="videoBpm" class="form-label">Video BPM (playback speed)<span
+                                            class="text-danger">*</span></label>
+                                    <input type="number" class="form-control" min="90" max="250" step="1" id="videoBpm"
+                                        formControlName="bpmControl" />
+                                    <div class="form-text">Must be between 90 and 250 beats per minute.
                                     </div>
-                                    <div [hidden]="!videoNameControl?.errors?.['maxlength']">
-                                        Video name max length is 50 characters.
-                                    </div>
-                                    <div [hidden]="!videoNameControl?.errors?.['pattern']">
-                                        Video name must be alpha numeric, hypthens and underscores granted.
+                                    <div class="form-text text-danger"
+                                        *ngIf="bpmControl?.invalid  && (bpmControl?.dirty || bpmControl?.touched)">
+                                        <div [hidden]="!bpmControl?.errors?.['required']">
+                                            BPM is required.
+                                        </div>
+                                        <div [hidden]="!bpmControl?.errors?.['min']">
+                                            BPM must be over 90.
+                                        </div>
+                                        <div [hidden]="!bpmControl?.errors?.['max']">
+                                            BPM must be under 250
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="mb-3">
-                                <label for="videoBpm" class="form-label">Video BPM (playback speed)<span
-                                        class="text-danger">*</span></label>
-                                <input type="number" class="form-control" min="90" max="250" step="1" id="videoBpm"
-                                    formControlName="bpmControl" />
-                                <div class="form-text">Must be between 90 and 250 beats per minute.
+                            <div class="row">
+                                <div class="mb-3 col">
+                                    <label for="format" class="form-label">Format</label>
+                                    <select id="format" formControlName="formatControl" class="form-control">
+                                        <option [ngValue]="lt" *ngFor="let lt of formatList">
+                                            {{Formats[lt]}}
+                                        </option>
+                                    </select>
                                 </div>
-                                <div class="form-text text-danger"
-                                    *ngIf="bpmControl?.invalid  && (bpmControl?.dirty || bpmControl?.touched)">
-                                    <div [hidden]="!bpmControl?.errors?.['required']">
-                                        BPM is required.
+                                <div class="mb-3 col">
+                                    <label for="videoDelayMilliseconds" class="form-label">Video Delay in
+                                        milliseconds</label>
+                                    <input type="number" class="form-control" min="0" max="2147483647" step="1"
+                                        id="videoDelayMilliseconds" formControlName="videoDelayMillisecondsControl" />
+                                    <div class="form-text">This is the delay in milliseconds from the start of your
+                                        audio to
+                                        where the first
+                                        beat kicks in. This will be when the video starts. Leave blank or 0 for no
+                                        delay.
                                     </div>
-                                    <div [hidden]="!bpmControl?.errors?.['min']">
-                                        BPM must be over 90.
-                                    </div>
-                                    <div [hidden]="!bpmControl?.errors?.['max']">
-                                        BPM must be under 250
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <label for="format" class="form-label">Format</label>
-                                <select id="format" formControlName="formatControl" class="form-control">
-                                    <option [ngValue]="lt" *ngFor="let lt of formatList">
-                                        {{Formats[lt]}}
-                                    </option>
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label for="videoDelayMilliseconds" class="form-label">Video Delay in
-                                    milliseconds</label>
-                                <input type="number" class="form-control" min="0" max="2147483647" step="1"
-                                    id="videoDelayMilliseconds" formControlName="videoDelayMillisecondsControl" />
-                                <div class="form-text">This is the delay in milliseconds from the start of your audio to
-                                    where the first
-                                    beat kicks in. This will be when the video starts. Leave blank or 0 for no delay.
-                                </div>
-                                <div class="form-text text-danger"
-                                    *ngIf="videoDelayMillisecondsControl?.invalid  && (videoDelayMillisecondsControl?.dirty || videoDelayMillisecondsControl?.touched)">
-                                    <div [hidden]="!videoDelayMillisecondsControl?.errors?.['max']">
-                                        Delay must be less than 2147483647.
-                                    </div>
-                                    <div [hidden]="!videoDelayMillisecondsControl?.errors?.['pattern']">
-                                        Delay must be a positive whole numnber.
+                                    <div class="form-text text-danger"
+                                        *ngIf="videoDelayMillisecondsControl?.invalid  && (videoDelayMillisecondsControl?.dirty || videoDelayMillisecondsControl?.touched)">
+                                        <div [hidden]="!videoDelayMillisecondsControl?.errors?.['max']">
+                                            Delay must be less than 2147483647.
+                                        </div>
+                                        <div [hidden]="!videoDelayMillisecondsControl?.errors?.['pattern']">
+                                            Delay must be a positive whole numnber.
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -171,21 +178,23 @@
                         <ng-template ngbNavContent>
                             <ng-container *ngIf="showEditor && !showClipPicker && videoClipsFormArray.length > 0">
                                 <h3>Timeline View Options</h3>
-                                <div class="mb-3">
-                                    <label for="clipsPerBlock" class="form-label">Number of clips per timeline
-                                        block</label>
-                                    <select id="clipsPerBlock" class="form-control" [(ngModel)]="clipsPerBlock"
-                                        [ngModelOptions]="{standalone: true}">
-                                        <option [ngValue]="1">
-                                            1
-                                        </option>
-                                        <option [ngValue]="4" [disabled]="isInvalidSelection(4)">
-                                            4
-                                        </option>
-                                        <option [ngValue]="16" [disabled]="isInvalidSelection(16)">
-                                            16
-                                        </option>
-                                    </select>
+                                <div class="row">
+                                    <div class="mb-3 col-6">
+                                        <label for="clipsPerBlock" class="form-label"># clips per timeline
+                                            block</label>
+                                        <select id="clipsPerBlock" class="form-control" [(ngModel)]="clipsPerBlock"
+                                            [ngModelOptions]="{standalone: true}">
+                                            <option [ngValue]="1">
+                                                1
+                                            </option>
+                                            <option [ngValue]="4" [disabled]="isInvalidSelection(4)">
+                                                4
+                                            </option>
+                                            <option [ngValue]="16" [disabled]="isInvalidSelection(16)">
+                                                16
+                                            </option>
+                                        </select>
+                                    </div>
                                 </div>
                                 <div class="mb-3">
                                     <label for="timelineEditorStart" class="form-label">Timeline selection start, start
@@ -226,7 +235,10 @@
                                                         [width]="timelineImageWidth" [height]="timelineImageHeight">
                                                     </app-display>
                                                     <h5 class="card-header">{{calculateClipNameFromClipIndex(i)}}
-                                                    <a *ngIf="clipsPerBlock === 1" (click)="showClipInfo(getClip(videoClipControl.value))" [routerLink]="[]"><i class="bi bi-info-circle-fill text-primary"></i></a>
+                                                        <a *ngIf="clipsPerBlock === 1"
+                                                            (click)="showClipInfo(getClip(videoClipControl.value))"
+                                                            [routerLink]="[]"><i
+                                                                class="bi bi-info-circle-fill text-primary"></i></a>
                                                     </h5>
                                                     <ul class="list-group list-group-flush">
                                                         <li class="list-group-item">
@@ -413,23 +425,25 @@
                                         in
                                         future for the layers used.</p>
                                 </div>
-                                <div class="mb-3">
-                                    <label for="resolution" class="form-label">Resolution</label>
-                                    <select id="resolution" formControlName="resolutionControl" class="form-control"
-                                        (change)="resolutionChange()">
-                                        <option [ngValue]="resolution.resolution"
-                                            *ngFor="let resolution of resolutionList">
-                                            {{resolution.displayName}}
-                                        </option>
-                                    </select>
-                                </div>
-                                <div class="mb-3" *ngIf="canLicense">
-                                    <label for="license" class="form-label">License</label>
-                                    <select id="license" formControlName="licenseControl" class="form-control">
-                                        <option [ngValue]="license" *ngFor="let license of licenseList">
-                                            {{License[license]}}
-                                        </option>
-                                    </select>
+                                <div class="row">
+                                    <div class="mb-3 col">
+                                        <label for="resolution" class="form-label">Resolution</label>
+                                        <select id="resolution" formControlName="resolutionControl" class="form-control"
+                                            (change)="resolutionChange()">
+                                            <option [ngValue]="resolution.resolution"
+                                                *ngFor="let resolution of resolutionList">
+                                                {{resolution.displayName}}
+                                            </option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3 col" *ngIf="canLicense">
+                                        <label for="license" class="form-label">License</label>
+                                        <select id="license" formControlName="licenseControl" class="form-control">
+                                            <option [ngValue]="license" *ngFor="let license of licenseList">
+                                                {{License[license]}}
+                                            </option>
+                                        </select>
+                                    </div>
                                 </div>
                                 <div class="mb-3">
                                     <p>Cost</p>
