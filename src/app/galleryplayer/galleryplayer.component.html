@@ -2,7 +2,7 @@
   <app-display [clip]="clip" [collection]="collection" [collections]="collections" [leftPosition]="leftPosition">
   </app-display>
   <div class="card-header text-center" *ngIf="playerTitle !== ''">
-    <h5 class="card-title">{{ playerTitle }}</h5>
+    <h5 class="card-title">{{ playerTitle }} <a *ngIf="clip" (click)="showClipInfo()" [routerLink]="[]"><i class="bi bi-info-circle-fill text-primary"></i></a></h5>
   </div>
   <ul class="list-group list-group-flush">
     <li class="list-group-item text-center"><button type="button" class="btn btn-outline-secondary"

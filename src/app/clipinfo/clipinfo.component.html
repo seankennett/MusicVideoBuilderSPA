@@ -1,0 +1,61 @@
+<div class="modal-header">
+    <h4 class="modal-title">{{clip.clipName}}</h4>
+    <button type="button" class="btn-close" aria-label="Close" (click)="activeModal.dismiss()"></button>
+</div>
+<div class="modal-body">
+    <table class="table table-sm">
+        <thead class="table-light">
+            <tr>
+                <th scope="col">Background Colour</th>
+                <th scope="col">End Background Colour</th>
+                <th scope="col">Beat Length</th>
+                <th scope="col">Starting Beat</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>{{clip.backgroundColour}}</td>
+                <td>{{clip.endBackgroundColour}}</td>
+                <td>{{clip.beatLength}}</td>
+                <td>{{clip.startingBeat}}</td>
+            </tr>
+        </tbody>
+    </table>
+    <ng-container *ngIf="clip.clipDisplayLayers">
+        <h5>Layers</h5>
+        <table class="table table-sm" *ngFor="let clipDisplayLayer of clip.clipDisplayLayers">
+            <thead class="table-light">
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Reverse</th>
+                    <th scope="col">Horizontal Flip</th>
+                    <th scope="col">Vertical Flip</th>
+                    <th scope="col">Fade Type</th>
+                    <th scope="col">Fade Colour</th>
+                    <th scope="col">Start Colour</th>
+                    <th scope="col">End Colour</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let layerClipDisplayLayer of clipDisplayLayer.layerClipDisplayLayers; let i = index">
+                    <th scope="row">{{i + 1}}</th>
+                    <td>{{clipDisplayLayer.reverse}}</td>
+                    <td>{{clipDisplayLayer.flipHorizontal}}</td>
+                    <td>{{clipDisplayLayer.flipVertical}}</td>
+                    <td>{{clipDisplayLayer.fadeType}}</td>
+                    <td><i *ngIf="clipDisplayLayer.colour !== null"
+                            class="bi bi-square-fill ms-1" [style.color]="'#' + clipDisplayLayer.colour"></i> {{displayColour(clipDisplayLayer.colour)}}</td>
+                    <td><i *ngIf="layerClipDisplayLayer.colour!== null"
+                            class="bi bi-square-fill ms-1" [style.color]="'#' + layerClipDisplayLayer.colour"></i> {{displayColour(layerClipDisplayLayer.colour)}}</td>
+                    <td><i *ngIf="layerClipDisplayLayer.endColour !== null"
+                            class="bi bi-square-fill ms-1" [style.color]="'#' + layerClipDisplayLayer.endColour"></i> {{displayColour(layerClipDisplayLayer.endColour)}}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </ng-container>
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="activeModal.dismiss()"><i
+            class="bi bi-dash-circle-fill"></i> Close</button>
+</div>

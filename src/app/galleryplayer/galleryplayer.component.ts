@@ -5,6 +5,8 @@ import { Clip } from '../clip';
 import { Displaylayer } from '../displaylayer';
 import { Video } from '../video';
 import { Layercollectiondisplaylayer } from '../layercollectiondisplaylayer';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { ClipinfoComponent } from '../clipinfo/clipinfo.component';
 
 const imageWidth = 384;
 const secondsInMinute = 60;
@@ -50,7 +52,7 @@ export class GalleryplayerComponent implements OnInit, OnChanges {
 
   progress = 0;
 
-  constructor() { }
+  constructor(private modalService: NgbModal) { }
 
   get playerTitle() {
     return this.collection?.collectionName ?? this.clip?.clipName ?? '';
@@ -160,6 +162,11 @@ export class GalleryplayerComponent implements OnInit, OnChanges {
 
   addButtonClick = () => {
     this.addButtonClickClipEvent.emit(this.clip);
+  }
+
+  showClipInfo = () => {
+    let modal = this.modalService.open(ClipinfoComponent, { size: 'xl'});
+    modal.componentInstance.clip = this.clip;
   }
 
   removeButtonClick = () => {

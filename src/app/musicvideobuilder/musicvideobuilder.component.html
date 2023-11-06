@@ -12,7 +12,7 @@
         controls below to create or edit your videos</p>
     <app-pageloading [pageLoading]="pageLoading"></app-pageloading>
     <ng-container *ngIf="!pageLoading">
-        <ng-container *ngIf="!showEditor && this.videos.length > 0">            
+        <ng-container *ngIf="!showEditor && this.videos.length > 0">
             <h2>Saved Videos</h2>
             <div class="mb-3">
                 <div class="row">
@@ -40,7 +40,7 @@
             <div class="mb-3">
                 <label for="audioFile" class="form-label">Audio File Selector</label>
                 <input class="form-control" type="file" id="audioFile" accept=".mp3" (change)="onFileUpload($event)"
-                    [disabled]="isWaitingForCreate" #audioFile/>
+                    [disabled]="isWaitingForCreate" #audioFile />
                 <div class="form-text">
                     40 MB maximum file size. This is to add audio when you play your video in the final video player in
                     the timeline
@@ -75,7 +75,8 @@
                                         class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="videoName"
                                     formControlName="videoNameControl" />
-                                <div class="form-text">Try to pick something short. Has to be Alpha Numeric, hypthens and underscores allowed and unique
+                                <div class="form-text">Try to pick something short. Has to be Alpha Numeric, hypthens
+                                    and underscores allowed and unique
                                     across your
                                     videos.
                                 </div>
@@ -140,10 +141,11 @@
                                 </div>
                             </div>
                             <div class="mb-3">
-                                <button type="button" [disabled]="unableToSave"
-                                    class="btn btn-primary me-1" (click)="saveVideo()">
+                                <button type="button" [disabled]="unableToSave" class="btn btn-primary me-1"
+                                    (click)="saveVideo()">
                                     <i class="bi bi-floppy-fill"></i> Save
-                                    <span class="spinner-border spinner-border-sm ms-1" role="status" aria-hidden="true" *ngIf="saving"></span>
+                                    <span class="spinner-border spinner-border-sm ms-1" role="status" aria-hidden="true"
+                                        *ngIf="saving"></span>
                                 </button>
                                 <span [ngbTooltip]="bpmInvalidTooltip()">
                                     <button type="button" [disabled]="disableTimelineTab()"
@@ -218,30 +220,35 @@
                                             *ngFor="let videoClipControl of this.videoClipsFormArray.controls; let i = index; let last = last">
                                             <div class="col-3 mb-3" *ngIf="showBlock(i)">
                                                 <div class="card text-center">
-                                                    <app-display [clip]="getClip(videoClipControl.value)" [collections]="collections" [leftPosition]="getLeft(getClip(videoClipControl.value))" [width]="timelineImageWidth" [height]="timelineImageHeight">                                                        
-                                                    </app-display>                                                    
-                                                    <h5 class="card-header">{{calculateClipNameFromClipIndex(i)}}</h5>
+                                                    <app-display [clip]="getClip(videoClipControl.value)"
+                                                        [collections]="collections"
+                                                        [leftPosition]="getLeft(getClip(videoClipControl.value))"
+                                                        [width]="timelineImageWidth" [height]="timelineImageHeight">
+                                                    </app-display>
+                                                    <h5 class="card-header">{{calculateClipNameFromClipIndex(i)}}
+                                                    <a *ngIf="clipsPerBlock === 1" (click)="showClipInfo(getClip(videoClipControl.value))" [routerLink]="[]"><i class="bi bi-info-circle-fill text-primary"></i></a>
+                                                    </h5>
                                                     <ul class="list-group list-group-flush">
                                                         <li class="list-group-item">
                                                             <span [ngbTooltip]="'Move back'"
-                                                            *ngIf="i > 0 && i + clipsPerBlock <= videoClipsFormArray.length">
-                                                            <button type="button" class="btn btn-secondary me-1"
-                                                                (click)="moveBack(i)">
-                                                                <i
-                                                                    class="bi bi-arrow-left-circle-fill"></i></button>
-                                                        </span>
-                                                        <span [ngbTooltip]="'Remove'">
-                                                            <button type="button" class="btn btn-danger me-1"
-                                                                (click)="removeClip(i)">
-                                                                <i class="bi bi-dash-circle-fill"></i></button>
-                                                        </span>
-                                                        <span [ngbTooltip]="'Swap this clip'"
-                                                            *ngIf="clipsPerBlock === 1">
+                                                                *ngIf="i > 0 && i + clipsPerBlock <= videoClipsFormArray.length">
+                                                                <button type="button" class="btn btn-secondary me-1"
+                                                                    (click)="moveBack(i)">
+                                                                    <i
+                                                                        class="bi bi-arrow-left-circle-fill"></i></button>
+                                                            </span>
+                                                            <span [ngbTooltip]="'Remove'">
+                                                                <button type="button" class="btn btn-danger me-1"
+                                                                    (click)="removeClip(i)">
+                                                                    <i class="bi bi-dash-circle-fill"></i></button>
+                                                            </span>
+                                                            <span [ngbTooltip]="'Swap this clip'"
+                                                                *ngIf="clipsPerBlock === 1">
                                                                 <button type="button" class="btn btn-primary me-1"
                                                                     (click)="toggleClipPicker(i)">
                                                                     <i class="bi bi-arrow-repeat"></i></button>
                                                             </span>
-                                                        <span [ngbTooltip]="'Move forward'"
+                                                            <span [ngbTooltip]="'Move forward'"
                                                                 *ngIf="i + 2 * clipsPerBlock <= videoClipsFormArray.length">
                                                                 <button type="button" class="btn btn-secondary"
                                                                     (click)="moveForward(i)">
@@ -249,7 +256,7 @@
                                                                         class="bi bi-arrow-right-circle-fill"></i></button>
                                                             </span>
                                                         </li>
-                                                        <li class="list-group-item">                                                            
+                                                        <li class="list-group-item">
                                                             <span [ngbTooltip]="'Add clone after current'">
                                                                 <button type="button" class="btn btn-success me-1"
                                                                     (click)="copyClip(i, false)">
@@ -261,16 +268,19 @@
                                                                     <i class="bi bi-files"></i>
                                                                     <i class="bi bi-skip-end-fill"></i>
                                                                 </button>
-                                                            </span>                                                                                                                  
+                                                            </span>
                                                         </li>
                                                         <li class="list-group-item">
                                                             <span [ngbTooltip]="'Add new clip to end of timeline'">
-                                                            <button type="button" (click)="toggleClipPicker(this.videoClipsFormArray.controls.length)" class="btn btn-success">
-                                                                <i class="bi bi-plus-circle-fill"></i>
-                                                                <i class="bi bi-skip-end-fill"></i>
-                                                            </button> 
+                                                                <button type="button"
+                                                                    (click)="toggleClipPicker(this.videoClipsFormArray.controls.length)"
+                                                                    class="btn btn-success">
+                                                                    <i class="bi bi-plus-circle-fill"></i>
+                                                                    <i class="bi bi-skip-end-fill"></i>
+                                                                </button>
                                                             </span>
-                                                            <span [ngbTooltip]="'Add new clip after this clip'" *ngIf="clipsPerBlock === 1">
+                                                            <span [ngbTooltip]="'Add new clip after this clip'"
+                                                                *ngIf="clipsPerBlock === 1">
                                                                 <button type="button" class="btn btn-success ms-1"
                                                                     (click)="toggleAddClipPicker(i)">
                                                                     <i class="bi bi-node-plus-fill"></i></button>
@@ -326,21 +336,25 @@
                                     </div>
                                 </div>
                                 <div class="mb-3">
-                                    <button type="button" (click)="toggleClipPicker(this.videoClipsFormArray.controls.length)" class="btn btn-success">
+                                    <button type="button"
+                                        (click)="toggleClipPicker(this.videoClipsFormArray.controls.length)"
+                                        class="btn btn-success">
                                         <i class="bi bi-plus-circle-fill"></i>
                                         <i class="bi bi-skip-end-fill"></i> Pick clip to add to end of
                                         timeline</button>
                                 </div>
                                 <div class="mb-3">
                                     <h3>Final Video Player</h3>
-                                    <app-videoplayer [selectedClipIndex]="selectedClipIndex" [video]="editorVideo" [clips]="editorVideoClipsFull"
-                                        (setSelectedIndexEvent)="setSelectedClipIndex($event)" [collections]="collections"
-                                        [file]="audioFileService.file"></app-videoplayer>
+                                    <app-videoplayer [selectedClipIndex]="selectedClipIndex" [video]="editorVideo"
+                                        [clips]="editorVideoClipsFull"
+                                        (setSelectedIndexEvent)="setSelectedClipIndex($event)"
+                                        [collections]="collections" [file]="audioFileService.file"></app-videoplayer>
                                 </div>
                             </ng-container>
                             <div class="mb-3" *ngIf="showClipPicker || videoClipsFormArray.length === 0">
                                 <h3>Pick A Clip</h3>
-                                <ngb-alert [type]="'warning'" [dismissible]="false" *ngIf="videoClipsFormArray.length === 0">
+                                <ngb-alert [type]="'warning'" [dismissible]="false"
+                                    *ngIf="videoClipsFormArray.length === 0">
                                     <i class="bi bi-exclamation-triangle-fill"></i> To be able to save your video you
                                     must
                                     have at least one clip in your timeline.
@@ -364,7 +378,8 @@
                                 <button type="button" [disabled]="!videoForm.valid || saving || noVideoEditorChanges()"
                                     class="btn btn-primary me-1" (click)="saveVideo()">
                                     <i class="bi bi-floppy-fill"></i> Save
-                                    <span class="spinner-border spinner-border-sm ms-1" role="status" aria-hidden="true" *ngIf="saving"></span>
+                                    <span class="spinner-border spinner-border-sm ms-1" role="status" aria-hidden="true"
+                                        *ngIf="saving"></span>
                                 </button>
                                 <button type="button" class="btn btn-secondary me-1" (click)="setTabId(1)"><i
                                         class="bi bi-pencil-square"></i> Go to
@@ -388,7 +403,8 @@
                         [ngbTooltip]="noVideoEditorChangesTooltip()">
                         <a ngbNavLink><i class="bi bi-hammer"></i> Builder</a>
                         <ng-template ngbNavContent>
-                            <app-builddisplaystatus [file]="audioFileService.file" [isBuilding]="isBuilding" [isUploadingAudio]="isUploadingAudio"></app-builddisplaystatus>
+                            <app-builddisplaystatus [file]="audioFileService.file" [isBuilding]="isBuilding"
+                                [isUploadingAudio]="isUploadingAudio"></app-builddisplaystatus>
                             <div>
                                 <h3>Build Video</h3>
                                 <div class="mb-3">
@@ -419,9 +435,11 @@
                                     <p>Cost</p>
                                     <ul class="list-group">
                                         <li class="list-group-item" *ngFor="let videoCollection of videoCollections">
-                                            <h6 class="float-start">{{License[licenseControl.value]}} {{displayResolution(resolutionControl.value)}} license for
+                                            <h6 class="float-start">{{License[licenseControl.value]}}
+                                                {{displayResolution(resolutionControl.value)}} license for
                                                 collection: {{videoCollection.collectionName}}</h6>
-                                            <h6 class="float-end">{{ getCollectionLicenseCost(videoCollection) | currency:"GBP":"symbol"}}
+                                            <h6 class="float-end">{{ getCollectionLicenseCost(videoCollection) |
+                                                currency:"GBP":"symbol"}}
                                             </h6>
                                         </li>
                                         <li class="list-group-item">
@@ -445,14 +463,16 @@
                                         <i class="bi bi-hammer ms-1"></i>
                                         Create
                                         Video
-                                        <span class="spinner-border spinner-border-sm ms-1" role="status" aria-hidden="true" *ngIf="isWaitingForCreate"></span>
+                                        <span class="spinner-border spinner-border-sm ms-1" role="status"
+                                            aria-hidden="true" *ngIf="isWaitingForCreate"></span>
                                     </button>
                                     <button type="button" class="btn btn-success" (click)="createPaymentIntent()"
                                         [disabled]="isBuilding || isWaitingForCreate" *ngIf="total > 0">
                                         <i class="bi bi-credit-card-fill ms-1"></i>
-                                            Checkout
-                                            <span class="spinner-border spinner-border-sm ms-1" role="status" aria-hidden="true" *ngIf="isWaitingForCreate"></span>
-                                        </button>
+                                        Checkout
+                                        <span class="spinner-border spinner-border-sm ms-1" role="status"
+                                            aria-hidden="true" *ngIf="isWaitingForCreate"></span>
+                                    </button>
                                 </div>
                             </div>
                         </ng-template>
@@ -461,7 +481,8 @@
                         <a ngbNavLink><i class="bi bi-credit-card-fill"></i> Checkout</a>
                         <ng-template ngbNavContent>
                             <ng-container *ngIf="elementOptions?.clientSecret as clientSecret">
-                                <app-builddisplaystatus [file]="audioFileService.file" [isBuilding]="isBuilding" [isUploadingAudio]="isUploadingAudio"></app-builddisplaystatus>
+                                <app-builddisplaystatus [file]="audioFileService.file" [isBuilding]="isBuilding"
+                                    [isUploadingAudio]="isUploadingAudio"></app-builddisplaystatus>
                                 <h3>Checkout</h3>
                                 <p>Please check all details before you pay</p>
                                 <div class="mb-3">
@@ -470,7 +491,8 @@
                                         <li class="list-group-item" *ngFor="let videoCollection of videoCollections">
                                             <h6 class="float-start">{{License[licenseControl.value]}} license for
                                                 collection: {{videoCollection.collectionName}}</h6>
-                                            <h6 class="float-end">{{ getCollectionLicenseCost(videoCollection) | currency:"GBP":"symbol"}}
+                                            <h6 class="float-end">{{ getCollectionLicenseCost(videoCollection) |
+                                                currency:"GBP":"symbol"}}
                                             </h6>
                                         </li>
                                         <li class="list-group-item">
@@ -489,14 +511,17 @@
                                     </ul>
                                 </div>
                                 <div class="mb-3">
-                                    <ngx-stripe-payment [elementsOptions]="elementOptions" (change)="cardChange($event)"></ngx-stripe-payment>
+                                    <ngx-stripe-payment [elementsOptions]="elementOptions"
+                                        (change)="cardChange($event)"></ngx-stripe-payment>
                                 </div>
                                 <div class="mb-3">
                                     <button type="button" class="btn btn-success" (click)="pay()"
-                                    [disabled]="isBuilding || isWaitingForCreate || invalidCardDetails" *ngIf="total > 0">
-                                    <i class="bi bi-credit-card-fill" ms-1></i>
+                                        [disabled]="isBuilding || isWaitingForCreate || invalidCardDetails"
+                                        *ngIf="total > 0">
+                                        <i class="bi bi-credit-card-fill" ms-1></i>
                                         Pay
-                                        <span class="spinner-border spinner-border-sm ms-1" role="status" aria-hidden="true" *ngIf="isWaitingForCreate"></span>
+                                        <span class="spinner-border spinner-border-sm ms-1" role="status"
+                                            aria-hidden="true" *ngIf="isWaitingForCreate"></span>
                                     </button>
                                 </div>
                             </ng-container>

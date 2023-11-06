@@ -30,6 +30,7 @@ import { Collection } from '../collection';
 import { Videoclip } from '../videoclip';
 import { AudiofileService } from '../audiofile.service';
 import { AudiomodalComponent } from '../audiomodal/audiomodal.component';
+import { ClipinfoComponent } from '../clipinfo/clipinfo.component';
 
 const millisecondsInSecond = 1000;
 const secondsInMinute = 60;
@@ -217,6 +218,11 @@ export class MusicVideoBuilderComponent implements OnInit {
     }
 
     return index % this.clipsPerBlock === this.timelineEditorStartFinalIndex % this.clipsPerBlock;
+  }
+
+  showClipInfo = (clip: Clip) => {
+    let modal = this.modalService.open(ClipinfoComponent, { size: 'xl' });
+    modal.componentInstance.clip = clip;
   }
 
   videoNameControl = this.formBuilder.control('', [Validators.required, Validators.maxLength(50), Validators.pattern("[A-z0-9_-]+")]);

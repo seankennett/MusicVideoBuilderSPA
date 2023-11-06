@@ -15,6 +15,8 @@ import { Clipdisplaylayer } from '../clipdisplaylayer';
 import { Layerclipdisplaylayer } from '../layerclipdisplaylayer';
 import { Fadetypes } from '../fadetypes';
 import { Clipbuildereditorstates } from '../clipbuildereditorstates';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { ClipinfoComponent } from '../clipinfo/clipinfo.component';
 
 const beatsPerLayer = 4;
 
@@ -25,7 +27,7 @@ const beatsPerLayer = 4;
 })
 export class ClipBuilderComponent implements OnInit {
 
-  constructor(private formBuilder: FormBuilder, private collectionService: CollectionService, private clipService: ClipService, private route: ActivatedRoute, private location: Location) { }
+  constructor(private formBuilder: FormBuilder, private collectionService: CollectionService, private clipService: ClipService, private route: ActivatedRoute, private location: Location, private modalService: NgbModal) { }
 
   ngOnInit(): void {
     this.clipService.getAll().subscribe((clips: Clip[]) => {
@@ -398,9 +400,9 @@ export class ClipBuilderComponent implements OnInit {
     return JSON.stringify(this.unchangedClip) === JSON.stringify(this.editorClip);
   }
 
-  get unableToSave(){
+  get unableToSave() {
     return !this.clipForm.valid || this.saving || this.noClipChanges() || this.editorState !== Clipbuildereditorstates.ClipList
-  } 
+  }
 
   get editorClip(): Clip {
     return <Clip>{
@@ -635,26 +637,31 @@ export class ClipBuilderComponent implements OnInit {
     var max = Math.max(r, g, b), min = Math.min(r, g, b);
     var h, s, l = (max + min) / 2;
 
-    if(max == min){
-        h = s = 0; // achromatic
-    }else{
-        var d = max - min;
-        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-        switch(max){
-            case r: h = (g - b) / d + (g < b ? 6 : 0); break;
-            case g: h = (b - r) / d + 2; break;
-            case b: h = (r - g) / d + 4; break;
-        }
-        if (h){
-          h /= 6;
-        }
+    if (max == min) {
+      h = s = 0; // achromatic
+    } else {
+      var d = max - min;
+      s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+      switch (max) {
+        case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+        case g: h = (b - r) / d + 2; break;
+        case b: h = (r - g) / d + 4; break;
+      }
+      if (h) {
+        h /= 6;
+      }
     }
 
     return h ?? 0;
   }
 
-  autoGenerateName = () =>{
+  autoGenerateName = () => {
     var guid = (<any>crypto).randomUUID();
     this.clipNameControl.setValue(guid);
+  }
+
+  showClipInfo = () => {
+    let modal = this.modalService.open(ClipinfoComponent, { size: 'xl' });
+    modal.componentInstance.clip = this.editorClip;
   }
 }

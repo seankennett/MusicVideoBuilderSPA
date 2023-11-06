@@ -319,7 +319,7 @@
                 </ng-container>
                 <ng-container *ngIf="editorState === Clipbuildereditorstates.ClipList">
                     <div class="mb-3">
-                        <h2>Clip Layers</h2>
+                        <h2>Clip Layers <a (click)="showClipInfo()" [routerLink]="[]"><i class="bi bi-info-circle-fill text-primary"></i></a></h2>                        
                         <ol class="list-group list-group-numbered">
                             <li *ngIf="editorClip.backgroundColour !== null" class="list-group-item">Colour background
                                 <i class="bi bi-square-fill" [style.color]="backgroundColourControl.value"></i>

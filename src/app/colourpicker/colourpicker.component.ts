@@ -25,9 +25,4 @@ export class ColourpickerComponent implements OnInit {
 
     event.target.value = "";
   }
-
-  displayRGB = (hex: string) => {
-    var rgbArray = hex.match(/[A-Za-z0-9]{2}/g)?.map(v => parseInt(v, 16)) ?? [255, 255, 255];
-    return 'R=' + rgbArray[0] + ',G=' + rgbArray[1] + ',B=' + rgbArray[2];
-  }
 }
