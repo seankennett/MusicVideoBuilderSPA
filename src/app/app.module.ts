@@ -56,7 +56,6 @@ import { TransitioninfoComponent } from './transitioninfo/transitioninfo.compone
 export function MSALInterceptorConfigFactory(): MsalInterceptorConfiguration {
   const protectedResourceMap = new Map<string, Array<string>>();
 
-  protectedResourceMap.set(protectedResources.tagsApi.endpoint, protectedResources.tagsApi.scopes);
   protectedResourceMap.set(protectedResources.userCollectionApi.endpoint, protectedResources.userCollectionApi.scopes);
   protectedResourceMap.set(protectedResources.clipApi.endpoint, protectedResources.clipApi.scopes);
   protectedResourceMap.set(protectedResources.videoApi.endpoint, protectedResources.videoApi.scopes);
