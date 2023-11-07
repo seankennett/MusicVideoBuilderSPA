@@ -128,8 +128,7 @@ export class MusicVideoBuilderComponent implements OnInit {
 
   formatList: Formats[] = [
     Formats.mp4,
-    Formats.mov,
-    Formats.avi
+    Formats.mov
   ]
 
   videoId: number = 0;

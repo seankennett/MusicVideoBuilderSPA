@@ -1,5 +1,4 @@
 export enum Formats {
     mp4 = 1,
-    mov = 2,
-    avi = 3
+    mov = 2
 }
