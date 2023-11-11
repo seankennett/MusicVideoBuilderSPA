@@ -50,13 +50,16 @@
     </ng-container>
   </ul>
   <div class="card-footer text-center" placement="top"
-    *ngIf="showAdd === true || showEdit === true|| showRemove === true">
+    *ngIf="showAdd === true || showEdit === true|| showRemove === true || showCancel === true">
     <button type="button" [disabled]="loading" (click)="addButtonClick()" class="btn btn-success"
       *ngIf="showAdd === true">
       <i class="bi bi-plus-circle-fill"></i> Add</button>
     <button type="button" [disabled]="loading" (click)="editButtonClick()" class="btn btn-primary"
       *ngIf="showEdit === true">
       <i class="bi bi-pencil-square"></i> Edit</button>
+    <button type="button" [disabled]="loading" (click)="cancelButtonClick()" class="btn btn-danger ms-1"
+      *ngIf="showCancel === true">
+      <i class="bi bi-dash-circle-fill"></i> Cancel Adding Layer</button>
     <button type="button" [disabled]="loading" (click)="cloneButtonClick()" class="btn btn-success ms-1"
       *ngIf="showClone === true">
       <i class="bi bi-files"></i> Clone</button>

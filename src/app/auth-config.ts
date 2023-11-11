@@ -39,6 +39,7 @@
          authority: b2cPolicies.authorities.signUpSignIn.authority, // Defaults to "https://login.microsoftonline.com/common"
          knownAuthorities: [b2cPolicies.authorityDomain], // Mark your B2C tenant's domain as trusted.
          redirectUri: '/', // Points to window.location.origin. You must register this URI on Azure portal/App Registration.
+         postLogoutRedirectUri: '/'
      },
      cache: {
          cacheLocation: BrowserCacheLocation.LocalStorage, // Configures cache location. "sessionStorage" is more secure, but "localStorage" gives you SSO between tabs.

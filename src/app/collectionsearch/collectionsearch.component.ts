@@ -14,8 +14,10 @@ export class CollectionsearchComponent implements OnInit {
   @Input() forcedCollectionType : Collectiontypes | null = null
   @Input() showEdit:boolean = false
   @Input() showEditColour:boolean = false
+  @Input() showCancel:boolean = false
 
   @Output() editCollectionEvent = new EventEmitter<Collection>();
+  @Output() cancelEvent = new EventEmitter();
 
   constructor() { }
 
@@ -96,6 +98,10 @@ export class CollectionsearchComponent implements OnInit {
   }
 
   editCollection = (collection: Collection) =>{
-    this.editCollectionEvent.emit(collection)
+    this.editCollectionEvent.emit(collection);
+  }
+
+  cancel = () =>{
+    this.cancelEvent.emit();
   }
 }

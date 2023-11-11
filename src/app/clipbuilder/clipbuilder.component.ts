@@ -17,6 +17,7 @@ import { Fadetypes } from '../fadetypes';
 import { Clipbuildereditorstates } from '../clipbuildereditorstates';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ClipinfoComponent } from '../clipinfo/clipinfo.component';
+import { ConfirmationmodalComponent } from '../confirmationmodal/confirmationmodal.component';
 
 const beatsPerLayer = 4;
 
@@ -290,8 +291,16 @@ export class ClipBuilderComponent implements OnInit {
   }
 
   cancelEditor = () => {
-    this.clearEditor();
-    this.showEditor = false;
+    if (this.noClipChanges() === false) {
+      this.modalService.open(ConfirmationmodalComponent, { centered: true }).result.then(
+        (succes) => {
+          this.clearEditor();
+          this.showEditor = false;
+        });
+    } else {
+      this.clearEditor();
+      this.showEditor = false;
+    }
   }
 
   addNewClip = () => {
@@ -402,7 +411,7 @@ export class ClipBuilderComponent implements OnInit {
   }
 
   get unableToSave() {
-    return !this.clipForm.valid || this.saving || this.noClipChanges() || this.editorState !== Clipbuildereditorstates.ClipList
+    return !this.clipForm.valid || this.saving || this.noClipChanges()
   }
 
   get editorClip(): Clip {

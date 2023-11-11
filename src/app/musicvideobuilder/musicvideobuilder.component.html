@@ -386,7 +386,7 @@
                                 </div>
                                 <button type="button" class="btn btn-danger" (click)="toggleClipPicker(0)"
                                     *ngIf="videoClipsFormArray.length > 0"><i class="bi bi-dash-circle-fill"></i>
-                                    Cancel</button>
+                                     Cancel Picking Clip</button>
                             </div>
                             <div class="mb-3">
                                 <button type="button" [disabled]="!videoForm.valid || saving || noVideoEditorChanges()"
@@ -555,7 +555,7 @@
             </ul>
             <div [ngbNavOutlet]="nav"></div>
             <div class="mb-3">
-                <button type="button" class="btn btn-danger" (click)="toggleEditor()" [disabled]="isWaitingForCreate"><i
+                <button type="button" class="btn btn-danger" (click)="exitEditor()" [disabled]="isWaitingForCreate || saving"><i
                         class="bi bi-dash-circle-fill"></i>
                     Exit Editor</button>
             </div>

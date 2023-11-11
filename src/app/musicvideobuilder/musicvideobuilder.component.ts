@@ -34,6 +34,7 @@ import { ClipinfoComponent } from '../clipinfo/clipinfo.component';
 import { SubscriptionService } from '../subscription.service';
 import { Subscriptionproduct } from '../subscriptionproduct';
 import { Subscriptionproducts } from '../subscriptionproducts';
+import { ConfirmationmodalComponent } from '../confirmationmodal/confirmationmodal.component';
 
 const millisecondsInSecond = 1000;
 const secondsInMinute = 60;
@@ -317,7 +318,7 @@ export class MusicVideoBuilderComponent implements OnInit {
   }
 
   get unableToSave() {
-    return !this.videoForm.valid || this.saving || this.noVideoEditorChanges();
+    return !this.videoForm.valid || this.saving || this.isWaitingForCreate || this.noVideoEditorChanges();
   }
 
   get editorVideo(): Video {
@@ -379,6 +380,17 @@ export class MusicVideoBuilderComponent implements OnInit {
         this.unchangedVideo = { ...this.editorVideo };
       }
     });
+  }
+
+  exitEditor = () => {
+    if (this.unableToSave === false) {
+      this.modalService.open(ConfirmationmodalComponent, { centered: true }).result.then(
+        (succes) => {
+          this.toggleEditor();
+        });
+    } else {
+      this.toggleEditor();
+    }
   }
 
   toggleEditor = () => {
@@ -889,11 +901,11 @@ export class MusicVideoBuilderComponent implements OnInit {
   };
 
   pay = () => {
-    let videoBuildRequest: Videobuildrequest = { 
-      resolution: this.resolutionControl.value, 
+    let videoBuildRequest: Videobuildrequest = {
+      resolution: this.resolutionControl.value,
       buildId: this.paymentBuildId,
       license: this.licenseControl.value
-     };
+    };
     if (this.audioFileService.file !== null) {
       this.uploadAudio(videoBuildRequest, this.payVideoSuccessCallback);
     } else {

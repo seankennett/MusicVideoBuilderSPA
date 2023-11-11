@@ -164,6 +164,8 @@
                         <div class="mb-3">
                             <button type="button" (click)="addBackgroundColour()" class="btn btn-success">
                                 <i class="bi bi-plus-circle-fill"></i> Add</button>
+                            <button type="button" class="btn btn-danger ms-1" (click)="cancelEditingBackground()">
+                                <i class="bi bi-dash-circle-fill"></i> Cancel Background</button>
                         </div>
                     </div>
                 </div>
@@ -173,11 +175,10 @@
                         <div class="card-body">
                             <app-collectionsearch [collections]="collections"
                                 [forcedCollectionType]="Collectiontypes.Foreground" [showEdit]="true"
-                                (editCollectionEvent)="selectCollection($event)"></app-collectionsearch>
+                                [showCancel]="true" (editCollectionEvent)="selectCollection($event)"
+                                (cancelEvent)="toggleAddNewClipDisplayLayer()"></app-collectionsearch>
                         </div>
                     </div>
-                    <button type="button" class="btn btn-danger" (click)="toggleAddNewClipDisplayLayer()">
-                        <i class="bi bi-dash-circle-fill"></i> Cancel Adding Layer</button>
                 </div>
                 <ng-container *ngIf="editorState === Clipbuildereditorstates.ClipDisplayLayerEditor"
                     formArrayName="clipDisplayLayersFormArray">
@@ -248,7 +249,8 @@
                                                 </option>
                                             </select>
                                         </div>
-                                        <div class="mb-3 col-6" *ngIf="clipDisplayLayerGroup.get('fadeTypeControl')?.value !== null && selectedCollection?.collectionType === Collectiontypes.Background">
+                                        <div class="mb-3 col-6"
+                                            *ngIf="clipDisplayLayerGroup.get('fadeTypeControl')?.value !== null && selectedCollection?.collectionType === Collectiontypes.Background">
                                             <label for="colour" class="form-label">Fade Colour</label>
                                             <app-colourpicker
                                                 [control]="convertToFormControl(clipDisplayLayerGroup.get('colourControl'))"
@@ -316,11 +318,12 @@
                                                 class="btn btn-success" [disabled]="shouldDisableDisplayLayer">
                                                 <i class="bi bi-plus-circle-fill"></i> Add</button>
                                         </span>
+                                        <button type="button" class="btn btn-danger ms-1"
+                                            (click)="cancelAddingDisplayLayer()">
+                                            <i class="bi bi-dash-circle-fill"></i> Cancel Adding Layer</button>
                                     </div>
                                 </div>
                             </div>
-                            <button type="button" class="btn btn-danger mb-3" (click)="cancelAddingDisplayLayer()">
-                                <i class="bi bi-dash-circle-fill"></i> Cancel Adding Layer</button>
                         </ng-container>
                     </ng-container>
                 </ng-container>
@@ -387,15 +390,16 @@
                     </div>
                 </ng-container>
                 <div class="mb-3">
-                    <button type="submit" [disabled]="unableToSave" class="btn btn-primary me-1"><i
-                            class="bi bi-floppy-fill"></i>
+                    <button type="submit"
+                        [disabled]="unableToSave || this.editorState !== Clipbuildereditorstates.ClipList"
+                        class="btn btn-primary me-1"><i class="bi bi-floppy-fill"></i>
                         Save
                         <span class="spinner-border spinner-border-sm ms-1" role="status" aria-hidden="true"
                             *ngIf="saving"></span>
                     </button>
-                    <button type="button" class="btn btn-danger" (click)="cancelEditor()"><i
+                    <button type="button" class="btn btn-danger" (click)="cancelEditor()" [disabled]="saving"><i
                             class="bi bi-dash-circle-fill"></i>
-                        Cancel</button>
+                        Exit Editor</button>
                 </div>
             </form>
         </ng-container>
