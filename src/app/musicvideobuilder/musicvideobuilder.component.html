@@ -234,13 +234,24 @@
                                                         [leftPosition]="getLeft(getClip(videoClipControl.value))"
                                                         [width]="timelineImageWidth" [height]="timelineImageHeight">
                                                     </app-display>
-                                                    <h5 class="card-header">{{calculateClipNameFromClipIndex(i)}}
-                                                        <a *ngIf="clipsPerBlock === 1"
-                                                            (click)="showClipInfo(getClip(videoClipControl.value))"
-                                                            [routerLink]="[]"><i
-                                                                class="bi bi-info-circle-fill text-primary"></i></a>
-                                                    </h5>
+                                                    <div class="card-body">
+                                                        <h5>{{calculateClipNameFromClipIndex(i)}}
+                                                            <a *ngIf="clipsPerBlock === 1"
+                                                                (click)="showClipInfo(getClip(videoClipControl.value))"
+                                                                [routerLink]="[]"><i
+                                                                    class="bi bi-info-circle-fill text-primary"></i></a>
+                                                        </h5>
+                                                    </div>
                                                     <ul class="list-group list-group-flush">
+                                                        <li class="list-group-item">
+                                                            <div class="progress">
+                                                                <div class="progress-bar" role="progressbar"
+                                                                    aria-valuenow="0" aria-valuemin="0"
+                                                                    aria-valuemax="100"
+                                                                    [style.width.%]="getProgress(i, playingClipIndex, percentageOfPlayingClipDuration)">
+                                                                </div>
+                                                            </div>
+                                                        </li>
                                                         <li class="list-group-item">
                                                             <span [ngbTooltip]="'Move back'"
                                                                 *ngIf="i > 0 && i + clipsPerBlock <= videoClipsFormArray.length">
@@ -326,16 +337,7 @@
                                                         </li>
                                                         <li class="list-group-item">
                                                             Time: {{displayTimeLineTimeRangeFromClipIndex(i) }}
-                                                        </li>
-                                                        <li class="list-group-item">
-                                                            <div class="progress">
-                                                                <div class="progress-bar" role="progressbar"
-                                                                    aria-valuenow="0" aria-valuemin="0"
-                                                                    aria-valuemax="100"
-                                                                    [style.width.%]="getProgress(i, playingClipIndex, percentageOfPlayingClipDuration)">
-                                                                </div>
-                                                            </div>
-                                                        </li>
+                                                        </li>                                                        
                                                     </ul>
                                                 </div>
                                             </div>
@@ -459,9 +461,17 @@
                                             <h5 class="float-end">{{collectionLicensesCost | currency:"GBP":"symbol"}}
                                             </h5>
                                         </li>
+                                        <li class="list-group-item" *ngIf="collectionLicensesCost > 0">
+                                            <ngb-alert [type]="'info'" [dismissible]="false"><i class="bi bi-info-circle-fill"></i> You
+                                                could save money on license costs with one of our <a [routerLink]="['/subscriptions']"><i class="bi bi-repeat"></i> Subscriptions</a> </ngb-alert>
+                                        </li>
                                         <li class="list-group-item">
                                             <h5 class="float-start">Build Total</h5>
                                             <h5 class="float-end">{{buildCost | currency:"GBP":"symbol"}}</h5>
+                                        </li>
+                                        <li class="list-group-item" *ngIf="buildCost > 0">
+                                            <ngb-alert [type]="'info'" [dismissible]="false"><i class="bi bi-info-circle-fill"></i> You
+                                                could save money on build costs with one of our <a [routerLink]="['/subscriptions']"><i class="bi bi-repeat"></i> Subscriptions</a> </ngb-alert>
                                         </li>
                                         <li class="list-group-item">
                                             <h3 class="float-start">Total</h3>

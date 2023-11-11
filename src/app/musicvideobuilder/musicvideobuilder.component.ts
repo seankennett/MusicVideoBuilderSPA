@@ -31,6 +31,9 @@ import { Videoclip } from '../videoclip';
 import { AudiofileService } from '../audiofile.service';
 import { AudiomodalComponent } from '../audiomodal/audiomodal.component';
 import { ClipinfoComponent } from '../clipinfo/clipinfo.component';
+import { SubscriptionService } from '../subscription.service';
+import { Subscriptionproduct } from '../subscriptionproduct';
+import { Subscriptionproducts } from '../subscriptionproducts';
 
 const millisecondsInSecond = 1000;
 const secondsInMinute = 60;
@@ -46,7 +49,7 @@ const byteMultiplier = 1024;
 export class MusicVideoBuilderComponent implements OnInit {
   constructor(private formBuilder: FormBuilder, private videoService: VideoService, private clipService: ClipService, private buildService: BuildsService, private collectionService: CollectionService,
     private datePipe: DatePipe, private route: ActivatedRoute, private location: Location, private userCollectionService: UserCollectionService, private toastService: ToastService, private router: Router,
-    private stripeService: StripeService, public audioFileService: AudiofileService, private modalService: NgbModal) { }
+    private stripeService: StripeService, public audioFileService: AudiofileService, private modalService: NgbModal, private subscriptionService: SubscriptionService) { }
 
   ngOnInit(): void {
     this.videoService.getAll().subscribe((videos: Video[]) => {
@@ -54,21 +57,24 @@ export class MusicVideoBuilderComponent implements OnInit {
         this.collectionService.getAll().subscribe((collections: Collection[]) => {
           this.userCollectionService.getAll().subscribe((userCollections: UserCollection[]) => {
             this.buildService.getAll().subscribe((buildAssets: Buildasset[]) => {
-              this.buildAssets = buildAssets;
-              var id = Number(this.route.firstChild?.snapshot?.params['id']);
-              var tab = Number(this.route.firstChild?.snapshot?.queryParams['tab']);
-              if (!isNaN(id) && !isNaN(tab)) {
-                var video = videos.find(x => x.videoId === id);
-                if (video) {
-                  this.editVideo({ video: video, tab: tab }, 0);
+              this.subscriptionService.get(true).subscribe((subscriptionProduct: Subscriptionproduct | null) => {
+                this.subscriptionProduct = subscriptionProduct;
+                this.buildAssets = buildAssets;
+                var id = Number(this.route.firstChild?.snapshot?.params['id']);
+                var tab = Number(this.route.firstChild?.snapshot?.queryParams['tab']);
+                if (!isNaN(id) && !isNaN(tab)) {
+                  var video = videos.find(x => x.videoId === id);
+                  if (video) {
+                    this.editVideo({ video: video, tab: tab }, 0);
+                  }
                 }
-              }
-              this.videos = videos;
-              this.clips = clips;
-              this.collections = collections;
-              this.userCollections = userCollections;
+                this.videos = videos;
+                this.clips = clips;
+                this.collections = collections;
+                this.userCollections = userCollections;
 
-              this.pageLoading = false;
+                this.pageLoading = false;
+              });
             });
           });
         });
@@ -96,6 +102,7 @@ export class MusicVideoBuilderComponent implements OnInit {
   userCollections: UserCollection[] = [];
   buildAssets: Buildasset[] = [];
   collections: Collection[] = [];
+  subscriptionProduct: Subscriptionproduct | null = null;
 
   Formats = Formats;
   resolutionList = [{
@@ -720,9 +727,10 @@ export class MusicVideoBuilderComponent implements OnInit {
   isUploadingAudio = false;
 
   createFreeVideo = () => {
-    var resolution = Resolution.Free;
+    var resolution = this.resolutionControl.value;
+    var license = this.licenseControl.value;
     var buildId = (<any>crypto).randomUUID();
-    let videoBuildRequest: Videobuildrequest = { resolution, buildId };
+    let videoBuildRequest: Videobuildrequest = { resolution, buildId, license };
 
     if (this.audioFileService.file !== null) {
       this.uploadAudio(videoBuildRequest, this.freeVideoSuccessCallback);
@@ -806,6 +814,11 @@ export class MusicVideoBuilderComponent implements OnInit {
   }
 
   get buildCost() {
+    if (this.subscriptionProduct
+      && (this.subscriptionProduct.productId === Subscriptionproducts.Builder || this.subscriptionProduct.productId === Subscriptionproducts.LicenseBuilder)) {
+      return 0;
+    }
+
     return (this.resolutionControl.value - 1) * 5;
   }
 
@@ -824,6 +837,11 @@ export class MusicVideoBuilderComponent implements OnInit {
   }
 
   get collectionLicensesCost() {
+    if (this.subscriptionProduct
+      && (this.subscriptionProduct.productId === Subscriptionproducts.License || this.subscriptionProduct.productId === Subscriptionproducts.LicenseBuilder)) {
+      return 0;
+    }
+
     return this.collectionLicenseCost * this.unlicensedCollections.length;
   }
 
@@ -871,7 +889,11 @@ export class MusicVideoBuilderComponent implements OnInit {
   };
 
   pay = () => {
-    let videoBuildRequest: Videobuildrequest = { resolution: this.resolutionControl.value, buildId: this.paymentBuildId };
+    let videoBuildRequest: Videobuildrequest = { 
+      resolution: this.resolutionControl.value, 
+      buildId: this.paymentBuildId,
+      license: this.licenseControl.value
+     };
     if (this.audioFileService.file !== null) {
       this.uploadAudio(videoBuildRequest, this.payVideoSuccessCallback);
     } else {

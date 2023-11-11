@@ -38,6 +38,9 @@ import { ConfirmationmodalComponent } from './confirmationmodal/confirmationmoda
 import { AudiomodalComponent } from './audiomodal/audiomodal.component';
 import { ClipinfoComponent } from './clipinfo/clipinfo.component';
 import { TransitioninfoComponent } from './transitioninfo/transitioninfo.component';
+import { HelpComponent } from './help/help.component';
+import { SubscriptionsComponent } from './subscriptions/subscriptions.component';
+import { SubscriptionconfirmationComponent } from './subscriptionconfirmation/subscriptionconfirmation.component';
 
 /**
  * Here we pass the configuration parameters to create an MSAL instance.
@@ -59,6 +62,7 @@ export function MSALInterceptorConfigFactory(): MsalInterceptorConfiguration {
   protectedResourceMap.set(protectedResources.userCollectionApi.endpoint, protectedResources.userCollectionApi.scopes);
   protectedResourceMap.set(protectedResources.clipApi.endpoint, protectedResources.clipApi.scopes);
   protectedResourceMap.set(protectedResources.videoApi.endpoint, protectedResources.videoApi.scopes);
+  protectedResourceMap.set(protectedResources.subscriptionPrivateApi.endpoint, protectedResources.subscriptionPrivateApi.scopes);
 
   return {
     interactionType: InteractionType.Redirect,
@@ -102,7 +106,10 @@ export function MSALGuardConfigFactory(): MsalGuardConfiguration {
     ConfirmationmodalComponent,
     AudiomodalComponent,
     ClipinfoComponent,
-    TransitioninfoComponent
+    TransitioninfoComponent,
+    HelpComponent,
+    SubscriptionsComponent,
+    SubscriptionconfirmationComponent
   ],
   imports: [
     BrowserModule,

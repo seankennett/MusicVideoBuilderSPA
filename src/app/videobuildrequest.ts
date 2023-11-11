@@ -1,6 +1,8 @@
+import { License } from "./license";
 import { Resolution } from "./resolution";
 
 export interface Videobuildrequest {
-    resolution: Resolution, 
+    resolution: Resolution,
+    license: License, 
     buildId: string
 }

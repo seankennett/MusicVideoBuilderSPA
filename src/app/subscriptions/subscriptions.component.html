@@ -1,0 +1,80 @@
+<app-breadcrumb [links]="[{display:'Subscriptions', path:'subscriptions', icon:'repeat' }]"></app-breadcrumb>
+<div class="container">
+    <h1><i class="bi bi-repeat text-primary"></i> Subscriptions</h1>
+    <p class="lead">Subscriptions provides a way to cut costs for particular use cases.
+    </p>
+    <app-pageloading [pageLoading]="pageLoading"></app-pageloading>
+    <ng-container *ngIf="!pageLoading">
+        <ul ngbNav #nav="ngbNav" class="nav-tabs mb-3" [(activeId)]="activeTabId" [destroyOnHide]="false"
+            (activeIdChange)="tabChange()">
+            <li [ngbNavItem]="1" [disabled]="isWaitingForResponse">
+                <a ngbNavLink><i class="bi bi-repeat"></i> Subscriptions</a>
+                <ng-template ngbNavContent>
+                    <ng-container *ngIf="!existingSubscriptionProduct">
+                        <h2>Available Subscriptions</h2>
+                        <div class="row">
+                            <div *ngFor="let subscriptionProduct of subscriptionProducts" class="col mb-3">
+                                <div class="card">
+                                    <div class="text-center text-primary">
+                                        <i [class]="'big-icon bi bi-' + subscriptionProduct.icon"></i>
+                                    </div>
+                                    <div class="text-center">
+                                        <h5 class="card-title">{{ subscriptionProduct.subscriptionName }}</h5>
+                                        <h5 class="card-title">£{{ subscriptionProduct.amount / 100 }} per month</h5>
+                                    </div>
+                                    <div class="card-body text-center">
+                                        {{subscriptionProduct.description}}
+                                    </div>
+                                    <div class="card-footer text-center">
+                                        <button type="button" class="btn btn-success" [disabled]="isWaitingForResponse"
+                                            (click)="checkout(subscriptionProduct)"><i
+                                                class="bi bi-credit-card-fill"></i>
+                                            Checkout <span class="spinner-border spinner-border-sm ms-1" role="status"
+                                                aria-hidden="true" *ngIf="isWaitingForResponse"></span></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </ng-container>
+                    <ng-container *ngIf="existingSubscriptionProduct">
+                        <h2>My Subscription</h2>
+                        <div class="row justify-content-center mb-3">
+                            <div class="col-4">
+                                <div class="card">
+                                    <div class="text-center text-primary">
+                                        <i [class]="'big-icon bi bi-' + existingSubscriptionProduct.icon"></i>
+                                    </div>
+                                    <div class="text-center">
+                                        <h5 class="card-title">{{ existingSubscriptionProduct.subscriptionName }}</h5>
+                                        <h5 class="card-title">£{{ existingSubscriptionProduct.amount / 100 }} per month
+                                        </h5>
+                                    </div>
+                                    <div class="card-body text-center">
+                                        {{existingSubscriptionProduct.description}}
+                                    </div>
+                                    <div class="card-footer text-center">
+                                        <button type="button" class="btn btn-primary" [disabled]="isWaitingForResponse"
+                                            (click)="manageSubscription()"><i class="bi bi-repeat"></i>
+                                            Manage/Change <span class="spinner-border spinner-border-sm ms-1"
+                                                role="status" aria-hidden="true"
+                                                *ngIf="isWaitingForResponse"></span></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </ng-container>
+                </ng-template>
+            </li>
+            <li [ngbNavItem]="2" [disabled]="true" [ngbTooltip]="'Only accessable via other tabs'">
+                <a ngbNavLink><i class="bi bi-credit-card-fill"></i> Checkout</a>
+                <ng-template ngbNavContent>
+                    <h2>Checkout</h2>
+                    <div class="mb-3">
+                        <div id="checkout"></div>
+                    </div>
+                </ng-template>
+            </li>
+        </ul>
+        <div [ngbNavOutlet]="nav"></div>
+    </ng-container>
+</div>

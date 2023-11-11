@@ -61,20 +61,26 @@
  */
 export const protectedResources = {
   collectionApi: {
-    endpoint: environment.publicApiEndpoint + "/Collections",
-    scopes: ["https://musicvideobuilder.onmicrosoft.com/77a830ed-796d-4bed-be76-a163f5a3ee79/access_as_user"],
+    endpoint: environment.publicApiEndpoint + "/Collections"
+  },
+  subscriptionPublicApi: {
+    endpoint: environment.publicApiEndpoint + "/Subscriptions"
+  },
+  subscriptionPrivateApi: {
+    endpoint: environment.apiEndpoint + "/Subscriptions",
+    scopes: ["https://musicvideobuilder.onmicrosoft.com/77a830ed-796d-4bed-be76-a163f5a3ee79/access_as_user"]
   },
   clipApi: {
     endpoint: environment.apiEndpoint + "/Clips",
-    scopes: ["https://musicvideobuilder.onmicrosoft.com/77a830ed-796d-4bed-be76-a163f5a3ee79/access_as_user"],
+    scopes: ["https://musicvideobuilder.onmicrosoft.com/77a830ed-796d-4bed-be76-a163f5a3ee79/access_as_user"]
   },
   videoApi: {
     endpoint: environment.apiEndpoint + "/Videos*",
-    scopes: ["https://musicvideobuilder.onmicrosoft.com/77a830ed-796d-4bed-be76-a163f5a3ee79/access_as_user"],
+    scopes: ["https://musicvideobuilder.onmicrosoft.com/77a830ed-796d-4bed-be76-a163f5a3ee79/access_as_user"]
   },
   userCollectionApi: {
     endpoint: environment.apiEndpoint + "/UserCollections",
-    scopes: ["https://musicvideobuilder.onmicrosoft.com/77a830ed-796d-4bed-be76-a163f5a3ee79/access_as_user"],
+    scopes: ["https://musicvideobuilder.onmicrosoft.com/77a830ed-796d-4bed-be76-a163f5a3ee79/access_as_user"]
   },
 }
 

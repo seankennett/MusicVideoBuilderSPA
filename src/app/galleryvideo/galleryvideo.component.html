@@ -2,7 +2,8 @@
     <div class="galleryContainer">
         <ng-container *ngFor="let isTop of [true, false]">
             <ng-container *ngFor="let isLeft of [true, false]">
-                <div class="galleryItem" [style.left.px]="getContainerLeft(isLeft)" [style.top.px]="getContainerTop(isTop)">
+                <div class="galleryItem" [style.left.px]="getContainerLeft(isLeft)"
+                    [style.top.px]="getContainerTop(isTop)">
                     <app-display [clip]="getClip(video.videoClips[getClipIndex(isTop, isLeft)])"
                         [collections]="collections"
                         [leftPosition]="getClipLeft(getClip(video.videoClips[getClipIndex(isTop, isLeft)]))"
@@ -12,34 +13,36 @@
             </ng-container>
         </ng-container>
     </div>
-    <h5 class="card-header">{{video.videoName}}.{{Formats[video.format]}}</h5>
+    <div class="card-body text-center">
+        <h5>{{video.videoName}}.{{Formats[video.format]}}</h5>
+    </div>
     <ul class="list-group list-group-flush">
-        <li class="list-group-item">BPM: {{video.bpm}}</li>
-        <li class="list-group-item" *ngIf="showEdit">
-            <button type="button" (click)="buttonClick(1)" class="btn btn-primary me-1" [disabled]="loading">
-                <i class="bi bi-pencil-square"></i> Edit Details <span class="spinner-border spinner-border-sm ms-1"
-                    role="status" aria-hidden="true" *ngIf="loading"></span>
-            </button>
-            <button type="button" (click)="buttonClick(2)" class="btn btn-primary me-1" [disabled]="loading">
-                <i class="bi bi-calendar3-week-fill"></i> Edit Timeline <span
-                    class="spinner-border spinner-border-sm ms-1" role="status" aria-hidden="true"
-                    *ngIf="loading"></span>
-            </button>
-            <button type="button" (click)="buttonClick(3)" class="btn btn-primary me-1" [disabled]="loading">
-                <i class="bi bi-hammer"></i> Build <span class="spinner-border spinner-border-sm ms-1" role="status"
-                    aria-hidden="true" *ngIf="loading"></span>
-            </button>
-        </li>
-        <li class="list-group-item" *ngIf="showRemove">
-            <button type="button" (click)="buttonClick(1)" class="btn btn-danger" [disabled]="loading">
-                <i class="bi bi-dash-circle-fill"></i> Remove <span class="spinner-border spinner-border-sm ms-1"
-                    role="status" aria-hidden="true" *ngIf="loading"></span>
-            </button>
-        </li>
+        <li class="list-group-item">BPM: {{video.bpm}}</li>        
         <li class="list-group-item" *ngIf="isBuilding">
             <a [routerLink]="['/musicVideoBuilder', video.videoId]" [queryParams]="{tab: 2}">Go
                 to
                 {{video.videoName}} video timeline</a>
         </li>
     </ul>
+    <div class="card-footer" *ngIf="showEdit">
+        <button type="button" (click)="buttonClick(1)" class="btn btn-primary me-1" [disabled]="loading">
+            <i class="bi bi-pencil-square"></i> Edit Details <span class="spinner-border spinner-border-sm ms-1"
+                role="status" aria-hidden="true" *ngIf="loading"></span>
+        </button>
+        <button type="button" (click)="buttonClick(2)" class="btn btn-primary me-1" [disabled]="loading">
+            <i class="bi bi-calendar3-week-fill"></i> Edit Timeline <span
+                class="spinner-border spinner-border-sm ms-1" role="status" aria-hidden="true"
+                *ngIf="loading"></span>
+        </button>
+        <button type="button" (click)="buttonClick(3)" class="btn btn-primary me-1" [disabled]="loading">
+            <i class="bi bi-hammer"></i> Build <span class="spinner-border spinner-border-sm ms-1" role="status"
+                aria-hidden="true" *ngIf="loading"></span>
+        </button>
+    </div>
+    <div class="card-footer" *ngIf="showRemove">
+        <button type="button" (click)="buttonClick(1)" class="btn btn-danger" [disabled]="loading">
+            <i class="bi bi-dash-circle-fill"></i> Remove <span class="spinner-border spinner-border-sm ms-1"
+                role="status" aria-hidden="true" *ngIf="loading"></span>
+        </button>
+    </div>
 </div>

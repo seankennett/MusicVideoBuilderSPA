@@ -1,9 +1,9 @@
 <div class="card">
   <app-display [clip]="clip" [collection]="collection" [collections]="collections" [leftPosition]="leftPosition">
   </app-display>
-  <div class="card-header text-center" *ngIf="playerTitle !== ''">
-    <h5 class="card-title">{{ playerTitle }} <a *ngIf="showClipInfoButton && clip" (click)="showClipInfo()" [routerLink]="[]"><i
-          class="bi bi-info-circle-fill text-primary"></i></a></h5>
+  <div class="card-body text-center" *ngIf="playerTitle !== ''">
+    <h5 class="card-title">{{ playerTitle }} <a *ngIf="showClipInfoButton && clip" (click)="showClipInfo()"
+        [routerLink]="[]"><i class="bi bi-info-circle-fill text-primary"></i></a></h5>
   </div>
   <ul class="list-group list-group-flush">
     <li class="list-group-item text-center"><button type="button" class="btn btn-outline-secondary"
@@ -38,26 +38,10 @@
         Direction transition options
       </li>
       <li class="list-group-item">
-        Plus our standard extras <a (click)="showTransitions()" [routerLink]="[]"><i class="bi bi-info-circle-fill text-primary"></i></a>
+        Plus our standard extras <a (click)="showTransitions()" [routerLink]="[]"><i
+            class="bi bi-info-circle-fill text-primary"></i></a>
       </li>
     </ng-container>
-    <li class="list-group-item text-center" placement="top"
-      *ngIf="showAdd === true || showEdit === true|| showRemove === true">
-      <button type="button" [disabled]="loading" (click)="addButtonClick()" class="btn btn-success"
-        *ngIf="showAdd === true">
-        <i class="bi bi-plus-circle-fill"></i> Add</button>
-      <button type="button" [disabled]="loading" (click)="editButtonClick()" class="btn btn-primary"
-        *ngIf="showEdit === true">
-        <i class="bi bi-pencil-square"></i> Edit</button>
-      <button type="button" [disabled]="loading" (click)="cloneButtonClick()" class="btn btn-success ms-1"
-        *ngIf="showClone === true">
-        <i class="bi bi-files"></i> Clone</button>
-      <button type="button" [disabled]="loading" (click)="removeButtonClick()" class="btn btn-danger"
-        *ngIf="showRemove === true">
-        <i class="bi bi-dash-circle-fill"></i> Remove
-        <span class="spinner-border spinner-border-sm ms-1" role="status" aria-hidden="true" *ngIf="loading"></span>
-      </button>
-    </li>
     <ng-container *ngIf="dependentVideos">
       <li *ngFor="let video of dependentVideos" class="list-group-item text-center">
         <a [routerLink]="['/musicVideoBuilder', video.videoId]" [queryParams]="{tab: 2}">Go to
@@ -65,4 +49,21 @@
       </li>
     </ng-container>
   </ul>
+  <div class="card-footer text-center" placement="top"
+    *ngIf="showAdd === true || showEdit === true|| showRemove === true">
+    <button type="button" [disabled]="loading" (click)="addButtonClick()" class="btn btn-success"
+      *ngIf="showAdd === true">
+      <i class="bi bi-plus-circle-fill"></i> Add</button>
+    <button type="button" [disabled]="loading" (click)="editButtonClick()" class="btn btn-primary"
+      *ngIf="showEdit === true">
+      <i class="bi bi-pencil-square"></i> Edit</button>
+    <button type="button" [disabled]="loading" (click)="cloneButtonClick()" class="btn btn-success ms-1"
+      *ngIf="showClone === true">
+      <i class="bi bi-files"></i> Clone</button>
+    <button type="button" [disabled]="loading" (click)="removeButtonClick()" class="btn btn-danger"
+      *ngIf="showRemove === true">
+      <i class="bi bi-dash-circle-fill"></i> Remove
+      <span class="spinner-border spinner-border-sm ms-1" role="status" aria-hidden="true" *ngIf="loading"></span>
+    </button>
+  </div>
 </div>

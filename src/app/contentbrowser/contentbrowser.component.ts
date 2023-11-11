@@ -1,12 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { NgModel } from '@angular/forms';
-import { debounceTime, distinctUntilChanged, filter, map, Observable, OperatorFunction } from 'rxjs';
 import { CollectionService } from '../collection.service';
 import { Collection } from '../collection';
-import { PopularTag } from '../populartag';
-import { Collectiontypes } from '../collectiontypes';
-import { MsalService } from '@azure/msal-angular';
-import { ToastService } from '../toast.service';
 
 @Component({
   selector: 'app-contentbrowser',

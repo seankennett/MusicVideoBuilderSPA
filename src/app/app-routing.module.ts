@@ -10,11 +10,18 @@ import { MusicVideoBuilderComponent } from './musicvideobuilder/musicvideobuilde
 import { NotfoundComponent } from './notfound/notfound.component';
 import { ConfirmationComponent } from './confirmation/confirmation.component';
 import { ConfirmationgaurdGuard } from './confirmationgaurd.guard';
+import { HelpComponent } from './help/help.component';
+import { SubscriptionsComponent } from './subscriptions/subscriptions.component';
+import { SubscriptionconfirmationComponent } from './subscriptionconfirmation/subscriptionconfirmation.component';
 
 const routes: Routes = [
   {
     path: 'contentBrowser',
     component: ContentBrowserComponent
+  },
+  {
+    path: 'help',
+    component: HelpComponent
   },
   {
     path: 'clipBuilder',
@@ -64,6 +71,20 @@ const routes: Routes = [
   {
     path: 'confirmation',
     component: ConfirmationComponent,
+    canActivate: [
+      MsalGuard
+    ]
+  },
+  {
+    path: 'subscriptionConfirmation',
+    component: SubscriptionconfirmationComponent,
+    canActivate: [
+      MsalGuard
+    ]
+  },
+  {
+    path: 'subscriptions',
+    component: SubscriptionsComponent,
     canActivate: [
       MsalGuard
     ]
