@@ -9,7 +9,7 @@ export const environment = {
   publicApiEndpoint: 'http://localhost:7207/api',
   storageUrl: 'https://127.0.0.1:10000/devstoreaccount1',
   stripePublishableKey: 'pk_test_51MdFmjCHVKfyZAQjiKx6LUKwBhRIw3vqZ9mQ25De41M7YDV4onDYNFlbWSiUuCyfz919HjU6RYZyOwpPAzFWrsL3002zKr5Spx',
-  host: 'localhost:4200'
+  host: 'http://localhost:4200'
 };
 
 /*

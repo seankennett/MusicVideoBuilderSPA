@@ -919,14 +919,16 @@ export class MusicVideoBuilderComponent implements OnInit {
     this.stripeService.confirmPayment({
       elements: this.paymentElement.elements,
       confirmParams: {
-        return_url: 'http://' + environment.host + '/confirmation?resolution=' + videoBuildRequest.resolution
+        return_url: environment.host + '/confirmation?resolution=' + videoBuildRequest.resolution
       },
-      redirect: 'always'
+      redirect: 'if_required'
     }).subscribe(result => {
-      this.isWaitingForCreate = false;
-      this.isUploadingAudio = false;
       if (result.error) {
         this.toastService.show(result.error?.message ?? 'Error in payment', this.router.url);
+        this.isWaitingForCreate = false;
+        this.isUploadingAudio = false;
+      } else {
+        this.router.navigateByUrl('/confirmation?resolution=' + videoBuildRequest.resolution);
       }
     });
   }

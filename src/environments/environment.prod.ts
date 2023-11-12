@@ -5,5 +5,5 @@ export const environment = {
   publicApiEndpoint: 'https://public.musicvideobuilder.com/api',
   storageUrl: 'https://cdn.musicvideobuilder.com',
   stripePublishableKey: 'pk_test_51MdFmjCHVKfyZAQjiKx6LUKwBhRIw3vqZ9mQ25De41M7YDV4onDYNFlbWSiUuCyfz919HjU6RYZyOwpPAzFWrsL3002zKr5Spx',
-  host: 'musicvideobuilder.com'
+  host: 'https://musicvideobuilder.com'
 };
