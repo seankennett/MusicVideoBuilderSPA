@@ -41,6 +41,7 @@ import { TransitioninfoComponent } from './transitioninfo/transitioninfo.compone
 import { HelpComponent } from './help/help.component';
 import { SubscriptionsComponent } from './subscriptions/subscriptions.component';
 import { SubscriptionconfirmationComponent } from './subscriptionconfirmation/subscriptionconfirmation.component';
+import { BuildassettableComponent } from './buildassettable/buildassettable.component';
 
 /**
  * Here we pass the configuration parameters to create an MSAL instance.
@@ -109,7 +110,8 @@ export function MSALGuardConfigFactory(): MsalGuardConfiguration {
     TransitioninfoComponent,
     HelpComponent,
     SubscriptionsComponent,
-    SubscriptionconfirmationComponent
+    SubscriptionconfirmationComponent,
+    BuildassettableComponent
   ],
   imports: [
     BrowserModule,

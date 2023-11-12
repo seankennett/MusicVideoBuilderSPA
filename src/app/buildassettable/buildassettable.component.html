@@ -1,0 +1,21 @@
+<table [class]="'table table-sm' + (showDownload ? ' table-hover' : '')" 
+*ngFor="let buildAsset of this.buildAssets">
+    <thead class="table-light">
+        <tr>
+            <th *ngIf="showDownload" scope="col">Download</th>
+            <th scope="col">Date Created</th>
+            <th scope="col">Name</th>
+            <th scope="col">Resolution</th>
+            <th scope="col">License</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let buildAsset of this.buildAssets" class="stretched-stop">
+            <td *ngIf="showDownload"><a [href]="buildAsset.downloadLink" class="stretched-link"><i *ngIf="showDownload" class="bi bi-download text-primary"></i></a></td>
+            <td>{{getFormattedDateTime(buildAsset.dateCreated)}}</td>
+            <td>{{buildAsset.videoName}}.{{Formats[buildAsset.format]}}</td>
+            <td>{{displayResolution(buildAsset.resolution)}}</td>
+            <td>{{Licenses[buildAsset.license]}}</td>            
+        </tr>
+    </tbody>
+</table>

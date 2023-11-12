@@ -7,29 +7,19 @@
     <ng-container *ngIf="!pageLoading">
         <ng-container *ngIf="this.completeBuildAssets.length > 0">
             <h2>Video Files</h2>
-            <p>Here are your built video files to download. Note that links will be valid only for 12 hours or until you refresh this page.</p>
-            <div class="list-group mb-3">
-                <a *ngFor="let buildAsset of this.completeBuildAssets" [href]="buildAsset.downloadLink"
-                    class="list-group-item list-group-item-action"><h5>{{getFormattedDateTime(buildAsset.dateCreated)}} -
-                    {{buildAsset.videoName}}.{{Formats[buildAsset.format]}} - Resolution: {{displayResolution(buildAsset.resolution)}} - Licence: {{Licences[buildAsset.license]}}<i class="bi bi-download text-primary float-end"></i></h5></a>
-            </div>
+            <p>Here are your built video files to download. Note that links will be valid only for 12 hours or until you
+                refresh this page.</p>
+            <app-buildassettable [buildAssets]="completeBuildAssets"></app-buildassettable>
         </ng-container>
         <ng-container *ngIf="this.incompleteBuildAssets.length > 0">
             <h2>Building Video Files</h2>
             <p>Here are your currently building video files.</p>
-            <div class="list-group mb-3">
-                <ng-container *ngFor="let incompleteBuildAsset of this.incompleteBuildAssets">
-                <div class="list-group-item list-group-item-action">
-                    <h5>{{getFormattedDateTime(incompleteBuildAsset.dateCreated)}} -
-                    {{incompleteBuildAsset.videoName}}.{{Formats[incompleteBuildAsset.format]}} - Resolution: {{displayResolution(incompleteBuildAsset.resolution)}} - Licence: {{Licences[incompleteBuildAsset.license]}}
-                    </h5>
-            </div>
-        </ng-container>
-            </div>
+            <app-buildassettable [buildAssets]="incompleteBuildAssets" [showDownload]="false"></app-buildassettable>
         </ng-container>
         <ng-container *ngIf="this.buildingVideos.length > 0">
             <h2>Building Videos</h2>
-            <p>These videos are currently building.  You have to wait for the build to complete before you build the same video again or delete.</p>
+            <p>These videos are currently building. You have to wait for the build to complete before you build the same
+                video again or delete.</p>
             <div class="mb-3">
                 <div class="row">
                     <div *ngFor="let buildingVideo of buildingVideos; let i = index" class="col-sm mb-3">
@@ -41,12 +31,14 @@
         </ng-container>
         <ng-container *ngIf="this.videos.length > 0">
             <h2>Videos</h2>
-            <p>Videos that are not building have no dependencies so you can delete these without worrying what uses them.</p>
+            <p>Videos that are not building have no dependencies so you can delete these without worrying what uses
+                them.</p>
             <div class="mb-3">
                 <div class="row">
                     <div *ngFor="let notBuildingVideo of notBuildingVideos" class="col-sm mb-3">
-                        <app-galleryvideo [video]="notBuildingVideo" [showEdit]="false" [showRemove]="true" [clips]="clips"
-                            (buttonClickEvent)="removeVideo($event)" [loading]="loading" [collections]="collections">
+                        <app-galleryvideo [video]="notBuildingVideo" [showEdit]="false" [showRemove]="true"
+                            [clips]="clips" (buttonClickEvent)="removeVideo($event)" [loading]="loading"
+                            [collections]="collections">
                         </app-galleryvideo>
                     </div>
                 </div>
@@ -60,7 +52,8 @@
                 <div class="row">
                     <div *ngFor="let dependentClip of dependentClips; let i = index" class="col-sm mb-3">
                         <app-galleryplayer [clip]="dependentClip.clip" [showAdd]="false" [showEdit]="false"
-                            [showRemove]="false" [collections]="collections" [dependentVideos]="dependentClip.videos"></app-galleryplayer>
+                            [showRemove]="false" [collections]="collections"
+                            [dependentVideos]="dependentClip.videos"></app-galleryplayer>
                     </div>
                 </div>
             </div>
@@ -71,11 +64,12 @@
             <div class="mb-3">
                 <div class="row">
                     <div *ngFor="let independentClip of independentClips; let i = index" class="col-sm mb-3">
-                        <app-galleryplayer [clip]="independentClip" [showAdd]="false" [showEdit]="false" [collections]="collections"
-                            [showRemove]="true" [loading]="loading" (removeButtonClickClipEvent)="removeClip($event)"></app-galleryplayer>
+                        <app-galleryplayer [clip]="independentClip" [showAdd]="false" [showEdit]="false"
+                            [collections]="collections" [showRemove]="true" [loading]="loading"
+                            (removeButtonClickClipEvent)="removeClip($event)"></app-galleryplayer>
                     </div>
                 </div>
             </div>
-        </ng-container>        
+        </ng-container>
     </ng-container>
 </div>
