@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { ActivatedRouteSnapshot, CanDeactivate, RouterStateSnapshot, UrlTree } from '@angular/router';
+import { ActivatedRouteSnapshot, RouterStateSnapshot, UrlTree } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { Observable } from 'rxjs';
 import { ConfirmationmodalComponent } from './confirmationmodal/confirmationmodal.component';
@@ -9,7 +9,7 @@ import { MusicVideoBuilderComponent } from './musicvideobuilder/musicvideobuilde
 @Injectable({
   providedIn: 'root'
 })
-export class ConfirmationgaurdGuard implements CanDeactivate<unknown> {
+export class ConfirmationgaurdGuard  {
   constructor(private modalService: NgbModal) { }
 
   canDeactivate(

@@ -91,7 +91,6 @@ export class MusicVideoBuilderComponent implements OnInit {
   @ViewChild(VideoplayerComponent) videoplayer!: VideoplayerComponent;
   @ViewChild('audioFile') set content(content: ElementRef) {
     if (content?.nativeElement?.files.length === 0 && this.audioFileService.file) {
-      console.log('file exists');
       const dataTransfer = new DataTransfer();
       dataTransfer.items.add(this.audioFileService.file);
       content.nativeElement.files = dataTransfer.files;
@@ -387,6 +386,8 @@ export class MusicVideoBuilderComponent implements OnInit {
       this.modalService.open(ConfirmationmodalComponent, { centered: true }).result.then(
         (succes) => {
           this.toggleEditor();
+        },
+        (fail) =>{        
         });
     } else {
       this.toggleEditor();

@@ -296,6 +296,8 @@ export class ClipBuilderComponent implements OnInit {
         (succes) => {
           this.clearEditor();
           this.showEditor = false;
+        },
+        (fail) =>{        
         });
     } else {
       this.clearEditor();
