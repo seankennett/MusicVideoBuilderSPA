@@ -1,5 +1,4 @@
-<table [class]="'table table-sm' + (showDownload ? ' table-hover' : '')" 
-*ngFor="let buildAsset of this.buildAssets">
+<table [class]="'table table-sm' + (showDownload ? ' table-hover' : '')">
     <thead class="table-light">
         <tr>
             <th *ngIf="showDownload" scope="col">Download</th>
