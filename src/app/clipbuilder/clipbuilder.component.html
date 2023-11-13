@@ -7,7 +7,7 @@
     <p>Once you create a clip you can then use this to <a [routerLink]="['/musicVideoBuilder']"><i
                 class="bi bi-hammer"></i>build a video</a>. Use the
         controls below to create or edit your clips. To remove a clip please visit your <a
-            [routerLink]="['/musicVideoBuilder']"><i class="bi bi-collection-fill"></i> library</a></p>
+            [routerLink]="['/musicVideoBuilder']"><i class="bi bi-collection-fill"></i>library</a></p>
     <app-pageloading [pageLoading]="pageLoading"></app-pageloading>
     <ng-container *ngIf="!pageLoading">
         <app-bpmcontrol (bpmEvent)="setBpm($event)" (isPlayingEvent)="setIsPlaying($event)"></app-bpmcontrol>

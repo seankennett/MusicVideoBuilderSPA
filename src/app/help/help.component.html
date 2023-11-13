@@ -1,1 +1,20 @@
-<p>help works!</p>
+<app-breadcrumb [links]="[{display:'Help', path:'help', icon:'question-circle-fill' }]"></app-breadcrumb>
+<div class="container">
+    <h1><i class="text-primary bi bi-question-circle-fill"></i> Help</h1>
+    <p class="lead">Help and support for issues that you may encounter.</p>
+    <p>Below are our frequently asked question.  If you still can't find the answers you are looking for then please <a href="mailto:info@musicvideobuilder.com"><i class="bi bi-envelope-fill"></i>Email us.</a></p>
+    <div ngbAccordion>
+        <div ngbAccordionItem *ngFor="let faq of faqs">
+            <h2 ngbAccordionHeader>
+                <button ngbAccordionButton>{{faq.question}}</button>
+            </h2>
+            <div ngbAccordionCollapse>
+                <div ngbAccordionBody>
+                    <ng-template>
+                        {{faq.answer}}
+                    </ng-template>
+                </div>
+            </div>
+        </div>        
+    </div>
+</div>

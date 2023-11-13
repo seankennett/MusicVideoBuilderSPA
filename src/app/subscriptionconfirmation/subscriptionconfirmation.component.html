@@ -6,8 +6,7 @@
         <ng-container *ngIf="successResponse === true">
             <h1><i class="bi bi-check-circle-fill text-success"></i> Payment confirmed</h1>
             <p class="lead">Your payment is sucessful for your subscription. You can manage your
-                subscription on the <a [routerLink]="['/subscriptions']"><i class="text-primary bi bi-repeat"></i>
-                    Subscriptions</a> page
+                subscription on the <a [routerLink]="['/subscriptions']"><i class="text-primary bi bi-repeat"></i>Subscriptions</a> page
             </p>
         </ng-container>
         <ng-container *ngIf="successResponse === false">
