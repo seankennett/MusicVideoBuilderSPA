@@ -84,13 +84,13 @@
                                     </div>
                                     <div class="form-text text-danger"
                                         *ngIf="videoNameControl?.invalid  && (videoNameControl?.dirty || videoNameControl?.touched)">
-                                        <div [hidden]="!videoNameControl?.errors?.['required']">
+                                        <div [hidden]="!videoNameControl.errors?.['required']">
                                             Video name is required.
                                         </div>
-                                        <div [hidden]="!videoNameControl?.errors?.['maxlength']">
+                                        <div [hidden]="!videoNameControl.errors?.['maxlength']">
                                             Video name max length is 50 characters.
                                         </div>
-                                        <div [hidden]="!videoNameControl?.errors?.['pattern']">
+                                        <div [hidden]="!videoNameControl.errors?.['pattern']">
                                             Video name must be alpha numeric, hypthens and underscores granted.
                                         </div>
                                     </div>
@@ -104,13 +104,13 @@
                                     </div>
                                     <div class="form-text text-danger"
                                         *ngIf="bpmControl?.invalid  && (bpmControl?.dirty || bpmControl?.touched)">
-                                        <div [hidden]="!bpmControl?.errors?.['required']">
+                                        <div [hidden]="!bpmControl.errors?.['required']">
                                             BPM is required.
                                         </div>
-                                        <div [hidden]="!bpmControl?.errors?.['min']">
+                                        <div [hidden]="!bpmControl.errors?.['min']">
                                             BPM must be over 90.
                                         </div>
-                                        <div [hidden]="!bpmControl?.errors?.['max']">
+                                        <div [hidden]="!bpmControl.errors?.['max']">
                                             BPM must be under 250
                                         </div>
                                     </div>
@@ -138,10 +138,10 @@
                                     </div>
                                     <div class="form-text text-danger"
                                         *ngIf="videoDelayMillisecondsControl?.invalid  && (videoDelayMillisecondsControl?.dirty || videoDelayMillisecondsControl?.touched)">
-                                        <div [hidden]="!videoDelayMillisecondsControl?.errors?.['max']">
+                                        <div [hidden]="!videoDelayMillisecondsControl.errors?.['max']">
                                             Delay must be less than 2147483647.
                                         </div>
-                                        <div [hidden]="!videoDelayMillisecondsControl?.errors?.['pattern']">
+                                        <div [hidden]="!videoDelayMillisecondsControl.errors?.['pattern']">
                                             Delay must be a positive whole numnber.
                                         </div>
                                     </div>
@@ -343,7 +343,7 @@
                                             </div>
                                         </ng-container>
                                         <div class="form-text text-danger" *ngIf="videoClipsFormArray?.invalid">
-                                            <div [hidden]="!videoClipsFormArray?.errors?.['maxlength']">
+                                            <div [hidden]="!videoClipsFormArray.errors?.['maxlength']">
                                                 You can't have more than 32767 clips in a video.
                                             </div>
                                         </div>

@@ -51,13 +51,13 @@
                             </div>
                             <div class="form-text text-danger"
                                 *ngIf="clipNameControl?.invalid  && (clipNameControl?.dirty || clipNameControl?.touched)">
-                                <div [hidden]="!clipNameControl?.errors?.['required']">
+                                <div [hidden]="!clipNameControl.errors?.['required']">
                                     Clip name is required.
                                 </div>
-                                <div [hidden]="!clipNameControl?.errors?.['maxlength']">
+                                <div [hidden]="!clipNameControl.errors?.['maxlength']">
                                     Clip name max length is 50 characters.
                                 </div>
-                                <div [hidden]="!clipNameControl?.errors?.['pattern']">
+                                <div [hidden]="!clipNameControl.errors?.['pattern']">
                                     Clip name must be alpha numeric, hypthens and underscores granted.
                                 </div>
                             </div>
@@ -370,7 +370,7 @@
                             </li>
                         </ol>
                         <div class="form-text text-danger" *ngIf="clipDisplayLayersFormArray?.invalid">
-                            <div [hidden]="!clipDisplayLayersFormArray?.errors?.['maxlength']">
+                            <div [hidden]="!clipDisplayLayersFormArray.errors?.['maxlength']">
                                 You can't have more than 255 layers in a clip.
                             </div>
                         </div>
