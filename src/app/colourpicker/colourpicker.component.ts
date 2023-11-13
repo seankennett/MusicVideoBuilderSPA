@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { FormControl } from '@angular/forms';
+import { UntypedFormControl } from '@angular/forms';
 
 @Component({
   selector: 'app-colourpicker',
@@ -8,7 +8,7 @@ import { FormControl } from '@angular/forms';
 })
 export class ColourpickerComponent implements OnInit {
 
-  @Input() control!: FormControl;
+  @Input() control!: UntypedFormControl;
   @Input() id!: string;
   @Input() tooltip!: string;
   @Input() colourChoices!: string[];

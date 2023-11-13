@@ -1,7 +1,7 @@
 import { Location } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
-import { AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
+import { AbstractControl, UntypedFormArray, UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
 import { Clip } from '../clip';
@@ -28,7 +28,7 @@ const beatsPerLayer = 4;
 })
 export class ClipBuilderComponent implements OnInit {
 
-  constructor(private formBuilder: FormBuilder, private collectionService: CollectionService, private clipService: ClipService, private route: ActivatedRoute, private location: Location, private modalService: NgbModal) { }
+  constructor(private formBuilder: UntypedFormBuilder, private collectionService: CollectionService, private clipService: ClipService, private route: ActivatedRoute, private location: Location, private modalService: NgbModal) { }
 
   ngOnInit(): void {
     this.clipService.getAll().subscribe((clips: Clip[]) => {
@@ -225,8 +225,8 @@ export class ClipBuilderComponent implements OnInit {
   }
 
   getLayerClipDisplayLayersFormGroups = (clipDisplayLayerGroup: AbstractControl) => {
-    var group = <FormGroup>clipDisplayLayerGroup
-    return (<FormArray>group?.get('layerClipDisplayLayersFormArray')).controls
+    var group = <UntypedFormGroup>clipDisplayLayerGroup
+    return (<UntypedFormArray>group?.get('layerClipDisplayLayersFormArray')).controls
   }
 
   convertFormGroupToCollection = (clipDisplayLayerFormGroup: AbstractControl) => {
@@ -260,8 +260,8 @@ export class ClipBuilderComponent implements OnInit {
     startingBeatControl: this.startingBeatControl,
   }, { validator: this.clipFormValidator.bind(this) });
 
-  clipFormValidator(form: FormGroup): ValidationErrors | null {
-    if (form.get('backgroundColourControl')?.value === null && (form.get('clipDisplayLayersFormArray') as FormArray).length === 0) {
+  clipFormValidator(form: UntypedFormGroup): ValidationErrors | null {
+    if (form.get('backgroundColourControl')?.value === null && (form.get('clipDisplayLayersFormArray') as UntypedFormArray).length === 0) {
       return { noLayers: true };
     }
 
@@ -381,7 +381,7 @@ export class ClipBuilderComponent implements OnInit {
   }
 
   convertToFormControl = (abstractControl: AbstractControl | null) => {
-    return abstractControl as FormControl
+    return abstractControl as UntypedFormControl
   }
 
   removeclipDisplayLayer = (index: number) => {

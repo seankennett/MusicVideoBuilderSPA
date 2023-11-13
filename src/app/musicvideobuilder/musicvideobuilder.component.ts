@@ -1,5 +1,5 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { AbstractControl, FormArray, FormBuilder, FormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
+import { AbstractControl, UntypedFormArray, UntypedFormBuilder, UntypedFormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { ClipService } from '../clip.service';
 import { Formats } from '../formats';
 import { Video } from '../video';
@@ -48,7 +48,7 @@ const byteMultiplier = 1024;
   styleUrls: ['./musicvideobuilder.component.scss']
 })
 export class MusicVideoBuilderComponent implements OnInit {
-  constructor(private formBuilder: FormBuilder, private videoService: VideoService, private clipService: ClipService, private buildService: BuildsService, private collectionService: CollectionService,
+  constructor(private formBuilder: UntypedFormBuilder, private videoService: VideoService, private clipService: ClipService, private buildService: BuildsService, private collectionService: CollectionService,
     private datePipe: DatePipe, private route: ActivatedRoute, private location: Location, private userCollectionService: UserCollectionService, private toastService: ToastService, private router: Router,
     private stripeService: StripeService, public audioFileService: AudiofileService, private modalService: NgbModal, private subscriptionService: SubscriptionService) { }
 
@@ -946,13 +946,13 @@ export class MusicVideoBuilderComponent implements OnInit {
 const maximumVideoLengthMinutes = 15
 export function videoLengthValidator(getClips: (() => Clip[])): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
-    var formGroup = control as FormGroup;
+    var formGroup = control as UntypedFormGroup;
     var bpmControl = formGroup.get('bpmControl');
     if (!bpmControl || bpmControl.invalid) {
       return { noBpm: true };
     }
 
-    var videoClipsFormArray = formGroup.get('videoClipsFormArray') as FormArray;
+    var videoClipsFormArray = formGroup.get('videoClipsFormArray') as UntypedFormArray;
     if (!videoClipsFormArray || videoClipsFormArray.invalid) {
       return { noClips: true };
     }
