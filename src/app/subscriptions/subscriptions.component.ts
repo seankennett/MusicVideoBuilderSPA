@@ -1,11 +1,10 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { SubscriptionService } from '../subscription.service';
 import { Subscriptionproduct } from '../subscriptionproduct';
 import { catchError, throwError } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
-import { StripePaymentElementComponent, StripeService } from 'ngx-stripe';
-import { StripeElementsOptions } from '@stripe/stripe-js';
-import { environment } from 'src/environments/environment';
+import { StripeService } from 'ngx-stripe';
+import { StripeEmbeddedCheckout } from '@stripe/stripe-js';
 import { ToastService } from '../toast.service';
 import { Router } from '@angular/router';
 
@@ -34,17 +33,14 @@ export class SubscriptionsComponent implements OnInit {
     });
   }
 
-  checkoutElement: any
+  checkoutElement: StripeEmbeddedCheckout | undefined
   checkout = (subscriptionProduct: Subscriptionproduct) => {
     this.isWaitingForResponse = true;
     this.subscriptionService.checkout(subscriptionProduct.priceId).pipe(catchError((error: HttpErrorResponse) => {
       this.isWaitingForResponse = false;
       return throwError(() => new Error());
     })).subscribe(clientSecret => {
-      // TODO UPDATE ngx-stripe to minimum 16.3 then can grab most recent stripe package for typescript niceness
-      var stripe = this.stripeService.getInstance() as any;
-      var promise = stripe.initEmbeddedCheckout({ clientSecret }) as Promise<any>;
-      promise.then((checkout) => {
+      this.stripeService.getInstance()?.initEmbeddedCheckout({ clientSecret }).then((checkout) => {
         this.checkoutElement = checkout;
         checkout.mount('#checkout');
         this.isWaitingForResponse = false;

@@ -18,10 +18,7 @@ export class SubscriptionconfirmationComponent implements OnInit {
       if (sessionId) {
         this.subscirptionService.getSession(sessionId).subscribe((clientSecret) => {
           if (clientSecret) {
-            //TODO: Upgrade and use proper services
-            var stripe = this.stripeService.getInstance() as any;
-            var promise = stripe.initEmbeddedCheckout({ clientSecret }) as Promise<any>;
-            promise.then((checkout) => {
+            this.stripeService.getInstance()?.initEmbeddedCheckout({ clientSecret }).then((checkout) => {
               checkout.mount('#checkout');
               this.successResponse = false;
               this.pageLoading = false;
