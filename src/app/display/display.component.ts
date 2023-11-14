@@ -93,7 +93,11 @@ export class DisplayComponent implements OnInit {
     return 0;
   }
 
-  toColourMatrix = (layer: Layer, clipdisplaylayer: Clipdisplaylayer | null) => {   
+  getFilter = (layer: Layer, clipdisplaylayer: Clipdisplaylayer | null) => {
+    return "url(\"data:image/svg+xml;utf8,<svg xmlns=\\\'http://www.w3.org/2000/svg\\\'><filter id=\\\'filter\\\'><feColorMatrix type=\\\'matrix\\\' values=\\\'" + this.toColourMatrix(layer, clipdisplaylayer) + "\\\'/></filter></svg>#filter\")"
+  }
+
+  private toColourMatrix = (layer: Layer, clipdisplaylayer: Clipdisplaylayer | null) => {   
     var hexCode;
     if (clipdisplaylayer !== null) {
       hexCode = this.getColour(layer);

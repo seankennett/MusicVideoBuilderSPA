@@ -9,15 +9,8 @@
           [style.height.px]="height" [style.left.px]="getLeftPosition(clipDisplayLayer)"
           [style.opacity]="getLayerFadeOpacity(layerloop.isOverlay, clipDisplayLayer)"
           [style.mix-blend-mode]="layerloop.isOverlay === true ? 'normal' : 'screen'" crossorigin="anonymous"
-          [style.filter]="'url(\'#' + uniqueComponentId + '-' + clip.clipId + '-'  + layerloop.layerId + '\')'"
+          [style.filter]="getFilter(layerloop, clipDisplayLayer)"
           [style.transform]="scale(clipDisplayLayer)" />
-        <svg xmlns="
-            http://www.w3.org/2000/svg">
-          <filter [id]="uniqueComponentId + '-' + clip.clipId + '-'  + layerloop.layerId">
-            <feColorMatrix type="matrix" [attr.values]="toColourMatrix(layerloop, clipDisplayLayer)">
-            </feColorMatrix>
-          </filter>
-        </svg>
       </ng-container>
       <div *ngIf="clipDisplayLayer.colour" [style.background-color]="'#' + clipDisplayLayer.colour"
         [style.width.px]="width" [style.height.px]="height"
@@ -28,14 +21,7 @@
     <ng-container *ngFor="let layerloop of collectionLayers">
       <img [src]="storageUrl + '/' + layerloop.layerId + '/sprite.png'" [alt]="layerloop.layerId"
         [style.left.px]="leftPosition" [style.mix-blend-mode]="layerloop.isOverlay === true ? 'normal' : 'screen'"
-        crossorigin="anonymous" [style.filter]="'url(\'#' + layerloop.layerId + '\')'" [style.height.px]="height" />
-      <svg xmlns="
-        http://www.w3.org/2000/svg">
-        <filter [id]="layerloop.layerId">
-          <feColorMatrix type="matrix" [attr.values]="toColourMatrix(layerloop, null)">
-          </feColorMatrix>
-        </filter>
-      </svg>
+        crossorigin="anonymous" [style.filter]="getFilter(layerloop, null)" [style.height.px]="height" />
     </ng-container>
   </ng-container>
   <img [src]="storageUrl + '/custom-pages/watermark.png'" class="watermark" crossorigin="anonymous"
