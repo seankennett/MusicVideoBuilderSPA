@@ -1,11 +1,4 @@
-<!-- <ngb-toast
-  *ngFor="let toast of toastService.toasts"
-  [header]="toast.header" [autohide]="true" [delay]="toast.delay || 5000000"
-  (hiddden)="toastService.remove(toast)"
->{{toast.body}}</ngb-toast> -->
-
 <div class="toast-container">
-
   <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true" *ngFor="let toast of toastService.toasts">
     <div class="toast-header">
       <strong class="me-auto"><i class="bi bi-x-octagon-fill text-danger"></i> Error - {{toast.pageName}}</strong>
