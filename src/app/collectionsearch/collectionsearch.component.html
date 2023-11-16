@@ -36,9 +36,9 @@
     </div>
 </ng-container>
 <ng-container *ngIf="selectedCollections.length === 0">
-    <h3>Popular Collections</h3>
-    <p>Seeing as you have not selected any names using the Search Collections control, here are the most popular
-        collections with our users with the selected collection type.</p>
+    <h3>{{Collectiontypes[collectionType]}} Collections</h3>
+    <p *ngIf="selectedCollectionNames.length === 0">You have not searched by name so here are {{Collectiontypes[collectionType].toLowerCase()}} collections.</p>
+    <p *ngIf="selectedCollectionNames.length > 0">Your search has not returned any results so here are our {{Collectiontypes[collectionType].toLowerCase()}} collections.</p>
     <app-bpmcontrol (bpmEvent)="setBpm($event)" (isPlayingEvent)="setIsPlaying($event)"></app-bpmcontrol>
     <div class="row">
         <div *ngFor="let collection of popularCollections; let i = index" class="col-sm mb-3">

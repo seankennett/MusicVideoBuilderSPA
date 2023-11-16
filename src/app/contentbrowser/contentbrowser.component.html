@@ -1,8 +1,8 @@
 <app-breadcrumb [links]="[{display:'Content Browser', path:'contentBrowser', icon:'search' }]"></app-breadcrumb>
 <div class="container">
     <h1><i class="bi bi-search text-primary"></i> Content Browser</h1>
-    <p class="lead">Content browser allows you to view all content on the site and give ideas for what kind of video you want to create.</p>
-    <p>To customise, combine and create transitions you'll need to <a [routerLink]="['/clipBuilder']"><i class="bi bi-stack"></i>build a unique
+    <p class="lead">Content browser allows you to view all content on the site to give ideas for what kind of video you want to create.</p>
+    <p>To customise, combine and create transitions you'll need to sign up or sign in and <a [routerLink]="['/clipBuilder']"><i class="bi bi-stack"></i>build a unique
             clip</a>. You can then use your clips to <a [routerLink]="['/musicVideoBuilder']"><i class="bi bi-hammer"></i>build a video</a>.</p>
     <app-pageloading [pageLoading]="pageLoading"></app-pageloading>
     <ng-container  *ngIf="!pageLoading">

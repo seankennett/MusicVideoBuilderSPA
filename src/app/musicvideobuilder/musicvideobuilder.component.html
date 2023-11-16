@@ -3,13 +3,15 @@
 </app-breadcrumb>
 <div class="container">
     <h1><i class="bi bi-hammer text-primary"></i> Music Video Builder</h1>
-    <p class="lead">Music video builder allows you to combine clips to either make a new video or edit an existing
+    <p class="lead">Music video builder allows you to combine clips with your audio to either make a new video or edit
+        an existing
         one.
     </p>
-    <p>Once you create a video in the editor then you can choose what resolution you want your video built in.
+    <p>Once you save your video in the editor then you can choose what resolution and licensing you want your final
+        video to be.
         Use
         the
-        controls below to create or edit your videos</p>
+        controls below to create or edit your videos.</p>
     <app-pageloading [pageLoading]="pageLoading"></app-pageloading>
     <ng-container *ngIf="!pageLoading">
         <ng-container *ngIf="!showEditor && this.videos.length > 0">
@@ -280,17 +282,18 @@
                                                             </span>
                                                         </li>
                                                         <li class="list-group-item">
-                                                            <span [ngbTooltip]="'Add clone after current'">
-                                                                <button type="button" class="btn btn-success me-1"
-                                                                    (click)="copyClip(i, false)">
-                                                                    <i class="bi bi-files"></i></button>
-                                                            </span>
                                                             <span [ngbTooltip]="'Add clone to end of timeline'">
                                                                 <button type="button" class="btn btn-success me-1"
                                                                     (click)="copyClip(i, true)">
                                                                     <i class="bi bi-files"></i>
                                                                     <i class="bi bi-skip-end-fill"></i>
                                                                 </button>
+                                                            </span>
+                                                            <span [ngbTooltip]="'Add clone after current'"
+                                                                *ngIf="i + clipsPerBlock < this.videoClipsFormArray.controls.length">
+                                                                <button type="button" class="btn btn-success me-1"
+                                                                    (click)="copyClip(i, false)">
+                                                                    <i class="bi bi-files"></i></button>
                                                             </span>
                                                         </li>
                                                         <li class="list-group-item">
@@ -303,7 +306,7 @@
                                                                 </button>
                                                             </span>
                                                             <span [ngbTooltip]="'Add new clip after this clip'"
-                                                                *ngIf="clipsPerBlock === 1">
+                                                                *ngIf="clipsPerBlock === 1 && i < this.videoClipsFormArray.controls.length - 1">
                                                                 <button type="button" class="btn btn-success ms-1"
                                                                     (click)="toggleAddClipPicker(i)">
                                                                     <i class="bi bi-node-plus-fill"></i></button>
@@ -337,7 +340,7 @@
                                                         </li>
                                                         <li class="list-group-item">
                                                             Time: {{displayTimeLineTimeRangeFromClipIndex(i) }}
-                                                        </li>                                                        
+                                                        </li>
                                                     </ul>
                                                 </div>
                                             </div>
@@ -359,6 +362,10 @@
                                 </div>
                                 <div class="mb-3">
                                     <h3>Final Video Player</h3>
+                                    <ngb-alert [type]="'info'" [dismissible]="false"><i
+                                            class="bi bi-info-circle-fill"></i> You may experience some jerkiness on
+                                        first play, this can be due to loading the images. Play again and it should
+                                        resolve itself.</ngb-alert>
                                     <app-videoplayer [selectedClipIndex]="selectedClipIndex" [video]="editorVideo"
                                         [clips]="editorVideoClipsFull"
                                         (setSelectedIndexEvent)="setSelectedClipIndex($event)"
@@ -373,8 +380,17 @@
                                     must
                                     have at least one clip in your timeline.
                                 </ngb-alert>
-                                <p>This clip will be placed after all the other clips you have at the end of the
+                                <p
+                                    *ngIf="this.selectedClipEditIndex === this.videoClipsFormArray.length && this.isAdding === true">
+                                    This clip will be placed after all the other clips you have at the end of the
                                     timeline.
+                                </p>
+                                <p
+                                    *ngIf="this.selectedClipEditIndex !== this.videoClipsFormArray.length && this.isAdding === true">
+                                    This clip will be placed after clip # {{this.selectedClipEditIndex}}.
+                                </p>
+                                <p *ngIf="this.isAdding === false">This clip will will swap with clip #
+                                    {{this.selectedClipEditIndex}}.
                                 </p>
                                 <div class="row">
                                     <div *ngFor="let clip of clips; let i = index" class="col-sm mb-3">
@@ -386,7 +402,7 @@
                                 </div>
                                 <button type="button" class="btn btn-danger" (click)="toggleClipPicker(0)"
                                     *ngIf="videoClipsFormArray.length > 0"><i class="bi bi-dash-circle-fill"></i>
-                                     Cancel Picking Clip</button>
+                                    Cancel Picking Clip</button>
                             </div>
                             <div class="mb-3">
                                 <button type="button" [disabled]="!videoForm.valid || saving || noVideoEditorChanges()"
@@ -421,9 +437,12 @@
                                 <h3>Build Video</h3>
                                 <div class="mb-3">
                                     <p>Use the options below to determine the resolution and license you want. Please
-                                        remember that once you have a license you then only need to pay for build costs
-                                        in
-                                        future for the layers used.</p>
+                                        remember that once you have a license for a collection at a given resolution
+                                        then you only need to pay for build costs on future use of that collection at
+                                        the same resolution and license level. Also there is the option of subscriptions
+                                        which can remove these costs on a monthly basis.</p>
+                                    <p>You will be emailed upon completion and we will keep your video file for 7 days
+                                        on our servers.</p>
                                 </div>
                                 <div class="row">
                                     <div class="mb-3 col">
@@ -447,37 +466,10 @@
                                 </div>
                                 <div class="mb-3">
                                     <p>Cost</p>
-                                    <ul class="list-group">
-                                        <li class="list-group-item" *ngFor="let videoCollection of videoCollections">
-                                            <h6 class="float-start">{{License[licenseControl.value]}}
-                                                {{displayResolution(resolutionControl.value)}} license for
-                                                collection: {{videoCollection.collectionName}}</h6>
-                                            <h6 class="float-end">{{ getCollectionLicenseCost(videoCollection) |
-                                                currency:"GBP":"symbol"}}
-                                            </h6>
-                                        </li>
-                                        <li class="list-group-item">
-                                            <h5 class="float-start">License Total</h5>
-                                            <h5 class="float-end">{{collectionLicensesCost | currency:"GBP":"symbol"}}
-                                            </h5>
-                                        </li>
-                                        <li class="list-group-item" *ngIf="collectionLicensesCost > 0">
-                                            <ngb-alert [type]="'info'" [dismissible]="false"><i class="bi bi-info-circle-fill"></i> You
-                                                could save money on license costs with one of our <a [routerLink]="['/subscriptions']"><i class="bi bi-repeat"></i> Subscriptions</a> </ngb-alert>
-                                        </li>
-                                        <li class="list-group-item">
-                                            <h5 class="float-start">Build Total</h5>
-                                            <h5 class="float-end">{{buildCost | currency:"GBP":"symbol"}}</h5>
-                                        </li>
-                                        <li class="list-group-item" *ngIf="buildCost > 0">
-                                            <ngb-alert [type]="'info'" [dismissible]="false"><i class="bi bi-info-circle-fill"></i> You
-                                                could save money on build costs with one of our <a [routerLink]="['/subscriptions']"><i class="bi bi-repeat"></i> Subscriptions</a> </ngb-alert>
-                                        </li>
-                                        <li class="list-group-item">
-                                            <h3 class="float-start">Total</h3>
-                                            <h3 class="float-end">{{total | currency:"GBP":"symbol"}}</h3>
-                                        </li>
-                                    </ul>
+                                    <app-costlist [collections]="videoCollections" [license]="licenseControl.value"
+                                        [resolution]="resolutionControl.value" [userCollections]="userCollections"
+                                        [subscriptionProduct]="subscriptionProduct" (totalEvent)="updateTotal($event)">
+                                    </app-costlist>
                                 </div>
                                 <div class="mb-3">
                                     <app-builddisplaystatus [file]="audioFileService.file" [isBuilding]="isBuilding"
@@ -509,28 +501,10 @@
                                 <p>Please check all details before you pay</p>
                                 <div class="mb-3">
                                     <p>Cost</p>
-                                    <ul class="list-group">
-                                        <li class="list-group-item" *ngFor="let videoCollection of videoCollections">
-                                            <h6 class="float-start">{{License[licenseControl.value]}} license for
-                                                collection: {{videoCollection.collectionName}}</h6>
-                                            <h6 class="float-end">{{ getCollectionLicenseCost(videoCollection) |
-                                                currency:"GBP":"symbol"}}
-                                            </h6>
-                                        </li>
-                                        <li class="list-group-item">
-                                            <h5 class="float-start">License Total</h5>
-                                            <h5 class="float-end">{{collectionLicensesCost | currency:"GBP":"symbol"}}
-                                            </h5>
-                                        </li>
-                                        <li class="list-group-item">
-                                            <h5 class="float-start">Build Total</h5>
-                                            <h5 class="float-end">{{buildCost | currency:"GBP":"symbol"}}</h5>
-                                        </li>
-                                        <li class="list-group-item">
-                                            <h3 class="float-start">Total</h3>
-                                            <h3 class="float-end">{{total | currency:"GBP":"symbol"}}</h3>
-                                        </li>
-                                    </ul>
+                                    <app-costlist [collections]="videoCollections" [license]="licenseControl.value"
+                                        [resolution]="resolutionControl.value" [userCollections]="userCollections"
+                                        [subscriptionProduct]="subscriptionProduct" (totalEvent)="updateTotal($event)">
+                                    </app-costlist>
                                 </div>
                                 <div class="mb-3">
                                     <ngx-stripe-payment [elementsOptions]="elementOptions"
@@ -555,8 +529,8 @@
             </ul>
             <div [ngbNavOutlet]="nav"></div>
             <div class="mb-3">
-                <button type="button" class="btn btn-danger" (click)="exitEditor()" [disabled]="isWaitingForCreate || saving"><i
-                        class="bi bi-dash-circle-fill"></i>
+                <button type="button" class="btn btn-danger" (click)="exitEditor()"
+                    [disabled]="isWaitingForCreate || saving"><i class="bi bi-dash-circle-fill"></i>
                     Exit Editor</button>
             </div>
 

@@ -42,6 +42,7 @@ import { HelpComponent } from './help/help.component';
 import { SubscriptionsComponent } from './subscriptions/subscriptions.component';
 import { SubscriptionconfirmationComponent } from './subscriptionconfirmation/subscriptionconfirmation.component';
 import { BuildassettableComponent } from './buildassettable/buildassettable.component';
+import { CostlistComponent } from './costlist/costlist.component';
 
 /**
  * Here we pass the configuration parameters to create an MSAL instance.
@@ -111,7 +112,8 @@ export function MSALGuardConfigFactory(): MsalGuardConfiguration {
     HelpComponent,
     SubscriptionsComponent,
     SubscriptionconfirmationComponent,
-    BuildassettableComponent
+    BuildassettableComponent,
+    CostlistComponent
   ],
   imports: [
     BrowserModule,

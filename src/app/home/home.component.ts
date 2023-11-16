@@ -1,4 +1,7 @@
 import { Component, OnInit } from '@angular/core';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { TransitioninfoComponent } from '../transitioninfo/transitioninfo.component';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-home',
@@ -7,10 +10,14 @@ import { Component, OnInit } from '@angular/core';
 })
 export class HomeComponent implements OnInit {
 
-  constructor() { }
+  constructor(private modalService: NgbModal) { }
 
-  loginDisplay = false;
+  storageUrl = environment.storageUrl;
 
   ngOnInit(): void {
+  }
+
+  showTransitions = () =>{
+    this.modalService.open(TransitioninfoComponent);
   }
 }

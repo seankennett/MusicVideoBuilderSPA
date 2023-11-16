@@ -338,24 +338,8 @@ export class MusicVideoBuilderComponent implements OnInit {
   }
 
   get videoCollections(): Collection[] {
-    var allVideoDisplayLayerIds = this.editorVideoClipsFull.filter(c => c.clipDisplayLayers != null).flatMap(c => c.clipDisplayLayers).map(c => c.displayLayerId).filter((value, index, self) => self.indexOf(value) === index);
+    var allVideoDisplayLayerIds = this.editorVideoClipsFull.filter(c => c.clipDisplayLayers != null).flatMap(c => c.clipDisplayLayers).map(c => c.displayLayerId);
     return this.collections.filter(c => c.displayLayers.some(d => allVideoDisplayLayerIds.includes(d.displayLayerId)));
-  }
-
-  private get licensedUserCollections(): UserCollection[] {
-    return this.userCollections.filter(u => u.resolution == this.resolutionControl.value && u.license == this.licenseControl.value);
-  }
-
-  get licensedCollections(): Collection[] {
-    return this.videoCollections.filter(v => this.licensedUserCollections.some(l => l.collectionId === v.collectionId));
-  }
-
-  private get unlicensedCollections(): Collection[] {
-    return this.videoCollections.filter(v => !this.licensedUserCollections.some(l => l.collectionId === v.collectionId));
-  }
-
-  getCollectionLicenseCost = (videoCollection: Collection) => {
-    return this.licensedCollections.some(l => l.collectionId === videoCollection.collectionId) ? 0 : this.collectionLicenseCost
   }
 
   saveVideo = () => {
@@ -826,55 +810,9 @@ export class MusicVideoBuilderComponent implements OnInit {
     return this.resolutionList.find(r => r.resolution === resolution)?.displayName
   }
 
-  get buildCost() {
-    if (this.subscriptionProduct
-      && (this.subscriptionProduct.productId === Subscriptionproducts.Builder || this.subscriptionProduct.productId === Subscriptionproducts.LicenseBuilder)) {
-      return 0;
-    }
-
-    return (this.resolutionControl.value - 1) * 5;
-  }
-
-  get collectionLicenseCost() {
-    var collectionResolutionCost = 0;
-    switch (this.resolutionControl.value) {
-      case Resolution.Hd:
-        collectionResolutionCost = 25;
-        break;
-      case Resolution.FourK:
-        collectionResolutionCost = 50;
-        break;
-    }
-
-    return collectionResolutionCost * this.licenseFactor(this.licenseControl.value);
-  }
-
-  get collectionLicensesCost() {
-    if (this.subscriptionProduct
-      && (this.subscriptionProduct.productId === Subscriptionproducts.License || this.subscriptionProduct.productId === Subscriptionproducts.LicenseBuilder)) {
-      return 0;
-    }
-
-    return this.collectionLicenseCost * this.unlicensedCollections.length;
-  }
-
-  licenseFactor = (license: License) => {
-    switch (license) {
-      case License.Standard:
-        return 1;
-      case License.Enhanced:
-        return 3;
-      default:
-        return 0;
-    }
-  }
-
-  get total() {
-    if (this.resolutionControl.value === Resolution.Free) {
-      return 0;
-    }
-
-    return this.buildCost + this.collectionLicensesCost;
+  total = 0;
+  updateTotal = (newTotal: number) =>{
+    this.total = newTotal;
   }
 
   cardOptions: StripeCardElementOptions = {
