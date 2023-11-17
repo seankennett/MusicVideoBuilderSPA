@@ -35,6 +35,8 @@ import { SubscriptionService } from '../subscription.service';
 import { Subscriptionproduct } from '../subscriptionproduct';
 import { Subscriptionproducts } from '../subscriptionproducts';
 import { ConfirmationmodalComponent } from '../confirmationmodal/confirmationmodal.component';
+import { ResolutionmodalComponent } from '../resolutionmodal/resolutionmodal.component';
+import { LicensemodalComponent } from '../licensemodal/licensemodal.component';
 
 const millisecondsInSecond = 1000;
 const secondsInMinute = 60;
@@ -229,6 +231,14 @@ export class MusicVideoBuilderComponent implements OnInit {
   showClipInfo = (clip: Clip) => {
     let modal = this.modalService.open(ClipinfoComponent, { size: 'xl' });
     modal.componentInstance.clip = clip;
+  }
+
+  showResolutions = () =>{
+    this.modalService.open(ResolutionmodalComponent, { size: 'xl' });
+  }
+
+  showLicenses = () =>{
+    this.modalService.open(LicensemodalComponent, { size: 'xl' });
   }
 
   videoNameControl = this.formBuilder.control('', [Validators.required, Validators.maxLength(50), Validators.pattern("[A-z0-9_-]+")]);

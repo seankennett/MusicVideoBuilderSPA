@@ -192,6 +192,9 @@
                                             <option [ngValue]="4" [disabled]="isInvalidSelection(4)">
                                                 4
                                             </option>
+                                            <option [ngValue]="8" [disabled]="isInvalidSelection(8)">
+                                                8
+                                            </option>
                                             <option [ngValue]="16" [disabled]="isInvalidSelection(16)">
                                                 16
                                             </option>
@@ -446,7 +449,8 @@
                                 </div>
                                 <div class="row">
                                     <div class="mb-3 col">
-                                        <label for="resolution" class="form-label">Resolution</label>
+                                        <label for="resolution" class="form-label">Resolution</label><a (click)="showResolutions()" [routerLink]="[]"><i
+                                                class="bi bi-tv ms-1"></i></a>
                                         <select id="resolution" formControlName="resolutionControl" class="form-control"
                                             (change)="resolutionChange()">
                                             <option [ngValue]="resolution.resolution"
@@ -456,7 +460,8 @@
                                         </select>
                                     </div>
                                     <div class="mb-3 col" *ngIf="canLicense">
-                                        <label for="license" class="form-label">License</label>
+                                        <label for="license" class="form-label">License</label><a (click)="showLicenses()" [routerLink]="[]"><i
+                                            class="bi bi-file-text-fill ms-1"></i></a> 
                                         <select id="license" formControlName="licenseControl" class="form-control">
                                             <option [ngValue]="license" *ngFor="let license of licenseList">
                                                 {{License[license]}}
