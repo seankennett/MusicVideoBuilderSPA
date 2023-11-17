@@ -1,0 +1,79 @@
+<div class="modal-header">
+    <h4 class="modal-title">Pricing</h4>
+    <button type="button" class="btn-close" aria-label="Close" (click)="activeModal.dismiss()"></button>
+</div>
+<div class="modal-body">
+    <p>This is the price per collection.</p>
+    <table class="table table-sm">
+        <thead class="table-light">
+            <tr>
+                <th scope="col">Resolution</th>
+                <th scope="col">Personal</th>
+                <th scope="col">Standard</th>
+                <th scope="col">Enhanced</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <th scope="row">Free</th>
+                <td>£0</td>
+                <td>N/A</td>
+                <td>N/A</td>
+            </tr>
+            <tr>
+                <th scope="row">HD</th>
+                <td>N/A</td>
+                <td>£25</td>
+                <td>£75</td>
+            </tr>
+            <tr>
+                <th scope="row">4K</th>
+                <td>N/A</td>
+                <td>£75</td>
+                <td>£150</td>
+            </tr>
+        </tbody>
+    </table>
+    <p>This is the price per output video.</p>
+    <table class="table table-sm">
+        <thead class="table-light">
+            <tr>
+                <th scope="col">Resolution</th>
+                <th scope="col">Build Cost</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <th scope="row">Free</th>
+                <td>£0</td>
+            </tr>
+            <tr>
+                <th scope="row">HD</th>
+                <td>£5</td>
+            </tr>
+            <tr>
+                <th scope="row">4K</th>
+                <td>£10</td>
+            </tr>
+        </tbody>
+    </table>
+    <p>To work out your total for a video you need to decide which resolution and license you need. Then you take the
+        license cost muliplied by the number of collections and add it to the build cost.</p>
+    <p>If I wanted a HD standard license for a video which used collection X and collection Y then my total would be (B
+        is build cost):</p>
+    <pre><code>X + Y + B = £25 + £25 + £5 = £55</code></pre>
+    <p>Once you have a license at a given resolution for a collection then you will no longer be charged license fees.
+    </p>
+    <p>Lets continue the example assuming you paid for the video. Now you modify the video to have an extra collection Z
+        then under the same license and reolution the total would be:</p>
+    <pre><code>X + Y + Z + B = £0 + £0 + £25 + £5 = £30</code></pre>
+    <p>There are also <a [routerLink]="['/subscriptions']"><i class="text-primary bi bi-repeat"></i>Subscriptions</a>
+        that can eliminate the build and license costs when active.</p>
+    <p>If you have an active license or license builder subscription then you won't pay the license fee for any
+        collection on the site. Your license will be valid as long as your subscription is active. The builder and
+        license builder subscription works similarily, eliminating build costs.</p>
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="activeModal.dismiss()"><i
+            class="bi bi-dash-circle-fill"></i> Close</button>
+</div>

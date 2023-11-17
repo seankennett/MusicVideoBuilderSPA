@@ -6,6 +6,11 @@ import { MsalService, MsalBroadcastService, MSAL_GUARD_CONFIG, MsalGuardConfigur
 import { InteractionType, InteractionStatus, PopupRequest, RedirectRequest, AuthenticationResult } from '@azure/msal-browser';
 
 import { b2cPolicies } from './auth-config';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { TandcmodalComponent } from './tandcmodal/tandcmodal.component';
+import { PricingmodalComponent } from './pricingmodal/pricingmodal.component';
+import { LicensemodalComponent } from './licensemodal/licensemodal.component';
+import { ResolutionmodalComponent } from './resolutionmodal/resolutionmodal.component';
 
 @Component({
   selector: 'app-root',
@@ -22,7 +27,8 @@ export class AppComponent {
   constructor(
     @Inject(MSAL_GUARD_CONFIG) private msalGuardConfig: MsalGuardConfiguration,
     private authService: MsalService,
-    private msalBroadcastService: MsalBroadcastService
+    private msalBroadcastService: MsalBroadcastService,
+    private modalService: NgbModal
   ) { }
 
   ngOnInit(): void {
@@ -75,5 +81,21 @@ export class AppComponent {
   ngOnDestroy(): void {
     this._destroying$.next(undefined);
     this._destroying$.complete();
+  }
+
+  showTerms = () => {
+    this.modalService.open(TandcmodalComponent, { size: 'xl' });
+  }
+
+  showPricing = () => {
+    this.modalService.open(PricingmodalComponent, { size: 'xl' });
+  }
+
+  showLicenses = () => {
+    this.modalService.open(LicensemodalComponent, { size: 'xl' });
+  }
+
+  showResolutions = () => {
+    this.modalService.open(ResolutionmodalComponent, { size: 'xl' });
   }
 }

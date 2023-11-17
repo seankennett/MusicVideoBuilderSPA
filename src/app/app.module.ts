@@ -43,6 +43,10 @@ import { SubscriptionsComponent } from './subscriptions/subscriptions.component'
 import { SubscriptionconfirmationComponent } from './subscriptionconfirmation/subscriptionconfirmation.component';
 import { BuildassettableComponent } from './buildassettable/buildassettable.component';
 import { CostlistComponent } from './costlist/costlist.component';
+import { TandcmodalComponent } from './tandcmodal/tandcmodal.component';
+import { PricingmodalComponent } from './pricingmodal/pricingmodal.component';
+import { LicensemodalComponent } from './licensemodal/licensemodal.component';
+import { ResolutionmodalComponent } from './resolutionmodal/resolutionmodal.component';
 
 /**
  * Here we pass the configuration parameters to create an MSAL instance.
@@ -113,7 +117,11 @@ export function MSALGuardConfigFactory(): MsalGuardConfiguration {
     SubscriptionsComponent,
     SubscriptionconfirmationComponent,
     BuildassettableComponent,
-    CostlistComponent
+    CostlistComponent,
+    TandcmodalComponent,
+    PricingmodalComponent,
+    LicensemodalComponent,
+    ResolutionmodalComponent
   ],
   imports: [
     BrowserModule,
