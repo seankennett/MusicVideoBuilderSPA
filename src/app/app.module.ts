@@ -47,6 +47,10 @@ import { TandcmodalComponent } from './tandcmodal/tandcmodal.component';
 import { PricingmodalComponent } from './pricingmodal/pricingmodal.component';
 import { LicensemodalComponent } from './licensemodal/licensemodal.component';
 import { ResolutionmodalComponent } from './resolutionmodal/resolutionmodal.component';
+import { ResolutioninfoComponent } from './resolutioninfo/resolutioninfo.component';
+import { LicenseinfoComponent } from './licenseinfo/licenseinfo.component';
+import { PricinginfoComponent } from './pricinginfo/pricinginfo.component';
+import { SubscriptioninfoComponent } from './subscriptioninfo/subscriptioninfo.component';
 
 /**
  * Here we pass the configuration parameters to create an MSAL instance.
@@ -121,7 +125,11 @@ export function MSALGuardConfigFactory(): MsalGuardConfiguration {
     TandcmodalComponent,
     PricingmodalComponent,
     LicensemodalComponent,
-    ResolutionmodalComponent
+    ResolutionmodalComponent,
+    ResolutioninfoComponent,
+    LicenseinfoComponent,
+    PricinginfoComponent,
+    SubscriptioninfoComponent
   ],
   imports: [
     BrowserModule,

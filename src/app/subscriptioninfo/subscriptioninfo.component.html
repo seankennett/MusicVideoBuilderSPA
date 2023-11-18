@@ -1,0 +1,23 @@
+<div class="row">
+    <div *ngFor="let subscriptionProduct of subscriptionProducts" class="col mb-3">
+        <div class="card">
+            <div class="text-center text-primary">
+                <i [class]="'big-icon bi bi-' + subscriptionProduct.icon"></i>
+            </div>
+            <div class="text-center">
+                <h5 class="card-title">{{ subscriptionProduct.subscriptionName }}</h5>
+                <h5 class="card-title">£{{ subscriptionProduct.amount / 100 }} per month</h5>
+            </div>
+            <div class="card-body text-center">
+                {{subscriptionProduct.description}}
+            </div>
+            <div class="card-footer text-center" *ngIf="showCheckout">
+                <button type="button" class="btn btn-success" [disabled]="isWaitingForResponse"
+                    (click)="checkout(subscriptionProduct)"><i
+                        class="bi bi-credit-card-fill"></i>
+                    Checkout <span class="spinner-border spinner-border-sm ms-1" role="status"
+                        aria-hidden="true" *ngIf="isWaitingForResponse"></span></button>
+            </div>
+        </div>
+    </div>
+</div>
