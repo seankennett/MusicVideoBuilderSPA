@@ -23,7 +23,7 @@
     <p>Watch the tutorial or scroll to the steps below to see the website in action.</p>
     <div class="text-center mb-3">
         <video width="384" height="216" controls class="rounded" [poster]="storageUrl + '/custom-pages/384x216VideoPoster.png'" preload="none">
-            <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
+            <source [src]="storageUrl + '/custom-pages/Tutorial.mp4'" type="video/mp4">
         </video>
     </div>
     <p class="lead">There are 3 steps to create your video:</p>
