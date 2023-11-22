@@ -5,6 +5,7 @@ import { Resolution } from '../resolution';
 import { UserCollection } from '../usercollection';
 import { Subscriptionproduct } from '../subscriptionproduct';
 import { Subscriptionproducts } from '../subscriptionproducts';
+import { PricingService } from '../pricing.service';
 
 @Component({
   selector: 'app-costlist',
@@ -12,6 +13,9 @@ import { Subscriptionproducts } from '../subscriptionproducts';
   styleUrls: ['./costlist.component.scss']
 })
 export class CostlistComponent implements OnChanges {
+
+  constructor(private pricingService: PricingService){}
+
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['license'] && changes['license'].currentValue !== changes['license'].previousValue ||
       changes['resolution'] && changes['resolution'].currentValue !== changes['resolution'].previousValue) {
@@ -34,40 +38,15 @@ export class CostlistComponent implements OnChanges {
     this.licensedCollections = this.collections.filter(v => licensedUserCollections.some(l => l.collectionId === v.collectionId))
     this.unlicensedCollections = this.collections.filter(v => !licensedUserCollections.some(l => l.collectionId === v.collectionId));
 
-    this.buildCost = (this.resolution - 1) * 5;
+    this.buildCost = this.pricingService.pricePerBuild(this.resolution);
+    this.buildTotal = this.pricingService.buildTotal(this.resolution, this.subscriptionProduct);
 
-    var buildTotal = this.buildCost;
-    if (this.hasBuilderSubscription) {
-      buildTotal = 0;
-    }
+    this.collectionLicenseCost = this.pricingService.pricePerCollection(this.license, this.resolution);
 
-    this.buildTotal = buildTotal;
+    this.licensesTotal = this.pricingService.licensesTotal(this.license, this.resolution, this.unlicensedCollections.length, this.subscriptionProduct);    
 
-    var collectionResolutionCost = 0;
-    switch (this.resolution) {
-      case Resolution.Hd:
-        collectionResolutionCost = 25;
-        break;
-      case Resolution.FourK:
-        collectionResolutionCost = 50;
-        break;
-    }
-
-    this.collectionLicenseCost = collectionResolutionCost * this.licenseFactor(this.license);
-
-    var licensesTotal = 0;
-    if (!this.hasLicenseSubscription) {
-      licensesTotal = this.collectionLicenseCost * this.unlicensedCollections.length
-    }
-    this.licensesTotal = licensesTotal;
-
-    var total = 0;
-    if (this.resolution !== Resolution.Free) {
-      total = this.buildTotal + this.licensesTotal;
-    }
-
-    this.total = total;
-    this.totalEvent.emit(total);
+    this.total = this.pricingService.total(this.license, this.resolution, this.unlicensedCollections.length, this.subscriptionProduct);
+    this.totalEvent.emit(this.total);
   }
 
   @Input() collections!: Collection[];
@@ -114,16 +93,5 @@ export class CostlistComponent implements OnChanges {
 
   displayResolution = (resolution: Resolution) => {
     return this.resolutionList.find(r => r.resolution === resolution)?.displayName
-  }
-
-  licenseFactor = (license: License) => {
-    switch (license) {
-      case License.Standard:
-        return 1;
-      case License.Enhanced:
-        return 3;
-      default:
-        return 0;
-    }
   }
 }
