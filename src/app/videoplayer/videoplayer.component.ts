@@ -124,8 +124,10 @@ export class VideoplayerComponent implements OnInit {
 
   togglePlay = () => {
     if (!this.isPlaying) {
-      if (this.hasAudioFile === false && this.file !== null){
+      this.audioPlayer
+      if (this.hasAudioFile === false && this.file !== null || this.file && this.file?.name !== this.audioPlayer.title){
           this.audioPlayer.src = URL.createObjectURL(this.file);
+          this.audioPlayer.title = this.file.name;
       }else if (this.hasAudioFile === true && this.file === null){
         this.audioPlayer = new Audio();
       }
