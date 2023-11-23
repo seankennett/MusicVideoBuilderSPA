@@ -64,11 +64,13 @@ export class MusicVideoBuilderComponent implements OnInit {
                 this.subscriptionProduct = subscriptionProduct;
                 this.buildAssets = buildAssets;
                 var id = Number(this.route.firstChild?.snapshot?.params['id']);
-                var tab = Number(this.route.firstChild?.snapshot?.queryParams['tab']);
+                var tab = Number(this.route.snapshot.queryParamMap.get('tab'));
+                var index = Number(this.route.snapshot.queryParamMap.get('index'));
+                var clipId = Number(this.route.snapshot.queryParamMap.get('clipId'));
                 if (!isNaN(id) && !isNaN(tab)) {
                   var video = videos.find(x => x.videoId === id);
                   if (video) {
-                    this.editVideo({ video: video, tab: tab }, 0);
+                    this.editVideoInternal({ video: video, tab: tab }, index, clipId);
                   }
                 }
                 this.videos = videos;
@@ -233,11 +235,11 @@ export class MusicVideoBuilderComponent implements OnInit {
     modal.componentInstance.clip = clip;
   }
 
-  showResolutions = () =>{
+  showResolutions = () => {
     this.modalService.open(ResolutionmodalComponent, { size: 'xl' });
   }
 
-  showLicenses = () =>{
+  showLicenses = () => {
     this.modalService.open(LicensemodalComponent, { size: 'xl' });
   }
 
@@ -296,30 +298,37 @@ export class MusicVideoBuilderComponent implements OnInit {
     this.editorLoading = true;
     // PLEASE WORK OUT HOW TO DO THIS PROPERLY!
     timer(delay).subscribe(() => {
-      this.toggleEditor();
-      this.setVideoId(videoRoute.video.videoId, videoRoute.tab);
-      this.videoNameControl.setValue(videoRoute.video.videoName);
-      this.bpmControl.setValue(videoRoute.video.bpm);
-      this.formatControl.setValue(videoRoute.video.format);
-      this.videoDelayMillisecondsControl.setValue(videoRoute.video.videoDelayMilliseconds);
-
-      if (videoRoute.video.videoClips.length > 32) {
-        this.clipsPerBlock = 16;
-      }
-      else if (videoRoute.video.videoClips.length > 8) {
-        this.clipsPerBlock = 4;
-      }
-
-      this.setTimelineEnd(videoRoute.video.videoClips.length + 1);
-
-      videoRoute.video.videoClips.forEach(vc => {
-        this.videoClipsFormArray.push(this.formBuilder.control(vc));
-      });
-
-      this.unchangedVideo = { ...this.editorVideo };
-
+      this.editVideoInternal(videoRoute, null, null);
       this.editorLoading = false;
     });
+  }
+
+  private editVideoInternal = (videoRoute: { video: Video, tab: number }, cloneIndex: number | null, cloneClipId: number | null) => {
+    this.toggleEditor();
+    this.setVideoId(videoRoute.video.videoId, videoRoute.tab);
+    this.videoNameControl.setValue(videoRoute.video.videoName);
+    this.bpmControl.setValue(videoRoute.video.bpm);
+    this.formatControl.setValue(videoRoute.video.format);
+    this.videoDelayMillisecondsControl.setValue(videoRoute.video.videoDelayMilliseconds);
+
+    if (videoRoute.video.videoClips.length > 32) {
+      this.clipsPerBlock = 16;
+    }
+    else if (videoRoute.video.videoClips.length > 8) {
+      this.clipsPerBlock = 4;
+    }
+
+    this.setTimelineEnd(videoRoute.video.videoClips.length + 1);
+
+    videoRoute.video.videoClips.forEach(vc => {
+      this.videoClipsFormArray.push(this.formBuilder.control(vc));
+    });
+
+    this.unchangedVideo = { ...this.editorVideo };
+
+    if (cloneIndex && cloneClipId) {
+      this.videoClipsFormArray.controls[cloneIndex] = this.formBuilder.control(<Videoclip>{ clipId: cloneClipId });
+    }
   }
 
   noVideoEditorChanges = () => {
@@ -381,7 +390,7 @@ export class MusicVideoBuilderComponent implements OnInit {
         (succes) => {
           this.toggleEditor();
         },
-        (fail) =>{        
+        (fail) => {
         });
     } else {
       this.toggleEditor();
@@ -544,6 +553,14 @@ export class MusicVideoBuilderComponent implements OnInit {
         this.setTimelineStart(this.videoClipsFormArray.length);
       }
     }
+  }
+
+  editClip = (videoClip: Videoclip) => {
+    this.router.navigateByUrl('/clipBuilder/' + videoClip.clipId + '?return=' + encodeURI(window.location.pathname + window.location.search));
+  }
+
+  editClipAsClone = (videoClip: Videoclip, index: number) => {
+    this.router.navigateByUrl('/clipBuilder/?return=' + encodeURI(window.location.pathname + window.location.search) + '&cloneId=' + videoClip.clipId + '&index=' + index);
   }
 
   get displayLayers() {
@@ -821,7 +838,7 @@ export class MusicVideoBuilderComponent implements OnInit {
   }
 
   total = 0;
-  updateTotal = (newTotal: number) =>{
+  updateTotal = (newTotal: number) => {
     this.total = newTotal;
   }
 

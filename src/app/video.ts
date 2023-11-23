@@ -1,4 +1,3 @@
-import { Clip } from "./clip";
 import { Formats } from "./formats";
 import { Videoclip } from "./videoclip";
 

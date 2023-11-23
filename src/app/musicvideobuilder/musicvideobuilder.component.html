@@ -269,19 +269,30 @@
                                                                 <button type="button" class="btn btn-danger me-1"
                                                                     (click)="removeClip(i)">
                                                                     <i class="bi bi-dash-circle-fill"></i></button>
-                                                            </span>
-                                                            <span [ngbTooltip]="'Swap this clip'"
-                                                                *ngIf="clipsPerBlock === 1">
-                                                                <button type="button" class="btn btn-primary me-1"
-                                                                    (click)="toggleClipPicker(i)">
-                                                                    <i class="bi bi-arrow-repeat"></i></button>
-                                                            </span>
+                                                            </span>                                                            
                                                             <span [ngbTooltip]="'Move forward'"
                                                                 *ngIf="i + 2 * clipsPerBlock <= videoClipsFormArray.length">
                                                                 <button type="button" class="btn btn-secondary"
                                                                     (click)="moveForward(i)">
                                                                     <i
                                                                         class="bi bi-arrow-right-circle-fill"></i></button>
+                                                            </span>
+                                                        </li>
+                                                        <li class="list-group-item" *ngIf="clipsPerBlock === 1">
+                                                            <span [ngbTooltip]="'Swap this clip'">
+                                                                <button type="button" class="btn btn-primary me-1"
+                                                                    (click)="toggleClipPicker(i)">
+                                                                    <i class="bi bi-arrow-repeat"></i></button>
+                                                            </span>
+                                                            <span [ngbTooltip]="'Edit all instances of this clip'">
+                                                                <button type="button" class="btn btn-primary me-1"
+                                                                    (click)="editClip(videoClipControl.value)">
+                                                                    <i class="bi bi-pencil-square"></i></button>
+                                                            </span>
+                                                            <span [ngbTooltip]="'Edit as new clone of this clip.  You must have your work saved to use this.'">
+                                                                <button type="button" class="btn btn-success" [disabled]="noVideoEditorChanges() === false"
+                                                                    (click)="editClipAsClone(videoClipControl.value, i)">
+                                                                    <i class="bi bi-pencil-square"></i></button>
                                                             </span>
                                                         </li>
                                                         <li class="list-group-item">

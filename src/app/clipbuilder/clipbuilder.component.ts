@@ -2,7 +2,7 @@ import { Location } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { AbstractControl, UntypedFormArray, UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
 import { Clip } from '../clip';
 import { ClipService } from '../clip.service';
@@ -28,18 +28,29 @@ const beatsPerLayer = 4;
 })
 export class ClipBuilderComponent implements OnInit {
 
-  constructor(private formBuilder: UntypedFormBuilder, private collectionService: CollectionService, private clipService: ClipService, private route: ActivatedRoute, private location: Location, private modalService: NgbModal) { }
+  constructor(private formBuilder: UntypedFormBuilder, private collectionService: CollectionService, private clipService: ClipService, private route: ActivatedRoute,
+    private location: Location, private modalService: NgbModal, private router: Router) { }
 
   ngOnInit(): void {
     this.clipService.getAll().subscribe((clips: Clip[]) => {
       this.collectionService.getAll().subscribe((collections: Collection[]) => {
         this.clips = clips;
         this.collections = collections
-        var id = Number(this.route.firstChild?.snapshot?.params['id']);
-        if (!isNaN(id)) {
+        var idObj = this.route.firstChild?.snapshot?.params['id'];
+        if (idObj && idObj !== '') {
+          var id = Number(idObj);
           var clip = clips.find(x => x.clipId === id);
           if (clip) {
             this.editClip(clip);
+          }
+        } else {
+          var cloneIdObj = this.route.snapshot.queryParamMap.get('cloneId');
+          if (cloneIdObj) {
+            var cloneId = Number(cloneIdObj);
+            var clip = clips.find(x => x.clipId === cloneId);
+            if (clip) {
+              this.cloneClip(clip);
+            }
           }
         }
         this.pageLoading = false;
@@ -59,9 +70,9 @@ export class ClipBuilderComponent implements OnInit {
   setClipId = (clipId: number) => {
     this.clipId = clipId;
     if (clipId === 0) {
-      this.location.replaceState('/clipBuilder/');
+      this.location.replaceState('/clipBuilder/' + window.location.search);
     } else {
-      this.location.replaceState('/clipBuilder/' + clipId);
+      this.location.replaceState('/clipBuilder/' + clipId + window.location.search);
     }
   }
 
@@ -291,13 +302,17 @@ export class ClipBuilderComponent implements OnInit {
   }
 
   cancelEditor = () => {
-    if (this.noClipChanges() === false) {
+    var returnUrl = this.route.snapshot.queryParamMap.get('return');
+    if (returnUrl) {
+      this.router.navigateByUrl(returnUrl);
+    }
+    else if (this.noClipChanges() === false) {
       this.modalService.open(ConfirmationmodalComponent, { centered: true }).result.then(
         (succes) => {
           this.clearEditor();
           this.showEditor = false;
         },
-        (fail) =>{        
+        (fail) => {
         });
     } else {
       this.clearEditor();
@@ -470,16 +485,25 @@ export class ClipBuilderComponent implements OnInit {
         return throwError(() => new Error());
       })
     ).subscribe((clip: Clip) => {
-      this.saving = false;
-      if (this.clipId === 0) {
-        this.clips.push(clip);
-      } else {
-        let index = this.clips.findIndex(clip => clip.clipId === this.clipId);
-        this.clips[index] = clip;
+      var returnUrl = this.route.snapshot.queryParamMap.get('return');
+      if (returnUrl) {
+        var timelineIndex = this.route.snapshot.queryParamMap.get('index');
+        if (timelineIndex){
+          returnUrl = returnUrl + '&index=' + timelineIndex + '&clipId=' + clip.clipId;
+        }
+        this.router.navigateByUrl(returnUrl);
       }
-      this.clearEditor();
-      this.showEditor = false;
-
+      else {
+        this.saving = false;
+        if (this.clipId === 0) {
+          this.clips.push(clip);
+        } else {
+          let index = this.clips.findIndex(clip => clip.clipId === this.clipId);
+          this.clips[index] = clip;
+        }
+        this.clearEditor();
+        this.showEditor = false;
+      }
     });;
   }
 
