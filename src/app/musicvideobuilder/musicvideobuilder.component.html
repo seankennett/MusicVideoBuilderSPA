@@ -269,7 +269,7 @@
                                                                 <button type="button" class="btn btn-danger me-1"
                                                                     (click)="removeClip(i)">
                                                                     <i class="bi bi-dash-circle-fill"></i></button>
-                                                            </span>                                                            
+                                                            </span>
                                                             <span [ngbTooltip]="'Move forward'"
                                                                 *ngIf="i + 2 * clipsPerBlock <= videoClipsFormArray.length">
                                                                 <button type="button" class="btn btn-secondary"
@@ -289,8 +289,10 @@
                                                                     (click)="editClip(videoClipControl.value)">
                                                                     <i class="bi bi-pencil-square"></i></button>
                                                             </span>
-                                                            <span [ngbTooltip]="'Edit as new clone of this clip.  You must have your work saved to use this.'">
-                                                                <button type="button" class="btn btn-success" [disabled]="noVideoEditorChanges() === false"
+                                                            <span
+                                                                [ngbTooltip]="'Edit as new clone of this clip.  You must have your work saved to use this.'">
+                                                                <button type="button" class="btn btn-success"
+                                                                    [disabled]="noVideoEditorChanges() === false"
                                                                     (click)="editClipAsClone(videoClipControl.value, i)">
                                                                     <i class="bi bi-pencil-square"></i></button>
                                                             </span>
@@ -414,6 +416,16 @@
                                         </app-galleryplayer>
                                     </div>
                                 </div>
+                                <div class="mb-3">
+                                    <span
+                                        [ngbTooltip]="noVideoEditorChanges() === false ? 'You must have your work saved to use this.': ''">
+                                        <button type="button" class="btn btn-success" (click)="addNewClip()"
+                                            *ngIf="videoClipsFormArray.length > 0"
+                                            [disabled]="noVideoEditorChanges() === false">
+                                            <i class="bi bi-plus-circle-fill"></i>
+                                            Create New Clip</button>
+                                    </span>
+                                </div>
                                 <button type="button" class="btn btn-danger" (click)="toggleClipPicker(0)"
                                     *ngIf="videoClipsFormArray.length > 0"><i class="bi bi-dash-circle-fill"></i>
                                     Cancel Picking Clip</button>
@@ -460,7 +472,8 @@
                                 </div>
                                 <div class="row">
                                     <div class="mb-3 col">
-                                        <label for="resolution" class="form-label">Resolution</label><a (click)="showResolutions()" [routerLink]="[]"><i
+                                        <label for="resolution" class="form-label">Resolution</label><a
+                                            (click)="showResolutions()" [routerLink]="[]"><i
                                                 class="bi bi-tv ms-1"></i></a>
                                         <select id="resolution" formControlName="resolutionControl" class="form-control"
                                             (change)="resolutionChange()">
@@ -471,8 +484,9 @@
                                         </select>
                                     </div>
                                     <div class="mb-3 col" *ngIf="canLicense">
-                                        <label for="license" class="form-label">License</label><a (click)="showLicenses()" [routerLink]="[]"><i
-                                            class="bi bi-file-text-fill ms-1"></i></a> 
+                                        <label for="license" class="form-label">License</label><a
+                                            (click)="showLicenses()" [routerLink]="[]"><i
+                                                class="bi bi-file-text-fill ms-1"></i></a>
                                         <select id="license" formControlName="licenseControl" class="form-control">
                                             <option [ngValue]="license" *ngFor="let license of licenseList">
                                                 {{License[license]}}

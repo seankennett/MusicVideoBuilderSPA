@@ -51,6 +51,11 @@ export class ClipBuilderComponent implements OnInit {
             if (clip) {
               this.cloneClip(clip);
             }
+          } else {
+            var returnUrlObj = this.route.snapshot.queryParamMap.get('return');
+            if (returnUrlObj){
+              this.addNewClip();
+            }
           }
         }
         this.pageLoading = false;
@@ -488,8 +493,9 @@ export class ClipBuilderComponent implements OnInit {
       var returnUrl = this.route.snapshot.queryParamMap.get('return');
       if (returnUrl) {
         var timelineIndex = this.route.snapshot.queryParamMap.get('index');
-        if (timelineIndex){
-          returnUrl = returnUrl + '&index=' + timelineIndex + '&clipId=' + clip.clipId;
+        var replace = this.route.snapshot.queryParamMap.get('replace');
+        if (timelineIndex && replace){
+          returnUrl = returnUrl + '&index=' + timelineIndex + '&clipId=' + clip.clipId + '&replace=' + replace;
         }
         this.router.navigateByUrl(returnUrl);
       }

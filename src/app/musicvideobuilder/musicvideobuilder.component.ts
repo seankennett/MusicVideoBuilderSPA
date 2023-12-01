@@ -33,7 +33,6 @@ import { AudiomodalComponent } from '../audiomodal/audiomodal.component';
 import { ClipinfoComponent } from '../clipinfo/clipinfo.component';
 import { SubscriptionService } from '../subscription.service';
 import { Subscriptionproduct } from '../subscriptionproduct';
-import { Subscriptionproducts } from '../subscriptionproducts';
 import { ConfirmationmodalComponent } from '../confirmationmodal/confirmationmodal.component';
 import { ResolutionmodalComponent } from '../resolutionmodal/resolutionmodal.component';
 import { LicensemodalComponent } from '../licensemodal/licensemodal.component';
@@ -66,11 +65,12 @@ export class MusicVideoBuilderComponent implements OnInit {
                 var id = Number(this.route.firstChild?.snapshot?.params['id']);
                 var tab = Number(this.route.snapshot.queryParamMap.get('tab'));
                 var index = Number(this.route.snapshot.queryParamMap.get('index'));
+                var replace = this.route.snapshot.queryParamMap.get('replace') === 'true';
                 var clipId = Number(this.route.snapshot.queryParamMap.get('clipId'));
                 if (!isNaN(id) && !isNaN(tab)) {
                   var video = videos.find(x => x.videoId === id);
                   if (video) {
-                    this.editVideoInternal({ video: video, tab: tab }, index, clipId);
+                    this.editVideoInternal({ video: video, tab: tab }, index, clipId, replace);
                   }
                 }
                 this.videos = videos;
@@ -298,27 +298,18 @@ export class MusicVideoBuilderComponent implements OnInit {
     this.editorLoading = true;
     // PLEASE WORK OUT HOW TO DO THIS PROPERLY!
     timer(delay).subscribe(() => {
-      this.editVideoInternal(videoRoute, null, null);
+      this.editVideoInternal(videoRoute, null, null, null);
       this.editorLoading = false;
     });
   }
 
-  private editVideoInternal = (videoRoute: { video: Video, tab: number }, cloneIndex: number | null, cloneClipId: number | null) => {
+  private editVideoInternal = (videoRoute: { video: Video, tab: number }, cloneIndex: number | null, cloneClipId: number | null, replace: boolean | null) => {
     this.toggleEditor();
     this.setVideoId(videoRoute.video.videoId, videoRoute.tab);
     this.videoNameControl.setValue(videoRoute.video.videoName);
     this.bpmControl.setValue(videoRoute.video.bpm);
     this.formatControl.setValue(videoRoute.video.format);
-    this.videoDelayMillisecondsControl.setValue(videoRoute.video.videoDelayMilliseconds);
-
-    if (videoRoute.video.videoClips.length > 32) {
-      this.clipsPerBlock = 16;
-    }
-    else if (videoRoute.video.videoClips.length > 8) {
-      this.clipsPerBlock = 4;
-    }
-
-    this.setTimelineEnd(videoRoute.video.videoClips.length + 1);
+    this.videoDelayMillisecondsControl.setValue(videoRoute.video.videoDelayMilliseconds);    
 
     videoRoute.video.videoClips.forEach(vc => {
       this.videoClipsFormArray.push(this.formBuilder.control(vc));
@@ -327,8 +318,17 @@ export class MusicVideoBuilderComponent implements OnInit {
     this.unchangedVideo = { ...this.editorVideo };
 
     if (cloneIndex && cloneClipId) {
-      this.videoClipsFormArray.controls[cloneIndex] = this.formBuilder.control(<Videoclip>{ clipId: cloneClipId });
+        this.addClipPickerClipInternal(cloneClipId, cloneIndex, replace === false);
     }
+
+    if (this.videoClipsFormArray.length > 32) {
+      this.clipsPerBlock = 16;
+    }
+    else if (this.videoClipsFormArray.length > 8) {
+      this.clipsPerBlock = 4;
+    }
+
+    this.setTimelineEnd(this.videoClipsFormArray.length + 1);
   }
 
   noVideoEditorChanges = () => {
@@ -480,24 +480,27 @@ export class MusicVideoBuilderComponent implements OnInit {
   }
 
   addClipPickerClip = (clip: Clip) => {
-    var videoClip = <Videoclip>{
-      clipId: clip.clipId
-    }
-    this.showClipPicker = false;
     var isTimelineAtEnd = this.timelineEditorEndFinalIndex === this.videoClipsFormArray.length;
-    if (this.selectedClipEditIndex === this.videoClipsFormArray.length) {
-      this.videoClipsFormArray.push(this.formBuilder.control(videoClip));
-    } else if (this.isAdding === true) {
-      var newControl = this.formBuilder.control(videoClip);
-      this.videoClipsFormArray.insert(this.selectedClipEditIndex, newControl);
-    } else {
-      var existingControl = this.videoClipsFormArray.controls[this.selectedClipEditIndex];
-      existingControl.patchValue(videoClip);
-    }
-
+    this.addClipPickerClipInternal(clip.clipId, this.selectedClipEditIndex, this.isAdding);
     if (isTimelineAtEnd === true) {
       this.setTimelineEnd(this.videoClipsFormArray.length + 1)
     }
+  }
+
+  addClipPickerClipInternal = (clipId: number, selectedClipEditIndex: number, isAdding: boolean) =>{
+    var videoClip = <Videoclip>{
+      clipId: clipId
+    }
+    this.showClipPicker = false;
+    if (selectedClipEditIndex === this.videoClipsFormArray.length) {
+      this.videoClipsFormArray.push(this.formBuilder.control(videoClip));
+    } else if (isAdding === true) {
+      var newControl = this.formBuilder.control(videoClip);
+      this.videoClipsFormArray.insert(selectedClipEditIndex, newControl);
+    } else {
+      var existingControl = this.videoClipsFormArray.controls[selectedClipEditIndex];
+      existingControl.patchValue(videoClip);
+    }    
   }
 
   copyClip = (index: number, isAddToEnd: boolean) => {
@@ -560,7 +563,11 @@ export class MusicVideoBuilderComponent implements OnInit {
   }
 
   editClipAsClone = (videoClip: Videoclip, index: number) => {
-    this.router.navigateByUrl('/clipBuilder/?return=' + encodeURI(window.location.pathname + window.location.search) + '&cloneId=' + videoClip.clipId + '&index=' + index);
+    this.router.navigateByUrl('/clipBuilder/?return=' + encodeURI(window.location.pathname + window.location.search) + '&cloneId=' + videoClip.clipId + '&index=' + index + '&replace=true');
+  }
+
+  addNewClip = () =>{
+    this.router.navigateByUrl('/clipBuilder/?return=' + encodeURI(window.location.pathname + window.location.search) + '&index=' + this.selectedClipEditIndex + '&replace=' + !this.isAdding);
   }
 
   get displayLayers() {
