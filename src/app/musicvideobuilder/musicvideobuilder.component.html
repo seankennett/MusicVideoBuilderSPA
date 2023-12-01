@@ -522,7 +522,8 @@
                                         [subscriptionProduct]="subscriptionProduct" (totalEvent)="updateTotal($event)">
                                     </app-costlist>
                                 </div>
-                                <div class="mb-3">
+                                PAYMENT DISABLED FOR FEEDBACK
+                                <!-- <div class="mb-3">
                                     <ngx-stripe-payment [elementsOptions]="elementOptions"
                                         (change)="cardChange($event)"></ngx-stripe-payment>
                                 </div>
@@ -537,7 +538,7 @@
                                         <span class="spinner-border spinner-border-sm ms-1" role="status"
                                             aria-hidden="true" *ngIf="isWaitingForCreate"></span>
                                     </button>
-                                </div>
+                                </div> -->
                             </ng-container>
                         </ng-template>
                     </li>

@@ -41,8 +41,8 @@ export class SubscriptionsComponent implements OnInit {
       return throwError(() => new Error());
     })).subscribe(clientSecret => {
       this.stripeService.getInstance()?.initEmbeddedCheckout({ clientSecret }).then((checkout) => {
-        this.checkoutElement = checkout;
-        checkout.mount('#checkout');
+        // this.checkoutElement = checkout;
+        // checkout.mount('#checkout');
         this.isWaitingForResponse = false;
         this.activeTabId = 2;
       });
