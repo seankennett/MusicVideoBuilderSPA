@@ -1,27 +1,47 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { protectedResources } from './auth-config';
 import { Clip } from './clip';
 import { errorBody } from './errorhandler.interceptor';
 
+const ClipsKey = 'clips'
 @Injectable({
   providedIn: 'root'
 })
 export class ClipService {
 
-  url = protectedResources.clipApi.endpoint
-
   constructor(private http: HttpClient) { }
 
   post(clip : Clip) {
-    return this.http.post<Clip>(this.url, clip, {context: errorBody("Unable to save clip to server. Please try again.")});
+    var clips = this.getAll();
+    var dbClipIndex = clips.findIndex(x => x.clipId === clip.clipId);
+    if (dbClipIndex !== -1){
+      clips.splice(dbClipIndex, 1);
+    } else {
+      clip.clipId = clips.length + 1;
+    }
+
+    clips.push(clip);
+    
+    localStorage.setItem(ClipsKey, JSON.stringify(clips));
+
+    return clip;
   }
 
   getAll(){
-    return this.http.get<Clip[]>(this.url, {context: errorBody("Unable to get user's clips from server. Please refresh to try again.")});
+    var clipsString = localStorage.getItem(ClipsKey);
+    if (clipsString){
+      return JSON.parse(clipsString) as Clip[];
+    }
+    return [];
   }
 
   delete(clipId: number) {
-    return this.http.delete(this.url + '/' + clipId, {context: errorBody("Unable to remove clip from server. Please try again.")});
+    var clips = this.getAll();
+    var dbClipIndex = clips.findIndex(x => x.clipId === clipId);
+    if (dbClipIndex !== -1){
+      clips.splice(dbClipIndex, 1);
+    }
+
+    localStorage.setItem(ClipsKey, JSON.stringify(clips));
   }
 }

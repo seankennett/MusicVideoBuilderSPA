@@ -4,6 +4,8 @@ import { environment } from 'src/environments/environment';
 import { errorBody } from './errorhandler.interceptor';
 import { Video } from './video';
 
+const VideosKey = 'Videos'
+
 @Injectable({
   providedIn: 'root'
 })
@@ -13,14 +15,37 @@ export class VideoService {
   constructor(private http: HttpClient) { }
 
   post(video : Video) {
-    return this.http.post<Video>(this.url, video, {context: errorBody("Unable to save video to server. Please try again.")});
+    var videos = this.getAll();
+    var dbClipIndex = videos.findIndex(x => x.videoId === video.videoId);
+    if (dbClipIndex !== -1){
+      videos.splice(dbClipIndex, 1);
+    } else {
+      video.videoId = videos.length + 1;
+    }
+
+    videos.push(video);
+    
+    localStorage.setItem(VideosKey, JSON.stringify(videos));
+
+    return video;
   }
 
   getAll(){
-    return this.http.get<Video[]>(this.url, {context: errorBody("Unable to get user's videos from server. Please refresh to try again.")});
+    var videoString = localStorage.getItem(VideosKey);
+    if (videoString){
+      return JSON.parse(videoString) as Video[];
+    }
+
+    return [];
   }
 
   delete(videoId: number) {
-    return this.http.delete(this.url + '/' + videoId, {context: errorBody("Unable to delete video from server. Please try again.")});
+    var videos = this.getAll();
+    var dbClipIndex = videos.findIndex(x => x.videoId === videoId);
+    if (dbClipIndex !== -1){
+      videos.splice(dbClipIndex, 1);
+    }
+
+    localStorage.setItem(VideosKey, JSON.stringify(videos));
   }
 }

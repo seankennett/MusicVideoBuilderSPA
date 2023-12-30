@@ -1,15 +1,15 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { protectedResources } from './auth-config';
 import { errorBody } from './errorhandler.interceptor';
 import { Collection } from './collection';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CollectionService {
 
-  url = protectedResources.collectionApi.endpoint
+  url = environment.publicApiEndpoint + "/Collections"
 
   constructor(private http: HttpClient) { }
 

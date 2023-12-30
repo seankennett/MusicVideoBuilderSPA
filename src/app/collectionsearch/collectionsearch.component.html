@@ -26,7 +26,6 @@
 <ng-container *ngIf="selectedCollections.length > 0">
     <h3>Collections Search Results</h3>
     <app-bpmcontrol (bpmEvent)="setBpm($event)" (isPlayingEvent)="setIsPlaying($event)"></app-bpmcontrol>
-    <h5><a (click)="showPricing()" [routerLink]="[]"><i class="bi bi-piggy-bank-fill"></i>Pricing</a></h5>
     <div class="row">
         <div *ngFor="let collection of selectedCollections; let i = index" class="col-sm mb-3">
             <app-galleryplayer [collection]="collection" [bpm]="bpm" [isPlaying]="isPlaying" [showAdd]="false"
@@ -43,7 +42,6 @@
     <p *ngIf="selectedCollectionNames.length > 0">Your search has not returned any results so here are our
         {{Collectiontypes[collectionType].toLowerCase()}} collections.</p>
     <app-bpmcontrol (bpmEvent)="setBpm($event)" (isPlayingEvent)="setIsPlaying($event)"></app-bpmcontrol>
-    <h5><a (click)="showPricing()" [routerLink]="[]"><i class="bi bi-piggy-bank-fill"></i>Pricing</a></h5>
     <div class="row">
         <div *ngFor="let collection of popularCollections; let i = index" class="col-sm mb-3">
             <app-galleryplayer [collection]="collection" [bpm]="bpm" [isPlaying]="isPlaying" [showAdd]="false"

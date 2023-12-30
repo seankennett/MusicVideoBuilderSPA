@@ -5,38 +5,14 @@
     </p>
     <app-pageloading [pageLoading]="pageLoading"></app-pageloading>
     <ng-container *ngIf="!pageLoading">
-        <ng-container *ngIf="this.completeBuildAssets.length > 0">
-            <h2>Video Files</h2>
-            <p>Here are your built video files to download. Note that links will be valid only for 12 hours or until you
-                refresh this page.</p>
-            <app-buildassettable [buildAssets]="completeBuildAssets"></app-buildassettable>
-        </ng-container>
-        <ng-container *ngIf="this.incompleteBuildAssets.length > 0">
-            <h2>Building Video Files</h2>
-            <p>Here are your currently building video files.</p>
-            <app-buildassettable [buildAssets]="incompleteBuildAssets" [showDownload]="false"></app-buildassettable>
-        </ng-container>
-        <ng-container *ngIf="this.buildingVideos.length > 0">
-            <h2>Building Videos</h2>
-            <p>These videos are currently building. You have to wait for the build to complete before you build the same
-                video again or delete.</p>
-            <div class="mb-3">
-                <div class="row">
-                    <div *ngFor="let buildingVideo of buildingVideos; let i = index" class="col-sm mb-3">
-                        <app-galleryvideo [video]="buildingVideo" [showEdit]="false" [collections]="collections"
-                            [showRemove]="false" [clips]="clips" [isBuilding]="true"></app-galleryvideo>
-                    </div>
-                </div>
-            </div>
-        </ng-container>
         <ng-container *ngIf="this.videos.length > 0">
             <h2>Videos</h2>
             <p>Videos that are not building have no dependencies so you can delete these without worrying what uses
                 them.</p>
             <div class="mb-3">
                 <div class="row">
-                    <div *ngFor="let notBuildingVideo of notBuildingVideos" class="col-sm mb-3">
-                        <app-galleryvideo [video]="notBuildingVideo" [showEdit]="false" [showRemove]="true"
+                    <div *ngFor="let video of videos" class="col-sm mb-3">
+                        <app-galleryvideo [video]="video" [showEdit]="false" [showRemove]="true"
                             [clips]="clips" (buttonClickEvent)="removeVideo($event)" [loading]="loading"
                             [collections]="collections">
                         </app-galleryvideo>

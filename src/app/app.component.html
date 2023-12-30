@@ -33,10 +33,6 @@
                             <a class="nav-link" [routerLink]="['musicVideoBuilder']" routerLinkActive="active"><i
                                     class="text-primary bi bi-hammer"></i> Music Video Builder</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" [routerLink]="['subscriptions']" routerLinkActive="active"><i
-                                    class="text-primary bi bi-repeat"></i> Subsciptions</a>
-                        </li>
                     </ul>
                     <ul class="navbar-nav">
                         <li class="nav-item">
@@ -46,12 +42,6 @@
                         <li class="nav-item">
                             <a class="nav-link" [routerLink]="['myLibrary']" routerLinkActive="active"><i
                                     class="text-primary bi bi-collection-fill"></i> My Library</a>
-                        </li>
-                        <li class="nav-item" *ngIf="loginDisplay">
-                            <button class="btn btn-danger" (click)="logout()">Sign out</button>
-                        </li>
-                        <li class="nav-item" *ngIf="!loginDisplay">
-                            <button class="btn btn-primary" (click)="login()">Sign in</button>
                         </li>
                     </ul>
                 </div>
@@ -79,15 +69,6 @@
         </h2>
         <h4 class="text-center"> Music Video Builder</h4>
         <div class="row text-center">
-            <div class="col">
-                <a (click)="showTerms()" [routerLink]="[]"><i class="bi bi-list-columns-reverse"></i>T&Cs</a>
-            </div>
-            <div class="col">
-                <a (click)="showPricing()" [routerLink]="[]"><i class="bi bi-piggy-bank-fill"></i>Pricing</a>
-            </div>
-            <div class="col">
-                <a (click)="showLicenses()" [routerLink]="[]"><i class="bi bi-file-text-fill"></i>Licenses</a>
-            </div>
             <div class="col">
                 <a (click)="showResolutions()" [routerLink]="[]"><i class="bi bi-tv"></i>Resolutions</a>
             </div>

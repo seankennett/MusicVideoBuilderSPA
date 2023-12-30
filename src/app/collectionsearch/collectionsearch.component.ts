@@ -2,7 +2,6 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Collection } from '../collection';
 import { Collectiontypes } from '../collectiontypes';
 import { Observable, OperatorFunction, debounceTime, distinctUntilChanged, filter, map } from 'rxjs';
-import { PricingmodalComponent } from '../pricingmodal/pricingmodal.component';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
@@ -105,9 +104,5 @@ export class CollectionsearchComponent implements OnInit {
 
   cancel = () =>{
     this.cancelEvent.emit();
-  }
-
-  showPricing = () => {
-    this.modalService.open(PricingmodalComponent, { size: 'xl' });
   }
 }

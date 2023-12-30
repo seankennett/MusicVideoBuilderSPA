@@ -1,6 +1,5 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { MsalGuard } from '@azure/msal-angular';
 import { ClipBuilderComponent } from './clipbuilder/clipbuilder.component';
 
 import { HomeComponent } from './home/home.component';
@@ -11,8 +10,6 @@ import { NotfoundComponent } from './notfound/notfound.component';
 import { ConfirmationComponent } from './confirmation/confirmation.component';
 import { ConfirmationgaurdGuard } from './confirmationgaurd.guard';
 import { HelpComponent } from './help/help.component';
-import { SubscriptionsComponent } from './subscriptions/subscriptions.component';
-import { SubscriptionconfirmationComponent } from './subscriptionconfirmation/subscriptionconfirmation.component';
 
 const routes: Routes = [
   {
@@ -26,68 +23,36 @@ const routes: Routes = [
   {
     path: 'clipBuilder',
     component: ClipBuilderComponent,
-    canActivate: [
-      MsalGuard
-    ],
     canDeactivate:[
       ConfirmationgaurdGuard
     ],
     children: [
       {
         path: ':id',
-        component: ClipBuilderComponent,
-        canActivate: [
-          MsalGuard
-        ]
+        component: ClipBuilderComponent
       }
     ]
   },
   {
     path: 'musicVideoBuilder',
     component: MusicVideoBuilderComponent,
-    canActivate: [
-      MsalGuard
-    ],
     canDeactivate:[
       ConfirmationgaurdGuard
     ],
     children: [
       {
         path: ':id',
-        component: ClipBuilderComponent,
-        canActivate: [
-          MsalGuard
-        ]
+        component: ClipBuilderComponent
       }
     ]
   },
   {
     path: 'myLibrary',
-    component: MyLibraryComponent,
-    canActivate: [
-      MsalGuard
-    ]
+    component: MyLibraryComponent
   },
   {
     path: 'confirmation',
-    component: ConfirmationComponent,
-    canActivate: [
-      MsalGuard
-    ]
-  },
-  {
-    path: 'subscriptionConfirmation',
-    component: SubscriptionconfirmationComponent,
-    canActivate: [
-      MsalGuard
-    ]
-  },
-  {
-    path: 'subscriptions',
-    component: SubscriptionsComponent,
-    canActivate: [
-      MsalGuard
-    ]
+    component: ConfirmationComponent
   },
   {
     path: '',

@@ -32,34 +32,33 @@ export class ClipBuilderComponent implements OnInit {
     private location: Location, private modalService: NgbModal, private router: Router) { }
 
   ngOnInit(): void {
-    this.clipService.getAll().subscribe((clips: Clip[]) => {
-      this.collectionService.getAll().subscribe((collections: Collection[]) => {
-        this.clips = clips;
-        this.collections = collections
-        var idObj = this.route.firstChild?.snapshot?.params['id'];
-        if (idObj && idObj !== '') {
-          var id = Number(idObj);
-          var clip = clips.find(x => x.clipId === id);
+    this.collectionService.getAll().subscribe((collections: Collection[]) => {
+      var clips = this.clipService.getAll();
+      this.clips = clips;
+      this.collections = collections
+      var idObj = this.route.firstChild?.snapshot?.params['id'];
+      if (idObj && idObj !== '') {
+        var id = Number(idObj);
+        var clip = clips.find(x => x.clipId === id);
+        if (clip) {
+          this.editClip(clip);
+        }
+      } else {
+        var cloneIdObj = this.route.snapshot.queryParamMap.get('cloneId');
+        if (cloneIdObj) {
+          var cloneId = Number(cloneIdObj);
+          var clip = clips.find(x => x.clipId === cloneId);
           if (clip) {
-            this.editClip(clip);
+            this.cloneClip(clip);
           }
         } else {
-          var cloneIdObj = this.route.snapshot.queryParamMap.get('cloneId');
-          if (cloneIdObj) {
-            var cloneId = Number(cloneIdObj);
-            var clip = clips.find(x => x.clipId === cloneId);
-            if (clip) {
-              this.cloneClip(clip);
-            }
-          } else {
-            var returnUrlObj = this.route.snapshot.queryParamMap.get('return');
-            if (returnUrlObj){
-              this.addNewClip();
-            }
+          var returnUrlObj = this.route.snapshot.queryParamMap.get('return');
+          if (returnUrlObj) {
+            this.addNewClip();
           }
         }
-        this.pageLoading = false;
-      });
+      }
+      this.pageLoading = false;
     });
   }
 
@@ -483,34 +482,27 @@ export class ClipBuilderComponent implements OnInit {
 
   onSubmit = () => {
     this.saving = true;
-
-    this.clipService.post(this.editorClip).pipe(
-      catchError((error: HttpErrorResponse) => {
-        this.saving = false;
-        return throwError(() => new Error());
-      })
-    ).subscribe((clip: Clip) => {
-      var returnUrl = this.route.snapshot.queryParamMap.get('return');
-      if (returnUrl) {
-        var timelineIndex = this.route.snapshot.queryParamMap.get('index');
-        var replace = this.route.snapshot.queryParamMap.get('replace');
-        if (timelineIndex && replace){
-          returnUrl = returnUrl + '&index=' + timelineIndex + '&clipId=' + clip.clipId + '&replace=' + replace;
-        }
-        this.router.navigateByUrl(returnUrl);
+    var clip = this.clipService.post(this.editorClip);
+    var returnUrl = this.route.snapshot.queryParamMap.get('return');
+    if (returnUrl) {
+      var timelineIndex = this.route.snapshot.queryParamMap.get('index');
+      var replace = this.route.snapshot.queryParamMap.get('replace');
+      if (timelineIndex && replace) {
+        returnUrl = returnUrl + '&index=' + timelineIndex + '&clipId=' + clip.clipId + '&replace=' + replace;
       }
-      else {
-        this.saving = false;
-        if (this.clipId === 0) {
-          this.clips.push(clip);
-        } else {
-          let index = this.clips.findIndex(clip => clip.clipId === this.clipId);
-          this.clips[index] = clip;
-        }
-        this.clearEditor();
-        this.showEditor = false;
+      this.router.navigateByUrl(returnUrl);
+    }
+    else {
+      this.saving = false;
+      if (this.clipId === 0) {
+        this.clips.push(clip);
+      } else {
+        let index = this.clips.findIndex(clip => clip.clipId === this.clipId);
+        this.clips[index] = clip;
       }
-    });;
+      this.clearEditor();
+      this.showEditor = false;
+    }
   }
 
   undoClipDisplayLayer: Clipdisplaylayer | undefined = undefined;

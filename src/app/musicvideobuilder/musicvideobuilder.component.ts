@@ -10,32 +10,23 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { DatePipe, Location } from '@angular/common';
 import { VideoplayerComponent } from '../videoplayer/videoplayer.component';
 import { Resolution } from '../resolution';
-import { UserCollection } from '../usercollection';
 import { guess } from 'web-audio-beat-detector';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbModal, NgbNavChangeEvent } from '@ng-bootstrap/ng-bootstrap';
 import { environment } from 'src/environments/environment';
-import { BlockBlobClient } from '@azure/storage-blob';
-import { UserCollectionService } from '../usercollection.service';
 import { ToastService } from '../toast.service';
-import { License } from '../license';
 import { Videobuildrequest } from '../videobuildrequest';
-import { Buildasset } from '../buildasset';
-import { Buildstatus } from '../buildstatus';
-import { StripeCardElementOptions, StripeElementsOptions } from '@stripe/stripe-js';
-import { StripePaymentElementComponent, StripeService } from 'ngx-stripe';
-import { BuildsService } from '../builds.service';
 import { CollectionService } from '../collection.service';
 import { Collection } from '../collection';
 import { Videoclip } from '../videoclip';
 import { AudiofileService } from '../audiofile.service';
 import { AudiomodalComponent } from '../audiomodal/audiomodal.component';
 import { ClipinfoComponent } from '../clipinfo/clipinfo.component';
-import { SubscriptionService } from '../subscription.service';
-import { Subscriptionproduct } from '../subscriptionproduct';
 import { ConfirmationmodalComponent } from '../confirmationmodal/confirmationmodal.component';
 import { ResolutionmodalComponent } from '../resolutionmodal/resolutionmodal.component';
-import { LicensemodalComponent } from '../licensemodal/licensemodal.component';
+import * as JSZip from 'jszip';
+import * as saveAs from 'file-saver';
+import { FfmpegService } from '../ffmpeg.service';
 
 const millisecondsInSecond = 1000;
 const secondsInMinute = 60;
@@ -49,41 +40,29 @@ const byteMultiplier = 1024;
   styleUrls: ['./musicvideobuilder.component.scss']
 })
 export class MusicVideoBuilderComponent implements OnInit {
-  constructor(private formBuilder: UntypedFormBuilder, private videoService: VideoService, private clipService: ClipService, private buildService: BuildsService, private collectionService: CollectionService,
-    private datePipe: DatePipe, private route: ActivatedRoute, private location: Location, private userCollectionService: UserCollectionService, private toastService: ToastService, private router: Router,
-    private stripeService: StripeService, public audioFileService: AudiofileService, private modalService: NgbModal, private subscriptionService: SubscriptionService) { }
+  constructor(private formBuilder: UntypedFormBuilder, private videoService: VideoService, private clipService: ClipService, private collectionService: CollectionService, private ffmpegService: FfmpegService,
+    private datePipe: DatePipe, private route: ActivatedRoute, private location: Location, private toastService: ToastService, private router: Router, public audioFileService: AudiofileService, private modalService: NgbModal) { }
 
   ngOnInit(): void {
-    this.videoService.getAll().subscribe((videos: Video[]) => {
-      this.clipService.getAll().subscribe((clips: Clip[]) => {
-        this.collectionService.getAll().subscribe((collections: Collection[]) => {
-          this.userCollectionService.getAll().subscribe((userCollections: UserCollection[]) => {
-            this.buildService.getAll().subscribe((buildAssets: Buildasset[]) => {
-              this.subscriptionService.get(true).subscribe((subscriptionProduct: Subscriptionproduct | null) => {
-                this.subscriptionProduct = subscriptionProduct;
-                this.buildAssets = buildAssets;
-                var id = Number(this.route.firstChild?.snapshot?.params['id']);
-                var tab = Number(this.route.snapshot.queryParamMap.get('tab'));
-                var index = Number(this.route.snapshot.queryParamMap.get('index'));
-                var replace = this.route.snapshot.queryParamMap.get('replace') === 'true';
-                var clipId = Number(this.route.snapshot.queryParamMap.get('clipId'));
-                if (!isNaN(id) && !isNaN(tab)) {
-                  var video = videos.find(x => x.videoId === id);
-                  if (video) {
-                    this.editVideoInternal({ video: video, tab: tab }, index, clipId, replace);
-                  }
-                }
-                this.videos = videos;
-                this.clips = clips;
-                this.collections = collections;
-                this.userCollections = userCollections;
+    this.collectionService.getAll().subscribe((collections: Collection[]) => {
+      var videos = this.videoService.getAll();
+      var clips = this.clipService.getAll();
+      var id = Number(this.route.firstChild?.snapshot?.params['id']);
+      var tab = Number(this.route.snapshot.queryParamMap.get('tab'));
+      var index = Number(this.route.snapshot.queryParamMap.get('index'));
+      var replace = this.route.snapshot.queryParamMap.get('replace') === 'true';
+      var clipId = Number(this.route.snapshot.queryParamMap.get('clipId'));
+      if (!isNaN(id) && !isNaN(tab)) {
+        var video = videos.find(x => x.videoId === id);
+        if (video) {
+          this.editVideoInternal({ video: video, tab: tab }, index, clipId, replace);
+        }
+      }
+      this.videos = videos;
+      this.clips = clips;
+      this.collections = collections;
 
-                this.pageLoading = false;
-              });
-            });
-          });
-        });
-      });
+      this.pageLoading = false;
     });
   }
 
@@ -103,10 +82,7 @@ export class MusicVideoBuilderComponent implements OnInit {
 
   videos: Video[] = [];
   clips: Clip[] = [];
-  userCollections: UserCollection[] = [];
-  buildAssets: Buildasset[] = [];
   collections: Collection[] = [];
-  subscriptionProduct: Subscriptionproduct | null = null;
 
   Formats = Formats;
   resolutionList = [{
@@ -120,22 +96,9 @@ export class MusicVideoBuilderComponent implements OnInit {
     resolution: Resolution.FourK
   }];
 
-  resolutionChange = () => {
-    if (this.resolutionControl.value === Resolution.Free) {
-      this.licenseControl.setValue(License.Personal);
-      this.licenseList = [License.Personal];
-    } else {
-      this.licenseList = [License.Personal, License.Standard, License.Enhanced];
-    }
-  }
-
   get canLicense() {
     return this.editorVideoClipsFull.some(e => e.clipDisplayLayers != null);
   }
-
-  License = License;
-  licenseList = [License.Personal]
-
 
   formatList: Formats[] = [
     Formats.mp4,
@@ -150,10 +113,6 @@ export class MusicVideoBuilderComponent implements OnInit {
     } else {
       this.setTabId(tabId);
     }
-  }
-
-  get isBuilding() {
-    return this.buildAssets.some(ba => ba.videoId === this.videoId && (ba.buildStatus === Buildstatus.BuildingPending || ba.buildStatus === Buildstatus.PaymentChargePending));
   }
 
   timelineEditorStart = 1;
@@ -239,10 +198,6 @@ export class MusicVideoBuilderComponent implements OnInit {
     this.modalService.open(ResolutionmodalComponent, { size: 'xl' });
   }
 
-  showLicenses = () => {
-    this.modalService.open(LicensemodalComponent, { size: 'xl' });
-  }
-
   videoNameControl = this.formBuilder.control('', [Validators.required, Validators.maxLength(50), Validators.pattern("[A-z0-9_-]+")]);
   bpmControl = this.formBuilder.control(null, [Validators.required, Validators.max(250), Validators.min(90)]);
   videoDelayMillisecondsControl = this.formBuilder.control(null, [Validators.max(2147483647), Validators.pattern("[0-9]+")]);
@@ -260,10 +215,8 @@ export class MusicVideoBuilderComponent implements OnInit {
   }, { validators: videoLengthValidator(() => this.clips) })
 
   resolutionControl = this.formBuilder.control(Resolution.Free, [Validators.required]);
-  licenseControl = this.formBuilder.control(License.Personal, [Validators.required]);
   builderForm = this.formBuilder.group({
-    resolutionControl: this.resolutionControl,
-    licenseControl: this.licenseControl
+    resolutionControl: this.resolutionControl
   })
 
   clipsPerBlock = 1;
@@ -309,7 +262,7 @@ export class MusicVideoBuilderComponent implements OnInit {
     this.videoNameControl.setValue(videoRoute.video.videoName);
     this.bpmControl.setValue(videoRoute.video.bpm);
     this.formatControl.setValue(videoRoute.video.format);
-    this.videoDelayMillisecondsControl.setValue(videoRoute.video.videoDelayMilliseconds);    
+    this.videoDelayMillisecondsControl.setValue(videoRoute.video.videoDelayMilliseconds);
 
     videoRoute.video.videoClips.forEach(vc => {
       this.videoClipsFormArray.push(this.formBuilder.control(vc));
@@ -318,7 +271,7 @@ export class MusicVideoBuilderComponent implements OnInit {
     this.unchangedVideo = { ...this.editorVideo };
 
     if (cloneIndex && cloneClipId) {
-        this.addClipPickerClipInternal(cloneClipId, cloneIndex, replace === false);
+      this.addClipPickerClipInternal(cloneClipId, cloneIndex, replace === false);
     }
 
     if (this.videoClipsFormArray.length > 32) {
@@ -365,23 +318,17 @@ export class MusicVideoBuilderComponent implements OnInit {
     this.saving = true;
     this.stop();
 
-    this.videoService.post(this.editorVideo).pipe(
-      catchError((error: HttpErrorResponse) => {
-        this.saving = false;
-        return throwError(() => new Error());
-      })
-    ).subscribe(video => {
-      this.saving = false;
-      if (this.videoId === 0) {
-        this.videos.push(video);
-        this.setVideoId(video.videoId, this.activeTabId);
-        this.unchangedVideo = { ...this.editorVideo };
-      } else {
-        let index = this.videos.findIndex(vid => vid.videoId === this.videoId);
-        this.videos[index] = video;
-        this.unchangedVideo = { ...this.editorVideo };
-      }
-    });
+    var video = this.videoService.post(this.editorVideo)
+    this.saving = false;
+    if (this.videoId === 0) {
+      this.videos.push(video);
+      this.setVideoId(video.videoId, this.activeTabId);
+      this.unchangedVideo = { ...this.editorVideo };
+    } else {
+      let index = this.videos.findIndex(vid => vid.videoId === this.videoId);
+      this.videos[index] = video;
+      this.unchangedVideo = { ...this.editorVideo };
+    }
   }
 
   exitEditor = () => {
@@ -487,7 +434,7 @@ export class MusicVideoBuilderComponent implements OnInit {
     }
   }
 
-  addClipPickerClipInternal = (clipId: number, selectedClipEditIndex: number, isAdding: boolean) =>{
+  addClipPickerClipInternal = (clipId: number, selectedClipEditIndex: number, isAdding: boolean) => {
     var videoClip = <Videoclip>{
       clipId: clipId
     }
@@ -500,7 +447,7 @@ export class MusicVideoBuilderComponent implements OnInit {
     } else {
       var existingControl = this.videoClipsFormArray.controls[selectedClipEditIndex];
       existingControl.patchValue(videoClip);
-    }    
+    }
   }
 
   copyClip = (index: number, isAddToEnd: boolean) => {
@@ -566,12 +513,12 @@ export class MusicVideoBuilderComponent implements OnInit {
     this.router.navigateByUrl('/clipBuilder/?return=' + encodeURI(window.location.pathname + window.location.search) + '&cloneId=' + videoClip.clipId + '&index=' + index + '&replace=true');
   }
 
-  addNewClip = () =>{
+  addNewClip = () => {
     this.router.navigateByUrl('/clipBuilder/?return=' + encodeURI(window.location.pathname + window.location.search) + '&index=' + this.selectedClipEditIndex + '&replace=' + !this.isAdding);
   }
 
-  get displayLayers() {
-    return this.collections.flatMap(c => c.displayLayers).filter(d => this.clips.filter(c => c.clipDisplayLayers).flatMap(c => c.clipDisplayLayers).some(cd => cd.displayLayerId === d.displayLayerId));
+  get videoDisplayLayers() {
+    return this.collections.flatMap(c => c.displayLayers).filter(d => this.clips.filter(c => c.clipDisplayLayers && this.editorVideo.videoClips.some(vc => vc.clipId === c.clipId)).flatMap(c => c.clipDisplayLayers).some(cd => cd.displayLayerId === d.displayLayerId));
   }
 
   getClip = (videoClip: Videoclip) => {
@@ -755,164 +702,70 @@ export class MusicVideoBuilderComponent implements OnInit {
   }
 
   isWaitingForCreate = false;
-  isUploadingAudio = false;
-
-  createFreeVideo = () => {
-    var resolution = this.resolutionControl.value;
-    var license = this.licenseControl.value;
-    var buildId = (<any>crypto).randomUUID();
-    let videoBuildRequest: Videobuildrequest = { resolution, buildId, license };
-
-    if (this.audioFileService.file !== null) {
-      this.uploadAudio(videoBuildRequest, this.freeVideoSuccessCallback);
-    } else {
-      this.modalService.open(AudiomodalComponent, { centered: true }).closed.subscribe(x => {
-        this.uploadAudio(videoBuildRequest, this.freeVideoSuccessCallback);
-      });
-    }
-  }
-
-  private uploadAudio = (videoBuildRequest: Videobuildrequest, successAction: (videoBuildRequest: Videobuildrequest) => void) => {
-    this.isWaitingForCreate = true;
-    if (this.audioFileService.file?.name) {
-      this.isUploadingAudio = true;
-      this.buildService.createAudioBlobUri(this.videoId, videoBuildRequest)
-        .pipe(catchError((error: HttpErrorResponse) => {
-          this.isWaitingForCreate = false;
-          this.isUploadingAudio = false;
-          return throwError(() => new Error());
-        }))
-        .subscribe(blockBlobSasUrl => {
-          var blockBlobClient = new BlockBlobClient(blockBlobSasUrl);
-          if (this.audioFileService.file) {
-            blockBlobClient.uploadData(this.audioFileService.file).then(uploadResponse => {
-              this.buildService.validateAudioBlob(this.videoId, videoBuildRequest)
-                .pipe(catchError((error: HttpErrorResponse) => {
-                  this.isWaitingForCreate = false;
-                  this.isUploadingAudio = false;
-                  return throwError(() => new Error());
-                }))
-                .subscribe(() => {
-                  successAction(videoBuildRequest);
-                });
-            }).catch(error => {
-              this.toastService.show('Problem uploading audio file to storage.', this.router.url);
-              this.isWaitingForCreate = false;
-              this.isUploadingAudio = false;
-            });
-          } else {
-            this.toastService.show('Problem uploading audio file to storage.', this.router.url);
-          }
-        });
-    } else {
-      successAction(videoBuildRequest);
-    }
-  }
-
-  private freeVideoSuccessCallback = (videoBuildRequest: Videobuildrequest) => {
-    this.buildService.create(this.videoId, videoBuildRequest)
-      .pipe(catchError((error: HttpErrorResponse) => {
-        this.isWaitingForCreate = false;
-        return throwError(() => new Error());
-      }))
-      .subscribe(() => {
-        this.router.navigateByUrl('/confirmation?resolution=' + videoBuildRequest.resolution);
-      });
-  }
-
-  paymentBuildId: string = ''
-
-  createPaymentIntent = () => {
-    this.isWaitingForCreate = true;
-    var buildId = (<any>crypto).randomUUID();
-    var resolution = this.resolutionControl.value;
-    var license = this.licenseControl.value;
-    this.buildService.checkout(this.videoId, { buildId, license, resolution, cost: this.total })
-      .pipe(catchError((error: HttpErrorResponse) => {
-        this.isWaitingForCreate = false;
-        return throwError(() => new Error());
-      }))
-      .subscribe(clientSecret => {
-        this.isWaitingForCreate = false;
-        this.elementOptions.clientSecret = clientSecret;
-        this.paymentBuildId = buildId;
-        this.setTabId(4);
-      });
-  }
 
   displayResolution = (resolution: Resolution) => {
     return this.resolutionList.find(r => r.resolution === resolution)?.displayName
   }
 
-  total = 0;
-  updateTotal = (newTotal: number) => {
-    this.total = newTotal;
-  }
-
-  cardOptions: StripeCardElementOptions = {
-    style: {
-      base: {
-        fontFamily: 'arial,sans-serif',
-        fontSize: '1rem'
-      },
-    }
-  };
-
-  @ViewChild(StripePaymentElementComponent)
-  paymentElement!: StripePaymentElementComponent;
-
-  elementOptions: StripeElementsOptions = {
-    locale: 'en',
-    appearance: {
-      variables: {
-        fontSizeBase: '1rem',
-        fontSizeSm: '1rem',
-        fontFamily: 'arial,sans-serif',
-        spacingGridRow: '1rem'
-      }
-    }
-  };
-
-  pay = () => {
-    let videoBuildRequest: Videobuildrequest = {
-      resolution: this.resolutionControl.value,
-      buildId: this.paymentBuildId,
-      license: this.licenseControl.value
-    };
+  createFreeVideo = () => {
     if (this.audioFileService.file !== null) {
-      this.uploadAudio(videoBuildRequest, this.payVideoSuccessCallback);
-    } else {
-      this.modalService.open(AudiomodalComponent, { centered: true }).closed.subscribe(x => {
-        this.uploadAudio(videoBuildRequest, this.payVideoSuccessCallback);
-      });
-    }
-  }
-
-  private payVideoSuccessCallback = (videoBuildRequest: Videobuildrequest) => {
-    this.stripeService.confirmPayment({
-      elements: this.paymentElement.elements,
-      confirmParams: {
-        return_url: environment.host + '/confirmation?resolution=' + videoBuildRequest.resolution
-      },
-      redirect: 'if_required'
-    }).subscribe(result => {
-      if (result.error) {
-        this.toastService.show(result.error?.message ?? 'Error in payment', this.router.url);
-        this.isWaitingForCreate = false;
-        this.isUploadingAudio = false;
+        this.createZip();
       } else {
-        this.router.navigateByUrl('/confirmation?resolution=' + videoBuildRequest.resolution);
+        this.modalService.open(AudiomodalComponent, { centered: true }).closed.subscribe(x => {
+          this.createZip();
+        });
       }
-    });
   }
 
-  invalidCardDetails = true
-  cardChange = (event: any) => {
-    if (event.complete) {
-      this.invalidCardDetails = false;
-    } else if (event.error) {
-      this.invalidCardDetails = true;
+  private createZip = () =>{
+    var zip = new JSZip();
+    if (this.audioFileService.file !== null) {
+      zip.file('audio.mp3', this.audioFileService.file);
     }
+
+    var resolution = this.resolutionControl.value;
+    var resolutionBlobPrefix = this.ffmpegService.resolutionToBlobPrefix(resolution);
+
+    var uniqueEditorVideoClipsFull = Object.values<Clip>(this.editorVideoClipsFull.reduce((acc, obj) => ({ ...acc, [obj.clipId]: obj }), {}));
+    var ffmpegCodes = this.ffmpegService.generateCodes(this.editorVideo, uniqueEditorVideoClipsFull, resolution, this.audioFileService.file !== null, this.videoDisplayLayers);
+    zip.file('ffmpegCodes.txt', ffmpegCodes.ffmpegCodes);
+    zip.file(`${this.ffmpegService.AllFramesVideoName}.txt`, ffmpegCodes.concatFileCode);
+
+    let imageDownloadPromises:Promise<unknown>[] = [];
+    this.videoDisplayLayers.forEach(d => d.layers.forEach(l => {
+      var layerResolutionFolder = zip.folder(l.layerId)?.folder(resolutionBlobPrefix);
+      for (let i = 1; i <= frameTotal; i++){
+        var imageDownloadPromise = new Promise((resolve, reject) =>{
+          fetch(environment.storageUrl + '/' + l.layerId + '/' + resolutionBlobPrefix + '/' + i + '.png').then(r => {
+            if (r.status === 200){
+              r.blob().then(b => {
+                layerResolutionFolder?.file(i + '.png', b);
+                resolve('');
+              });              
+            }else{
+              reject('')
+            }
+          },
+          e =>{
+            reject('')
+          })
+        });
+        imageDownloadPromises.push(imageDownloadPromise);
+      }
+    }));
+
+    var that = this;
+    Promise.all(imageDownloadPromises).catch(x => {
+      that.toastService.show('Problem downloading images. Try again.', that.router.url);
+    }).then(async x => {
+        await zip.generateAsync({ type: "blob" }).then(function (content) {
+          // see FileSaver.js
+          saveAs(content, that.editorVideo.videoName + ".zip");
+        },
+        function (reject) {
+          that.toastService.show('Problem downloading images. Try again.', that.router.url);
+        })
+      });    
   }
 }
 
