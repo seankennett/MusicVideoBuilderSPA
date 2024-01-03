@@ -32,7 +32,7 @@ export class FfmpegService {
     });
 
     var allFrameVideoFileName = `${this.AllFramesVideoName}.${Formats[video.format]}`;
-    var clipMergeCommand = this.getMergeCode(`${allFrameVideoFileName}.txt`, null, this.AllFramesVideoName);
+    var clipMergeCommand = this.getMergeCode(allFrameVideoFileName, `${this.AllFramesVideoName}.txt`);
     var videoFinishingCommand = this.finishVideo(allFrameVideoFileName, hasAudio, video.videoDelayMilliseconds, video.videoName, video.format);
 
     var concatFileCode = '';
@@ -314,13 +314,9 @@ export class FfmpegService {
   }
   getMergeCode = (
     outputVideoName: string,
-    audioFileName: string | null,
     concatFileName: string
   ): string => {
     var command = `ffmpeg -f concat -i ${concatFileName} `;
-    if (audioFileName !== null) {
-      command += `-i ${audioFileName} `;
-    }
 
     command += `-c copy ${outputVideoName}`;
     return command;
