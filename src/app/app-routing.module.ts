@@ -7,7 +7,6 @@ import { ContentBrowserComponent } from './contentbrowser/contentbrowser.compone
 import { MyLibraryComponent } from './mylibrary/mylibrary.component';
 import { MusicVideoBuilderComponent } from './musicvideobuilder/musicvideobuilder.component';
 import { NotfoundComponent } from './notfound/notfound.component';
-import { ConfirmationComponent } from './confirmation/confirmation.component';
 import { ConfirmationgaurdGuard } from './confirmationgaurd.guard';
 import { HelpComponent } from './help/help.component';
 
@@ -49,10 +48,6 @@ const routes: Routes = [
   {
     path: 'myLibrary',
     component: MyLibraryComponent
-  },
-  {
-    path: 'confirmation',
-    component: ConfirmationComponent
   },
   {
     path: '',

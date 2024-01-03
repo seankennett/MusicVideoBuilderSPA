@@ -4,10 +4,11 @@
         <i class="bi bi-camera-reels-fill"></i>
         <i class="bi bi-hammer"></i>
     </div>
-    <h1 class="text-center"> Music Video Builder is dedicated to creating videos for music</h1>
+    <h1 class="text-center"> Music Video Builder is dedicated to creating free videos for music</h1>
     <h4>What?</h4>
-    <p>This site allows you to sequence customised clips perfectly in time with your constant bpm audio. The end result
-        being a custom video file generated for the user.</p>
+    <p>This site allows you to sequence customised clips perfectly in time with your constant bpm audio for free. The
+        end result
+        is the user having a load of assets ready for ffmpeg to build their video.</p>
     <h4>Why?</h4>
     <p>We are fed up with seeing static images on youtube and dull backgrounds on dj sets. Not everyone has the
         resources to fund a fully fledged custom video for every song they produce, we aim to bridge that gap.</p>
@@ -15,40 +16,39 @@
     <p>VJs, DJs, producers, creators; if you have a music file with constant beats per minute and need some low hassle
         content then this is for you.</p>
     <h4>How?</h4>
-    <p>Music Video Builder works by providing content with online tools to compose videos. Content comes in the shape of
-        collections which will contain various directions and shapes to choose from. We've created a pricing model where
-        you can purchase a collection license once and not be charged for further customisations in new videos using our
-        modifiers <a (click)="showTransitions()" [routerLink]="[]"><i
-                class="bi bi-info-circle-fill text-primary"></i></a></p>
+    <p>Music Video Builder works by providing content with online tools to compose videos online. Content comes in the
+        shape of
+        collections which will contain various directions and shapes to choose from. When ready to build you will be
+        given codes for ffmpeg along with image content to build you video locally.
     <p>Watch the tutorial or scroll to the steps below to see the website in action.</p>
     <div class="text-center mb-3">
-        <video width="384" height="216" controls class="rounded" [poster]="storageUrl + '/custom-pages/384x216VideoPoster.png'" preload="none">
+        <video width="384" height="216" controls class="rounded"
+            [poster]="storageUrl + '/custom-pages/384x216VideoPoster.png'" preload="none">
             <source [src]="storageUrl + '/custom-pages/Tutorial.mp4'" type="video/mp4">
         </video>
     </div>
     <p class="lead">There are 3 steps to create your video:</p>
     <ol class="list-group list-group-numbered mb-3">
         <li class="list-group-item">Use <a [routerLink]="['/contentBrowser']"><i class="bi bi-search"></i>Content
-                Browser</a> to browse our content collections. This allows you to see if we have desirable content with
-            no obligation to sign up.</li>
+                Browser</a> to browse our content collections. This allows you to see if we have desirable content.</li>
         <li class="list-group-item">Use <a [routerLink]="['/clipBuilder']"><i class="bi bi-stack"></i>Clip Builder</a>
-            to customise, combine and create transitions from our content collections to create your unique clips. Login
-            required in order to save your changes.</li>
+            to customise, combine and create transitions from our content collections to create your unique clips.</li>
         <li class="list-group-item">Use <a [routerLink]="['/musicVideoBuilder']"><i class="bi bi-hammer"></i>Music Video
-                Builder</a> to combine your clips with your music file to create your video. Login required in order to
-            save your changes.</li>
+                Builder</a> to combine your clips with your music file to create your video.</li>
     </ol>
     <h4>Examples</h4>
     <p>The first example shows what is possible using just one collection. The second shows multiple collections in
         action.</p>
     <div class="row mb-3">
         <div class="col text-center">
-            <video width="384" height="216" controls [poster]="storageUrl + '/custom-pages/384x216VideoPoster.png'" preload="none">
+            <video width="384" height="216" controls [poster]="storageUrl + '/custom-pages/384x216VideoPoster.png'"
+                preload="none">
                 <source [src]="storageUrl + '/custom-pages/1-Collection.mp4'" type="video/mp4">
             </video>
         </div>
         <div class="col text-center">
-            <video width="384" height="216" controls [poster]="storageUrl + '/custom-pages/384x216VideoPoster.png'" preload="none">
+            <video width="384" height="216" controls [poster]="storageUrl + '/custom-pages/384x216VideoPoster.png'"
+                preload="none">
                 <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
             </video>
         </div>

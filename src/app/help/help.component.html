@@ -2,7 +2,8 @@
 <div class="container">
     <h1><i class="text-primary bi bi-question-circle-fill"></i> Help</h1>
     <p class="lead">Help and support for issues that you may encounter.</p>
-    <p>Below are our frequently asked question.  If you still can't find the answers you are looking for then please <a href="mailto:info@musicvideobuilder.com"><i class="bi bi-envelope-fill"></i>Email us.</a></p>
+    <p>Below are our frequently asked question. If you still can't find the answers you are looking for then please <a
+            href="mailto:info@musicvideobuilder.com"><i class="bi bi-envelope-fill"></i>Email us.</a></p>
     <app-pageloading [pageLoading]="pageLoading"></app-pageloading>
     <div ngbAccordion *ngIf="!pageLoading">
         <div ngbAccordionItem>
@@ -12,23 +13,29 @@
             <div ngbAccordionCollapse>
                 <div ngbAccordionBody>
                     <ng-template>
-                        <p><a href="mailto:info@musicvideobuilder.com"><i class="bi bi-envelope-fill"></i>Email us</a> immediately.  It can be hard to test every permutation, we will try to fix as quickly as possible and are sorry!</p>
+                        <p><a href="mailto:info@musicvideobuilder.com"><i class="bi bi-envelope-fill"></i>Email us</a>.
+                            It can be hard to test every permutation, we will try to fix but as this is a free project I
+                            can't garuntee a quick turn around.</p>
                     </ng-template>
                 </div>
             </div>
         </div>
         <div ngbAccordionItem>
             <h2 ngbAccordionHeader>
-                <button ngbAccordionButton>The playback seems jerky and the colour pickers don't do anything.  Is this expected?</button>
+                <button ngbAccordionButton>The playback seems jerky and the colour pickers don't do anything. Is this
+                    expected?</button>
             </h2>
             <div ngbAccordionCollapse>
                 <div ngbAccordionBody>
                     <ng-template>
-                        <p>This website was developed on chrome and has been checked on edge and firefox.  If your browesr is up to date and you are still seeing issues then please <a href="mailto:info@musicvideobuilder.com"><i class="bi bi-envelope-fill"></i>Email us.</a></p>
+                        <p>This website was developed on chrome and has been checked on edge and firefox. If your
+                            browser is up to date and you are still seeing issues then please <a
+                                href="mailto:info@musicvideobuilder.com"><i class="bi bi-envelope-fill"></i>Email
+                                us.</a></p>
                     </ng-template>
                 </div>
             </div>
-        </div> 
+        </div>
         <div ngbAccordionItem>
             <h2 ngbAccordionHeader>
                 <button ngbAccordionButton>What are the choices of resolution?</button>
@@ -40,7 +47,7 @@
                     </ng-template>
                 </div>
             </div>
-        </div> 
+        </div>
         <div ngbAccordionItem>
             <h2 ngbAccordionHeader>
                 <button ngbAccordionButton>What is the output framerate?</button>
@@ -48,35 +55,14 @@
             <div ngbAccordionCollapse>
                 <div ngbAccordionBody>
                     <ng-template>
-                        <p>The frame rate will be 24 frames per second.  As the videos are synced up to the right bpm then there is no need for a higher framerate.</p>
+                        <p>The frame rate will be 24 frames per second. As the videos are synced up to the right bpm
+                            then there is no need for a higher framerate. You can always fiddle with the last ffmpeg
+                            command but there are limitations due to the number of files at slower bpms which would
+                            result in duplicate frames.</p>
                     </ng-template>
                 </div>
             </div>
         </div>
-        <div ngbAccordionItem>
-            <h2 ngbAccordionHeader>
-                <button ngbAccordionButton>How long are my video files kept?</button>
-            </h2>
-            <div ngbAccordionCollapse>
-                <div ngbAccordionBody>
-                    <ng-template>
-                        <p>Video files will be kept for 7 days before automatic deletion.</p>
-                    </ng-template>
-                </div>
-            </div>
-        </div>
-        <div ngbAccordionItem>
-            <h2 ngbAccordionHeader>
-                <button ngbAccordionButton>How may videos can I make?</button>
-            </h2>
-            <div ngbAccordionCollapse>
-                <div ngbAccordionBody>
-                    <ng-template>
-                        <p>You can only be building 2 videos at one time however this will not stop you from editing a building video.  This is done deliberately to stop spamming the build process.</p>
-                    </ng-template>
-                </div>
-            </div>
-        </div> 
         <div ngbAccordionItem>
             <h2 ngbAccordionHeader>
                 <button ngbAccordionButton>What limitations are there on audio?</button>
@@ -84,21 +70,10 @@
             <div ngbAccordionCollapse>
                 <div ngbAccordionBody>
                     <ng-template>
-                        <p>Audio must be compatible with the browser so mp3 is a format that will work more universally.  There is a 40MB limit for the sake of upload time when it comes to building your video.</p>
-                        <p>Understandably if you wish to have high quality audio then make the video with an mp3 version then you can replace the audio easily yourself with video editing software or with ffmpeg using this commad:</p>
-                        <pre><code>ffmpeg -i /path/to/video/file.mp4 -i /path/to/audio/file.wav -acodec copy -vcodec copy -map 0:v:0 -map 1:a:0 combined_file.mp4</code></pre>
-                    </ng-template>
-                </div>
-            </div>
-        </div>
-        <div ngbAccordionItem>
-            <h2 ngbAccordionHeader>
-                <button ngbAccordionButton>What is the video length limit?</button>
-            </h2>
-            <div ngbAccordionCollapse>
-                <div ngbAccordionBody>
-                    <ng-template>
-                        <p>There is a 15 minute limit to videos.  Most songs are not longer than this.   If you are determined to get past this limit then build across multiple videos and stick the videos together afterwards in a video editor.</p>
+                        <p>Audio must be compatible with the browser so mp3 is a format that will work more universally.
+                        </p>
+                        <p>Understandably if you wish to have high quality audio then change the last ffmpeg command
+                            where it has audio.mp3 to your better quality audio file.</p>
                     </ng-template>
                 </div>
             </div>
@@ -110,7 +85,8 @@
             <div ngbAccordionCollapse>
                 <div ngbAccordionBody>
                     <ng-template>
-                        <p>We would love to hear your feedback and we'll see what we can do <a href="mailto:info@musicvideobuilder.com"><i class="bi bi-envelope-fill"></i></a></p>
+                        <p>We would love to hear your feedback and we'll see what we can do <a
+                                href="mailto:info@musicvideobuilder.com"><i class="bi bi-envelope-fill"></i></a></p>
                     </ng-template>
                 </div>
             </div>
@@ -122,10 +98,25 @@
             <div ngbAccordionCollapse>
                 <div ngbAccordionBody>
                     <ng-template>
-                        <p>Set the BPM to 90 and put your clips one after the other and that will garuntee you get all frames.</p>
+                        <p>Set the BPM to 90 and put your clips one after the other and then the first ffmpeg commands
+                            will generate your clips.</p>
                     </ng-template>
                 </div>
             </div>
-        </div>          
+        </div>
+        <div ngbAccordionItem>
+            <h2 ngbAccordionHeader>
+                <button ngbAccordionButton>Can I add in my own content like a dj logo or something.</button>
+            </h2>
+            <div ngbAccordionCollapse>
+                <div ngbAccordionBody>
+                    <ng-template>
+                        <p>For an image then using the ffmpeg command overlay you can add to your clips or entire video.
+                            For anything more elaborate then video editors or getting to know fffmpeg better will solve.
+                        </p>
+                    </ng-template>
+                </div>
+            </div>
+        </div>
     </div>
 </div>

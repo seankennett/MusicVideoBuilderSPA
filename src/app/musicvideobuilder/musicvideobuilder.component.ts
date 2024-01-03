@@ -1,12 +1,11 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { AbstractControl, UntypedFormArray, UntypedFormBuilder, UntypedFormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
+import { UntypedFormBuilder, Validators } from '@angular/forms';
 import { ClipService } from '../clip.service';
 import { Formats } from '../formats';
 import { Video } from '../video';
 import { Clip } from '../clip';
 import { VideoService } from '../video.service';
-import { catchError, throwError, timer } from 'rxjs';
-import { HttpErrorResponse } from '@angular/common/http';
+import { timer } from 'rxjs';
 import { DatePipe, Location } from '@angular/common';
 import { VideoplayerComponent } from '../videoplayer/videoplayer.component';
 import { Resolution } from '../resolution';
@@ -15,7 +14,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { NgbModal, NgbNavChangeEvent } from '@ng-bootstrap/ng-bootstrap';
 import { environment } from 'src/environments/environment';
 import { ToastService } from '../toast.service';
-import { Videobuildrequest } from '../videobuildrequest';
 import { CollectionService } from '../collection.service';
 import { Collection } from '../collection';
 import { Videoclip } from '../videoclip';
@@ -87,7 +85,7 @@ export class MusicVideoBuilderComponent implements OnInit {
 
   Formats = Formats;
   resolutionList = [{
-    displayName: 'Free (384x216)',
+    displayName: 'Test (384x216)',
     resolution: Resolution.Free
   }, {
     displayName: 'HD (1920x1080)',
@@ -213,7 +211,7 @@ export class MusicVideoBuilderComponent implements OnInit {
     formatControl: this.formatControl,
     videoDelayMillisecondsControl: this.videoDelayMillisecondsControl,
     videoClipsFormArray: this.videoClipsFormArray
-  }, { validators: videoLengthValidator(() => this.clips) })
+  })
 
   resolutionControl = this.formBuilder.control(Resolution.Free, [Validators.required]);
   builderForm = this.formBuilder.group({
@@ -383,7 +381,7 @@ export class MusicVideoBuilderComponent implements OnInit {
   }
 
   canAddVideo = () => {
-    return this.clips && this.clips.length > 0 && this.videos.length < 2;
+    return this.clips && this.clips.length > 0;
   }
 
   canAddVideoTooltip = () => {
@@ -740,28 +738,5 @@ export class MusicVideoBuilderComponent implements OnInit {
       saveAs(content, that.editorVideo.videoName + ".zip");
       that.isWaitingForCreate = false;
     });
-  }
-}
-
-const maximumVideoLengthMinutes = 15
-export function videoLengthValidator(getClips: (() => Clip[])): ValidatorFn {
-  return (control: AbstractControl): ValidationErrors | null => {
-    var formGroup = control as UntypedFormGroup;
-    var bpmControl = formGroup.get('bpmControl');
-    if (!bpmControl || bpmControl.invalid) {
-      return { noBpm: true };
-    }
-
-    var videoClipsFormArray = formGroup.get('videoClipsFormArray') as UntypedFormArray;
-    if (!videoClipsFormArray || videoClipsFormArray.invalid) {
-      return { noClips: true };
-    }
-
-    var totalAllowedBeats = maximumVideoLengthMinutes * bpmControl.value;
-    if (totalAllowedBeats < videoClipsFormArray.controls.map(vc => getClips().find(c => c.clipId === vc.value.clipId)?.beatLength ?? 0).reduce((a, c) => a + c, 0)) {
-      return { videoTooLong: maximumVideoLengthMinutes }
-    }
-
-    return null;
   }
 }

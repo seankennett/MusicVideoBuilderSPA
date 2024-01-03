@@ -1,13 +1,9 @@
-import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
-import { catchError, throwError } from 'rxjs';
-import { Buildstatus } from '../buildstatus';
 import { Clip } from '../clip';
 import { ClipService } from '../clip.service';
 import { Formats } from '../formats';
 import { Video } from '../video';
 import { VideoService } from '../video.service';
-import { Resolution } from '../resolution';
 import { CollectionService } from '../collection.service';
 import { Collection } from '../collection';
 
@@ -51,22 +47,6 @@ export class MyLibraryComponent implements OnInit {
   pageLoading = true;
 
   loading = false;
-
-  getFormattedDateTime = (date: Date) => {
-    var date = new Date(date);
-    return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
-  }
-
-  displayResolution = (resolution: Resolution) => {
-    switch (resolution) {
-      case Resolution.FourK:
-        return '4K';
-      case Resolution.Hd:
-        return 'HD';
-      default:
-        return 'Free'
-    }
-  }
 
   removeVideo = (videoRoute: { video: Video, tab: number }) => {
     this.loading = true;

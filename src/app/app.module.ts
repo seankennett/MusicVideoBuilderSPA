@@ -23,8 +23,6 @@ import { NotfoundComponent } from './notfound/notfound.component';
 import { PageloadingComponent } from './pageloading/pageloading.component';
 import { ToastsComponent } from './toasts/toasts.component';
 import { ErrorhandlerInterceptor } from './errorhandler.interceptor';
-import { environment } from 'src/environments/environment';
-import { ConfirmationComponent } from './confirmation/confirmation.component';
 import { CollectionsearchComponent } from './collectionsearch/collectionsearch.component';
 import { DisplayComponent } from './display/display.component';
 import { ColourpickerComponent } from './colourpicker/colourpicker.component';
@@ -52,7 +50,6 @@ import { ResolutioninfoComponent } from './resolutioninfo/resolutioninfo.compone
     NotfoundComponent,
     PageloadingComponent,
     ToastsComponent,
-    ConfirmationComponent,
     CollectionsearchComponent,
     DisplayComponent,
     ColourpickerComponent,
