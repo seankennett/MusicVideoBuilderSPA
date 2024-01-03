@@ -462,7 +462,8 @@
                             <div>
                                 <h3>Build Video</h3>
                                 <div class="mb-3">
-                                    <p>Use the options below to determine the resolution you want. You will download a zip file containing the images and ffmpeg codes you need to build your video on your machine.</p>
+                                    <p>Use the option below to determine the resolution you want. You will then have buttons to generate ffmpeg code needed for your video and links to image assets.</p>
+                                    <p>You will need to extract everything to a directory with correct nesting in order for this to work.  Ffmpeg errors nicely in order to tell you what's wrong.</p>
                                 </div>
                                 <div class="row">
                                     <div class="mb-3 col">
@@ -484,14 +485,27 @@
                                             don't want audio then please continue otherwise add above.
                                         </ngb-alert>
                                     </div>
-                                    <button type="button" class="btn btn-primary" (click)="createFreeVideo()"
+                                    <div class="mb-3" *ngIf="this.audioFileService.file">
+                                        <p>Audio file renamed to match ffmpeg codes.  You can just rename your mp3 file to audio.mp3</p>
+                                        <button type="button" class="btn btn-primary" (click)="downloadAudio()"
+                                        [disabled]="isWaitingForCreate">
+                                        <i class="bi bi-download"></i> 
+                                        Audio
+                                    </button>
+                                    </div>
+                                    <div class="mb-3">
+                                        <p>Generate ffmpeg code.  All the codes and concat files necessary to build your video with ffmpeg.</p>
+                                        <button type="button" class="btn btn-primary" (click)="createFreeVideo()"
                                         [disabled]="isWaitingForCreate">
                                         <i class="bi bi-hammer ms-1"></i>
-                                        Create
-                                        Video
-                                        <span class="spinner-border spinner-border-sm ms-1" role="status"
-                                            aria-hidden="true" *ngIf="isWaitingForCreate"></span>
+                                        Ffmpeg Codes<span class="spinner-border spinner-border-sm ms-1" role="status"
+                                        aria-hidden="true" *ngIf="isWaitingForCreate"></span>
                                     </button>
+                                    </div>
+                                    <p>Layer images.  Assets to use in conjunction with ffmpeg codes.</p>
+                                    <ul *ngFor="let displayLayer of videoDisplayLayers" class="mb-3 list-group">                                        
+                                        <a *ngFor="let layer of displayLayer.layers" [href]="layerLink(layer, resolutionControl.value)" class="list-group-item list-group-item-action"><i class="bi bi-download text-primary"></i> {{layer.layerId}}.zip</a>
+                                    </ul>
                                 </div>
                             </div>
                         </ng-template>

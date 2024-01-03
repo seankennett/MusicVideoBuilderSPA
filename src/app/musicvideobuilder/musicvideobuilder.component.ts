@@ -27,6 +27,7 @@ import { ResolutionmodalComponent } from '../resolutionmodal/resolutionmodal.com
 import * as JSZip from 'jszip';
 import * as saveAs from 'file-saver';
 import { FfmpegService } from '../ffmpeg.service';
+import { Layer } from '../layer';
 
 const millisecondsInSecond = 1000;
 const secondsInMinute = 60;
@@ -709,63 +710,36 @@ export class MusicVideoBuilderComponent implements OnInit {
 
   createFreeVideo = () => {
     if (this.audioFileService.file !== null) {
+      this.createZip();
+    } else {
+      this.modalService.open(AudiomodalComponent, { centered: true }).closed.subscribe(x => {
         this.createZip();
-      } else {
-        this.modalService.open(AudiomodalComponent, { centered: true }).closed.subscribe(x => {
-          this.createZip();
-        });
-      }
+      });
+    }
   }
 
-  private createZip = () =>{
+  downloadAudio = () => {
+    saveAs(this.audioFileService.file as Blob, 'audio.mp3');
+  }
+
+  layerLink = (layer: Layer, resolution: Resolution) =>{
+    return `${environment.storageUrl}/${layer.layerId}/${this.ffmpegService.resolutionToBlobPrefix(resolution)}/${layer.layerId}.zip`;
+  }
+
+  private createZip = async () => {
+    this.isWaitingForCreate = true;
     var zip = new JSZip();
-    if (this.audioFileService.file !== null) {
-      zip.file('audio.mp3', this.audioFileService.file);
-    }
-
     var resolution = this.resolutionControl.value;
-    var resolutionBlobPrefix = this.ffmpegService.resolutionToBlobPrefix(resolution);
-
     var uniqueEditorVideoClipsFull = Object.values<Clip>(this.editorVideoClipsFull.reduce((acc, obj) => ({ ...acc, [obj.clipId]: obj }), {}));
     var ffmpegCodes = this.ffmpegService.generateCodes(this.editorVideo, uniqueEditorVideoClipsFull, resolution, this.audioFileService.file !== null, this.videoDisplayLayers);
     zip.file('ffmpegCodes.txt', ffmpegCodes.ffmpegCodes);
     zip.file(`${this.ffmpegService.AllFramesVideoName}.txt`, ffmpegCodes.concatFileCode);
-
-    let imageDownloadPromises:Promise<unknown>[] = [];
-    this.videoDisplayLayers.forEach(d => d.layers.forEach(l => {
-      var layerResolutionFolder = zip.folder(l.layerId)?.folder(resolutionBlobPrefix);
-      for (let i = 1; i <= frameTotal; i++){
-        var imageDownloadPromise = new Promise((resolve, reject) =>{
-          fetch(environment.storageUrl + '/' + l.layerId + '/' + resolutionBlobPrefix + '/' + i + '.png').then(r => {
-            if (r.status === 200){
-              r.blob().then(b => {
-                layerResolutionFolder?.file(i + '.png', b);
-                resolve('');
-              });              
-            }else{
-              reject('')
-            }
-          },
-          e =>{
-            reject('')
-          })
-        });
-        imageDownloadPromises.push(imageDownloadPromise);
-      }
-    }));
-
     var that = this;
-    Promise.all(imageDownloadPromises).catch(x => {
-      that.toastService.show('Problem downloading images. Try again.', that.router.url);
-    }).then(async x => {
-        await zip.generateAsync({ type: "blob" }).then(function (content) {
-          // see FileSaver.js
-          saveAs(content, that.editorVideo.videoName + ".zip");
-        },
-        function (reject) {
-          that.toastService.show('Problem downloading images. Try again.', that.router.url);
-        })
-      });    
+    await zip.generateAsync({ type: "blob" }).then(function (content) {
+      // see FileSaver.js
+      saveAs(content, that.editorVideo.videoName + ".zip");
+      that.isWaitingForCreate = false;
+    });
   }
 }
 
